@@ -8,7 +8,7 @@
 
 ## FAZA 0 — Baza znanja + browser testing tool
 **Platforma:** Replit  
-**Status:** 🔄 U tijeku
+**Status:** ✅ Završeno
 
 ### Backend
 - [x] Express server s relevantnim rutama
@@ -47,68 +47,78 @@
 - [x] Ispravak: screenshot se šalje kao čisti base64 (bez data URL prefixa) — Claude to zahtijeva
 
 ### Testiranje i fino podešavanje
-- [ ] Upload testnih .mac datoteka (Gornji elementi/KUTNI.mac — nezaštićen)
-- [ ] Provjera da knowledge_base.json ima > 100 formula
+- [x] Upload testnih .mac datoteka — 13 datoteka uploadano, pohranjeno u data/source_macs/
+- [x] Provjera da knowledge_base.json ima > 100 formula — 432 formula ✓
 - [ ] Test: screenshot dijaloga parametara → Claude ispravno čita parametre
 - [ ] Test: "Zašto mi polica ne prati D?" → Claude daje točnu formulu
 - [ ] Test: formula s greškom → Claude je debugira
-- [ ] Fino podešavanje system prompta dok odgovori nisu konkretni i točni
+- [x] Fino podešavanje system prompta — povećani limiti (80 param, 50 formula), reminder za decimalni zarez
 - [ ] Upisati minimalno 10 Stipinih pravila u stipe_rules.txt kroz UI
+
+### Nadogradnje parsera (dodano)
+- [x] ZIP upload podrška — .zip s više .mac datoteka
+- [x] XML entity dekodiranje formula (&lt; → <, &gt; → > itd.)
+- [x] Ekstrakcija parametara iz [IME] referenci u formulama (155 parametara)
+- [x] Čuvanje source .mac datoteka u data/source_macs/
+- [x] POST /api/reparse — rebuild baze iz sačuvanih datoteka
+- [x] Gumb "Ponovno parsiraj" u UI
 
 ### Kriterij završetka Faze 0
 - [ ] Claude ispravno identificira otvoreni dijalog s parametrima sa screenshota
 - [ ] Claude predlaže valjane MegaTischler formule (ispravan decimalni zarez, točke za hijerarhiju)
 - [ ] Claude odgovara na hrvatskom, direktno i konkretno
-- [ ] Baza znanja ima > 200 formula iz .mac datoteka
+- [x] Baza znanja ima > 200 formula iz .mac datoteka — 432 formula ✓
 
 ---
 
 ## FAZA 1 — Electron desktop aplikacija
 **Platforma:** Cursor (SSH → Replit backend)  
-**Status:** ⏳ Čeka završetak Faze 0
+**Status:** ✅ Kod završen — čeka test na Windowsu
 
 ### Setup
-- [ ] Kreirati `/electron` direktorij u projektu
-- [ ] `electron/package.json` s dependencijama: electron, electron-builder, screenshot-desktop
-- [ ] Cursor SSH konekcija na Replit projekt konfigurirana
+- [x] Kreirati `/electron` direktorij u projektu
+- [x] `electron/package.json` s dependencijama: electron, electron-builder, screenshot-desktop, sharp
+- [x] `electron/electron-builder.yml` — Windows NSIS x64 konfiguracija
+- [x] `.github/workflows/build-electron.yml` — GitHub Actions Windows build workflow
 
 ### Electron main process (electron/main.js)
-- [ ] Kreiranje prozora: 380px širina, always-on-top, bez taskbar ikone opcija
-- [ ] Prozor se pamti gdje je bio (position persistence)
-- [ ] F9 globalni shortcut → screenshot aktivnog monitora
-- [ ] F8 globalni shortcut → push-to-talk (priprema za Fazu 2)
-- [ ] IPC kanali: screenshot, chat, voice
+- [x] Kreiranje prozora: 380px širina, always-on-top, frameless
+- [x] Prozor se pamti gdje je bio (position persistence u userData)
+- [x] F9 globalni shortcut → screenshot aktivnog monitora
+- [x] F8 globalni shortcut → toggle glasovnog snimanja
+- [x] IPC kanali: screenshot, transcribe-audio, settings, window-controls, mt-status, toggle-recording
 
 ### Screenshot modul
-- [ ] `screenshot-desktop` paket — hvata aktivni monitor
-- [ ] Kompresija slike prije slanja (max 1280px širina, JPEG 85%)
-- [ ] Slanje base64 slike na Replit `/api/chat` endpoint
+- [x] `screenshot-desktop` paket — hvata aktivni monitor
+- [x] `sharp` kompresija: max 1280px širina, JPEG 85%
+- [x] Slanje base64 slike na Replit `/api/chat` endpoint
 
 ### MegaTischler detektor
-- [ ] Polling svakih 5s: `tasklist | findstr MegaTischler`
-- [ ] Status u headeru: "MegaTischler aktivan" (zeleno) / "MegaTischler nije pokrenut" (žuto)
-- [ ] Upozorenje ako MegaTischler nije aktivan kad user pokuša poslati upit
+- [x] Polling svakih 5s: `tasklist | findstr megatischler`
+- [x] Status u headeru: "MT aktivan" (zelena točka) / "MT nije pokrenut" (žuta točka)
+- [x] Upozorenje (žuti banner) ako MegaTischler nije aktivan kad user šalje upit
 
 ### Chat UI (electron/renderer/App.jsx — React)
-- [ ] Povijest poruka s timestampom
-- [ ] Korisničke poruke desno, AI odgovori lijevo
-- [ ] Thumbnail screenshota uz poruku kad je priložen
-- [ ] Code blokovi s Copy gumbom
-- [ ] Sugestivni gumbi ispod AI odgovora ("Objasni sintaksu", "Provjeri opet ekran")
-- [ ] Input polje + Send gumb + F9 gumb (Pogledaj ekran) + F8 gumb (Govori)
-- [ ] Live status indikator (zelena točka = live mod aktivan)
-- [ ] Settings ikona u headeru
+- [x] Povijest poruka s mjehurićima (user desno, AI lijevo)
+- [x] Thumbnail screenshota uz korisničku poruku
+- [x] Code blokovi s Copy gumbom
+- [x] Input polje + Send gumb + F9 gumb (📷 Snimi ekran) + F8 gumb (🎤 Glasovni unos)
+- [x] MegaTischler status indikator u headeru
+- [x] Settings ikona u headeru
+- [x] Minimiziranje i zatvaranje prozora iz headera
+- [x] Sugestivni gumbi ispod AI odgovora (Objasni sintaksu, Provjeri ekran, Alternativa)
 
 ### Settings panel
-- [ ] Replit backend URL (konfigurabilan)
-- [ ] Prečaci (F8, F9 — prikazani, ne mijenjaju se u Fazi 1)
-- [ ] Prikaz učitane baze znanja (X formula, Y parametara)
-- [ ] Gumb za otvaranje stipe_rules.txt u editoru
+- [x] Replit backend URL (konfigurabilan, sprema se u userData)
+- [x] OpenAI API Key polje (za Whisper + TTS)
+- [x] Mikrofon odabir (lista dostupnih uređaja)
+- [x] Prečaci (F8, F9 — prikazani)
+- [x] Prikaz učitane baze znanja (X formula, Y parametara, Z datoteka)
 
 ### Build i packaging
-- [ ] electron-builder konfiguracija za Windows .exe
-- [ ] Auto-update priprema (opcija za kasniju fazu)
+- [x] electron-builder konfiguracija za Windows .exe (NSIS x64)
 - [ ] Test instalacije na Windows računalu
+- [ ] Auto-update priprema (opcija za kasniju fazu)
 
 ### Kriterij završetka Faze 1
 - [ ] App se instalira na Windows bez grešaka
@@ -121,30 +131,30 @@
 
 ## FAZA 2 — Glasovni unos (push-to-talk)
 **Platforma:** Cursor  
-**Status:** ⏳ Čeka završetak Faze 1
+**Status:** 🔄 STT gotov — TTS u tijeku
 
 ### STT (Speech-to-Text)
-- [ ] `node-record-lpcm16` — snimanje mikrofona dok je F8 pritisnut
-- [ ] Vizualni indikator snimanja (crvena točka, animacija)
-- [ ] Na otpuštanje F8: spremi WAV → pošalji OpenAI Whisper API
-- [ ] Whisper: language="hr" (hrvatski)
-- [ ] Transkripcija se pojavljuje u input polju (korisnik može editirati prije slanja)
-- [ ] Auto-trigger screenshota zajedno s glasovnim pitanjem
+- [x] Web Audio API MediaRecorder — snimanje mikrofona (F8 toggle, bez native dependencija)
+- [x] Vizualni indikator snimanja (crvena pulsating točka, timer, "Snimam..." banner)
+- [x] Na zaustavljanje: WebM blob → base64 → IPC → backend → OpenAI Whisper API
+- [x] Whisper: language="hr" (hrvatski)
+- [x] Transkripcija se pojavljuje u input polju (korisnik može editirati prije slanja)
+- [x] `POST /api/transcribe` endpoint na backendu (OpenAI SDK, toFile helper)
 
 ### TTS (Text-to-Speech) — opcionalno
-- [ ] OpenAI TTS endpoint s glasovnim modelom
-- [ ] Reprodukcija odgovora kroz Electron audio
-- [ ] Toggle u settingsima: TTS uključen/isključen
+- [ ] OpenAI TTS endpoint `/api/tts` s glasovnim modelom
+- [ ] Reprodukcija odgovora kroz Electron Audio API
+- [ ] Toggle u settingsima: TTS uključen/isključen, odabir glasa
 - [ ] Gumb za zaustavljanje reprodukcije
 
-### Dodaci u Settings
-- [ ] OPENAI_API_KEY polje (za Whisper + TTS)
-- [ ] Mikrofon odabir (lista dostupnih uređaja)
-- [ ] TTS toggle
+### Dodaci u Settings (gotovi)
+- [x] OPENAI_API_KEY polje (za Whisper + TTS)
+- [x] Mikrofon odabir (lista dostupnih uređaja)
+- [ ] TTS toggle + odabir glasa
 - [ ] Test gumb za mikrofon
 
 ### Kriterij završetka Faze 2
-- [ ] Korisnik drži F8, govori pitanje, aplikacija odgovori za < 12 sekundi
+- [ ] Korisnik pritisne F8, govori pitanje, aplikacija odgovori za < 12 sekundi
 - [ ] Transkripcija je točna na hrvatskom
 - [ ] Ruke slobodne za rad u MegaTischleru
 

@@ -50,6 +50,20 @@ FORMULA_TAGS = [
 ALL_TAGS = PARAM_TAGS + FORMULA_TAGS + ["Value", "Condition"]
 
 
+def unescape_xml(text):
+    """Decode XML entities. &amp; must be decoded last."""
+    if not text:
+        return text
+    return (
+        text.replace('&lt;', '<')
+            .replace('&gt;', '>')
+            .replace('&quot;', '"')
+            .replace('&apos;', "'")
+            .replace('&#39;', "'")
+            .replace('&amp;', '&')
+    )
+
+
 def extract_all_blocks(content):
     """Extract XML blocks for all relevant tag types."""
     blocks = []
@@ -77,21 +91,21 @@ def extract_all_blocks(content):
 
 
 def get_attr(block, attr):
-    """Extract attribute value from XML block."""
+    """Extract attribute value from XML block (XML entities decoded)."""
     m = re.search(rf'\b{attr}="([^"]*)"', block, re.IGNORECASE)
     if m:
-        return m.group(1).strip()
+        return unescape_xml(m.group(1).strip())
     m = re.search(rf"\b{attr}='([^']*)'", block, re.IGNORECASE)
     if m:
-        return m.group(1).strip()
+        return unescape_xml(m.group(1).strip())
     return None
 
 
 def get_inner(block, tag):
-    """Extract inner text of a child tag."""
+    """Extract inner text of a child tag (XML entities decoded)."""
     m = re.search(rf'<{tag}[^>]*>(.*?)</{tag}>', block, re.DOTALL | re.IGNORECASE)
     if m:
-        return m.group(1).strip()
+        return unescape_xml(m.group(1).strip())
     return None
 
 
@@ -173,13 +187,39 @@ def parse_mac_file(filepath):
             re.IGNORECASE,
         )
         for f in raw_formulas:
+            f = unescape_xml(f)
             if is_formula(f):
                 formulas.append({'formula': f.strip(), 'source': source})
 
-        # Sweep for Name+Value pairs in any tag
-        for m in re.finditer(r'Name="([^"]+)"[^>]*Value="([^"]+)"', content, re.IGNORECASE):
-            n, v = m.group(1).strip(), m.group(2).strip()
-            if n and not is_formula(v) and v:
+        # Sweep for name+value attribute pairs in any tag (any order, various attr names)
+        name_attrs = r'(?:Name|VarName|Ident|ParName|ID)'
+        for m in re.finditer(
+            rf'<\w+[^>]*\b{name_attrs}="([^"]+)"[^>]*\bValue="([^"]*)"', content, re.IGNORECASE
+        ):
+            n, v = unescape_xml(m.group(1).strip()), unescape_xml(m.group(2).strip())
+            if n and v and not is_formula(v):
+                if n not in params_map:
+                    params_map[n] = {'name': n, 'description': '', 'typical_values': []}
+                if v not in params_map[n]['typical_values']:
+                    params_map[n]['typical_values'].append(v)
+
+        # Same sweep with reversed attribute order (Value before Name)
+        for m in re.finditer(
+            rf'<\w+[^>]*\bValue="([^"]*)"[^>]*\b{name_attrs}="([^"]+)"', content, re.IGNORECASE
+        ):
+            v, n = unescape_xml(m.group(1).strip()), unescape_xml(m.group(2).strip())
+            if n and v and not is_formula(v):
+                if n not in params_map:
+                    params_map[n] = {'name': n, 'description': '', 'typical_values': []}
+                if v not in params_map[n]['typical_values']:
+                    params_map[n]['typical_values'].append(v)
+
+        # Child-tag style: <ParFloat><Name>X</Name><Value>5</Value></ParFloat>
+        for m in re.finditer(
+            r'<Name>([^<]+)</Name>\s*<Value>([^<]*)</Value>', content, re.IGNORECASE
+        ):
+            n, v = unescape_xml(m.group(1).strip()), unescape_xml(m.group(2).strip())
+            if n and v and not is_formula(v):
                 if n not in params_map:
                     params_map[n] = {'name': n, 'description': '', 'typical_values': []}
                 if v not in params_map[n]['typical_values']:
@@ -202,6 +242,38 @@ def parse_mac_file(filepath):
         p['typical_values'] = p['typical_values'][:10]
 
     return unique, list(params_map.values())
+
+
+def derive_params_from_formulas(kb):
+    """Extract parameter names referenced in formulas ([W], [.GLU], [...Child.Sub.W])
+    and add any that aren't already in the parameter catalog, sorted by frequency."""
+    freq = defaultdict(int)
+    for f in kb.get('formulas', []):
+        # Matches [W], [.W], [....W], [...PoliceP.Polica.W] — take the LAST segment as param name
+        for m in re.finditer(r'\[\.{0,4}([A-Za-z0-9_\.]+)\]', f.get('formula', '')):
+            ref = m.group(1)
+            name = ref.split('.')[-1].strip()
+            if name and re.match(r'^[A-Za-z][A-Za-z0-9_]*$', name):
+                freq[name] += 1
+
+    existing_names = {p['name'] for p in kb.get('parameters', [])}
+    derived = []
+    for name, count in sorted(freq.items(), key=lambda x: -x[1]):
+        if name not in existing_names:
+            derived.append({
+                'name': name,
+                'description': f'koristi se u {count} formula',
+                'typical_values': [],
+            })
+
+    kb.setdefault('parameters', []).extend(derived)
+
+    # Sort whole catalog: defined params (with values) first, then derived by frequency
+    def sort_key(p):
+        has_values = bool(p.get('typical_values'))
+        return (0 if has_values else 1, -freq.get(p['name'], 0))
+
+    kb['parameters'].sort(key=sort_key)
 
 
 def merge_into(existing, new_formulas, new_params):
@@ -272,12 +344,20 @@ if __name__ == '__main__':
         try:
             with open(args.output, 'r', encoding='utf-8') as f:
                 existing = json.load(f)
+            # Drop previously derived (formula-reference) params so they get recomputed
+            existing['parameters'] = [
+                p for p in existing.get('parameters', [])
+                if not p.get('description', '').startswith('koristi se u ')
+            ]
             merge_into(existing, result['formulas'], result['parameters'])
             existing.setdefault('syntax_rules', SYNTAX_RULES)
-            existing['_meta'] = result['_meta']
+            prev_files = existing.get('_meta', {}).get('files_processed', 0)
+            existing['_meta'] = {'files_processed': prev_files + result['_meta']['files_processed']}
             result = existing
         except Exception as e:
             print(f"Upozorenje: Ne mogu spojiti s postojećom bazom: {e}", file=sys.stderr)
+
+    derive_params_from_formulas(result)
 
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=2)

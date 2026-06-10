@@ -5,13 +5,12 @@ import {
   getGetKnowledgeQueryKey,
   useGetRules,
   useSaveRules,
-  useUploadMac
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Database, FileText, Loader2, Save, CheckCircle2 } from "lucide-react";
+import { Upload, Database, FileText, Loader2, Save, CheckCircle2, RefreshCw } from "lucide-react";
 
 export function KnowledgePanel() {
   const { toast } = useToast();
@@ -37,27 +36,30 @@ export function KnowledgePanel() {
     }
   });
 
-  const uploadMacMutation = useUploadMac({
-    mutation: {
-      onSuccess: (data: any) => {
-        if (data.success) {
-          toast({ 
-            title: "Upload uspješan",
-            description: `Pronađeno ${data.stats.formulaCount} formula, ${data.stats.parameterCount} parametara.`
-          });
-          queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
-        } else {
-          toast({ title: "Upload nije uspio", description: data.message || "Nepoznata greška", variant: "destructive" });
-        }
-      },
-      onError: (error: any) => {
-        toast({ title: "Upload nije uspio", description: error.message || "Nepoznata greška", variant: "destructive" });
-      },
-      onSettled: () => {
-        if (fileInputRef.current) fileInputRef.current.value = "";
+  const [isUploading, setIsUploading] = useState(false);
+  const [isReparsing, setIsReparsing] = useState(false);
+
+  const handleReparse = async () => {
+    setIsReparsing(true);
+    try {
+      const res = await fetch("/api/reparse", { method: "POST" });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast({
+          title: "Ponovno parsiranje uspješno",
+          description: `${data.stats.formulaCount} formula, ${data.stats.parameterCount} parametara.`,
+        });
+        queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
+      } else {
+        toast({ title: "Ponovno parsiranje nije uspjelo", description: data.error || "Nepoznata greška", variant: "destructive" });
       }
+    } catch (err: any) {
+      toast({ title: "Ponovno parsiranje nije uspjelo", description: err.message || "Greška mreže", variant: "destructive" });
+    } finally {
+      setIsReparsing(false);
     }
-  });
+  };
 
   useEffect(() => {
     if (rules?.content !== undefined) {
@@ -65,17 +67,41 @@ export function KnowledgePanel() {
     }
   }, [rules]);
 
-  const uploadFiles = useCallback((files: FileList | File[]) => {
+  const uploadFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
-    const macFiles = fileArray.filter(f => f.name.toLowerCase().endsWith(".mac"));
-    if (macFiles.length === 0) {
-      toast({ title: "Nema .mac datoteka", description: "Odaberi datoteke s ekstenzijom .mac", variant: "destructive" });
+    const validFiles = fileArray.filter(f => {
+      const name = f.name.toLowerCase();
+      return name.endsWith(".mac") || name.endsWith(".zip");
+    });
+    if (validFiles.length === 0) {
+      toast({ title: "Nema valjanih datoteka", description: "Odaberi .mac ili .zip datoteke", variant: "destructive" });
       return;
     }
-    const formData = new FormData();
-    macFiles.forEach(file => formData.append("files", file));
-    uploadMacMutation.mutate({ data: formData as any });
-  }, [uploadMacMutation, toast]);
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      validFiles.forEach(file => formData.append("files", file));
+
+      const res = await fetch("/api/upload-mac", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast({
+          title: "Upload uspješan",
+          description: `Pronađeno ${data.stats.formulaCount} formula, ${data.stats.parameterCount} parametara.`,
+        });
+        queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
+      } else {
+        toast({ title: "Upload nije uspio", description: data.error || data.message || "Nepoznata greška", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Upload nije uspio", description: err.message || "Greška mreže", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, [toast, queryClient]);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -98,7 +124,7 @@ export function KnowledgePanel() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    if (uploadMacMutation.isPending) return;
+    if (isUploading) return;
     const files = e.dataTransfer.files;
     if (files.length > 0) uploadFiles(files);
   };
@@ -114,9 +140,27 @@ export function KnowledgePanel() {
         <p className="text-xs text-muted-foreground mb-5">MegaTischler formule i parametri</p>
 
         <div className="rounded-md border border-border bg-card p-4">
-          <h3 className="font-medium flex items-center text-xs text-muted-foreground uppercase tracking-widest mb-3">
-            <Database className="w-3.5 h-3.5 mr-2 text-primary" />
-            Statistike
+          <h3 className="font-medium flex items-center justify-between text-xs text-muted-foreground uppercase tracking-widest mb-3">
+            <span className="flex items-center">
+              <Database className="w-3.5 h-3.5 mr-2 text-primary" />
+              Statistike
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleReparse}
+              disabled={isReparsing || isUploading}
+              className="h-6 text-[10px] px-2"
+              title="Ponovno parsiraj sve spremljene .mac datoteke najnovijim parserom"
+              data-testid="reparse-button"
+            >
+              {isReparsing ? (
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3 mr-1" />
+              )}
+              Ponovno parsiraj
+            </Button>
           </h3>
 
           {isLoadingKnowledge ? (
@@ -146,29 +190,29 @@ export function KnowledgePanel() {
       <div>
         <h3 className="font-medium mb-3 text-xs text-muted-foreground uppercase tracking-widest flex items-center">
           <FileText className="w-3.5 h-3.5 mr-2" />
-          Upload .mac datoteka
+          Upload .mac / .zip datoteka
         </h3>
         <div
           data-testid="mac-upload-zone"
           className={`border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center text-center transition-colors cursor-pointer
             ${isDragging ? "border-primary bg-primary/10" : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"}
-            ${uploadMacMutation.isPending ? "opacity-60 pointer-events-none" : ""}
+            ${isUploading ? "opacity-60 pointer-events-none" : ""}
           `}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => !uploadMacMutation.isPending && fileInputRef.current?.click()}
+          onClick={() => !isUploading && fileInputRef.current?.click()}
         >
-          {uploadMacMutation.isPending ? (
+          {isUploading ? (
             <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
           ) : (
             <Upload className={`w-8 h-8 mb-3 transition-colors ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
           )}
           <p className="text-sm font-medium mb-1">
-            {uploadMacMutation.isPending ? "Procesiranje..." : isDragging ? "Pusti datoteke ovdje" : "Povuci .mac datoteke ovdje"}
+            {isUploading ? "Procesiranje..." : isDragging ? "Pusti datoteke ovdje" : "Povuci .mac ili .zip datoteke ovdje"}
           </p>
           <p className="text-xs text-muted-foreground">
-            {uploadMacMutation.isPending ? "Ekstrakcija formula u tijeku..." : "ili klikni za odabir"}
+            {isUploading ? "Ekstrakcija formula u tijeku..." : "ili klikni za odabir · .zip može sadržavati više .mac datoteka"}
           </p>
           <input
             type="file"
@@ -176,7 +220,7 @@ export function KnowledgePanel() {
             onChange={handleFileInputChange}
             className="hidden"
             multiple
-            accept=".mac"
+            accept=".mac,.zip"
             data-testid="mac-file-input"
           />
         </div>

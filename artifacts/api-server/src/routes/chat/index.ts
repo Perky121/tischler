@@ -42,14 +42,19 @@ function buildSystemPrompt(kb: ReturnType<typeof readKnowledgeBase>, userRules: 
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
   const topParams = (kb.parameters ?? [])
-    .slice(0, 50)
+    .slice(0, 80)
     .map((p: { name: string; description: string; typical_values: string[] }) =>
       `${p.name}${p.description ? ` — ${p.description}` : ""}${p.typical_values?.length ? ` (tipično: ${p.typical_values.join(", ")})` : ""}`
     )
     .join("\n");
 
-  const topFormulas = (kb.formulas ?? [])
-    .slice(0, 30)
+  // Prefer formulas with hierarchical references ([.W], [....H] etc.) for richer examples
+  const allFormulas: Array<{ formula: string; source: string }> = kb.formulas ?? [];
+  const hierarchical = allFormulas.filter((f) => /\[\.*[A-ZŠĐŽČĆa-z]/.test(f.formula));
+  const rest = allFormulas.filter((f) => !/\[\.*[A-ZŠĐŽČĆa-z]/.test(f.formula));
+  const sortedFormulas = [...hierarchical, ...rest];
+  const topFormulas = sortedFormulas
+    .slice(0, 50)
     .map((f: { formula: string; source: string }) => `${f.formula}  [iz: ${f.source}]`)
     .join("\n");
 
@@ -58,7 +63,9 @@ function buildSystemPrompt(kb: ReturnType<typeof readKnowledgeBase>, userRules: 
 Korisnik je stručnjak za izradu namještaja koji zna sve o konstrukciji, ali treba pomoć pri pisanju MegaTischler formula.
 Uvijek odgovaraj na hrvatskom jeziku.
 Budi direktan i konkretan — daj točnu formulu koju treba upisati i objasni gdje je upisati.
-Kad vidiš screenshot, pažljivo pročitaj dijaloški okvir parametara — identificiraj imena parametara, trenutne vrijednosti i što korisnik pokušava postići.`,
+Kad vidiš screenshot, pažljivo pročitaj dijaloški okvir parametara — identificiraj imena parametara, trenutne vrijednosti i što korisnik pokušava postići.
+
+KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.`,
   ];
 
   if (syntaxRules) {

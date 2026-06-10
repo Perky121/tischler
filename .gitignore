@@ -28,6 +28,19 @@ node_modules
 !.vscode/extensions.json
 
 # misc
+
+# Electron build output
+electron/dist/
+electron/node_modules/
+
+# API server uploads (temp files)
+artifacts/api-server/uploads/
+
+# Large generated data (source .mac files stay local)
+artifacts/api-server/data/source_macs/
+
+# knowledge_base.json is generated — optionally track it
+# artifacts/api-server/data/knowledge_base.json
 /.sass-cache
 /connect.lock
 /coverage

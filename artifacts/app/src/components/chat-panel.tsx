@@ -7,29 +7,169 @@ import type { ChatMessage } from "@workspace/api-client-react";
 // Message type extended with screenshot thumbnail
 type ChatMessageExt = ChatMessage & { screenshotThumb?: string };
 
+// ── Inline markdown: **bold**, *italic*, `code` ───────────────────────────
+function renderInline(text: string): React.ReactNode[] {
+  const tokens = text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*|`[^`\n]+`)/g);
+  return tokens.map((token, i) => {
+    if (!token) return null;
+    if (token.startsWith("**") && token.endsWith("**") && token.length > 4) {
+      return (
+        <strong key={i} className="font-semibold text-foreground">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (token.startsWith("*") && token.endsWith("*") && token.length > 2 && !token.startsWith("**")) {
+      return <em key={i} className="italic">{token.slice(1, -1)}</em>;
+    }
+    if (token.startsWith("`") && token.endsWith("`") && token.length > 2) {
+      return (
+        <code
+          key={i}
+          className="px-1.5 py-0.5 rounded bg-zinc-800/90 border border-zinc-700/60 font-mono text-[11.5px] text-amber-200 leading-none"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    return token;
+  });
+}
+
+// ── Block-level text renderer ─────────────────────────────────────────────
+const TextBlock = ({ text }: { text: string }) => {
+  const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+  let ulItems: string[] = [];
+  let olItems: Array<{ num: string; content: string }> = [];
+  let paraLines: string[] = [];
+
+  const flushUL = () => {
+    if (!ulItems.length) return;
+    elements.push(
+      <ul key={`ul-${elements.length}`} className="space-y-1.5 my-0.5">
+        {ulItems.map((item, i) => (
+          <li key={i} className="flex items-start gap-2.5">
+            <span className="mt-[5px] w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
+            <span className="flex-1 leading-relaxed">{renderInline(item)}</span>
+          </li>
+        ))}
+      </ul>
+    );
+    ulItems = [];
+  };
+
+  const flushOL = () => {
+    if (!olItems.length) return;
+    elements.push(
+      <ol key={`ol-${elements.length}`} className="space-y-1.5 my-0.5">
+        {olItems.map((item, i) => (
+          <li key={i} className="flex items-start gap-2.5">
+            <span className="mt-[1px] text-[11px] font-mono text-primary/70 flex-shrink-0 min-w-[1.4em] text-right leading-relaxed">
+              {item.num}.
+            </span>
+            <span className="flex-1 leading-relaxed">{renderInline(item.content)}</span>
+          </li>
+        ))}
+      </ol>
+    );
+    olItems = [];
+  };
+
+  const flushPara = () => {
+    if (!paraLines.length) return;
+    const joined = paraLines.join("\n");
+    elements.push(
+      <p key={`p-${elements.length}`} className="leading-relaxed whitespace-pre-line">
+        {renderInline(joined)}
+      </p>
+    );
+    paraLines = [];
+  };
+
+  const flushAll = () => { flushUL(); flushOL(); flushPara(); };
+
+  for (const line of lines) {
+    // Heading ## / ###
+    const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
+    if (hMatch) {
+      flushAll();
+      const level = hMatch[1].length;
+      const cls =
+        level === 1
+          ? "text-[14px] font-bold text-foreground pb-1 border-b border-border/40 mt-1"
+          : level === 2
+          ? "text-[13px] font-semibold text-foreground mt-1"
+          : "text-[13px] font-medium text-foreground/90";
+      elements.push(
+        <div key={`h-${elements.length}`} className={cls}>
+          {renderInline(hMatch[2])}
+        </div>
+      );
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^[-*_]{3,}$/.test(line.trim())) {
+      flushAll();
+      elements.push(<hr key={`hr-${elements.length}`} className="border-border/50 my-1" />);
+      continue;
+    }
+
+    // Unordered list item: - item  or  * item
+    const ulMatch = line.match(/^[\-\*•]\s+(.+)$/);
+    if (ulMatch) {
+      flushOL(); flushPara();
+      ulItems.push(ulMatch[1]);
+      continue;
+    }
+
+    // Ordered list item: 1. item  or  1) item
+    const olMatch = line.match(/^(\d+)[.)]\s+(.+)$/);
+    if (olMatch) {
+      flushUL(); flushPara();
+      olItems.push({ num: olMatch[1], content: olMatch[2] });
+      continue;
+    }
+
+    // Empty line → flush everything
+    if (!line.trim()) {
+      flushAll();
+      continue;
+    }
+
+    // Regular paragraph line
+    flushUL(); flushOL();
+    paraLines.push(line);
+  }
+
+  flushAll();
+
+  return <div className="space-y-2">{elements}</div>;
+};
+
+// ── Full markdown message ─────────────────────────────────────────────────
 const MarkdownMessage = ({ content }: { content: string }) => {
-  const parts = content.split(/(```[\s\S]*?```)/g);
+  // Split code fences out first, process rest as text blocks
+  const segments = content.split(/(```[\s\S]*?```)/g);
 
   return (
     <div className="space-y-3 text-sm">
-      {parts.map((part, i) => {
-        if (part.startsWith("```") && part.endsWith("```")) {
-          const match = part.match(/```(\w*)\n?([\s\S]*?)```/);
+      {segments.map((seg, i) => {
+        if (seg.startsWith("```") && seg.endsWith("```")) {
+          const match = seg.match(/```(\w*)\n?([\s\S]*?)```/);
           const lang = match?.[1] || "";
-          const code = match?.[2]?.trim() || part.slice(3, -3).trim();
+          const code = match?.[2]?.trim() || seg.slice(3, -3).trim();
           return <CodeBlock key={i} code={code} lang={lang} />;
         }
-        if (!part.trim()) return null;
-        return (
-          <div key={i} className="whitespace-pre-wrap leading-relaxed">
-            {part}
-          </div>
-        );
+        if (!seg.trim()) return null;
+        return <TextBlock key={i} text={seg} />;
       })}
     </div>
   );
 };
 
+// ── Code block with copy button ───────────────────────────────────────────
 const CodeBlock = ({ code, lang }: { code: string; lang: string }) => {
   const [copied, setCopied] = useState(false);
 

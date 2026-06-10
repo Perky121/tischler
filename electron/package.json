@@ -1,0 +1,41 @@
+{
+  "name": "megatischler-copilot",
+  "version": "1.0.0",
+  "description": "MegaTischler Copilot — AI asistent za MegaTischler formule",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder --win --x64",
+    "build:dir": "electron-builder --win --x64 --dir"
+  },
+  "dependencies": {
+    "screenshot-desktop": "^1.12.7",
+    "sharp": "^0.33.4"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.megatischler.copilot",
+    "productName": "MegaTischler Copilot",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "arch": ["x64"],
+      "icon": "renderer/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MegaTischler Copilot"
+    }
+  }
+}
