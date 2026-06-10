@@ -2,6 +2,9 @@
 """
 MegaTischler .mac file parser.
 Extracts formula knowledge from .mac files and outputs knowledge_base.json.
+
+Handles tags: <Formula>, <ParFloat>, <ParEnum>, <ParString>, <ParInt>,
+              <MaterialItem>, <PartItem>, <DimItem>, <VarItem>
 """
 
 import sys
@@ -13,276 +16,277 @@ from collections import defaultdict
 
 
 SYNTAX_RULES = [
-    "Decimal separator is COMMA not dot: 0,5 not 0.5",
-    "Parent parameter: [.W] = one level up",
-    "Root parameter: [....W] = four dots = root level",
-    "Child navigation: [...PoliceP.Polica.W]",
-    "Conditional: if(condition;true;false)",
-    "Multi-conditional: ifelse(c1;v1;c2;v2;default)",
-    "Functions: cos(), sin(), tan(), neg()",
-    "String concatenation with + operator",
-    "Parameter references use square brackets: [W], [D], [H]",
-    "Arithmetic operators: +, -, *, /",
-    "Comparison operators: <, >, <=, >=, =, <>",
-    "Logical operators: and(), or(), not()",
-    "Round function: round(value;decimals)",
-    "Integer function: int(value)",
-    "Minimum/Maximum: min(a;b), max(a;b)",
-    "Absolute value: abs(value)",
-    "Square root: sqrt(value)",
+    "Decimalni separator je ZAREZ ne točka: 0,5 a ne 0.5",
+    "Roditeljski parametar: [.W] = jedan nivo gore",
+    "Korijenski parametar: [....W] = četiri točke = root razina",
+    "Navigacija prema djetetu: [...PoliceP.Polica.W]",
+    "Uvjet: if(uvjet;istina;laž)",
+    "Višestruki uvjet: ifelse(u1;v1;u2;v2;zadano)",
+    "Funkcije: cos(), sin(), tan(), neg()",
+    "Spajanje stringova s + operatorom",
+    "Reference parametara u uglatim zagradama: [W], [D], [H]",
+    "Aritmetički operatori: +, -, *, /",
+    "Operatori usporedbe: <, >, <=, >=, =, <>",
+    "Logički operatori: and(), or(), not()",
+    "Zaokruživanje: round(vrijednost;decimale)",
+    "Cijeli broj: int(vrijednost)",
+    "Min/Max: min(a;b), max(a;b)",
+    "Apsolutna vrijednost: abs(vrijednost)",
+    "Kvadratni korijen: sqrt(vrijednost)",
 ]
 
+# Tags that contain parameter definitions in MegaTischler .mac files
+PARAM_TAGS = [
+    "ParFloat", "ParEnum", "ParString", "ParInt", "ParBool",
+    "Parameter", "DimItem", "VarItem",
+]
 
-def extract_xml_blocks(content):
-    """Extract all relevant XML blocks from file content."""
+# Tags that may contain formula definitions
+FORMULA_TAGS = [
+    "Formula", "Expression", "MaterialItem", "PartItem",
+]
+
+# All tags to extract
+ALL_TAGS = PARAM_TAGS + FORMULA_TAGS + ["Value", "Condition"]
+
+
+def extract_all_blocks(content):
+    """Extract XML blocks for all relevant tag types."""
     blocks = []
-    # Look for MaterialItem, PartItem, DimItem, VarItem blocks
-    patterns = [
-        r'<MaterialItem[^>]*>.*?</MaterialItem>',
-        r'<PartItem[^>]*>.*?</PartItem>',
-        r'<DimItem[^>]*>.*?</DimItem>',
-        r'<VarItem[^>]*>.*?</VarItem>',
-        r'<Parameter[^>]*>.*?</Parameter>',
-        r'<Formula[^>]*>.*?</Formula>',
-    ]
-    for pattern in patterns:
-        found = re.findall(pattern, content, re.DOTALL | re.IGNORECASE)
-        blocks.extend(found)
+    for tag in ALL_TAGS:
+        # Self-closing and pair tags
+        found = re.findall(
+            rf'<{tag}(?:\s[^>]*)?>(?:.*?)</{tag}>|<{tag}(?:\s[^>]*)?/>',
+            content,
+            re.DOTALL | re.IGNORECASE,
+        )
+        for block in found:
+            blocks.append((tag, block))
+
+    # Also extract root-level attribute blocks from common parent tags
+    for tag in ["MaterialItem", "PartItem", "DimItem", "VarItem"]:
+        found = re.findall(
+            rf'<{tag}[^>]*>.*?</{tag}>',
+            content,
+            re.DOTALL | re.IGNORECASE,
+        )
+        for block in found:
+            blocks.append((tag, block))
+
     return blocks
 
 
-def extract_field(block, field_name):
-    """Extract a specific field value from an XML block."""
-    # Try attribute form: Name="value"
-    attr_match = re.search(rf'{field_name}="([^"]*)"', block, re.IGNORECASE)
-    if attr_match:
-        return attr_match.group(1).strip()
-    # Try element form: <Name>value</Name>
-    elem_match = re.search(rf'<{field_name}[^>]*>(.*?)</{field_name}>', block, re.DOTALL | re.IGNORECASE)
-    if elem_match:
-        return elem_match.group(1).strip()
+def get_attr(block, attr):
+    """Extract attribute value from XML block."""
+    m = re.search(rf'\b{attr}="([^"]*)"', block, re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    m = re.search(rf"\b{attr}='([^']*)'", block, re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
     return None
 
 
-def looks_like_formula(value):
-    """Check if a value looks like a MegaTischler formula (not just a plain number or empty)."""
-    if not value or not value.strip():
+def get_inner(block, tag):
+    """Extract inner text of a child tag."""
+    m = re.search(rf'<{tag}[^>]*>(.*?)</{tag}>', block, re.DOTALL | re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    return None
+
+
+def is_formula(value):
+    """Return True if value looks like a parametric formula (not a plain number/string)."""
+    if not value:
         return False
     v = value.strip()
-    # Plain number - not a formula
+    if not v:
+        return False
+    # Plain integer or decimal (comma or dot) — not a formula
     if re.match(r'^-?\d+([,\.]\d+)?$', v):
         return False
-    # Has formula-like content
-    formula_indicators = ['[', 'if(', 'ifelse(', 'cos(', 'sin(', 'tan(', 'neg(', '+', '-', '*', '/', 'round(', 'int(', 'sqrt(', 'abs(', 'min(', 'max(']
-    return any(ind in v for ind in formula_indicators)
+    # Formula indicators
+    indicators = [
+        '[', 'if(', 'ifelse(', 'cos(', 'sin(', 'tan(', 'neg(',
+        'round(', 'int(', 'sqrt(', 'abs(', 'min(', 'max(',
+        'and(', 'or(', 'not(',
+    ]
+    # Also catch arithmetic expressions involving references
+    has_ref = bool(re.search(r'\[[\w\.]+\]', v))
+    has_op = any(c in v for c in ['+', '*', '/', '-']) and len(v) > 3
+    return any(ind in v for ind in indicators) or has_ref or (has_op and '[' not in v and len(v) > 6)
 
 
 def parse_mac_file(filepath):
-    """Parse a single .mac file and extract formulas and parameters."""
+    """Parse a single .mac file, return (formulas, parameters)."""
     formulas = []
-    parameters = []
-    
+    params_map = {}  # name → {description, typical_values}
+
     try:
         with open(filepath, 'rb') as f:
             raw = f.read()
-        
-        # Check for encryption marker and truncate if found
+
+        # Skip encrypted section
         enc_marker = b'MTSXENC'
         if enc_marker in raw:
             raw = raw[:raw.index(enc_marker)]
-        
+
         content = raw.decode('latin-1', errors='replace')
-        filename = os.path.basename(filepath)
-        
-        blocks = extract_xml_blocks(content)
-        
-        param_values = defaultdict(list)
-        
-        for block in blocks:
-            name = extract_field(block, 'Name')
-            value = extract_field(block, 'Value')
-            formula = extract_field(block, 'Formula')
-            description = extract_field(block, 'Description') or extract_field(block, 'Desc') or ''
-            
-            # Extract formulas
-            if formula and looks_like_formula(formula):
-                formulas.append({
-                    'formula': formula,
-                    'source': filename
-                })
-            
-            if value and looks_like_formula(value):
-                formulas.append({
-                    'formula': value,
-                    'source': filename
-                })
-            
-            # Collect parameter info
+        source = os.path.basename(filepath)
+
+        blocks = extract_all_blocks(content)
+
+        for tag, block in blocks:
+            name = get_attr(block, 'Name') or get_attr(block, 'name')
+            value = get_attr(block, 'Value') or get_attr(block, 'value') or get_inner(block, 'Value')
+            formula = get_attr(block, 'Formula') or get_attr(block, 'formula') or get_inner(block, 'Formula')
+            desc = (
+                get_attr(block, 'Description') or
+                get_attr(block, 'Desc') or
+                get_attr(block, 'description') or
+                get_inner(block, 'Description') or
+                ''
+            )
+
+            # Collect formulas
+            for candidate in [formula, value]:
+                if candidate and is_formula(candidate):
+                    formulas.append({'formula': candidate.strip(), 'source': source})
+
+            # Collect parameters (non-formula values)
             if name and name.strip():
-                name = name.strip()
-                if value and value.strip() and not looks_like_formula(value):
-                    param_values[name].append({
-                        'description': description,
-                        'value': value.strip()
-                    })
-        
-        # Also do a raw regex pass for formula-like content
-        # Look for patterns like [W], [D], [H] references in attribute values
-        raw_formulas = re.findall(r'(?:Formula|Value|Expression)="([^"]*\[[^\]]*\][^"]*)"', content, re.IGNORECASE)
+                n = name.strip()
+                val_str = None
+                if value and not is_formula(value):
+                    val_str = value.strip()
+                if n not in params_map:
+                    params_map[n] = {'name': n, 'description': desc or '', 'typical_values': []}
+                if val_str and val_str not in params_map[n]['typical_values']:
+                    params_map[n]['typical_values'].append(val_str)
+                if desc and not params_map[n]['description']:
+                    params_map[n]['description'] = desc
+
+        # Also do a raw regex sweep for formula attributes we might have missed
+        raw_formulas = re.findall(
+            r'(?:Formula|Expression|Condition)="([^"]{4,})"',
+            content,
+            re.IGNORECASE,
+        )
         for f in raw_formulas:
-            if looks_like_formula(f) and {'formula': f, 'source': filename} not in formulas:
-                formulas.append({'formula': f, 'source': filename})
-        
-        # Build parameters list
-        for pname, entries in param_values.items():
-            typical_values = list(set(e['value'] for e in entries if e['value']))[:5]
-            desc = next((e['description'] for e in entries if e['description']), '')
-            parameters.append({
-                'name': pname,
-                'description': desc,
-                'typical_values': typical_values
-            })
-        
+            if is_formula(f):
+                formulas.append({'formula': f.strip(), 'source': source})
+
+        # Sweep for Name+Value pairs in any tag
+        for m in re.finditer(r'Name="([^"]+)"[^>]*Value="([^"]+)"', content, re.IGNORECASE):
+            n, v = m.group(1).strip(), m.group(2).strip()
+            if n and not is_formula(v) and v:
+                if n not in params_map:
+                    params_map[n] = {'name': n, 'description': '', 'typical_values': []}
+                if v not in params_map[n]['typical_values']:
+                    params_map[n]['typical_values'].append(v)
+
     except Exception as e:
-        print(f"Warning: Error parsing {filepath}: {e}", file=sys.stderr)
-    
-    return formulas, parameters
+        print(f"Upozorenje: Greška pri parsiranju {filepath}: {e}", file=sys.stderr)
+
+    # Deduplicate formulas
+    seen = set()
+    unique = []
+    for f in formulas:
+        k = f['formula']
+        if k not in seen:
+            seen.add(k)
+            unique.append(f)
+
+    # Trim typical values
+    for p in params_map.values():
+        p['typical_values'] = p['typical_values'][:10]
+
+    return unique, list(params_map.values())
 
 
-def parse_folder(folder_path):
-    """Parse all .mac files in a folder."""
-    all_formulas = []
-    all_parameters = {}
-    files_processed = 0
-    
+def merge_into(existing, new_formulas, new_params):
+    """Merge new data into existing knowledge base dict in-place."""
+    # Merge formulas
+    known_f = {f['formula'] for f in existing.get('formulas', [])}
+    for f in new_formulas:
+        if f['formula'] not in known_f:
+            existing.setdefault('formulas', []).append(f)
+            known_f.add(f['formula'])
+
+    # Merge parameters
+    known_p = {p['name']: p for p in existing.get('parameters', [])}
+    for p in new_params:
+        if p['name'] not in known_p:
+            known_p[p['name']] = p
+        else:
+            ev = set(known_p[p['name']]['typical_values'])
+            for v in p['typical_values']:
+                ev.add(v)
+            known_p[p['name']]['typical_values'] = list(ev)[:10]
+            if not known_p[p['name']]['description'] and p['description']:
+                known_p[p['name']]['description'] = p['description']
+    existing['parameters'] = list(known_p.values())
+
+
+def parse_single(filepath):
+    formulas, params = parse_mac_file(filepath)
+    return {
+        'formulas': formulas,
+        'parameters': params,
+        'syntax_rules': SYNTAX_RULES,
+        '_meta': {'files_processed': 1},
+    }
+
+
+def parse_folder(folder):
     mac_files = []
-    for root, dirs, files in os.walk(folder_path):
+    for root, _dirs, files in os.walk(folder):
         for fname in files:
             if fname.lower().endswith('.mac'):
                 mac_files.append(os.path.join(root, fname))
-    
-    for filepath in mac_files:
-        formulas, parameters = parse_mac_file(filepath)
-        all_formulas.extend(formulas)
-        files_processed += 1
-        
-        for param in parameters:
-            pname = param['name']
-            if pname not in all_parameters:
-                all_parameters[pname] = {
-                    'name': pname,
-                    'description': param['description'],
-                    'typical_values': param['typical_values']
-                }
-            else:
-                # Merge typical values
-                existing = set(all_parameters[pname]['typical_values'])
-                for v in param['typical_values']:
-                    existing.add(v)
-                all_parameters[pname]['typical_values'] = list(existing)[:10]
-                if not all_parameters[pname]['description'] and param['description']:
-                    all_parameters[pname]['description'] = param['description']
-    
-    # Deduplicate formulas
-    seen = set()
-    unique_formulas = []
-    for f in all_formulas:
-        key = f['formula'].strip()
-        if key not in seen:
-            seen.add(key)
-            unique_formulas.append(f)
-    
-    return {
-        'formulas': unique_formulas,
-        'parameters': list(all_parameters.values()),
-        'syntax_rules': SYNTAX_RULES,
-        '_meta': {
-            'files_processed': files_processed
-        }
-    }
 
-
-def parse_single_file(filepath):
-    """Parse a single .mac file."""
-    formulas, parameters = parse_mac_file(filepath)
-    
-    # Deduplicate
-    seen = set()
-    unique_formulas = []
-    for f in formulas:
-        key = f['formula'].strip()
-        if key not in seen:
-            seen.add(key)
-            unique_formulas.append(f)
-    
-    param_map = {}
-    for p in parameters:
-        if p['name'] not in param_map:
-            param_map[p['name']] = p
-    
-    return {
-        'formulas': unique_formulas,
-        'parameters': list(param_map.values()),
-        'syntax_rules': SYNTAX_RULES,
-        '_meta': {
-            'files_processed': 1
-        }
-    }
+    base = {'formulas': [], 'parameters': [], 'syntax_rules': SYNTAX_RULES, '_meta': {'files_processed': 0}}
+    for fp in mac_files:
+        f, p = parse_mac_file(fp)
+        merge_into(base, f, p)
+        base['_meta']['files_processed'] += 1
+    return base
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Parse MegaTischler .mac files')
-    parser.add_argument('input', help='Path to .mac file or folder containing .mac files')
-    parser.add_argument('--output', '-o', default='knowledge_base.json', help='Output JSON file path')
-    parser.add_argument('--merge', action='store_true', help='Merge with existing knowledge base')
+    parser = argparse.ArgumentParser(description='Parsira MegaTischler .mac datoteke')
+    parser.add_argument('input', help='Putanja do .mac datoteke ili mape')
+    parser.add_argument('--output', '-o', default='knowledge_base.json', help='Izlazna JSON datoteka')
+    parser.add_argument('--merge', action='store_true', help='Spoji s postojećom bazom znanja')
     args = parser.parse_args()
-    
+
     if os.path.isdir(args.input):
         result = parse_folder(args.input)
     elif os.path.isfile(args.input) and args.input.lower().endswith('.mac'):
-        result = parse_single_file(args.input)
+        result = parse_single(args.input)
     else:
-        print(f"Error: {args.input} is not a .mac file or directory", file=sys.stderr)
+        print(f"Greška: {args.input} nije .mac datoteka ni mapa", file=sys.stderr)
         sys.exit(1)
-    
-    # Merge with existing if requested
+
     if args.merge and os.path.exists(args.output):
         try:
             with open(args.output, 'r', encoding='utf-8') as f:
                 existing = json.load(f)
-            
-            # Merge formulas (deduplicate)
-            existing_formulas = {f['formula'] for f in existing.get('formulas', [])}
-            for formula in result['formulas']:
-                if formula['formula'] not in existing_formulas:
-                    existing['formulas'].append(formula)
-                    existing_formulas.add(formula['formula'])
-            
-            # Merge parameters
-            existing_params = {p['name']: p for p in existing.get('parameters', [])}
-            for param in result['parameters']:
-                if param['name'] not in existing_params:
-                    existing_params[param['name']] = param
-                else:
-                    ev = set(existing_params[param['name']]['typical_values'])
-                    for v in param['typical_values']:
-                        ev.add(v)
-                    existing_params[param['name']]['typical_values'] = list(ev)[:10]
-            
-            existing['parameters'] = list(existing_params.values())
+            merge_into(existing, result['formulas'], result['parameters'])
+            existing.setdefault('syntax_rules', SYNTAX_RULES)
             existing['_meta'] = result['_meta']
             result = existing
         except Exception as e:
-            print(f"Warning: Could not merge with existing: {e}", file=sys.stderr)
-    
+            print(f"Upozorenje: Ne mogu spojiti s postojećom bazom: {e}", file=sys.stderr)
+
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
-    
+
     meta = result.get('_meta', {})
     print(json.dumps({
         'success': True,
         'formulas': len(result['formulas']),
         'parameters': len(result['parameters']),
         'files': meta.get('files_processed', 0),
-        'output': args.output
+        'output': args.output,
     }))
