@@ -1,0 +1,138 @@
+Build a Node.js + Express web application. This is Phase 0 of a MegaTischler Copilot — an AI assistant that helps with writing parametric formulas in MegaTischler furniture CAD software.
+
+## What to build
+
+A single-page web app with two parts:
+1. A Python script that parses .mac files and extracts formula knowledge
+2. A web UI for testing the AI assistant with screenshots and chat
+
+---
+
+## Part 1: MAC file parser (Python)
+
+Create `parse_mac.py` that:
+- Accepts a folder path containing .mac files as input
+- Reads each .mac file as binary, decodes with latin-1
+- Uses regex to extract all XML blocks: ``, ``, ``, ``
+- From each block extracts: Name, Value, Formula fields
+- Skips encrypted blocks (anything after "MTSXENC" marker in the file)
+- Outputs a single `knowledge_base.json` with this structure:
+
+```json
+{
+  "formulas": [
+    { "formula": "[.D]-[.GLU]-20", "source": "KUTNI.mac" }
+  ],
+  "parameters": [
+    { "name": "W", "description": "Širina", "typical_values": ["600", "800"] },
+    { "name": "D", "description": "Dubina", "typical_values": ["560"] }
+  ],
+  "syntax_rules": [
+    "Decimal separator is COMMA not dot: 0,5 not 0.5",
+    "Parent parameter: [.W] = one level up",
+    "Root parameter: [....W] = four dots = root level",
+    "Child navigation: [...PoliceP.Polica.W]",
+    "Conditional: if(condition;true;false)",
+    "Multi-conditional: ifelse(c1;v1;c2;v2;default)",
+    "Functions: cos(), sin(), tan(), neg()"
+  ]
+}
+```
+
+Also create an upload endpoint so .mac files can be uploaded through the web UI.
+
+---
+
+## Part 2: Express backend (server.js)
+
+Endpoints:
+- `POST /upload-mac` — accepts .mac file upload, runs parse_mac.py, updates knowledge_base.json
+- `POST /chat` — accepts { message, screenshot_base64 (optional), history[] }, calls Claude API, returns response
+- `GET /knowledge` — returns current knowledge_base.json content
+
+The `/chat` endpoint must build a prompt like this:
+
+```
+SYSTEM:
+You are a MegaTischler parametric formula assistant. 
+The user is a furniture manufacturing expert who knows everything about custom furniture construction but needs help writing MegaTischler formulas.
+Always respond in Croatian.
+Be direct and concrete — give the exact formula to type, explain where to type it.
+When you see a screenshot, read the parameter dialog carefully — identify parameter names, current values, and what the user is trying to achieve.
+
+MEGATISCHLER SYNTAX RULES:
+[inject syntax_rules from knowledge_base.json]
+
+PARAMETER CATALOG:
+[inject top 50 most common parameters from knowledge_base.json]
+
+FORMULA EXAMPLES FROM USER'S OWN FILES:
+[inject 30 most relevant formula examples from knowledge_base.json]
+
+USER'S FURNITURE RULES:
+[inject content of stipe_rules.txt if it exists]
+
+CONVERSATION HISTORY:
+[inject last 10 messages]
+
+USER: [message]
+[if screenshot: attach image]
+```
+
+Use the Anthropic SDK: `@anthropic-ai/sdk`
+Model: `claude-opus-4-5` (has vision capability)
+Store ANTHROPIC_API_KEY in Replit Secrets.
+
+---
+
+## Part 3: Frontend (public/index.html)
+
+Single HTML file with vanilla JS. No frameworks needed.
+
+Layout — two columns:
+- Left (40%): file upload area for .mac files, knowledge base status (how many formulas loaded, how many parameters), textarea for pasting stipe_rules.txt content with a Save button
+- Right (60%): chat interface
+
+Chat interface features:
+- Message history display
+- Text input + Send button
+- "Pogledaj ekran" button — opens file picker for screenshot image upload (since this is browser-based, user manually screenshots and uploads for now)
+- Screenshot preview (small thumbnail) shown in chat when attached
+- Code blocks in AI responses should have a copy button
+- Show which screenshot was used for each AI response
+
+Styling: clean, minimal, dark-friendly. Use CSS variables for colors.
+
+---
+
+## File structure
+
+```
+/
+├── server.js
+├── parse_mac.py  
+├── package.json
+├── knowledge_base.json  (generated, starts empty)
+├── stipe_rules.txt      (starts empty)
+└── public/
+    └── index.html
+```
+
+## package.json dependencies
+
+```json
+{
+  "dependencies": {
+    "express": "^4.18.0",
+    "@anthropic-ai/sdk": "^0.24.0",
+    "multer": "^1.4.5",
+    "cors": "^2.8.5"
+  }
+}
+```
+
+Python is available in Replit — use child_process to call parse_mac.py from Node.
+
+Start with `node server.js`. The app should work immediately after `npm install`.
+
+Do not add authentication, databases, or anything complex. Keep it simple — this is a testing tool for Phase 0.

@@ -1,0 +1,26 @@
+{
+  "formulas": [],
+  "parameters": [],
+  "syntax_rules": [
+    "Decimal separator is COMMA not dot: 0,5 not 0.5",
+    "Parent parameter: [.W] = one level up",
+    "Root parameter: [....W] = four dots = root level",
+    "Child navigation: [...PoliceP.Polica.W]",
+    "Conditional: if(condition;true;false)",
+    "Multi-conditional: ifelse(c1;v1;c2;v2;default)",
+    "Functions: cos(), sin(), tan(), neg()",
+    "String concatenation with + operator",
+    "Parameter references use square brackets: [W], [D], [H]",
+    "Arithmetic operators: +, -, *, /",
+    "Comparison operators: <, >, <=, >=, =, <>",
+    "Logical operators: and(), or(), not()",
+    "Round function: round(value;decimals)",
+    "Integer function: int(value)",
+    "Minimum/Maximum: min(a;b), max(a;b)",
+    "Absolute value: abs(value)",
+    "Square root: sqrt(value)"
+  ],
+  "_meta": {
+    "files_processed": 0
+  }
+}
