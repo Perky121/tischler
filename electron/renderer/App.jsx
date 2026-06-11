@@ -1510,33 +1510,6 @@ function App() {
           </div>
         )}
 
-        {/* Recording banner */}
-        {(isRecording || isTranscribing) && (
-          <div className="recording-banner">
-            {isRecording ? (
-              <>
-                <span className="rec-dot" />
-                <span>Snimam... {formatDuration(recordingSecs)}</span>
-                <button className="rec-stop-btn" onClick={stopRecording}>■ Stop (F8)</button>
-              </>
-            ) : (
-              <>
-                <div className="spinner" style={{ width: 12, height: 12, borderWidth: 2 }} />
-                <span>Transkribiranje...</span>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* TTS speaking banner */}
-        {isSpeaking && (
-          <div className="recording-banner" style={{ background: "rgba(59,130,246,0.15)", borderColor: "rgba(59,130,246,0.4)" }}>
-            <span style={{ fontSize: 14 }}>🔊</span>
-            <span>Reproducira odgovor...</span>
-            <button className="rec-stop-btn" onClick={() => { stopTts(); setIsSpeaking(false); }}>■ Stop</button>
-          </div>
-        )}
-
         {/* Screenshot preview */}
         {screenshotDataUrl && (
           <div className="screenshot-preview">
@@ -1550,36 +1523,28 @@ function App() {
         )}
 
         <div className="input-row">
-          {/* Screenshot button */}
-          <button
-            className={`input-btn${screenshotDataUrl ? " active" : ""}`}
-            onClick={handleScreenshotCapture}
-            disabled={isStreaming}
-            title="Snimi ekran (F9)"
-          >
-            📷
-          </button>
-
-          {/* Voice button */}
-          <button
-            className={`input-btn${isRecording ? " recording" : ""}${isTranscribing ? " active" : ""}`}
-            onClick={() => toggleRecordingRef.current?.()}
-            disabled={isStreaming || isTranscribing}
-            title={isRecording ? "Zaustavi snimanje (F8)" : "Glasovni unos (F8)"}
-          >
-            {isRecording ? "🔴" : "🎤"}
-          </button>
-
-          <textarea
-            ref={textareaRef}
-            className="chat-input"
-            style={{ height: inputHeight }}
-            value={input}
-            onChange={handleTextareaChange}
-            onKeyDown={handleKeyDown}
-            placeholder={isRecording ? "Snimam glas..." : isTranscribing ? "Transkribiranje..." : "Upiši pitanje... (Enter za slanje)"}
-            disabled={isStreaming || isRecording}
-          />
+          <div className="input-inner">
+            <textarea
+              ref={textareaRef}
+              className="chat-input"
+              style={{ height: inputHeight }}
+              value={input}
+              onChange={handleTextareaChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Upiši pitanje... (Enter za slanje)"
+              disabled={isStreaming}
+            />
+            <div className="input-actions-row">
+              <button
+                className={`input-btn-screenshot${screenshotDataUrl ? " active" : ""}`}
+                onClick={handleScreenshotCapture}
+                disabled={isStreaming}
+                title="Snimi ekran (F9)"
+              >
+                📷
+              </button>
+            </div>
+          </div>
 
           <button
             className="send-btn"
@@ -1595,7 +1560,7 @@ function App() {
           </button>
         </div>
 
-        <div className="input-hint">F9 ekran · F8 glas · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos{isSpeaking ? " · reproducira..." : ""}</div>
+        <div className="input-hint">F9 ekran · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos</div>
       </div>
 
       {showSettings && (
