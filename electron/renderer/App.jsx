@@ -430,15 +430,15 @@ function SettingsPanel({ onClose }) {
           {stats ? (
             <div className="settings-stats">
               <div className="stat-card">
-                <div className="stat-value">{stats.formula_count ?? stats.formulas?.length ?? "—"}</div>
+                <div className="stat-value">{stats.stats?.formulaCount ?? stats.formula_count ?? stats.formulas?.length ?? "—"}</div>
                 <div className="stat-label">Formule</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.parameter_count ?? stats.parameters?.length ?? "—"}</div>
+                <div className="stat-value">{stats.stats?.parameterCount ?? stats.parameter_count ?? stats.parameters?.length ?? "—"}</div>
                 <div className="stat-label">Parametri</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.file_count ?? stats._meta?.files_processed ?? "—"}</div>
+                <div className="stat-value">{stats.stats?.fileCount ?? stats.file_count ?? stats._meta?.files_processed ?? "—"}</div>
                 <div className="stat-label">Datoteke</div>
               </div>
             </div>
@@ -684,9 +684,11 @@ function App() {
   }, [messages]);
 
   // ── Send ──────────────────────────────────────────────────────────────────
-  const handleSend = useCallback(async (overrideInput) => {
+  const handleSend = useCallback(async (overrideInput, overrideScreenshot) => {
     const msgText = overrideInput !== undefined ? overrideInput : input;
-    if (!msgText.trim() && !screenshotDataUrl) return;
+    // overrideScreenshot lets callers bypass the stale screenshotDataUrl closure
+    const currentScreenshot = overrideScreenshot !== undefined ? overrideScreenshot : screenshotDataUrl;
+    if (!msgText.trim() && !currentScreenshot) return;
     if (isStreaming) return;
 
     // MT warning (non-blocking)
@@ -694,8 +696,6 @@ function App() {
       setMtWarning(true);
       setTimeout(() => setMtWarning(false), 4000);
     }
-
-    const currentScreenshot = screenshotDataUrl;
     const userMsg = {
       role: "user",
       content: msgText.trim(),
@@ -732,18 +732,28 @@ function App() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantContent = "";
+      let lineBuffer = ""; // accumulate partial SSE lines across TCP chunks
+      let streamDone = false;
 
-      while (true) {
+      while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
+        lineBuffer += decoder.decode(value, { stream: true });
+
+        // Process all complete lines (terminated by \n)
+        const newlineIdx = lineBuffer.lastIndexOf("\n");
+        if (newlineIdx === -1) continue; // no complete line yet
+
+        const complete = lineBuffer.slice(0, newlineIdx + 1);
+        lineBuffer = lineBuffer.slice(newlineIdx + 1);
+
+        const lines = complete.split("\n").filter((l) => l.startsWith("data: "));
         for (const line of lines) {
           const dataStr = line.slice(6).trim();
           if (!dataStr) continue;
           try {
             const data = JSON.parse(dataStr);
-            if (data.done) break;
+            if (data.done) { streamDone = true; break; }
             if (data.error) assistantContent += `\n\n⚠️ ${data.error}`;
             else if (data.content) assistantContent += data.content;
             setMessages((prev) => {
@@ -751,14 +761,14 @@ function App() {
               updated[updated.length - 1] = { role: "assistant", content: assistantContent };
               return updated;
             });
-          } catch { /* ignore partial */ }
+          } catch { /* ignore malformed */ }
         }
       }
 
       // TTS: speak if enabled
       if (assistantContent) {
         const s = await window.electron.getSettings();
-        if (s.ttsEnabled && s.openaiKey) {
+        if (s.ttsEnabled) {
           setIsSpeaking(true);
           try {
             const ttsText = assistantContent.replace(/```[\s\S]*?```/g, "").trim().slice(0, 500);
@@ -794,13 +804,13 @@ function App() {
   }
 
   // Suggestion: screenshot + fixed message
+  // Pass the screenshot directly to handleSend to avoid stale closure on screenshotDataUrl
   function handleScreenshotCheck() {
     window.electron.captureScreenshot()
       .then((base64) => {
         const dataUrl = "data:image/jpeg;base64," + base64;
         setScreenshotDataUrl(dataUrl);
-        // Give state a tick to update, then send
-        setTimeout(() => handleSend("Pogledaj što se promijenilo na ekranu i komentiraj."), 50);
+        handleSend("Pogledaj što se promijenilo na ekranu i komentiraj.", dataUrl);
       })
       .catch((err) => alert("Screenshot greška: " + err.message));
   }

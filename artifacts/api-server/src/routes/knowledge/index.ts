@@ -18,20 +18,28 @@ const sourceMacsDir = path.join(dataDir, "source_macs");
 const knowledgeBasePath = path.join(dataDir, "knowledge_base.json");
 const parseMacPath = path.resolve(workspaceRoot, "artifacts/api-server/parse_mac.py");
 
-// python3 is in the Nix store; use absolute path as fallback when PATH doesn't include it
+// Resolve python3: prefer env override, then check if the Nix path exists (Replit),
+// otherwise fall back to the system "python3" in PATH (macOS/Windows/Linux).
+const NIX_PYTHON3 = "/nix/store/1y5i7y4iqd5pvkdvmj2hwlsjizq2ckq2-python3-3.8.18/bin/python3";
 const PYTHON3_BIN =
   process.env["PYTHON3_BIN"] ??
-  "/nix/store/1y5i7y4iqd5pvkdvmj2hwlsjizq2ckq2-python3-3.8.18/bin/python3";
+  (fs.existsSync(NIX_PYTHON3) ? NIX_PYTHON3 : "python3");
 
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadsDir, { recursive: true });
 fs.mkdirSync(sourceMacsDir, { recursive: true });
 
+function sanitizeFilename(name: string): string {
+  // Strip directory components, then allow only safe characters
+  const base = path.basename(name);
+  return base.replace(/[^a-zA-Z0-9._\-]/g, "_");
+}
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
   filename: (_req, file, cb) => {
     const ts = Date.now();
-    cb(null, `${ts}-${file.originalname}`);
+    cb(null, `${ts}-${sanitizeFilename(file.originalname)}`);
   },
 });
 
@@ -170,7 +178,12 @@ router.post("/upload-mac", upload.array("files"), async (req, res): Promise<void
       return;
     }
 
-    const results = await Promise.all(macFiles.map(parseMacFile));
+    // Parse files sequentially — each run does --merge which modifies knowledge_base.json;
+    // parallel execution would cause race conditions and lost data.
+    const results: { success: boolean; error?: string }[] = [];
+    for (const mf of macFiles) {
+      results.push(await parseMacFile(mf));
+    }
 
     const failed = results.filter((r) => !r.success);
     const succeeded = results.length - failed.length;

@@ -131,7 +131,7 @@
 
 ## FAZA 2 — Glasovni unos (push-to-talk)
 **Platforma:** Cursor  
-**Status:** 🔄 STT gotov — TTS u tijeku
+**Status:** ✅ Kod završen — čeka test na Windowsu
 
 ### STT (Speech-to-Text)
 - [x] Web Audio API MediaRecorder — snimanje mikrofona (F8 toggle, bez native dependencija)
@@ -163,39 +163,39 @@
 
 ## FAZA 3 — Live mod (proaktivni asistent)
 **Platforma:** Cursor  
-**Status:** ⏳ Čeka završetak Faze 2
+**Status:** ✅ Kod završen — čeka test na Windowsu
 
 ### Screen monitoring
-- [ ] Background loop: screenshot svakih 1500ms (samo kad je live mod uključen)
-- [ ] `pixelmatch` npm — lokalna usporedba s prethodnim screenshotom
-- [ ] Threshold: > 15% razlike piksel → prosljeđuje Claudeu na analizu
-- [ ] Cooldown: min 8000ms između dva uzastopna proaktivna poziva
-- [ ] Loop se pauzira dok je obrada u tijeku (ne gomila zahtjeve)
+- [x] Background loop: screenshot svakih 1500ms (samo kad je live mod uključen)
+- [x] `pixelmatch` npm — lokalna usporedba s prethodnim screenshotom
+- [x] Threshold: > 15% razlike piksel → prosljeđuje Claudeu na analizu
+- [x] Cooldown: min 8000ms između dva uzastopna proaktivna poziva
+- [x] Loop se pauzira dok je obrada u tijeku (guard flag, ne gomila zahtjeve)
 
-### Trigger logika (server.js)
-- [ ] Poseban endpoint `POST /api/analyze-screen` za live analizu
-- [ ] System prompt za live mod: kraći, fokusiran na "što se promijenilo"
-- [ ] Claude vraća: { relevant: bool, message: string | null }
-- [ ] Ako relevant=false → ne prikazuje se ništa korisniku
-- [ ] Ako relevant=true → prikazuje se kao "proaktivna" poruka u chatu
+### Trigger logika
+- [x] Poseban endpoint `POST /api/analyze-screen` (artifacts/api-server/src/routes/analyze-screen/)
+- [x] System prompt za live mod: kraći, fokusiran na "što se promijenilo"
+- [x] Claude vraća: { relevant: bool, message: string | null }
+- [x] Ako relevant=false → ne prikazuje se ništa korisniku
+- [x] Ako relevant=true → prikazuje se kao "proaktivna" poruka u chatu
 
 ### UI promjene za live mod
-- [ ] Gumb Live u headeru (toggle, zelena točka kad aktivan)
-- [ ] Proaktivne poruke vizualno različite od normalnih (lijeva bordura, drugačija boja)
-- [ ] Dismiss gumb na proaktivnim porukama
-- [ ] Prikaz API poziva: "23 poziva danas"
+- [x] Gumb Live u headeru (toggle: "● LIVE" zeleno kad aktivan, "○ Live" sivo kad isključen)
+- [x] Proaktivne poruke vizualno različite od normalnih (zelena lijeva bordura, ikona 👁, label "Copilot primjetio")
+- [x] Dismiss gumb na proaktivnim porukama (× uklanja iz liste)
+- [x] Prikaz API poziva i procijenjenog troška u Settings panelu
 
 ### Kontrola troškova
-- [ ] Dnevni limit API poziva (konfigurabilno u settingsima, default: 200)
-- [ ] Upozorenje na 80% limita
-- [ ] Automatsko gašenje live moda kad se dostigne limit
-- [ ] Prikaz procijenjenog troška u settingsima (broj poziva × ~$0.015)
+- [x] Dnevni limit API poziva (konfigurabilno u settingsima, default: 200)
+- [x] Upozorenje na 80% limita (žuti banner u Settings)
+- [x] Automatsko gašenje live moda kad se dostigne limit (loop se zaustavlja, liveEnabled=false sprema se na disk)
+- [x] Prikaz procijenjenog troška u settingsima (broj poziva × ~$0.015)
 
 ### Kriterij završetka Faze 3
-- [ ] App detektira otvaranje dijaloga parametara i proaktivno nudi savjet
-- [ ] App ne šalje više od 1 poziva na 8 sekundi
-- [ ] Live mod se može uključiti/isključiti bez restarta
-- [ ] Dnevni troškovi ostaju ispod 5€ pri normalnom korištenju
+- [ ] App detektira otvaranje dijaloga parametara i proaktivno nudi savjet — ČEKA WINDOWS TEST
+- [x] App ne šalje više od 1 poziva na 8 sekundi
+- [x] Live mod se može uključiti/isključiti bez restarta
+- [ ] Dnevni troškovi ostaju ispod 5€ pri normalnom korištenju — ČEKA WINDOWS TEST
 
 ---
 

@@ -215,6 +215,26 @@ Za glasovne odgovore (TTS): Settings → uključi "Glasovni odgovor (TTS)" → o
 
 ---
 
+## Live mod (proaktivni asistent)
+
+Live mod prati što se događa na ekranu i automatski daje savjete kad detektira otvaranje dijalooga parametara u MegaTischleru.
+
+**Kako uključiti:**
+1. Klikni gumb **○ Live** u gornjem desnom kutu Copilot prozora
+2. Gumb postane **● LIVE** (zeleni) — live mod je aktivan
+3. Radi normalno u MegaTischleru — kad se nešto promijeni, Copilot može dati prijedlog automatski
+4. Savjeti se prikazuju s zelenom bordurom i oznakom "Copilot primjetio" — možeš ih odbaciti klikom na **✕**
+
+**Kontrola troškova:**
+- Settings → sekcija "Live mod — kontrola troškova"
+- Prikazuje broj poziva i procijenjeni trošak za tekuću sesiju
+- Postavi dnevni limit (default: 200 poziva ≈ $3)
+- Klikni **Resetiraj brojač** za ručni reset
+
+**Napomena:** Live mod zahtijeva aktivan backend (Replit) i internet vezu. Svaki proaktivni prijedlog troši 1 API poziv.
+
+---
+
 ## Ažuriranje na novu verziju
 
 Kad agent napravi izmjene na kodu, za ažuriranje:

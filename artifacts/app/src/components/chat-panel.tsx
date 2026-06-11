@@ -286,20 +286,30 @@ export function ChatPanel() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantContent = "";
+      let lineBuffer = ""; // accumulate partial SSE lines across TCP chunks
+      let streamDone = false;
 
-      while (true) {
+      while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n").filter(l => l.startsWith("data: "));
+        lineBuffer += decoder.decode(value, { stream: true });
+
+        // Process only complete lines (terminated by \n)
+        const newlineIdx = lineBuffer.lastIndexOf("\n");
+        if (newlineIdx === -1) continue;
+
+        const complete = lineBuffer.slice(0, newlineIdx + 1);
+        lineBuffer = lineBuffer.slice(newlineIdx + 1);
+
+        const lines = complete.split("\n").filter(l => l.startsWith("data: "));
 
         for (const line of lines) {
           const dataStr = line.slice(6).trim();
           if (!dataStr) continue;
           try {
             const data = JSON.parse(dataStr);
-            if (data.done) break;
+            if (data.done) { streamDone = true; break; }
             if (data.error) {
               assistantContent += `\n\n⚠️ ${data.error}`;
             } else if (data.content) {
@@ -311,7 +321,7 @@ export function ChatPanel() {
               return updated;
             });
           } catch {
-            // ignore parse errors on partial chunks
+            // ignore malformed lines
           }
         }
       }

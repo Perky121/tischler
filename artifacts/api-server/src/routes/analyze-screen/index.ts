@@ -30,7 +30,7 @@ Odgovori ISKLJUČIVO s validnim JSON objektom, bez ikakvog teksta prije ili posl
 Ako je relevant=false, message mora biti null.
 Ako je relevant=true, message treba biti konkretan i koristan savjet.`;
 
-router.post("/api/analyze-screen", async (req, res): Promise<void> => {
+router.post("/analyze-screen", async (req, res): Promise<void> => {
   const { screenshot_base64 } = req.body as {
     screenshot_base64?: string;
     call_count?: number;
@@ -40,6 +40,12 @@ router.post("/api/analyze-screen", async (req, res): Promise<void> => {
     res.status(400).json({ error: "screenshot_base64 is required" });
     return;
   }
+
+  // Detect image type from base64 prefix (Electron sends PNG)
+  let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
+  if (screenshot_base64.startsWith("iVBOR")) mediaType = "image/png";
+  else if (screenshot_base64.startsWith("R0lGOD")) mediaType = "image/gif";
+  else if (screenshot_base64.startsWith("UklGR")) mediaType = "image/webp";
 
   try {
     const response = await anthropic.messages.create({
@@ -54,7 +60,7 @@ router.post("/api/analyze-screen", async (req, res): Promise<void> => {
               type: "image",
               source: {
                 type: "base64",
-                media_type: "image/jpeg",
+                media_type: mediaType,
                 data: screenshot_base64,
               },
             } as ImageBlockParam,

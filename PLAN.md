@@ -174,9 +174,9 @@ Components:
 - Daily API call limit + cost display in settings
 - Proactive message style: brief, dismissible notification in chat
 
-New endpoint needed: `POST /api/analyze-screen`
-- Shorter system prompt focused on "what changed"
-- Returns `{ relevant: bool, message: string | null }`
+Endpoint `POST /api/analyze-screen` — implementiran u `artifacts/api-server/src/routes/analyze-screen/`
+- Kraći system prompt fokusiran na "što se promijenilo"
+- Vraća `{ relevant: bool, message: string | null }`
 
 Done when: App detects opening of a parameter dialog and suggests relevant formula without user asking.
 

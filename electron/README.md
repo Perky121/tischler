@@ -65,7 +65,7 @@ Postavke se čuvaju u `%APPDATA%\MegaTischler Copilot\settings.json`.
 - **Faza 1** — Electron app, F9 screenshot, MegaTischler detektor, sugestivni gumbi
 - **Faza 2 STT** — F8 glasovni unos (Web Audio API → OpenAI Whisper)
 - **Faza 2 TTS** — glasovni odgovor (OpenAI TTS, 6 glasova, toggle u Settings)
-- **Faza 3** — live mod (kod u main.js, isključen po defaultu, zahtijeva `/api/analyze-screen` endpoint)
+- **Faza 3** — live mod (kod u main.js, isključen po defaultu; `/api/analyze-screen` endpoint implementiran u artifacts/api-server/src/routes/analyze-screen/)
 
 ## Napomene
 

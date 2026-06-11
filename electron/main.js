@@ -15,9 +15,12 @@ let liveLoopTimer = null;
 let prevScreenshotBuf = null;
 let liveCallCount = 0;
 let liveMainWindow = null; // set after window creation
+let liveLoopRunning = false; // guard against overlapping async iterations
+let liveLastApiCallTs = 0;  // timestamp of last successful API call
 
 const LIVE_INTERVAL_MS = 1500;
 const LIVE_DIFF_THRESHOLD = 0.15; // 15% pixel change triggers analyze
+const LIVE_API_COOLDOWN_MS = 8000; // min 8s between analyze-screen calls
 
 async function captureForLive() {
   const screenshot = require("screenshot-desktop");
@@ -40,25 +43,35 @@ function diffImages(buf1, buf2) {
 }
 
 async function liveLoop() {
-  const settings = loadSettings();
-  if (!settings.liveEnabled) return;
-
-  // Respect daily limit
-  const limit = settings.liveDailyLimit || 200;
-  if (liveCallCount >= limit) {
-    if (liveMainWindow) {
-      liveMainWindow.webContents.send("live-limit-reached", { count: liveCallCount, limit });
-    }
-    return;
-  }
+  // Prevent overlapping iterations
+  if (liveLoopRunning) return;
+  liveLoopRunning = true;
 
   try {
+    const settings = loadSettings();
+    if (!settings.liveEnabled) return;
+
+    // Respect daily limit — stop loop and persist so it doesn't restart on next tick
+    const limit = settings.liveDailyLimit || 200;
+    if (liveCallCount >= limit) {
+      stopLiveLoop();
+      settings.liveEnabled = false;
+      saveSettings(settings);
+      if (liveMainWindow) {
+        liveMainWindow.webContents.send("live-limit-reached", { count: liveCallCount, limit });
+      }
+      return;
+    }
+
     const { full, small } = await captureForLive();
     if (prevScreenshotBuf) {
       const diffRatio = diffImages(prevScreenshotBuf, small);
-      if (diffRatio > LIVE_DIFF_THRESHOLD) {
+      const now = Date.now();
+      const cooldownOk = (now - liveLastApiCallTs) >= LIVE_API_COOLDOWN_MS;
+
+      if (diffRatio > LIVE_DIFF_THRESHOLD && cooldownOk) {
         prevScreenshotBuf = small;
-        liveCallCount++;
+        liveLastApiCallTs = now;
         // Send to analyze-screen endpoint
         const base64 = full.toString("base64");
         const res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
@@ -66,7 +79,9 @@ async function liveLoop() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ screenshot_base64: base64, call_count: liveCallCount }),
         });
+        // Only count successful API calls toward the daily budget
         if (res.ok) {
+          liveCallCount++;
           const data = await res.json();
           if (data.relevant && data.message && liveMainWindow) {
             liveMainWindow.webContents.send("live-message", {
@@ -80,7 +95,9 @@ async function liveLoop() {
     } else {
       prevScreenshotBuf = small;
     }
-  } catch { /* silently ignore errors in background loop */ }
+  } catch { /* silently ignore errors in background loop */ } finally {
+    liveLoopRunning = false;
+  }
 }
 
 function startLiveLoop(win) {
@@ -170,6 +187,12 @@ let megaTischlerActive = false;
 let detectorInterval = null;
 
 function startMegaTischlerDetector(win) {
+  // Clear any previous interval before starting a new one (prevent leak on window recreate)
+  if (detectorInterval) {
+    clearInterval(detectorInterval);
+    detectorInterval = null;
+  }
+
   function check() {
     exec("tasklist", (err, stdout) => {
       if (err) return;
@@ -300,7 +323,8 @@ ipcMain.handle("get-settings", () => {
 });
 
 ipcMain.handle("save-settings", (_, newSettings) => {
-  saveSettings(newSettings);
+  // Merge with existing settings so live/other fields are preserved
+  saveSettings({ ...loadSettings(), ...newSettings });
   return { ok: true };
 });
 
