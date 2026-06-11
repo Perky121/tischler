@@ -181,25 +181,27 @@ Ako korisnik pošalje samo screenshot bez teksta, to znači: nastavi logično rj
 KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.
 
 FORMAT ODGOVORA — RADNI LIST:
-Nakon kratkog uvoda (max 2 rečenice), UVIJEK završi odgovor s JSON blokom u obliku:
+Nakon kratkog uvoda (max 1 rečenica), UVIJEK završi odgovor s JSON blokom:
 \`\`\`worklist
 {
   "steps": [
     {
-      "title": "Kratki naslov koraka",
-      "where": "Gdje u MegaTischleru upisati (npr. Parametar Polica.W → polje Formula)",
+      "title": "Postavi širinu police da prati dubinu roditelja",
+      "where": "Dijalog parametara → Polica.W → polje Formula",
       "formula": "[.D]-2*0,5",
-      "hint": "Kratka napomena ili null"
+      "hint": "D je dubina roditelja; 0,5 je luft na svakoj strani"
     }
   ]
 }
 \`\`\`
-Pravila:
-- Maksimalno 5 koraka.
-- "formula" upiši samo ako postoji konkretna formula; inače null.
-- "hint" upiši samo ako postoji nešto što bi moglo zbuniti; inače null.
-- Ne izmišljaj formule — koristi samo ono što je u bazi znanja ili vidljivo na ekranu.
-- Za screenshot-only zahtjev: nastavi korake, nemoj ponavljati plan od početka.`,
+Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
+- "title": jedna jasna rečenica ŠTO radiš (ne samo "Referenca parametra" — reci što postižeš).
+- "where": TOČNA putanja gdje klikati/upisati (Dijalog → Parametar → polje).
+- "formula": točan tekst za kopiranje; null samo ako korak nema formule (npr. samo otvori dijalog).
+- "hint": OBAVEZNO jedna kratka rečenica ZAŠTO (objašnjenje za početnika, ne tehnički žargon).
+- Maksimalno 4 koraka za preglednost.
+- Ne izmišljaj formule — koristi bazu znanja ili ekran.
+- Za screenshot-only: samo sljedeći koraci, bez ponavljanja cijelog plana.`,
   ];
 
   if (conceptualGuide) {

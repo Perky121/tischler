@@ -148,6 +148,93 @@ const TextBlock = ({ text }: { text: string }) => {
   return <div className="space-y-2">{elements}</div>;
 };
 
+// ── Worklist (structured steps from AI) ───────────────────────────────────
+type WorklistStep = { title?: string; where?: string; formula?: string | null; hint?: string | null };
+
+function extractWorklist(content: string): WorklistStep[] | null {
+  const m = content.match(/```worklist\s*([\s\S]*?)```/);
+  if (!m) return null;
+  try {
+    const parsed = JSON.parse(m[1].trim()) as { steps?: WorklistStep[] };
+    if (Array.isArray(parsed.steps) && parsed.steps.length > 0) return parsed.steps;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function stripWorklist(content: string): string {
+  return content.replace(/```worklist[\s\S]*?```/g, "").trim();
+}
+
+function WorklistFormulaInline({ formula }: { formula: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="flex items-center gap-2 mt-1 px-2 py-1 rounded border border-border bg-zinc-950/80 flex-wrap">
+      <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">Formula</span>
+      <code className="flex-1 min-w-0 font-mono text-[12px] text-amber-200/90 break-all">{formula}</code>
+      <button
+        type="button"
+        onClick={() => {
+          navigator.clipboard.writeText(formula);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }}
+        className="text-[10px] font-semibold px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary shrink-0"
+      >
+        {copied ? "✓ Kopirano" : "Kopiraj"}
+      </button>
+    </div>
+  );
+}
+
+function WorklistCard({ steps }: { steps: WorklistStep[] }) {
+  const [done, setDone] = useState(() => new Array(steps.length).fill(false));
+
+  return (
+    <div className="mt-2 rounded-md border border-border overflow-hidden text-xs">
+      <div className="flex items-center justify-between px-2.5 py-1.5 bg-muted/40 border-b border-border">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Radni list</span>
+        <span className="text-[10px] text-muted-foreground">{steps.length} korak{steps.length === 1 ? "" : "a"}</span>
+      </div>
+      {steps.map((step, i) => {
+        const formula = step.formula?.trim();
+        return (
+          <div
+            key={i}
+            className={`flex gap-2 px-2 py-1.5 border-b border-border last:border-b-0 bg-card/30 ${done[i] ? "opacity-50" : ""}`}
+          >
+            <button
+              type="button"
+              className={`w-5 h-5 shrink-0 mt-0.5 rounded border text-[10px] font-bold flex items-center justify-center ${done[i] ? "bg-green-600/80 border-green-600 text-white" : "border-border bg-muted/30"}`}
+              onClick={() => setDone((prev) => { const n = [...prev]; n[i] = !n[i]; return n; })}
+              aria-pressed={done[i]}
+            >
+              {done[i] ? "✓" : i + 1}
+            </button>
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <div className={`font-semibold text-[12px] leading-snug ${done[i] ? "line-through" : ""}`}>
+                {step.title}
+              </div>
+              {step.where && (
+                <div className="flex gap-2 leading-snug">
+                  <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0 w-10">Gdje</span>
+                  <span className="text-[11px] text-muted-foreground">{step.where}</span>
+                </div>
+              )}
+              {step.hint && (
+                <div className="flex gap-2 leading-snug">
+                  <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0 w-10">Zašto</span>
+                  <span className="text-[11px] text-foreground/80">{step.hint}</span>
+                </div>
+              )}
+              {formula && <WorklistFormulaInline formula={formula} />}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── Full markdown message ─────────────────────────────────────────────────
 const MarkdownMessage = ({ content }: { content: string }) => {
   // Split code fences out first, process rest as text blocks
@@ -413,9 +500,19 @@ export function ChatPanel() {
                     {/* Assistant message */}
                     {!isUser && (
                       <div className="text-foreground">
-                        {msg.content ? (
-                          <MarkdownMessage content={msg.content} />
-                        ) : (
+                        {msg.content ? (() => {
+                          const wlSteps = !isStreaming ? extractWorklist(msg.content) : null;
+                          if (wlSteps) {
+                            const intro = stripWorklist(msg.content);
+                            return (
+                              <>
+                                {intro ? <MarkdownMessage content={intro} /> : null}
+                                <WorklistCard steps={wlSteps} />
+                              </>
+                            );
+                          }
+                          return <MarkdownMessage content={msg.content} />;
+                        })() : (
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             Razmišlja...

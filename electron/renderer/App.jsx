@@ -18,7 +18,7 @@ function formatDuration(secs) {
 }
 
 // ── CodeBlock ──────────────────────────────────────────────────────────────
-function CodeBlock({ code, lang }) {
+function CodeBlock({ code, lang, compact = false }) {
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
@@ -29,20 +29,57 @@ function CodeBlock({ code, lang }) {
   }
 
   return (
-    <div className="code-block">
-      <div className="code-header">
-        <span className="code-lang">{lang || "kod"}</span>
-        <button
-          className={`copy-btn${copied ? " copied" : ""}`}
-          onClick={handleCopy}
-          title="Kopiraj"
-        >
-          {copied ? "✓ Kopirano" : "⎘ Kopiraj"}
-        </button>
-      </div>
+    <div className={`code-block${compact ? " compact" : ""}`}>
+      {!compact && (
+        <div className="code-header">
+          <span className="code-lang">{lang || "kod"}</span>
+          <button
+            className={`copy-btn${copied ? " copied" : ""}`}
+            onClick={handleCopy}
+            title="Kopiraj"
+          >
+            {copied ? "✓ Kopirano" : "⎘ Kopiraj"}
+          </button>
+        </div>
+      )}
       <div className="code-body">
         <pre>{code}</pre>
+        {compact && (
+          <button
+            className={`copy-btn inline-copy${copied ? " copied" : ""}`}
+            onClick={handleCopy}
+            title="Kopiraj"
+          >
+            {copied ? "✓" : "⎘ Kopiraj"}
+          </button>
+        )}
       </div>
+    </div>
+  );
+}
+
+function WorklistFormulaInline({ formula }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(formula).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="worklist-formula-row">
+      <span className="worklist-label">Formula:</span>
+      <code className="worklist-formula-text">{formula}</code>
+      <button
+        type="button"
+        className={`worklist-copy-btn${copied ? " copied" : ""}`}
+        onClick={handleCopy}
+        title="Kopiraj formulu"
+      >
+        {copied ? "✓ Kopirano" : "Kopiraj"}
+      </button>
     </div>
   );
 }
@@ -84,32 +121,51 @@ function WorklistCard({ steps }) {
 
   return (
     <div className="worklist-card">
-      {steps.map((step, i) => (
-        <div key={i} className={`worklist-step${done[i] ? " worklist-step-done" : ""}`}>
-          <div className="worklist-step-header">
-            <button
-              className="worklist-checkbox"
-              title={done[i] ? "Označi kao nedovršeno" : "Označi kao gotovo"}
-              onClick={() => toggleDone(i)}
-              aria-pressed={done[i]}
-            >
-              {done[i] ? "✓" : String(i + 1)}
-            </button>
-            <div className="worklist-step-info">
-              <div className="worklist-step-title">{step.title}</div>
-              {step.where && (
-                <div className="worklist-step-where">{step.where}</div>
-              )}
+      <div className="worklist-card-header">
+        <span className="worklist-card-title">Radni list</span>
+        <span className="worklist-card-count">{steps.length} korak{steps.length === 1 ? "" : "a"}</span>
+      </div>
+      <div className="worklist-steps">
+        {steps.map((step, i) => {
+          const formula = step.formula?.trim();
+          const useCompactFormula = formula && !formula.includes("\n") && formula.length <= 72;
+          return (
+            <div key={i} className={`worklist-step${done[i] ? " worklist-step-done" : ""}`}>
+              <div className="worklist-step-row">
+                <button
+                  type="button"
+                  className="worklist-checkbox"
+                  title={done[i] ? "Označi kao nedovršeno" : "Označi kao gotovo"}
+                  onClick={() => toggleDone(i)}
+                  aria-pressed={done[i]}
+                >
+                  {done[i] ? "✓" : String(i + 1)}
+                </button>
+                <div className="worklist-step-body">
+                  <div className="worklist-step-title">{step.title}</div>
+                  {step.where && (
+                    <div className="worklist-step-meta">
+                      <span className="worklist-label">Gdje</span>
+                      <span className="worklist-meta-text">{step.where}</span>
+                    </div>
+                  )}
+                  {step.hint && (
+                    <div className="worklist-step-meta worklist-step-why">
+                      <span className="worklist-label">Zašto</span>
+                      <span className="worklist-meta-text">{step.hint}</span>
+                    </div>
+                  )}
+                  {formula && (
+                    useCompactFormula
+                      ? <WorklistFormulaInline formula={formula} />
+                      : <CodeBlock code={formula} lang="formula" compact />
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-          {step.formula && (
-            <CodeBlock code={step.formula} lang="formula" />
-          )}
-          {step.hint && (
-            <div className="worklist-step-hint">💡 {step.hint}</div>
-          )}
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
