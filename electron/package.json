@@ -5,20 +5,22 @@
   "author": "Perky121",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
-    "build": "electron-builder --win --x64",
-    "build:dir": "electron-builder --win --x64 --dir"
+    "compile": "esbuild renderer/App.jsx --bundle=false --loader:.jsx=jsx --outfile=renderer/App.js",
+    "start": "npm run compile && electron .",
+    "dev": "npm run compile && electron . --dev",
+    "build": "npm run compile && electron-builder --win --x64",
+    "build:dir": "npm run compile && electron-builder --win --x64 --dir"
   },
   "dependencies": {
-    "screenshot-desktop": "^1.12.7",
-    "sharp": "^0.33.4",
     "pixelmatch": "^5.3.0",
-    "pngjs": "^7.0.0"
+    "pngjs": "^7.0.0",
+    "screenshot-desktop": "^1.12.7",
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "esbuild": "^0.24.2"
   },
   "build": {
     "appId": "com.megatischler.copilot",
@@ -27,7 +29,9 @@
     "files": [
       "main.js",
       "preload.js",
-      "renderer/**/*"
+      "renderer/**/*",
+      "!renderer/App.jsx",
+      "!renderer/lib/babel.min.js"
     ],
     "win": {
       "target": "nsis",
