@@ -3,6 +3,101 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 
+// ── Live mode (Faza 3) ───────────────────────────────────────────────────────
+// pixelmatch and pngjs are optional — only loaded when live mode is active
+let pixelmatch, PNG;
+try {
+  pixelmatch = require("pixelmatch");
+  PNG = require("pngjs").PNG;
+} catch { /* modules may not be installed on first run */ }
+
+let liveLoopTimer = null;
+let prevScreenshotBuf = null;
+let liveCallCount = 0;
+let liveMainWindow = null; // set after window creation
+
+const LIVE_INTERVAL_MS = 1500;
+const LIVE_DIFF_THRESHOLD = 0.15; // 15% pixel change triggers analyze
+
+async function captureForLive() {
+  const screenshot = require("screenshot-desktop");
+  const sharp = require("sharp");
+  const imgBuf = await screenshot({ format: "png" });
+  // Resize to 640px wide for fast diff
+  const small = await sharp(imgBuf).resize(640).png().toBuffer();
+  return { full: imgBuf, small };
+}
+
+function diffImages(buf1, buf2) {
+  if (!pixelmatch || !PNG) return 1; // assume changed if modules missing
+  const img1 = PNG.sync.read(buf1);
+  const img2 = PNG.sync.read(buf2);
+  if (img1.width !== img2.width || img1.height !== img2.height) return 1;
+  const { width, height } = img1;
+  const diff = Buffer.alloc(width * height * 4);
+  const changed = pixelmatch(img1.data, img2.data, diff, width, height, { threshold: 0.1 });
+  return changed / (width * height);
+}
+
+async function liveLoop() {
+  const settings = loadSettings();
+  if (!settings.liveEnabled) return;
+
+  // Respect daily limit
+  const limit = settings.liveDailyLimit || 200;
+  if (liveCallCount >= limit) {
+    if (liveMainWindow) {
+      liveMainWindow.webContents.send("live-limit-reached", { count: liveCallCount, limit });
+    }
+    return;
+  }
+
+  try {
+    const { full, small } = await captureForLive();
+    if (prevScreenshotBuf) {
+      const diffRatio = diffImages(prevScreenshotBuf, small);
+      if (diffRatio > LIVE_DIFF_THRESHOLD) {
+        prevScreenshotBuf = small;
+        liveCallCount++;
+        // Send to analyze-screen endpoint
+        const base64 = full.toString("base64");
+        const res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ screenshot_base64: base64, call_count: liveCallCount }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.relevant && data.message && liveMainWindow) {
+            liveMainWindow.webContents.send("live-message", {
+              message: data.message,
+              callCount: liveCallCount,
+              cost: +(liveCallCount * 0.015).toFixed(3),
+            });
+          }
+        }
+      }
+    } else {
+      prevScreenshotBuf = small;
+    }
+  } catch { /* silently ignore errors in background loop */ }
+}
+
+function startLiveLoop(win) {
+  liveMainWindow = win;
+  if (liveLoopTimer) clearInterval(liveLoopTimer);
+  prevScreenshotBuf = null;
+  liveLoopTimer = setInterval(liveLoop, LIVE_INTERVAL_MS);
+}
+
+function stopLiveLoop() {
+  if (liveLoopTimer) {
+    clearInterval(liveLoopTimer);
+    liveLoopTimer = null;
+  }
+  prevScreenshotBuf = null;
+}
+
 // ── Config ──────────────────────────────────────────────────────────────────
 const SETTINGS_FILE = path.join(app.getPath("userData"), "settings.json");
 const POSITION_FILE = path.join(app.getPath("userData"), "window-position.json");
@@ -150,6 +245,10 @@ function createWindow() {
   }
 
   startMegaTischlerDetector(mainWindow);
+
+  // Start live loop if it was enabled last session
+  const s = loadSettings();
+  if (s.liveEnabled) startLiveLoop(mainWindow);
 }
 
 // ── App lifecycle ──────────────────────────────────────────────────────────────
@@ -246,4 +345,61 @@ ipcMain.handle("transcribe-audio", async (_, { base64, mimeType }) => {
   }
   const data = await res.json();
   return data.text || "";
+});
+
+ipcMain.handle("tts-speak", async (_, { text, voice }) => {
+  const settings = loadSettings();
+  const url = `${settings.backendUrl}/api/tts`;
+  const headers = { "Content-Type": "application/json" };
+  if (settings.openaiKey) headers["x-openai-key"] = settings.openaiKey;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ text, voice: voice || settings.ttsVoice || "onyx" }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`TTS HTTP ${res.status}: ${body}`);
+  }
+
+  // Return audio as base64 for the renderer to play via Audio API
+  const arrayBuf = await res.arrayBuffer();
+  return Buffer.from(arrayBuf).toString("base64");
+});
+
+// ── Faza 3: Live mode IPC ─────────────────────────────────────────────────────
+ipcMain.handle("live-set-enabled", (_, enabled) => {
+  const settings = loadSettings();
+  settings.liveEnabled = enabled;
+  saveSettings(settings);
+  if (enabled) {
+    if (mainWindow) startLiveLoop(mainWindow);
+  } else {
+    stopLiveLoop();
+  }
+  return { ok: true, enabled };
+});
+
+ipcMain.handle("live-reset-count", () => {
+  liveCallCount = 0;
+  return { ok: true };
+});
+
+ipcMain.handle("live-get-status", () => {
+  const settings = loadSettings();
+  return {
+    enabled: !!settings.liveEnabled,
+    callCount: liveCallCount,
+    dailyLimit: settings.liveDailyLimit || 200,
+    cost: +(liveCallCount * 0.015).toFixed(3),
+  };
+});
+
+ipcMain.handle("live-set-limit", (_, limit) => {
+  const settings = loadSettings();
+  settings.liveDailyLimit = Number(limit) || 200;
+  saveSettings(settings);
+  return { ok: true };
 });

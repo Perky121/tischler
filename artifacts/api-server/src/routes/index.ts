@@ -4,6 +4,7 @@ import knowledgeRouter from "./knowledge";
 import chatRouter from "./chat";
 import rulesRouter from "./rules";
 import transcribeRouter from "./transcribe";
+import ttsRouter from "./tts";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(knowledgeRouter);
 router.use(chatRouter);
 router.use(rulesRouter);
 router.use(transcribeRouter);
+router.use(ttsRouter);
 
 export default router;

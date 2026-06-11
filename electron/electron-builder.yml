@@ -26,6 +26,5 @@ nsis:
   shortcutName: MegaTischler Copilot
   installerIcon: renderer/icon.ico
   uninstallerIcon: renderer/icon.ico
-  installerHeader: renderer/icon.ico
 
 publish: null

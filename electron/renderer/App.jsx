@@ -195,36 +195,61 @@ function SuggestionButtons({ onSelect, onScreenshotCheck }) {
   );
 }
 
+const TTS_VOICES = [
+  { id: "onyx",    label: "Onyx (duboki, muški)" },
+  { id: "nova",    label: "Nova (jasni, ženski)" },
+  { id: "shimmer", label: "Shimmer (topli, ženski)" },
+  { id: "echo",    label: "Echo (srednji, muški)" },
+  { id: "alloy",   label: "Alloy (neutralni)" },
+  { id: "fable",   label: "Fable (ekspresivni)" },
+];
+
 // ── SettingsPanel ──────────────────────────────────────────────────────────
 function SettingsPanel({ onClose }) {
   const [backendUrl, setBackendUrl] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
   const [micDeviceId, setMicDeviceId] = useState("");
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [ttsVoice, setTtsVoice] = useState("onyx");
   const [mics, setMics] = useState([]);
   const [stats, setStats] = useState(null);
   const [saved, setSaved] = useState(false);
   const [showKey, setShowKey] = useState(false);
+  const [testingVoice, setTestingVoice] = useState(false);
 
   useEffect(() => {
     window.electron.getSettings().then((s) => {
       setBackendUrl(s.backendUrl || "");
       setOpenaiKey(s.openaiKey || "");
       setMicDeviceId(s.micDeviceId || "");
+      setTtsEnabled(s.ttsEnabled || false);
+      setTtsVoice(s.ttsVoice || "onyx");
     });
     window.electron.fetchKnowledgeStats().then((data) => {
       if (!data.error) setStats(data);
     });
-    // Enumerate audio input devices
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       setMics(devices.filter((d) => d.kind === "audioinput"));
     }).catch(() => {});
   }, []);
 
   function handleSave() {
-    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId }).then(() => {
+    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice }).then(() => {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
+  }
+
+  async function handleTestVoice() {
+    setTestingVoice(true);
+    try {
+      const base64 = await window.electron.ttsSpeak("Ovo je testni glasovni odgovor MegaTischler Copilota.", ttsVoice);
+      playTtsBase64(base64);
+    } catch (err) {
+      alert("TTS greška: " + err.message);
+    } finally {
+      setTestingVoice(false);
+    }
   }
 
   return (
@@ -293,6 +318,44 @@ function SettingsPanel({ onClose }) {
           </select>
         </div>
 
+        {/* TTS */}
+        <div className="settings-section">
+          <div className="settings-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span>Glasovni odgovor (TTS)</span>
+            <label className="tts-toggle">
+              <input
+                type="checkbox"
+                checked={ttsEnabled}
+                onChange={(e) => setTtsEnabled(e.target.checked)}
+                style={{ marginRight: 6 }}
+              />
+              {ttsEnabled ? "Uključen" : "Isključen"}
+            </label>
+          </div>
+          {ttsEnabled && (
+            <>
+              <select
+                className="settings-input"
+                value={ttsVoice}
+                onChange={(e) => setTtsVoice(e.target.value)}
+                style={{ cursor: "pointer", marginTop: 6 }}
+              >
+                {TTS_VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>{v.label}</option>
+                ))}
+              </select>
+              <button
+                className="btn-save"
+                onClick={handleTestVoice}
+                disabled={testingVoice}
+                style={{ marginTop: 6, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+              >
+                {testingVoice ? "Reproducira..." : "🔊 Testiraj glas"}
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Knowledge base stats */}
         <div className="settings-section">
           <div className="settings-label">Baza znanja</div>
@@ -349,6 +412,35 @@ function SettingsPanel({ onClose }) {
   );
 }
 
+// ── TTS playback helper (called outside React) ────────────────────────────
+let activeTtsAudio = null;
+
+function playTtsBase64(base64) {
+  if (activeTtsAudio) {
+    activeTtsAudio.pause();
+    activeTtsAudio = null;
+  }
+  const blob = new Blob(
+    [Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))],
+    { type: "audio/mpeg" }
+  );
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+  activeTtsAudio = audio;
+  audio.play().catch(() => {});
+  audio.addEventListener("ended", () => {
+    URL.revokeObjectURL(url);
+    if (activeTtsAudio === audio) activeTtsAudio = null;
+  });
+}
+
+function stopTts() {
+  if (activeTtsAudio) {
+    activeTtsAudio.pause();
+    activeTtsAudio = null;
+  }
+}
+
 // ── App ────────────────────────────────────────────────────────────────────
 function App() {
   const [messages, setMessages] = useState([]);
@@ -361,14 +453,15 @@ function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSecs, setRecordingSecs] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const recTimerRef = useRef(null);
-  const isRecordingRef = useRef(false);   // sync ref for IPC callback closure
-  const toggleRecordingRef = useRef(null); // always-current toggle fn
+  const isRecordingRef = useRef(false);
+  const toggleRecordingRef = useRef(null);
 
   // ── Recording ────────────────────────────────────────────────────────────
   async function startRecording() {
@@ -545,6 +638,21 @@ function App() {
           } catch { /* ignore partial */ }
         }
       }
+
+      // TTS: speak if enabled
+      if (assistantContent) {
+        const s = await window.electron.getSettings();
+        if (s.ttsEnabled && s.openaiKey) {
+          setIsSpeaking(true);
+          try {
+            const ttsText = assistantContent.replace(/```[\s\S]*?```/g, "").trim().slice(0, 500);
+            const base64 = await window.electron.ttsSpeak(ttsText, s.ttsVoice || "onyx");
+            playTtsBase64(base64);
+          } catch { /* TTS is optional, ignore errors */ } finally {
+            setIsSpeaking(false);
+          }
+        }
+      }
     } catch (err) {
       setMessages((prev) => {
         const updated = [...prev];
@@ -706,6 +814,15 @@ function App() {
           </div>
         )}
 
+        {/* TTS speaking banner */}
+        {isSpeaking && (
+          <div className="recording-banner" style={{ background: "rgba(59,130,246,0.15)", borderColor: "rgba(59,130,246,0.4)" }}>
+            <span style={{ fontSize: 14 }}>🔊</span>
+            <span>Reproducira odgovor...</span>
+            <button className="rec-stop-btn" onClick={() => { stopTts(); setIsSpeaking(false); }}>■ Stop</button>
+          </div>
+        )}
+
         {/* Screenshot preview */}
         {screenshotDataUrl && (
           <div className="screenshot-preview">
@@ -764,7 +881,7 @@ function App() {
           </button>
         </div>
 
-        <div className="input-hint">F9 ekran · F8 glas · Enter šalje · Shift+Enter novi red</div>
+        <div className="input-hint">F9 ekran · F8 glas · Enter šalje · Shift+Enter novi red{isSpeaking ? " · 🔊 reproducira..." : ""}</div>
       </div>
 
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}

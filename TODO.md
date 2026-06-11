@@ -142,16 +142,17 @@
 - [x] `POST /api/transcribe` endpoint na backendu (OpenAI SDK, toFile helper)
 
 ### TTS (Text-to-Speech) — opcionalno
-- [ ] OpenAI TTS endpoint `/api/tts` s glasovnim modelom
-- [ ] Reprodukcija odgovora kroz Electron Audio API
-- [ ] Toggle u settingsima: TTS uključen/isključen, odabir glasa
-- [ ] Gumb za zaustavljanje reprodukcije
+- [x] OpenAI TTS endpoint `/api/tts` s glasovnim modelom (onyx, nova, shimmer, echo, alloy, fable)
+- [x] Reprodukcija odgovora kroz Electron Audio API (base64 mp3)
+- [x] Toggle u settingsima: TTS uključen/isključen + odabir glasa
+- [x] Gumb za zaustavljanje reprodukcije (banner + "■ Stop")
+- [x] Test gumb za glas u Settings panelu
 
 ### Dodaci u Settings (gotovi)
 - [x] OPENAI_API_KEY polje (za Whisper + TTS)
 - [x] Mikrofon odabir (lista dostupnih uređaja)
-- [ ] TTS toggle + odabir glasa
-- [ ] Test gumb za mikrofon
+- [x] TTS toggle + odabir glasa
+- [x] Test gumb za glas
 
 ### Kriterij završetka Faze 2
 - [ ] Korisnik pritisne F8, govori pitanje, aplikacija odgovori za < 12 sekundi

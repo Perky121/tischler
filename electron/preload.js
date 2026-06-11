@@ -22,6 +22,15 @@ contextBridge.exposeInMainWorld("electron", {
   transcribeAudio: (base64, mimeType) =>
     ipcRenderer.invoke("transcribe-audio", { base64, mimeType }),
 
+  // TTS — returns base64 mp3 to play in renderer
+  ttsSpeak: (text, voice) => ipcRenderer.invoke("tts-speak", { text, voice }),
+
+  // Faza 3: Live mode
+  liveSetEnabled: (enabled) => ipcRenderer.invoke("live-set-enabled", enabled),
+  liveGetStatus: () => ipcRenderer.invoke("live-get-status"),
+  liveSetLimit: (limit) => ipcRenderer.invoke("live-set-limit", limit),
+  liveResetCount: () => ipcRenderer.invoke("live-reset-count"),
+
   // Event listeners: main → renderer
   onScreenshotCaptured: (cb) =>
     ipcRenderer.on("screenshot-captured", (_, base64) => cb(base64)),

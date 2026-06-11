@@ -26,23 +26,23 @@ jobs:
 
       - name: Install dependencies
         working-directory: electron
-        run: npm install
+        run: npm ci
 
       - name: Build Windows installer
         working-directory: electron
         run: npm run build
         env:
-          # Disable code signing (no certificate in CI)
+          # Disable code signing (no certificate needed)
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ github.token }}
 
       - name: Upload .exe installer
         uses: actions/upload-artifact@v4
         with:
-          name: MegaTischler-Copilot-Setup-${{ github.ref_name }}
+          name: MegaTischler-Copilot-Setup
           path: |
             electron/dist/*.exe
-            electron/dist/*.yml
-          retention-days: 30
+          retention-days: 90
 
       - name: Show build output
         if: always()
