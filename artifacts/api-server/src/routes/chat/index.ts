@@ -4,7 +4,14 @@ import fs from "fs";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { SendChatBody } from "@workspace/api-zod";
 import { logger } from "../../lib/logger";
-import type { ImageBlockParam, TextBlockParam, MessageParam } from "@anthropic-ai/sdk/resources/messages";
+// Type aliases matching @anthropic-ai/sdk shapes — avoids resolving the SDK subpath
+// across workspace package boundaries.
+type TextBlockParam = { type: "text"; text: string };
+type ImageBlockParam = {
+  type: "image";
+  source: { type: "base64"; media_type: "image/jpeg" | "image/png" | "image/gif" | "image/webp"; data: string };
+};
+type MessageParam = { role: "user" | "assistant"; content: string | Array<TextBlockParam | ImageBlockParam> };
 
 const router: IRouter = Router();
 
