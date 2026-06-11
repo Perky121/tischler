@@ -88,16 +88,10 @@ function accumulateCost(costUsd) {
 async function captureForLive() {
   const screenshot = require("screenshot-desktop");
   const sharp = require("sharp");
-
-  // Hide Copilot window so it doesn't appear in the captured screenshot
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(0);
-  await new Promise((r) => setTimeout(r, 150));
-  let imgBuf;
-  try {
-    imgBuf = await screenshot({ format: "png" });
-  } finally {
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(1);
-  }
+  // Note: we do NOT hide the window here — doing so every 800ms causes visible
+  // blinking. The Copilot window is excluded from the capture by the user-selected
+  // region (which should cover only the MegaCAD area, not the Copilot panel).
+  const imgBuf = await screenshot({ format: "png" });
 
   const settings = loadSettings();
   let full = imgBuf;
