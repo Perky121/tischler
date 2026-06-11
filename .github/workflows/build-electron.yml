@@ -47,6 +47,21 @@ jobs:
             electron/dist/*.exe
           retention-days: 90
 
+      - name: Create or update "latest" release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: "Latest Build"
+          allowUpdates: true
+          removeArtifacts: true
+          artifacts: "electron/dist/MegaTischler-Copilot-Setup.exe"
+          token: ${{ github.token }}
+          prerelease: true
+          body: |
+            Automatski build — zadnja verzija s `main` grane.
+
+            **Preuzimanje**: klikni na `MegaTischler-Copilot-Setup.exe` ispod (Assets sekcija).
+
       - name: Show build output
         if: always()
         working-directory: electron

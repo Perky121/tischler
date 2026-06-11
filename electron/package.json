@@ -47,7 +47,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MegaTischler Copilot"
+      "shortcutName": "MegaTischler Copilot",
+      "artifactName": "MegaTischler-Copilot-Setup.exe"
     }
   }
 }
