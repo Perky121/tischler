@@ -120,7 +120,7 @@ const SETTINGS_FILE = path.join(app.getPath("userData"), "settings.json");
 const POSITION_FILE = path.join(app.getPath("userData"), "window-position.json");
 
 const DEFAULT_SETTINGS = {
-  backendUrl: "https://27ff5e4d-ebe8-4d2e-a35c-5769cb600e92-00-2polfw5x5u74l.worf.replit.dev",
+  backendUrl: "https://tischler1.replit.app",
 };
 
 function loadSettings() {
