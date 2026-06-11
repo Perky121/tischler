@@ -215,23 +215,45 @@ Za glasovne odgovore (TTS): Settings → uključi "Glasovni odgovor (TTS)" → o
 
 ---
 
-## Live mod (proaktivni asistent)
+## Live mod 2.0 (proaktivni asistent)
 
-Live mod prati što se događa na ekranu i automatski daje savjete kad detektira otvaranje dijalooga parametara u MegaTischleru.
+Live mod prati odabrani dio ekrana i automatski daje savjete kad detektira promjene u MegaTischleru. Verzija 2.0 dodaje odabir regije ekrana, realan budžet u USD i pamćenje konteksta sesije.
 
-**Kako uključiti:**
+### Pokretanje Live moda
+
 1. Klikni gumb **○ Live** u gornjem desnom kutu Copilot prozora
-2. Gumb postane **● LIVE** (zeleni) — live mod je aktivan
-3. Radi normalno u MegaTischleru — kad se nešto promijeni, Copilot može dati prijedlog automatski
-4. Savjeti se prikazuju s zelenom bordurom i oznakom "Copilot primjetio" — možeš ih odbaciti klikom na **✕**
+2. Na cijelom ekranu se pojavi **prozirni overlay** — povuci miša i označi pravokutnik oko MegaCAD prozora
+3. Klikni **Potvrdi** (ili pritisni Enter) → gumb postane **● LIVE** (zeleni)
+4. Da promijeniš područje: klikni **● LIVE** → novi odabir → Potvrdi
 
-**Kontrola troškova:**
-- Settings → sekcija "Live mod — kontrola troškova"
-- Prikazuje broj poziva i procijenjeni trošak za tekuću sesiju
-- Postavi dnevni limit (default: 200 poziva ≈ $3)
-- Klikni **Resetiraj brojač** za ručni reset
+### Što Live mod radi
 
-**Napomena:** Live mod zahtijeva aktivan backend (Replit) i internet vezu. Svaki proaktivni prijedlog troši 1 API poziv.
+- Svake 800ms uspoređuje novo stanje odabranog dijela ekrana s prethodnim
+- Ako se ekran dovoljno promijeni (>10%), šalje screenshot Claudeu na analizu
+- Proaktivni savjeti se prikazuju s oznakom **"Copilot primjetio"** — odbaci ih klikom na **✕**
+- Chat automatski koristi kontekst trenutnog ekrana bez potrebe za F9
+
+### Kontekst sesije i baza znanja
+
+Live mod prepoznaje koje parametre i formule su vidljive na ekranu i sprema ih u memoriju sesije. Kad vidljivi dijalog sadrži nove podatke, Copilot ponudi:
+
+- **"📚 Spremi u bazu"** — formule i parametri s ekrana se trajno dodaju u bazu znanja
+- Nije automatski — uvijek traži potvrdu
+- Ako je vidljivo ime modula (npr. `KUTNI.mac`), prikazuje se gumb **"Učitaj u bazu"** za reparsiraj te datoteke
+
+### Kontrola budžeta (Settings → "Live mod 2.0")
+
+| Prikaz | Opis |
+|--------|------|
+| **12,40 $ / 100 $** | Potrošeno od dnevnog budžeta |
+| Progress bar | Vizualni prikaz iskorištenosti |
+| ⚠ upozorenje | Pojavljuje se pri >80% iskorištenosti |
+| Dnevni budžet | Polje za unos (default: **100 $**) |
+| Resetiraj brojač | Ručni reset potrošnje na 0 |
+
+Live mod se automatski isključuje kad se dostigne dnevni budžet. Reset se događa automatski svaki novi dan.
+
+**Napomena:** Svaki AI poziv troši stvarne Anthropic tokene ($15/1M input, $75/1M output). Regionalni crop smanjuje troškove jer se šalju manji screenshoti.
 
 ---
 

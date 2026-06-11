@@ -7,11 +7,9 @@ function extractBase64(dataUrl) {
   return m ? m[1] : dataUrl;
 }
 
-function autoResizeTextarea(el) {
-  if (!el) return;
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
-}
+const INPUT_HEIGHT_MIN = 48;
+const INPUT_HEIGHT_MAX = 320;
+const INPUT_HEIGHT_DEFAULT = 72;
 
 function formatDuration(secs) {
   const m = Math.floor(secs / 60);
@@ -205,7 +203,19 @@ const TTS_VOICES = [
 ];
 
 // ── SettingsPanel ──────────────────────────────────────────────────────────
-function SettingsPanel({ onClose }) {
+function SettingsPanel({
+  onClose,
+  liveSpentUsd = 0,
+  liveBudgetUsd = 100,
+  liveCallCount = 0,
+  liveRegion = null,
+  setLiveRegion,
+  setLiveEnabled,
+  setLiveSpentUsd,
+  setLiveCallCount,
+  setLiveBudgetUsd,
+  onChangeRegion,
+}) {
   const [backendUrl, setBackendUrl] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
   const [micDeviceId, setMicDeviceId] = useState("");
@@ -216,12 +226,9 @@ function SettingsPanel({ onClose }) {
   const [saved, setSaved] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [testingVoice, setTestingVoice] = useState(false);
-  // Live mode cost control
-  const [liveCallCount, setLiveCallCount] = useState(0);
-  const [liveCost, setLiveCost] = useState(0);
-  const [liveLimit, setLiveLimit] = useState(200);
-  const [liveLimitInput, setLiveLimitInput] = useState("200");
-
+  const [useRegionForF9, setUseRegionForF9] = useState(false);
+  const [macUploadStatus, setMacUploadStatus] = useState(null); // null | "uploading" | {ok, count, errors}
+  const macFileInputRef = React.useRef(null);
   useEffect(() => {
     window.electron.getSettings().then((s) => {
       setBackendUrl(s.backendUrl || "");
@@ -229,19 +236,13 @@ function SettingsPanel({ onClose }) {
       setMicDeviceId(s.micDeviceId || "");
       setTtsEnabled(s.ttsEnabled || false);
       setTtsVoice(s.ttsVoice || "onyx");
+      setUseRegionForF9(!!s.useRegionForF9);
     });
     window.electron.fetchKnowledgeStats().then((data) => {
       if (!data.error) setStats(data);
     });
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       setMics(devices.filter((d) => d.kind === "audioinput"));
-    }).catch(() => {});
-    window.electron.liveGetStatus().then((s) => {
-      setLiveCallCount(s.callCount);
-      setLiveCost(s.cost);
-      const lim = s.dailyLimit ?? s.limit ?? 200;
-      setLiveLimit(lim);
-      setLiveLimitInput(String(lim));
     }).catch(() => {});
   }, []);
 
@@ -261,6 +262,37 @@ function SettingsPanel({ onClose }) {
       alert("TTS greška: " + err.message);
     } finally {
       setTestingVoice(false);
+    }
+  }
+
+  async function handleMacUpload(files) {
+    if (!files || files.length === 0) return;
+    setMacUploadStatus("uploading");
+    try {
+      // Read all files as base64 in the renderer (FileReader), then pass to main
+      const filesData = await Promise.all(Array.from(files).map((file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result.split(",")[1];
+          resolve({ name: file.name, base64 });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      })));
+
+      const result = await window.electron.uploadMacFiles({ files: filesData });
+      if (result.error) throw new Error(result.error);
+
+      // Refresh stats
+      window.electron.fetchKnowledgeStats().then((data) => {
+        if (!data.error) setStats(data);
+      });
+
+      setMacUploadStatus({ ok: true, count: filesData.length });
+      setTimeout(() => setMacUploadStatus(null), 3000);
+    } catch (err) {
+      setMacUploadStatus({ ok: false, error: err.message });
+      setTimeout(() => setMacUploadStatus(null), 5000);
     }
   }
 
@@ -368,60 +400,130 @@ function SettingsPanel({ onClose }) {
           )}
         </div>
 
-        {/* Live mode cost control */}
+        {/* Live mode — region + budget */}
         <div className="settings-section">
-          <div className="settings-label">Live mod — kontrola troškova</div>
+          <div className="settings-label">Live mod 2.0 — budžet i područje</div>
+
+          {/* Budget display */}
           <div className="live-cost-row">
             <div className="live-cost-stat">
-              <span className="live-cost-num">{liveCallCount}</span>
-              <span className="live-cost-desc">poziva danas</span>
+              <span className="live-cost-num">${liveSpentUsd.toFixed(2)}</span>
+              <span className="live-cost-desc">potrošeno danas</span>
             </div>
             <div className="live-cost-stat">
-              <span className="live-cost-num">${liveCost.toFixed(3)}</span>
-              <span className="live-cost-desc">procijenjen trošak</span>
+              <span className="live-cost-num">${liveBudgetUsd}</span>
+              <span className="live-cost-desc">dnevni budžet</span>
+            </div>
+            <div className="live-cost-stat">
+              <span className="live-cost-num">{liveCallCount}</span>
+              <span className="live-cost-desc">AI poziva</span>
             </div>
           </div>
-          {liveCallCount / liveLimit > 0.8 && (
-            <div className="live-cost-warning">
-              ⚠ Potrošeno je {Math.round((liveCallCount / liveLimit) * 100)}% dnevnog limita
-            </div>
-          )}
-          <div className="settings-label" style={{ marginTop: 8 }}>Dnevni limit poziva</div>
+
+          {/* Budget progress bar */}
+          {(() => {
+            const pct = liveBudgetUsd > 0 ? liveSpentUsd / liveBudgetUsd : 0;
+            return (
+              <>
+                <div className="live-budget-bar">
+                  <div
+                    className={`live-budget-fill${pct > 0.8 ? " warning" : ""}`}
+                    style={{ width: `${Math.min(100, pct * 100).toFixed(1)}%` }}
+                  />
+                </div>
+                {pct > 0.8 && (
+                  <div className="live-cost-warning">
+                    ⚠ Potrošeno {Math.round(pct * 100)}% dnevnog budžeta
+                  </div>
+                )}
+              </>
+            );
+          })()}
+
+          {/* Budget input */}
+          <div className="settings-label" style={{ marginTop: 8 }}>Dnevni budžet (USD)</div>
           <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
             <input
               className="settings-input"
               type="number"
-              min="10"
-              max="1000"
-              value={liveLimitInput}
-              onChange={(e) => setLiveLimitInput(e.target.value)}
+              min="1"
+              max="500"
+              defaultValue={liveBudgetUsd}
+              key={liveBudgetUsd}
+              onBlur={(e) => {
+                const n = parseFloat(e.target.value);
+                if (n > 0) {
+                  setLiveBudgetUsd && setLiveBudgetUsd(n);
+                  window.electron.liveSetBudget(n).catch(() => {});
+                }
+              }}
               style={{ width: 80 }}
             />
             <button
               className="btn-save"
-              style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-              onClick={() => {
-                const n = parseInt(liveLimitInput, 10);
-                if (n > 0) {
-                  setLiveLimit(n);
-                  window.electron.liveSetLimit(n).catch(() => {});
-                }
-              }}
-            >
-              Postavi
-            </button>
-            <button
-              className="btn-save"
               style={{ flex: 1, background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
               onClick={() => {
-                setLiveCallCount(0);
-                setLiveCost(0);
+                setLiveSpentUsd && setLiveSpentUsd(0);
+                setLiveCallCount && setLiveCallCount(0);
                 window.electron.liveResetCount().catch(() => {});
               }}
             >
               Resetiraj brojač
             </button>
           </div>
+
+          {/* Region */}
+          <div className="settings-label" style={{ marginTop: 10 }}>Praćeno područje ekrana</div>
+          {liveRegion ? (
+            <div className="live-region-info">
+              <span className="live-region-coords">
+                {liveRegion.x},{liveRegion.y} — {liveRegion.width}×{liveRegion.height}px
+              </span>
+              <button
+                className="btn-save"
+                style={{ fontSize: 11, padding: "3px 8px", background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+                onClick={() => { onChangeRegion && onChangeRegion(); }}
+              >
+                Promijeni
+              </button>
+              <button
+                className="btn-save"
+                style={{ fontSize: 11, padding: "3px 8px", background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
+                onClick={() => {
+                  window.electron.liveClearRegion().then((result) => {
+                    if (result?.liveDisabled && setLiveEnabled) setLiveEnabled(false);
+                  }).catch(() => {});
+                  setLiveRegion && setLiveRegion(null);
+                }}
+              >
+                Ukloni
+              </button>
+            </div>
+          ) : (
+            <div style={{ color: "var(--text3)", fontSize: 12, marginTop: 4 }}>
+              Nije odabrano — klik na Live gumb za odabir
+            </div>
+          )}
+
+          {/* useRegionForF9 toggle */}
+          {liveRegion && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+              <input
+                type="checkbox"
+                id="useRegionForF9"
+                checked={useRegionForF9}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setUseRegionForF9(checked);
+                  window.electron.saveSettings({ useRegionForF9: checked }).catch(() => {});
+                }}
+                style={{ cursor: "pointer" }}
+              />
+              <label htmlFor="useRegionForF9" style={{ fontSize: 12, color: "var(--text2)", cursor: "pointer" }}>
+                Koristi isto područje i za F9 screenshot
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Knowledge base stats */}
@@ -444,6 +546,39 @@ function SettingsPanel({ onClose }) {
             </div>
           ) : (
             <div style={{ fontSize: 11, color: "var(--text3)" }}>Učitavanje...</div>
+          )}
+
+          {/* MAC file upload */}
+          <div className="settings-label" style={{ marginTop: 10 }}>Dodaj .mac datoteke u bazu</div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
+            <input
+              ref={macFileInputRef}
+              type="file"
+              accept=".mac,.zip"
+              multiple
+              style={{ display: "none" }}
+              onChange={(e) => { handleMacUpload(e.target.files); e.target.value = ""; }}
+            />
+            <button
+              className="btn-save"
+              style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+              onClick={() => macFileInputRef.current?.click()}
+              disabled={macUploadStatus === "uploading"}
+            >
+              {macUploadStatus === "uploading" ? "⏳ Dodavanje..." : "📁 Odaberi .mac / .zip"}
+            </button>
+          </div>
+          {macUploadStatus && macUploadStatus !== "uploading" && (
+            <div style={{
+              marginTop: 6, fontSize: 11, padding: "4px 8px", borderRadius: 4,
+              background: macUploadStatus.ok ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.12)",
+              color: macUploadStatus.ok ? "var(--accent)" : "#f87171",
+              border: `1px solid ${macUploadStatus.ok ? "rgba(74,222,128,0.3)" : "rgba(248,113,113,0.3)"}`,
+            }}>
+              {macUploadStatus.ok
+                ? `✓ Dodano ${macUploadStatus.count} datoteka(e) u bazu znanja`
+                : `✗ Greška: ${macUploadStatus.error}`}
+            </div>
           )}
         </div>
 
@@ -524,11 +659,28 @@ function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [liveEnabled, setLiveEnabled] = useState(false);
   const [liveCallCount, setLiveCallCount] = useState(0);
-  const [liveCost, setLiveCost] = useState(0);
+  const [liveSpentUsd, setLiveSpentUsd] = useState(0);
+  const [liveBudgetUsd, setLiveBudgetUsd] = useState(100);
+  const [liveRegion, setLiveRegion] = useState(null);
+  const [sessionContext, setSessionContext] = useState(null);
+  const [awaitingRegion, setAwaitingRegion] = useState(false);
+  const [inputHeight, setInputHeight] = useState(INPUT_HEIGHT_DEFAULT);
 
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
+  const inputHeightRef = useRef(INPUT_HEIGHT_DEFAULT);
+  const resizingInputRef = useRef(false);
+  const resizeStartYRef = useRef(0);
+  const resizeStartHeightRef = useRef(0);
   const mediaRecorderRef = useRef(null);
+  // Refs for values used inside useCallback without adding to deps (avoids stale closures)
+  const liveEnabledRef = useRef(false);
+  const sessionContextRef = useRef(null);
+  // Track previous live state when opening region picker so cancel can restore it
+  const prevLiveEnabledRef = useRef(false);
+  // Stable message IDs (avoid re-render issues when dismissing by index)
+  const msgIdCounterRef = useRef(0);
+  function nextMsgId() { return ++msgIdCounterRef.current; }
   const audioChunksRef = useRef([]);
   const recTimerRef = useRef(null);
   const isRecordingRef = useRef(false);
@@ -565,10 +717,28 @@ function App() {
             const text = await window.electron.transcribeAudio(base64, mimeType);
             if (text) {
               setInput((prev) => (prev ? prev + " " + text : text));
-              setTimeout(() => autoResizeTextarea(textareaRef.current), 0);
+            } else {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: Date.now(),
+                  role: "assistant",
+                  content: "⚠️ Transkripcija nije uspjela — primljen je prazan odgovor. Provjeri OpenAI API ključ u Postavkama.",
+                  type: "proactive",
+                },
+              ]);
             }
           } catch (err) {
             console.error("Transcription error:", err);
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now(),
+                role: "assistant",
+                content: `⚠️ Greška transkripcije: ${err.message || "nepoznata greška"}. Provjeri OpenAI API ključ i internetsku vezu.`,
+                type: "proactive",
+              },
+            ]);
           } finally {
             setIsTranscribing(false);
           }
@@ -626,8 +796,19 @@ function App() {
     // Load persisted live status
     window.electron.liveGetStatus().then((s) => {
       setLiveEnabled(s.enabled);
-      setLiveCallCount(s.callCount);
-      setLiveCost(s.cost ?? 0);
+      setLiveCallCount(s.callCount ?? 0);
+      setLiveSpentUsd(s.spentUsd ?? 0);
+      setLiveBudgetUsd(s.budgetUsd ?? 100);
+      setLiveRegion(s.liveRegion ?? null);
+      if (s.sessionContext) setSessionContext(s.sessionContext);
+    }).catch(() => {});
+
+    window.electron.getSettings().then((s) => {
+      const h = Number(s.inputHeight);
+      if (h >= INPUT_HEIGHT_MIN && h <= INPUT_HEIGHT_MAX) {
+        setInputHeight(h);
+        inputHeightRef.current = h;
+      }
     }).catch(() => {});
 
     return () => {
@@ -638,43 +819,178 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    inputHeightRef.current = inputHeight;
+  }, [inputHeight]);
+
+  useEffect(() => {
+    function onMouseMove(e) {
+      if (!resizingInputRef.current) return;
+      const delta = resizeStartYRef.current - e.clientY;
+      const next = Math.max(
+        INPUT_HEIGHT_MIN,
+        Math.min(INPUT_HEIGHT_MAX, resizeStartHeightRef.current + delta),
+      );
+      setInputHeight(next);
+    }
+
+    function onMouseUp() {
+      if (!resizingInputRef.current) return;
+      resizingInputRef.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.electron.saveSettings({ inputHeight: inputHeightRef.current }).catch(() => {});
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+  }, []);
+
+  function startInputResize(e) {
+    resizingInputRef.current = true;
+    resizeStartYRef.current = e.clientY;
+    resizeStartHeightRef.current = inputHeightRef.current;
+    document.body.style.cursor = "ns-resize";
+    document.body.style.userSelect = "none";
+  }
+
   // Live mode IPC listeners
   useEffect(() => {
     window.electron.onLiveMessage((data) => {
-      setLiveCallCount(data.callCount);
-      setLiveCost(data.cost);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.message, type: "proactive" },
-      ]);
-    });
-    window.electron.onLiveLimitReached((data) => {
-      setLiveEnabled(false);
-      setLiveCallCount(data.count);
+      setLiveCallCount(data.callCount ?? 0);
+      setLiveSpentUsd(data.spentUsd ?? 0);
       setMessages((prev) => [
         ...prev,
         {
+          id: Date.now(),
           role: "assistant",
-          content: `Live mod automatski isključen — dostignut dnevni limit od ${data.limit} poziva.`,
+          content: data.message,
+          type: "proactive",
+          context: data.context || null,
+        },
+      ]);
+    });
+
+    window.electron.onLiveBudgetReached((data) => {
+      setLiveEnabled(false);
+      setLiveSpentUsd(data.spent ?? 0);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          role: "assistant",
+          content: `Live mod automatski isključen — dostignut dnevni budžet od ${data.budget ?? 100} $.`,
           type: "proactive",
         },
       ]);
     });
+
+    window.electron.onLiveContextUpdated((ctx) => {
+      setSessionContext(ctx);
+    });
+
+    window.electron.onLiveKbSuggest((data) => {
+      const ctx = data.context;
+      if (!ctx) return;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          role: "assistant",
+          content: `Detektiran novi dijalog parametara. Želiš li spremiti ove podatke u bazu znanja?`,
+          type: "kb-suggest",
+          context: ctx,
+        },
+      ]);
+    });
+
+    // Region picker callbacks
+    window.electron.onLiveRegionSelected((region) => {
+      setLiveRegion(region);
+      setAwaitingRegion(false);
+      // Now actually enable live
+      window.electron.liveSetEnabled(true).then(() => setLiveEnabled(true)).catch(console.error);
+    });
+
+    window.electron.onLiveRegionCancelled(() => {
+      setAwaitingRegion(false);
+      // Restore live state if it was active before opening picker (e.g. "Change region" then Esc)
+      if (prevLiveEnabledRef.current) {
+        prevLiveEnabledRef.current = false;
+        setLiveEnabled(true);
+        window.electron.liveSetEnabled(true).catch(() => {});
+      }
+    });
+
+    // Show a visible warning if diff libraries (pixelmatch/pngjs) are not installed
+    if (window.electron.onLiveDepsMissing) {
+      window.electron.onLiveDepsMissing(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now(),
+            role: "assistant",
+            content: "⚠️ **Live mod neće raditi** — `pixelmatch` ili `pngjs` nisu instalirani. Pokreni `npm install` u mapi `electron/` i ponovno pokreni aplikaciju.",
+            type: "proactive",
+          },
+        ]);
+      });
+    }
+
     return () => {
       window.electron.removeLiveListeners();
     };
   }, []);
 
   async function toggleLiveMode() {
-    const next = !liveEnabled;
-    setLiveEnabled(next);
-    try {
-      await window.electron.liveSetEnabled(next);
-    } catch (err) {
-      setLiveEnabled(!next); // revert on error
-      console.error("Live mode toggle error:", err);
+    if (liveEnabled) {
+      // Turn off
+      setLiveEnabled(false);
+      window.electron.liveSetEnabled(false).catch(console.error);
+      return;
     }
+    // If region already configured, start live directly without re-picking
+    if (liveRegion) {
+      window.electron.liveSetEnabled(true)
+        .then(() => setLiveEnabled(true))
+        .catch(console.error);
+      return;
+    }
+    // No region yet: open picker first
+    prevLiveEnabledRef.current = false;
+    setAwaitingRegion(true);
+    window.electron.liveStartRegionPicker().catch((err) => {
+      setAwaitingRegion(false);
+      console.error("Region picker error:", err);
+    });
   }
+
+  async function changeRegion() {
+    const wasEnabled = liveEnabled;
+    setAwaitingRegion(true);
+    if (liveEnabled) {
+      setLiveEnabled(false);
+      window.electron.liveSetEnabled(false).catch(() => {});
+    }
+    // Store previous state so onLiveRegionCancelled can restore it
+    prevLiveEnabledRef.current = wasEnabled;
+    window.electron.liveStartRegionPicker().catch((err) => {
+      setAwaitingRegion(false);
+      if (wasEnabled) {
+        setLiveEnabled(true);
+        window.electron.liveSetEnabled(true).catch(() => {});
+      }
+      console.error("Region picker error:", err);
+    });
+  }
+
+  // Keep refs in sync with live state (used in useCallback to avoid stale closures)
+  useEffect(() => { liveEnabledRef.current = liveEnabled; }, [liveEnabled]);
+  useEffect(() => { sessionContextRef.current = sessionContext; }, [sessionContext]);
 
   // Auto-scroll
   useEffect(() => {
@@ -719,6 +1035,10 @@ function App() {
 
       const body = { message: userMsg.content, history: historyForApi };
       if (currentScreenshot) body.screenshot_base64 = extractBase64(currentScreenshot);
+      // Faza C: use refs to avoid stale closure on liveEnabled / sessionContext
+      if (liveEnabledRef.current && sessionContextRef.current) {
+        body.session_context = sessionContextRef.current;
+      }
 
       const res = await fetch(`${url}/api/chat`, {
         method: "POST",
@@ -822,7 +1142,6 @@ function App() {
 
   function handleTextareaChange(e) {
     setInput(e.target.value);
-    autoResizeTextarea(e.target);
   }
 
   const lastIdx = messages.length - 1;
@@ -846,11 +1165,15 @@ function App() {
             <span>{mtActive ? "MT aktivan" : "MT nije pokrenut"}</span>
           </div>
           <button
-            className={`btn-live${liveEnabled ? " active" : ""}`}
-            title={liveEnabled ? "Isključi live mod" : "Uključi live mod (proaktivni asistent)"}
+            className={`btn-live${liveEnabled ? " active" : ""}${awaitingRegion ? " awaiting" : ""}`}
+            title={
+              awaitingRegion ? "Odaberi područje za Live..." :
+              liveEnabled ? `● LIVE aktivan (${liveSpentUsd.toFixed(2)}$/${liveBudgetUsd}$) — klik za isključiti` :
+              "Uključi Live mod — odabir područja"
+            }
             onClick={toggleLiveMode}
           >
-            {liveEnabled ? "● LIVE" : "○ Live"}
+            {awaitingRegion ? "↔ Odaberi..." : liveEnabled ? "● LIVE" : "○ Live"}
           </button>
           <button className="btn-icon" title="Postavke" onClick={() => setShowSettings(true)}>⚙</button>
           <button className="btn-icon" title="Minimizirati" onClick={() => window.electron.minimizeWindow()}>─</button>
@@ -879,21 +1202,58 @@ function App() {
           messages.map((msg, i) => {
             const isUser = msg.role === "user";
             const isProactive = msg.type === "proactive";
+            const isKbSuggest = msg.type === "kb-suggest";
             const isLast = i === lastIdx;
+            // Use stable ID when available (proactive/kb-suggest), fall back to index
+            const msgKey = msg.id ?? i;
 
-            if (isProactive) {
+            if (isProactive || isKbSuggest) {
               return (
-                <div key={i} className="msg-row assistant">
+                <div key={msgKey} className="msg-row assistant">
                   <div className="msg-label proactive-label">
-                    <div className="msg-label-icon proactive-icon">👁</div>
-                    Copilot primjetio
+                    <div className="msg-label-icon proactive-icon">{isKbSuggest ? "📚" : "👁"}</div>
+                    {isKbSuggest ? "Prijedlog za bazu" : "Copilot primjetio"}
                   </div>
-                  <div className="msg-bubble proactive">
+                  <div className={`msg-bubble proactive${isKbSuggest ? " kb-suggest" : ""}`}>
                     <MarkdownMessage content={msg.content} />
+                    {isKbSuggest && msg.context && (
+                      <div className="proactive-actions">
+                        <button
+                          className="btn-save-kb"
+                          title="Spremi u bazu znanja"
+                          onClick={async () => {
+                            const ctx = msg.context;
+                            const data = {
+                              formulas: (ctx.formulasSeen || []).map(f => ({ formula: f })),
+                              parameters: (ctx.parametersSeen || []).map(p => ({
+                                name: p.name,
+                                description: `vrijednost: ${p.value}`,
+                              })),
+                              observations: ctx.summary ? [{ text: ctx.summary }] : [],
+                            };
+                            try {
+                              const result = await window.electron.kbLearn(data);
+                              if (result.error) throw new Error(result.error);
+                              setMessages((prev) => prev.filter((m, j) => msg.id ? m.id !== msg.id : j !== i));
+                              setMessages((prev) => [...prev, {
+                                id: Date.now(),
+                                role: "assistant",
+                                content: `✓ Spremljeno u bazu znanja (${result.added} novih zapisa).`,
+                                type: "proactive",
+                              }]);
+                            } catch (err) {
+                              alert("Greška pri spremanju: " + err.message);
+                            }
+                          }}
+                        >
+                          📚 Spremi u bazu
+                        </button>
+                      </div>
+                    )}
                     <button
                       className="proactive-dismiss"
                       title="Zatvori"
-                      onClick={() => setMessages((prev) => prev.filter((_, j) => j !== i))}
+                      onClick={() => setMessages((prev) => prev.filter((m, j) => msg.id ? m.id !== msg.id : j !== i))}
                     >
                       ✕
                     </button>
@@ -903,7 +1263,7 @@ function App() {
             }
 
             return (
-              <div key={i} className={`msg-row ${isUser ? "user" : "assistant"}`}>
+              <div key={msgKey} className={`msg-row ${isUser ? "user" : "assistant"}`}>
                 {!isUser && (
                   <div className="msg-label">
                     <div className="msg-label-icon">MT</div>
@@ -943,8 +1303,56 @@ function App() {
         )}
       </div>
 
+      {/* Faza E: Module hint banner */}
+      {liveEnabled && sessionContext?.moduleHint && (
+        <div className="module-hint-banner">
+          <span>📄 Aktivan modul: <strong>{sessionContext.moduleHint}</strong></span>
+          <button
+            className="btn-load-mac"
+            title={`Učitaj ${sessionContext.moduleHint} u bazu znanja`}
+            onClick={async () => {
+              const hint = sessionContext.moduleHint;
+              try {
+                const settings = await window.electron.getSettings();
+                const res = await fetch(`${settings.backendUrl}/api/knowledge/reparse-one`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ filename: hint }),
+                });
+                let data;
+                try { data = await res.json(); } catch { data = {}; }
+
+                let content;
+                if (res.status === 404 || (data && !data.success && data.error?.includes("nije pronađen"))) {
+                  content = `ℹ Modul ${hint} nije pronađen u source_macs/. Uploadaj datoteku u Postavkama → Baza znanja.`;
+                } else if (!res.ok || !data.success) {
+                  content = `⚠ Greška pri učitavanju ${hint}: ${data.error || `HTTP ${res.status}`}`;
+                } else {
+                  content = `✓ Modul ${hint} je re-parsiran i spojen s bazom znanja.`;
+                }
+                setMessages((prev) => [...prev, { role: "assistant", content, type: "proactive" }]);
+              } catch (err) {
+                setMessages((prev) => [...prev, {
+                  role: "assistant",
+                  content: `⚠ Greška pri učitavanju ${hint}: ${err.message}`,
+                  type: "proactive",
+                }]);
+              }
+            }}
+          >
+            Učitaj u bazu
+          </button>
+        </div>
+      )}
+
       {/* Input area */}
       <div className="input-area">
+        <div
+          className="input-resize-handle"
+          onMouseDown={startInputResize}
+          title="Povuci za promjenu visine polja za unos"
+        />
+
         {/* MT warning */}
         {mtWarning && (
           <div className="mt-warning">
@@ -1015,12 +1423,12 @@ function App() {
           <textarea
             ref={textareaRef}
             className="chat-input"
+            style={{ height: inputHeight }}
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             placeholder={isRecording ? "Snimam glas..." : isTranscribing ? "Transkribiranje..." : "Upiši pitanje... (Enter za slanje)"}
             disabled={isStreaming || isRecording}
-            rows={1}
           />
 
           <button
@@ -1037,10 +1445,24 @@ function App() {
           </button>
         </div>
 
-        <div className="input-hint">F9 ekran · F8 glas · Enter šalje · Shift+Enter novi red{isSpeaking ? " · 🔊 reproducira..." : ""}</div>
+        <div className="input-hint">F9 ekran · F8 glas · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos{isSpeaking ? " · reproducira..." : ""}</div>
       </div>
 
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+      {showSettings && (
+        <SettingsPanel
+          onClose={() => setShowSettings(false)}
+          liveSpentUsd={liveSpentUsd}
+          liveBudgetUsd={liveBudgetUsd}
+          liveCallCount={liveCallCount}
+          liveRegion={liveRegion}
+          setLiveRegion={setLiveRegion}
+          setLiveEnabled={setLiveEnabled}
+          setLiveSpentUsd={setLiveSpentUsd}
+          setLiveCallCount={setLiveCallCount}
+          setLiveBudgetUsd={setLiveBudgetUsd}
+          onChangeRegion={changeRegion}
+        />
+      )}
     </div>
   );
 }

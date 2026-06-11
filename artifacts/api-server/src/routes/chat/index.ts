@@ -45,7 +45,20 @@ function readRules(): string {
   return "";
 }
 
-function buildSystemPrompt(kb: ReturnType<typeof readKnowledgeBase>, userRules: string): string {
+interface SessionContext {
+  dialogType?: string;
+  parametersSeen?: Array<{ name: string; value: string }>;
+  formulasSeen?: string[];
+  moduleHint?: string | null;
+  summary?: string;
+  lastUpdated?: string;
+}
+
+function buildSystemPrompt(
+  kb: ReturnType<typeof readKnowledgeBase>,
+  userRules: string,
+  sessionCtx?: SessionContext | null,
+): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
   const topParams = (kb.parameters ?? [])
@@ -55,15 +68,18 @@ function buildSystemPrompt(kb: ReturnType<typeof readKnowledgeBase>, userRules: 
     )
     .join("\n");
 
-  // Prefer formulas with hierarchical references ([.W], [....H] etc.) for richer examples
   const allFormulas: Array<{ formula: string; source: string }> = kb.formulas ?? [];
   const hierarchical = allFormulas.filter((f) => /\[\.*[A-ZŠĐŽČĆa-z]/.test(f.formula));
   const rest = allFormulas.filter((f) => !/\[\.*[A-ZŠĐŽČĆa-z]/.test(f.formula));
-  const sortedFormulas = [...hierarchical, ...rest];
-  const topFormulas = sortedFormulas
+  const topFormulas = [...hierarchical, ...rest]
     .slice(0, 50)
     .map((f: { formula: string; source: string }) => `${f.formula}  [iz: ${f.source}]`)
     .join("\n");
+
+  // Faza D: include learned entries from knowledge base
+  const learnedFormulas: Array<{ formula: string; source: string }> = kb.learned?.formulas ?? [];
+  const learnedParams: Array<{ name: string; description: string; source: string }> = kb.learned?.parameters ?? [];
+  const learnedObs: Array<{ text: string }> = kb.learned?.observations ?? [];
 
   const parts = [
     `Ti si MegaTischler parametarski asistent za formule.
@@ -79,12 +95,45 @@ KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKA
     parts.push(`\nPRAVILA SINTAKSE MEGATISCHLER:\n${syntaxRules}`);
   }
 
+  // Faza C: session context from Live screenshots
+  if (sessionCtx && (sessionCtx.parametersSeen?.length || sessionCtx.formulasSeen?.length || sessionCtx.summary)) {
+    const ctxLines: string[] = [`\nTRENUTNI KONTEKST EKRANA (Live mod):`];
+    if (sessionCtx.summary) ctxLines.push(`Ekran: ${sessionCtx.summary}`);
+    if (sessionCtx.moduleHint) ctxLines.push(`Modul: ${sessionCtx.moduleHint}`);
+    if (sessionCtx.dialogType && sessionCtx.dialogType !== "none") {
+      ctxLines.push(`Tip dijaloga: ${sessionCtx.dialogType}`);
+    }
+    if (sessionCtx.parametersSeen?.length) {
+      ctxLines.push(`Vidljivi parametri: ${sessionCtx.parametersSeen.map(p => `${p.name}=${p.value}`).join(", ")}`);
+    }
+    if (sessionCtx.formulasSeen?.length) {
+      ctxLines.push(`Vidljive formule: ${sessionCtx.formulasSeen.join(" | ")}`);
+    }
+    parts.push(ctxLines.join("\n"));
+  }
+
   if (topParams) {
     parts.push(`\nKATALOG PARAMETARA:\n${topParams}`);
   }
 
   if (topFormulas) {
     parts.push(`\nPRIMJERI FORMULA IZ KORISNIKOVIH DATOTEKA:\n${topFormulas}`);
+  }
+
+  // Faza D: learned entries from screenshots
+  if (learnedFormulas.length > 0) {
+    const lf = learnedFormulas.slice(0, 20).map(f => `${f.formula}  [naučeno iz: ${f.source}]`).join("\n");
+    parts.push(`\nNAUČENE FORMULE IZ SESSIJA:\n${lf}`);
+  }
+
+  if (learnedParams.length > 0) {
+    const lp = learnedParams.slice(0, 20).map(p => `${p.name}${p.description ? ` — ${p.description}` : ""}`).join("\n");
+    parts.push(`\nNAUČENI PARAMETRI IZ SESSIJA:\n${lp}`);
+  }
+
+  if (learnedObs.length > 0) {
+    const lo = learnedObs.slice(0, 10).map(o => `- ${o.text}`).join("\n");
+    parts.push(`\nZABILJEŠKE IZ SESSIJA:\n${lo}`);
   }
 
   if (userRules) {
@@ -102,10 +151,12 @@ router.post("/chat", async (req, res): Promise<void> => {
   }
 
   const { message, screenshot_base64, history } = parsed.data;
+  // Faza C: session context forwarded by Electron renderer
+  const sessionCtx = (req.body as Record<string, unknown>).session_context as SessionContext | null ?? null;
 
   const kb = readKnowledgeBase();
   const userRules = readRules();
-  const systemPrompt = buildSystemPrompt(kb, userRules);
+  const systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx);
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);

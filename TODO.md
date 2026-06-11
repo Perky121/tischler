@@ -220,3 +220,60 @@
 - OpenAI Whisper language="hr" daje dobre rezultate ali ponekad zamijeni stručne termine — korisnik može editirati transkripciju prije slanja
 - Screenshot se šalje kao čisti base64 string (bez `data:image/...;base64,` prefixa) — Anthropic API to zahtijeva
 - Endpoint `/api/upload-mac` koristi multer za multipart — OpenAPI spec nema requestBody za taj endpoint da bi se izbjeglo Orval `File`/`Blob` type greška u lib typecheck
+
+---
+
+## FAZA 4 — Live mod 2.0 (regija, budžet, kontekst, učenje)
+**Platforma:** Cursor  
+**Status:** ✅ Implementirano — čeka Windows test
+
+### Faza A — Regija ekrana + brzina
+- [x] Region picker overlay (`region-picker.html`, `region-picker.js`, `region-picker.css`)
+- [x] `openRegionPicker()` — fullscreen transparent BrowserWindow za crtanje pravokutnika
+- [x] `liveRegion` se sprema u settings.json `{x, y, width, height}`
+- [x] `captureForLive()` cropa na `liveRegion` (sharp.extract) ako je postavljena
+- [x] F9 screenshot poštuje `useRegionForF9` postavku
+- [x] Live gumb → region picker → potvrdi → Live uključen; Esc = odustani
+- [x] LIVE_INTERVAL_MS: 1500ms → **800ms**
+- [x] LIVE_API_COOLDOWN_MS: 8000ms → **4000ms**
+- [x] LIVE_DIFF_THRESHOLD: 0.15 → **0.10**
+
+### Faza B — Budžet 100 USD/dan
+- [x] `dailyBudgetUsd` (default 100), `dailySpentUsd`, `dailyCallCount` u settings.json
+- [x] Dnevni reset: pri pokretanju app provjeri je li `budgetResetDate` danas
+- [x] analyze-screen vraća `usage: { input_tokens, output_tokens, cost_usd }` iz Anthropic API
+- [x] main.js akumulira `dailySpentUsd` iz stvarnih tokena (ne fiksna procjena)
+- [x] Fallback estimate ako usage nije dostupan (1600 vision + 200 input + 80 output tokena)
+- [x] Auto-stop Live kad `dailySpentUsd >= dailyBudgetUsd`
+- [x] Settings UI: "12,40 $ / 100 $ danas", progress bar, upozorenje na 80%, reset gumb
+- [x] `live-set-budget` IPC handler za promjenu budžeta
+
+### Faza C — Kontekst sesije
+- [x] `analyze-screen` vraća i `context: { dialogType, parametersSeen, formulasSeen, moduleHint, summary }` u istom pozivu (nema duplih API poziva)
+- [x] `sessionContext` in-memory u main.js, šalje `live-context-updated` event rendereru
+- [x] Renderer čuva `sessionContext` u state
+- [x] `/api/chat` prima `session_context` u body i injektira ga u system prompt
+- [x] Chat odgovori relevantniji bez ponovnog F9 dok je Live aktivan
+
+### Faza D — Učenje u bazu znanja
+- [x] `learned: { formulas, parameters, observations }` sekcija u knowledge_base.json
+- [x] `POST /api/knowledge/learn` — merge s deduplikacijom (po formula stringu / param imenu / obs tekstu)
+- [x] chat/index.ts uključuje `learned` zapise (do 20 formula, 20 param, 10 obs) u system prompt
+- [x] Dedup hash za parametre → `live-kb-suggest` event kad se detektira novi dijalog
+- [x] "📚 Spremi u bazu" gumb na proaktivnim porukama s kontekstom
+- [x] kb-suggest tip poruke s potvrdom (nije automatski upis)
+
+### Faza E — Veza s .mac datotekom
+- [x] `moduleHint` iz `sessionContext.moduleHint` (Claude čita iz title bara)
+- [x] Module hint banner u UI: "📄 Aktivan modul: KUTNI.mac"
+- [x] Gumb "Učitaj u bazu" → `POST /api/knowledge/reparse-one` s filename
+- [x] `reparse-one` endpoint: parser cropa samo tu datoteku (`--merge`)
+- [x] Ako datoteka nije u source_macs/ → poruka korisniku da uploada
+
+### Kriteriji završetka Faze 4
+- [ ] Klik Live → odaberi MegaCAD regiju → ● LIVE — ČEKA WINDOWS TEST
+- [ ] Otvori dijalog parametara → proaktivna poruka u ~5–7 s — ČEKA WINDOWS TEST
+- [ ] Chat bez F9 koristi session kontekst — ČEKA WINDOWS TEST
+- [ ] Klik "Spremi u bazu" → formula u learned sekciji — ČEKA WINDOWS TEST
+- [ ] Settings: prikaz 100 $ budžeta, potrošnja raste s pozivima — ČEKA WINDOWS TEST
+- [ ] Live se gasi kad se dostigne dnevni budžet — ČEKA WINDOWS TEST

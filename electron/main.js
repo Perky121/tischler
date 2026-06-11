@@ -3,47 +3,128 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 
-// ── Live mode (Faza 3) ───────────────────────────────────────────────────────
-// pixelmatch and pngjs are optional — only loaded when live mode is active
+// ── Live mode 2.0 ─────────────────────────────────────────────────────────────
 let pixelmatch, PNG;
+let diffLibsMissing = false;
 try {
   pixelmatch = require("pixelmatch");
   PNG = require("pngjs").PNG;
-} catch { /* modules may not be installed on first run */ }
+} catch {
+  diffLibsMissing = true;
+  console.warn("[live] pixelmatch/pngjs not installed — diff detection disabled, Live will not trigger API calls");
+}
 
 let liveLoopTimer = null;
 let prevScreenshotBuf = null;
 let liveCallCount = 0;
-let liveMainWindow = null; // set after window creation
-let liveLoopRunning = false; // guard against overlapping async iterations
-let liveLastApiCallTs = 0;  // timestamp of last successful API call
+let liveMainWindow = null;
+let liveLoopRunning = false;
+let liveLastApiCallTs = 0;
+let regionPickerWindow = null;
+// Stores virtual-desktop origin of picker window so DIP coords can be converted to global screen coords
+let pickerOriginX = 0;
+let pickerOriginY = 0;
+// Prevents "closed" event from sending cancel when confirm triggered the close
+let regionConfirmedThisSession = false;
 
-const LIVE_INTERVAL_MS = 1500;
-const LIVE_DIFF_THRESHOLD = 0.15; // 15% pixel change triggers analyze
-const LIVE_API_COOLDOWN_MS = 8000; // min 8s between analyze-screen calls
+// Faza A — faster, more targeted
+const LIVE_INTERVAL_MS = 800;
+const LIVE_DIFF_THRESHOLD = 0.10; // 10% — small crop reacts to fine changes
+const LIVE_API_COOLDOWN_MS = 4000; // 4s between analyze calls
 
+// Faza B — budget tracker (in-memory, persisted in settings)
+let dailySpentUsd = 0;
+let dailyCallCount = 0;
+
+// Faza C — session context (in-memory, not persisted)
+let sessionContext = null;
+// Hash of last seen parameter set to avoid duplicate KB suggestions
+let lastDialogHash = null;
+
+// ── Anthropic token cost constants (claude-opus-4 pricing) ───────────────────
+const COST_PER_INPUT_TOKEN = 0.000015;   // $15 per 1M input tokens
+const COST_PER_OUTPUT_TOKEN = 0.000075;  // $75 per 1M output tokens
+// Vision: ~1600 tokens per standard image
+const VISION_TOKEN_ESTIMATE = 1600;
+
+function estimateCostUsd(inputTokens, outputTokens) {
+  return +(inputTokens * COST_PER_INPUT_TOKEN + outputTokens * COST_PER_OUTPUT_TOKEN).toFixed(5);
+}
+
+function getTodayDateStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkAndResetDailyBudget(settings) {
+  const today = getTodayDateStr();
+  if (settings.budgetResetDate !== today) {
+    settings.budgetResetDate = today;
+    settings.dailySpentUsd = 0;
+    settings.dailyCallCount = 0;
+    dailySpentUsd = 0;
+    dailyCallCount = 0;
+    saveSettings(settings);
+  } else {
+    // Restore in-memory from persisted
+    dailySpentUsd = settings.dailySpentUsd || 0;
+    dailyCallCount = settings.dailyCallCount || 0;
+    liveCallCount = dailyCallCount;
+  }
+}
+
+function accumulateCost(costUsd) {
+  dailySpentUsd = +(dailySpentUsd + costUsd).toFixed(5);
+  dailyCallCount += 1;
+  liveCallCount = dailyCallCount;
+  // Persist to settings so it survives app restart
+  const settings = loadSettings();
+  settings.dailySpentUsd = dailySpentUsd;
+  settings.dailyCallCount = dailyCallCount;
+  settings.budgetResetDate = getTodayDateStr();
+  saveSettings(settings);
+}
+
+// ── Live capture with optional region crop ───────────────────────────────────
 async function captureForLive() {
   const screenshot = require("screenshot-desktop");
   const sharp = require("sharp");
   const imgBuf = await screenshot({ format: "png" });
-  // Resize to 640px wide for fast diff
-  const small = await sharp(imgBuf).resize(640).png().toBuffer();
-  return { full: imgBuf, small };
+
+  const settings = loadSettings();
+  let full = imgBuf;
+
+  // Faza A: crop to selected region if configured
+  if (settings.liveRegion) {
+    const { x, y, width, height } = settings.liveRegion;
+    full = await sharp(imgBuf)
+      .extract({ left: x, top: y, width, height })
+      .png()
+      .toBuffer();
+  }
+
+  // Resize to 640px wide for fast pixelmatch diff
+  const small = await sharp(full).resize(640).png().toBuffer();
+  return { full, small };
 }
 
 function diffImages(buf1, buf2) {
-  if (!pixelmatch || !PNG) return 1; // assume changed if modules missing
-  const img1 = PNG.sync.read(buf1);
-  const img2 = PNG.sync.read(buf2);
-  if (img1.width !== img2.width || img1.height !== img2.height) return 1;
-  const { width, height } = img1;
-  const diff = Buffer.alloc(width * height * 4);
-  const changed = pixelmatch(img1.data, img2.data, diff, width, height, { threshold: 0.1 });
-  return changed / (width * height);
+  // If diff libs are not available, skip diff gating — treat as no change
+  // (returning 1 here would cause every tick to trigger an API call and drain budget)
+  if (!pixelmatch || !PNG) return 0;
+  try {
+    const img1 = PNG.sync.read(buf1);
+    const img2 = PNG.sync.read(buf2);
+    if (img1.width !== img2.width || img1.height !== img2.height) return 1;
+    const { width, height } = img1;
+    const diff = Buffer.alloc(width * height * 4);
+    const changed = pixelmatch(img1.data, img2.data, diff, width, height, { threshold: 0.1 });
+    return changed / (width * height);
+  } catch {
+    return 0; // parse error → treat as no change, don't trigger API
+  }
 }
 
 async function liveLoop() {
-  // Prevent overlapping iterations
   if (liveLoopRunning) return;
   liveLoopRunning = true;
 
@@ -51,51 +132,104 @@ async function liveLoop() {
     const settings = loadSettings();
     if (!settings.liveEnabled) return;
 
-    // Respect daily limit — stop loop and persist so it doesn't restart on next tick
-    const limit = settings.liveDailyLimit || 200;
-    if (liveCallCount >= limit) {
+    // Faza B — budget limit check (primary) with fallback to count limit
+    const budget = settings.dailyBudgetUsd || 100;
+    if (dailySpentUsd >= budget) {
       stopLiveLoop();
       settings.liveEnabled = false;
       saveSettings(settings);
       if (liveMainWindow) {
-        liveMainWindow.webContents.send("live-limit-reached", { count: liveCallCount, limit });
+        liveMainWindow.webContents.send("live-budget-reached", {
+          spent: dailySpentUsd,
+          budget,
+        });
       }
       return;
     }
 
     const { full, small } = await captureForLive();
+
     if (prevScreenshotBuf) {
       const diffRatio = diffImages(prevScreenshotBuf, small);
       const now = Date.now();
       const cooldownOk = (now - liveLastApiCallTs) >= LIVE_API_COOLDOWN_MS;
 
       if (diffRatio > LIVE_DIFF_THRESHOLD && cooldownOk) {
-        prevScreenshotBuf = small;
+        // Resize full crop to max 1280px before sending to API (reduces payload 4-10x)
+        const sharp = require("sharp");
+        const apiPayload = await sharp(full)
+          .resize({ width: 1280, withoutEnlargement: true })
+          .jpeg({ quality: 85 })
+          .toBuffer();
+
+        let res;
+        try {
+          res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ screenshot_base64: apiPayload.toString("base64") }),
+          });
+        } catch (fetchErr) {
+          console.error("[live] fetch error:", fetchErr.message);
+          // Network error: don't touch cooldown or prevBuf — retry when screen changes again
+          return;
+        }
+
+        // Consume cooldown after receiving ANY server response (not on network failures)
         liveLastApiCallTs = now;
-        // Send to analyze-screen endpoint
-        const base64 = full.toString("base64");
-        const res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ screenshot_base64: base64, call_count: liveCallCount }),
-        });
-        // Only count successful API calls toward the daily budget
+
         if (res.ok) {
-          liveCallCount++;
           const data = await res.json();
+
+          // Mark screenshot as baseline only on successful response
+          prevScreenshotBuf = small;
+
+          // Faza B — accumulate real cost (0 on error response)
+          const costUsd = data.usage?.cost_usd ?? estimateCostUsd(VISION_TOKEN_ESTIMATE + 200, 80);
+          accumulateCost(costUsd);
+
+          // Faza C — update session context from response
+          if (data.context) {
+            sessionContext = { ...data.context, lastUpdated: new Date().toISOString() };
+            if (liveMainWindow) {
+              liveMainWindow.webContents.send("live-context-updated", sessionContext);
+            }
+
+            // D3: suggest saving to KB if new dialog detected
+            const dialogHash = JSON.stringify({
+              p: data.context.parametersSeen,
+              f: data.context.formulasSeen,
+            });
+            if (dialogHash !== lastDialogHash && data.context.parametersSeen?.length > 0) {
+              lastDialogHash = dialogHash;
+              if (liveMainWindow) {
+                liveMainWindow.webContents.send("live-kb-suggest", {
+                  context: sessionContext,
+                });
+              }
+            }
+          }
+
           if (data.relevant && data.message && liveMainWindow) {
             liveMainWindow.webContents.send("live-message", {
               message: data.message,
-              callCount: liveCallCount,
-              cost: +(liveCallCount * 0.015).toFixed(3),
+              callCount: dailyCallCount,
+              spentUsd: dailySpentUsd,
+              budgetUsd: settings.dailyBudgetUsd || 100,
+              context: data.context || null,
             });
           }
+        } else {
+          console.error(`[live] analyze-screen HTTP ${res.status} — no cost charged`);
+          // Don't charge cost and don't update prevBuf so same change retries next cooldown
         }
       }
     } else {
       prevScreenshotBuf = small;
     }
-  } catch { /* silently ignore errors in background loop */ } finally {
+  } catch (err) {
+    console.error("[live] loop error:", err.message);
+  } finally {
     liveLoopRunning = false;
   }
 }
@@ -104,6 +238,7 @@ function startLiveLoop(win) {
   liveMainWindow = win;
   if (liveLoopTimer) clearInterval(liveLoopTimer);
   prevScreenshotBuf = null;
+  liveLoopRunning = false;
   liveLoopTimer = setInterval(liveLoop, LIVE_INTERVAL_MS);
 }
 
@@ -113,14 +248,72 @@ function stopLiveLoop() {
     liveLoopTimer = null;
   }
   prevScreenshotBuf = null;
+  liveLoopRunning = false;
 }
 
-// ── Config ──────────────────────────────────────────────────────────────────
+// ── Region picker window ─────────────────────────────────────────────────────
+function openRegionPicker() {
+  if (regionPickerWindow && !regionPickerWindow.isDestroyed()) {
+    regionPickerWindow.close();
+  }
+
+  // Compute virtual desktop bounding rect across all displays (DIP / logical pixels)
+  const displays = screen.getAllDisplays();
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const d of displays) {
+    minX = Math.min(minX, d.bounds.x);
+    minY = Math.min(minY, d.bounds.y);
+    maxX = Math.max(maxX, d.bounds.x + d.bounds.width);
+    maxY = Math.max(maxY, d.bounds.y + d.bounds.height);
+  }
+  const totalWidth = maxX - minX;
+  const totalHeight = maxY - minY;
+
+  // Store origin so we can convert picker-relative coords to global DIP coords
+  pickerOriginX = minX;
+  pickerOriginY = minY;
+  regionConfirmedThisSession = false;
+
+  regionPickerWindow = new BrowserWindow({
+    width: totalWidth,
+    height: totalHeight,
+    x: minX,
+    y: minY,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    movable: false,
+    fullscreen: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+
+  regionPickerWindow.loadFile(path.join(__dirname, "renderer", "region-picker.html"));
+  regionPickerWindow.setIgnoreMouseEvents(false);
+
+  // Only send cancel if the user did NOT already confirm a selection
+  regionPickerWindow.on("closed", () => {
+    regionPickerWindow = null;
+    if (!regionConfirmedThisSession && mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("live-region-cancelled");
+    }
+  });
+}
+
+// ── Config ───────────────────────────────────────────────────────────────────
 const SETTINGS_FILE = path.join(app.getPath("userData"), "settings.json");
 const POSITION_FILE = path.join(app.getPath("userData"), "window-position.json");
 
 const DEFAULT_SETTINGS = {
   backendUrl: "https://tischler1.replit.app",
+  dailyBudgetUsd: 100,
+  dailySpentUsd: 0,
+  dailyCallCount: 0,
+  budgetResetDate: getTodayDateStr(),
 };
 
 function loadSettings() {
@@ -128,66 +321,70 @@ function loadSettings() {
     if (fs.existsSync(SETTINGS_FILE)) {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8")) };
     }
-  } catch {
-    // ignore
-  }
+  } catch { /* ignore */ }
   return { ...DEFAULT_SETTINGS };
 }
 
 function saveSettings(s) {
   try {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(s, null, 2));
-  } catch {
-    // ignore
-  }
+  } catch { /* ignore */ }
 }
 
-function loadPosition() {
+function loadWindowState() {
   try {
     if (fs.existsSync(POSITION_FILE)) {
       return JSON.parse(fs.readFileSync(POSITION_FILE, "utf-8"));
     }
-  } catch {
-    // ignore
-  }
+  } catch { /* ignore */ }
   return null;
 }
 
-function savePosition(x, y) {
+function saveWindowState({ x, y, width, height }) {
   try {
-    fs.writeFileSync(POSITION_FILE, JSON.stringify({ x, y }));
-  } catch {
-    // ignore
-  }
+    const existing = loadWindowState() || {};
+    fs.writeFileSync(POSITION_FILE, JSON.stringify({
+      ...existing,
+      ...(x !== undefined ? { x } : {}),
+      ...(y !== undefined ? { y } : {}),
+      ...(width !== undefined ? { width } : {}),
+      ...(height !== undefined ? { height } : {}),
+    }));
+  } catch { /* ignore */ }
 }
 
-// ── Screenshot ───────────────────────────────────────────────────────────────
+// ── Screenshot (F9 / manual) ─────────────────────────────────────────────────
 async function captureScreenshot() {
-  try {
-    const screenshot = require("screenshot-desktop");
-    const sharp = require("sharp");
+  const screenshot = require("screenshot-desktop");
+  const sharp = require("sharp");
 
-    const imgBuffer = await screenshot({ format: "png" });
+  const imgBuffer = await screenshot({ format: "png" });
+  const settings = loadSettings();
 
-    // Resize to max 1280px wide, JPEG quality 85
-    const resized = await sharp(imgBuffer)
-      .resize({ width: 1280, withoutEnlargement: true })
-      .jpeg({ quality: 85 })
+  let source = imgBuffer;
+
+  // Use live region for F9 if configured and "useRegionForF9" setting is enabled
+  if (settings.liveRegion && settings.useRegionForF9) {
+    const { x, y, width, height } = settings.liveRegion;
+    source = await sharp(imgBuffer)
+      .extract({ left: x, top: y, width, height })
+      .png()
       .toBuffer();
-
-    return resized.toString("base64");
-  } catch (err) {
-    console.error("Screenshot error:", err);
-    throw err;
   }
+
+  const resized = await sharp(source)
+    .resize({ width: 1280, withoutEnlargement: true })
+    .jpeg({ quality: 85 })
+    .toBuffer();
+
+  return resized.toString("base64");
 }
 
-// ── MegaTischler detector ────────────────────────────────────────────────────
+// ── MegaTischler detector ─────────────────────────────────────────────────────
 let megaTischlerActive = false;
 let detectorInterval = null;
 
 function startMegaTischlerDetector(win) {
-  // Clear any previous interval before starting a new one (prevent leak on window recreate)
   if (detectorInterval) {
     clearInterval(detectorInterval);
     detectorInterval = null;
@@ -216,27 +413,28 @@ function startMegaTischlerDetector(win) {
 let mainWindow = null;
 
 function createWindow() {
-  const savedPos = loadPosition();
+  const savedState = loadWindowState();
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
-  const winWidth = 380;
-  const winHeight = 700;
+  const winWidth = Math.min(Math.max(savedState?.width || 380, 320), screenWidth);
+  const winHeight = Math.min(Math.max(savedState?.height || 700, 480), screenHeight);
 
-  // Default position: right side of screen
   const defaultX = screenWidth - winWidth - 20;
   const defaultY = Math.round((screenHeight - winHeight) / 2);
 
-  const x = savedPos ? savedPos.x : defaultX;
-  const y = savedPos ? savedPos.y : defaultY;
+  const x = savedState?.x ?? defaultX;
+  const y = savedState?.y ?? defaultY;
 
   mainWindow = new BrowserWindow({
     width: winWidth,
     height: winHeight,
+    minWidth: 320,
+    minHeight: 480,
     x,
     y,
     alwaysOnTop: true,
     frame: false,
-    resizable: false,
+    resizable: true,
     skipTaskbar: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -247,17 +445,25 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
 
-  // Save position on move
-  mainWindow.on("moved", () => {
+  const persistWindowState = () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
     const [wx, wy] = mainWindow.getPosition();
-    savePosition(wx, wy);
+    const [ww, wh] = mainWindow.getSize();
+    saveWindowState({ x: wx, y: wy, width: ww, height: wh });
+  };
+
+  let resizeSaveTimer = null;
+  mainWindow.on("moved", persistWindowState);
+  mainWindow.on("resize", () => {
+    if (resizeSaveTimer) clearTimeout(resizeSaveTimer);
+    resizeSaveTimer = setTimeout(persistWindowState, 250);
   });
 
   mainWindow.on("closed", () => {
+    stopLiveLoop();
     mainWindow = null;
   });
 
-  // Open links in browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: "deny" };
@@ -269,16 +475,29 @@ function createWindow() {
 
   startMegaTischlerDetector(mainWindow);
 
-  // Start live loop if it was enabled last session
+  // Init budget tracking
   const s = loadSettings();
-  if (s.liveEnabled) startLiveLoop(mainWindow);
+  checkAndResetDailyBudget(s);
+
+  // Resume live loop if it was active last session (and within budget)
+  if (s.liveEnabled && dailySpentUsd < (s.dailyBudgetUsd || 100)) {
+    startLiveLoop(mainWindow);
+  }
+
+  // Warn renderer if diff libraries are missing (Live mode won't work)
+  if (diffLibsMissing) {
+    mainWindow.webContents.once("did-finish-load", () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("live-deps-missing");
+      }
+    });
+  }
 }
 
-// ── App lifecycle ──────────────────────────────────────────────────────────────
+// ── App lifecycle ─────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   createWindow();
 
-  // F9 → capture screenshot
   globalShortcut.register("F9", async () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       try {
@@ -290,7 +509,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // F8 → toggle recording (push-to-talk Phase 2)
   globalShortcut.register("F8", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send("toggle-recording");
@@ -303,9 +521,7 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  if (process.platform !== "darwin") app.quit();
 });
 
 app.on("will-quit", () => {
@@ -313,7 +529,7 @@ app.on("will-quit", () => {
   if (detectorInterval) clearInterval(detectorInterval);
 });
 
-// ── IPC handlers ───────────────────────────────────────────────────────────────
+// ── IPC handlers ──────────────────────────────────────────────────────────────
 ipcMain.handle("capture-screenshot", async () => {
   return await captureScreenshot();
 });
@@ -323,7 +539,6 @@ ipcMain.handle("get-settings", () => {
 });
 
 ipcMain.handle("save-settings", (_, newSettings) => {
-  // Merge with existing settings so live/other fields are preserved
   saveSettings({ ...loadSettings(), ...newSettings });
   return { ok: true };
 });
@@ -388,12 +603,67 @@ ipcMain.handle("tts-speak", async (_, { text, voice }) => {
     throw new Error(`TTS HTTP ${res.status}: ${body}`);
   }
 
-  // Return audio as base64 for the renderer to play via Audio API
   const arrayBuf = await res.arrayBuffer();
   return Buffer.from(arrayBuf).toString("base64");
 });
 
-// ── Faza 3: Live mode IPC ─────────────────────────────────────────────────────
+// ── Live mode IPC (Faza 2.0) ──────────────────────────────────────────────────
+
+// Faza A: open region picker before enabling live
+ipcMain.handle("live-start-region-picker", () => {
+  openRegionPicker();
+  return { ok: true };
+});
+
+// Region picker sends picker-window-relative DIP coords; we add the picker origin
+// (virtual desktop offset) then multiply by the display's scaleFactor to get
+// physical pixel coordinates for sharp.extract / screenshot-desktop output.
+ipcMain.on("region-picker-selected", (_, dipRegion) => {
+  // Mark confirmed BEFORE calling close() so the "closed" event doesn't send cancel
+  regionConfirmedThisSession = true;
+
+  if (regionPickerWindow && !regionPickerWindow.isDestroyed()) {
+    regionPickerWindow.close();
+  }
+
+  // Convert picker-relative DIP → global DIP by adding the picker window origin
+  const globalDipX = dipRegion.dipX + pickerOriginX;
+  const globalDipY = dipRegion.dipY + pickerOriginY;
+
+  // Determine scale factor for the display at the top-left corner of the selection
+  const display = screen.getDisplayNearestPoint({ x: globalDipX, y: globalDipY });
+  const sf = display.scaleFactor || 1;
+
+  const region = {
+    x: Math.round(globalDipX * sf),
+    y: Math.round(globalDipY * sf),
+    width: Math.round(dipRegion.dipWidth * sf),
+    height: Math.round(dipRegion.dipHeight * sf),
+    scaleFactor: sf,
+    // Store DIP coords for UI display (human-readable)
+    dipX: globalDipX,
+    dipY: globalDipY,
+    dipWidth: dipRegion.dipWidth,
+    dipHeight: dipRegion.dipHeight,
+  };
+
+  const settings = loadSettings();
+  settings.liveRegion = region;
+  saveSettings(settings);
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("live-region-selected", region);
+  }
+});
+
+ipcMain.on("region-picker-cancelled", () => {
+  if (regionPickerWindow && !regionPickerWindow.isDestroyed()) {
+    regionPickerWindow.close();
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("live-region-cancelled");
+  }
+});
+
 ipcMain.handle("live-set-enabled", (_, enabled) => {
   const settings = loadSettings();
   settings.liveEnabled = enabled;
@@ -407,7 +677,15 @@ ipcMain.handle("live-set-enabled", (_, enabled) => {
 });
 
 ipcMain.handle("live-reset-count", () => {
+  dailySpentUsd = 0;
+  dailyCallCount = 0;
   liveCallCount = 0;
+  lastDialogHash = null;
+  const settings = loadSettings();
+  settings.dailySpentUsd = 0;
+  settings.dailyCallCount = 0;
+  settings.budgetResetDate = getTodayDateStr();
+  saveSettings(settings);
   return { ok: true };
 });
 
@@ -415,15 +693,85 @@ ipcMain.handle("live-get-status", () => {
   const settings = loadSettings();
   return {
     enabled: !!settings.liveEnabled,
-    callCount: liveCallCount,
-    dailyLimit: settings.liveDailyLimit || 200,
-    cost: +(liveCallCount * 0.015).toFixed(3),
+    callCount: dailyCallCount,
+    spentUsd: dailySpentUsd,
+    budgetUsd: settings.dailyBudgetUsd || 100,
+    liveRegion: settings.liveRegion || null,
+    sessionContext: sessionContext || null,
+    diffLibsMissing,
   };
 });
 
+ipcMain.handle("live-set-budget", (_, budget) => {
+  const settings = loadSettings();
+  settings.dailyBudgetUsd = Number(budget) || 100;
+  saveSettings(settings);
+  return { ok: true };
+});
+
+// Keep old limit handler for backward compat
 ipcMain.handle("live-set-limit", (_, limit) => {
   const settings = loadSettings();
   settings.liveDailyLimit = Number(limit) || 200;
   saveSettings(settings);
   return { ok: true };
+});
+
+ipcMain.handle("live-clear-region", () => {
+  const settings = loadSettings();
+  delete settings.liveRegion;
+  // Also disable live when region is cleared to prevent unexpected full-screen capture
+  if (settings.liveEnabled) {
+    settings.liveEnabled = false;
+    stopLiveLoop();
+  }
+  saveSettings(settings);
+  return { ok: true, liveDisabled: !settings.liveEnabled };
+});
+
+ipcMain.handle("live-get-session-context", () => {
+  return sessionContext;
+});
+
+// MAC file upload proxy — renderer sends { files: [{name, base64}] }, main POSTs to backend
+// Uses native FormData + Blob (available in Electron/Node 18+)
+ipcMain.handle("upload-mac-files", async (_, { files }) => {
+  const settings = loadSettings();
+
+  try {
+    const form = new FormData();
+    for (const f of files) {
+      const buf = Buffer.from(f.base64, "base64");
+      const blob = new Blob([buf], { type: "application/octet-stream" });
+      form.append("files", blob, f.name);
+    }
+
+    const res = await fetch(`${settings.backendUrl}/api/upload-mac`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HTTP ${res.status}: ${body}`);
+    }
+    return await res.json();
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
+// Faza D: learn endpoint proxy (renderer → main → backend)
+ipcMain.handle("kb-learn", async (_, { formulas, parameters, observations }) => {
+  const settings = loadSettings();
+  try {
+    const res = await fetch(`${settings.backendUrl}/api/knowledge/learn`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ formulas, parameters, observations }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    return { error: err.message };
+  }
 });

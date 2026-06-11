@@ -18,24 +18,46 @@ contextBridge.exposeInMainWorld("electron", {
   // Knowledge base stats (fetched via main to avoid CORS)
   fetchKnowledgeStats: () => ipcRenderer.invoke("fetch-knowledge-stats"),
 
-  // Audio transcription (main sends audio base64 to backend)
+  // MAC file upload (main → backend, avoids CORS)
+  uploadMacFiles: (filesData) => ipcRenderer.invoke("upload-mac-files", filesData),
+
+  // Audio transcription
   transcribeAudio: (base64, mimeType) =>
     ipcRenderer.invoke("transcribe-audio", { base64, mimeType }),
 
   // TTS — returns base64 mp3 to play in renderer
   ttsSpeak: (text, voice) => ipcRenderer.invoke("tts-speak", { text, voice }),
 
-  // Faza 3: Live mode — invoke
+  // Faza 2.0: Live mode — invoke
+  liveStartRegionPicker: () => ipcRenderer.invoke("live-start-region-picker"),
   liveSetEnabled: (enabled) => ipcRenderer.invoke("live-set-enabled", enabled),
   liveGetStatus: () => ipcRenderer.invoke("live-get-status"),
-  liveSetLimit: (limit) => ipcRenderer.invoke("live-set-limit", limit),
+  liveSetBudget: (budget) => ipcRenderer.invoke("live-set-budget", budget),
+  liveSetLimit: (limit) => ipcRenderer.invoke("live-set-limit", limit), // compat
   liveResetCount: () => ipcRenderer.invoke("live-reset-count"),
+  liveClearRegion: () => ipcRenderer.invoke("live-clear-region"),
+  liveGetSessionContext: () => ipcRenderer.invoke("live-get-session-context"),
 
-  // Faza 3: Live mode — events
+  // Knowledge base: learn from session
+  kbLearn: (data) => ipcRenderer.invoke("kb-learn", data),
+
+  // Faza 2.0: Live mode — events (main → renderer)
   onLiveMessage: (cb) =>
     ipcRenderer.on("live-message", (_, data) => cb(data)),
+  onLiveBudgetReached: (cb) =>
+    ipcRenderer.on("live-budget-reached", (_, data) => cb(data)),
   onLiveLimitReached: (cb) =>
-    ipcRenderer.on("live-limit-reached", (_, data) => cb(data)),
+    ipcRenderer.on("live-budget-reached", (_, data) => cb(data)), // compat alias
+  onLiveDepsMissing: (cb) =>
+    ipcRenderer.on("live-deps-missing", () => cb()),
+  onLiveContextUpdated: (cb) =>
+    ipcRenderer.on("live-context-updated", (_, ctx) => cb(ctx)),
+  onLiveKbSuggest: (cb) =>
+    ipcRenderer.on("live-kb-suggest", (_, data) => cb(data)),
+  onLiveRegionSelected: (cb) =>
+    ipcRenderer.on("live-region-selected", (_, region) => cb(region)),
+  onLiveRegionCancelled: (cb) =>
+    ipcRenderer.on("live-region-cancelled", () => cb()),
 
   // Event listeners: main → renderer
   onScreenshotCaptured: (cb) =>
@@ -60,6 +82,11 @@ contextBridge.exposeInMainWorld("electron", {
   },
   removeLiveListeners: () => {
     ipcRenderer.removeAllListeners("live-message");
-    ipcRenderer.removeAllListeners("live-limit-reached");
+    ipcRenderer.removeAllListeners("live-budget-reached");
+    ipcRenderer.removeAllListeners("live-context-updated");
+    ipcRenderer.removeAllListeners("live-kb-suggest");
+    ipcRenderer.removeAllListeners("live-region-selected");
+    ipcRenderer.removeAllListeners("live-region-cancelled");
+    ipcRenderer.removeAllListeners("live-deps-missing");
   },
 });

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';" />
+  <title>Odaberi područje</title>
+  <link rel="stylesheet" href="region-picker.css" />
+</head>
+<body>
+  <div id="overlay"></div>
+  <div id="selection" class="hidden"></div>
+  <div id="instructions">
+    <span>Povuci pravokutnik oko <strong>MegaCAD prozora</strong></span>
+    <span class="hint">Enter = potvrdi &nbsp;·&nbsp; Esc = odustani</span>
+  </div>
+  <div id="confirm-btn" class="hidden">
+    <button id="btn-ok">Potvrdi</button>
+    <button id="btn-cancel">Odustani</button>
+  </div>
+  <script src="region-picker.js"></script>
+</body>
+</html>

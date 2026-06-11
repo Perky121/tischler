@@ -257,4 +257,144 @@ router.post("/reparse", async (req, res): Promise<void> => {
   }
 });
 
+// ── Faza E: Reparse a single .mac file by name ───────────────────────────────
+router.post("/knowledge/reparse-one", async (req, res): Promise<void> => {
+  const { filename } = req.body as { filename?: string };
+
+  if (!filename) {
+    res.status(400).json({ error: "filename is required" });
+    return;
+  }
+
+  const safe = path.basename(filename);
+  const filePath = path.join(sourceMacsDir, safe);
+
+  if (!fs.existsSync(filePath)) {
+    res.status(404).json({
+      success: false,
+      error: `Datoteka '${safe}' nije pronađena u source_macs/. Uploadaj je prvo.`,
+    });
+    return;
+  }
+
+  try {
+    const result = await runParser(filePath, ["--merge"]);
+    if (!result.success) {
+      res.status(500).json({ success: false, error: result.error });
+      return;
+    }
+    const kb = readKnowledgeBase();
+    res.json({
+      success: true,
+      message: `Modul ${safe} je re-parsiran i spojen s bazom znanja`,
+      formulaCount: kb.formulas?.length ?? 0,
+    });
+  } catch (err) {
+    logger.error({ err }, "reparse-one error");
+    res.status(500).json({ success: false, error: "Parsiranje nije uspjelo" });
+  }
+});
+
+// ── Faza D: Learn endpoint — merge screenshot-observed knowledge into KB ──────
+
+interface LearnEntry {
+  formula?: string;
+  source?: string;
+  confidence?: number;
+}
+interface LearnParamEntry {
+  name?: string;
+  description?: string;
+  source?: string;
+}
+interface LearnObsEntry {
+  text?: string;
+  timestamp?: string;
+}
+
+router.post("/knowledge/learn", (req, res): void => {
+  const {
+    formulas = [],
+    parameters = [],
+    observations = [],
+  } = req.body as {
+    formulas?: LearnEntry[];
+    parameters?: LearnParamEntry[];
+    observations?: LearnObsEntry[];
+  };
+
+  try {
+    const kb = readKnowledgeBase();
+
+    if (!kb.learned) {
+      kb.learned = { formulas: [], parameters: [], observations: [] };
+    }
+
+    let added = 0;
+
+    // Dedup formulas by formula string
+    const existingFormulas = new Set<string>(
+      (kb.learned.formulas as LearnEntry[]).map((f) => f.formula ?? "")
+    );
+    for (const f of formulas) {
+      if (f.formula && !existingFormulas.has(f.formula)) {
+        (kb.learned.formulas as LearnEntry[]).push({
+          formula: f.formula,
+          source: f.source ?? `screenshot:${new Date().toISOString().slice(0, 10)}`,
+          confidence: f.confidence ?? 0.8,
+        });
+        existingFormulas.add(f.formula);
+        added++;
+      }
+    }
+
+    // Dedup parameters by name
+    const existingParams = new Set<string>(
+      (kb.learned.parameters as LearnParamEntry[]).map((p) => p.name ?? "")
+    );
+    for (const p of parameters) {
+      if (p.name && !existingParams.has(p.name)) {
+        (kb.learned.parameters as LearnParamEntry[]).push({
+          name: p.name,
+          description: p.description ?? "",
+          source: p.source ?? "screenshot",
+        });
+        existingParams.add(p.name);
+        added++;
+      }
+    }
+
+    // Dedup observations by text
+    const existingObs = new Set<string>(
+      (kb.learned.observations as LearnObsEntry[]).map((o) => o.text ?? "")
+    );
+    for (const o of observations) {
+      if (o.text && !existingObs.has(o.text)) {
+        (kb.learned.observations as LearnObsEntry[]).push({
+          text: o.text,
+          timestamp: o.timestamp ?? new Date().toISOString(),
+        });
+        existingObs.add(o.text);
+        added++;
+      }
+    }
+
+    fs.writeFileSync(knowledgeBasePath, JSON.stringify(kb, null, 2));
+
+    logger.info({ added }, "kb/learn: entries added");
+    res.json({
+      success: true,
+      added,
+      learned: {
+        formulaCount: (kb.learned.formulas as LearnEntry[]).length,
+        parameterCount: (kb.learned.parameters as LearnParamEntry[]).length,
+        observationCount: (kb.learned.observations as LearnObsEntry[]).length,
+      },
+    });
+  } catch (err) {
+    logger.error({ err }, "kb/learn error");
+    res.status(500).json({ error: "Failed to save learned entries" });
+  }
+});
+
 export default router;
