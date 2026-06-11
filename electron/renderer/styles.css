@@ -99,6 +99,77 @@ html, body, #root {
   -webkit-app-region: no-drag;
 }
 
+/* ── Conversation tabs ──────────────────────────────────────────────────────── */
+.conv-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.conv-tabs::-webkit-scrollbar { display: none; }
+
+.conv-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  border: 1px solid transparent;
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 160px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.conv-tab:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+.conv-tab-active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.conv-tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+.conv-tab-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 9px;
+  color: var(--text3);
+  padding: 0 2px;
+  line-height: 1;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.conv-tab-close:hover { color: var(--error); }
+
+.conv-tab-new {
+  background: none;
+  border: 1px dashed var(--border);
+  color: var(--text3);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.conv-tab-new:hover { color: var(--text); border-color: var(--accent); }
+
 .mt-status {
   display: flex;
   align-items: center;

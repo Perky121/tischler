@@ -823,6 +823,43 @@ ipcMain.handle("upload-mac-files", async (_, { files }) => {
   }
 });
 
+// ── Conversations persistence ─────────────────────────────────────────────────
+const CONVERSATIONS_FILE = path.join(app.getPath("userData"), "conversations.json");
+
+function loadConversations() {
+  try {
+    if (fs.existsSync(CONVERSATIONS_FILE)) {
+      return JSON.parse(fs.readFileSync(CONVERSATIONS_FILE, "utf-8"));
+    }
+  } catch { /* ignore */ }
+  return { activeId: null, conversations: [] };
+}
+
+function saveConversations(data) {
+  try {
+    fs.writeFileSync(CONVERSATIONS_FILE, JSON.stringify(data, null, 2));
+  } catch { /* ignore */ }
+}
+
+ipcMain.handle("get-conversations", () => {
+  return loadConversations();
+});
+
+ipcMain.handle("save-conversations", (_, data) => {
+  saveConversations(data);
+  return { ok: true };
+});
+
+ipcMain.handle("delete-conversation", (_, id) => {
+  const data = loadConversations();
+  data.conversations = data.conversations.filter((c) => c.id !== id);
+  if (data.activeId === id) {
+    data.activeId = data.conversations[0]?.id ?? null;
+  }
+  saveConversations(data);
+  return { ok: true, activeId: data.activeId };
+});
+
 // Faza D: learn endpoint proxy (renderer → main → backend)
 ipcMain.handle("kb-learn", async (_, { formulas, parameters, observations }) => {
   const settings = loadSettings();

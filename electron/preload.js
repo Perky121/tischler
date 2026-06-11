@@ -69,6 +69,11 @@ contextBridge.exposeInMainWorld("electron", {
   onToggleRecording: (cb) =>
     ipcRenderer.on("toggle-recording", () => cb()),
 
+  // Conversations persistence
+  getConversations: () => ipcRenderer.invoke("get-conversations"),
+  saveConversations: (data) => ipcRenderer.invoke("save-conversations", data),
+  deleteConversation: (id) => ipcRenderer.invoke("delete-conversation", id),
+
   // Cleanup
   removeScreenshotListeners: () => {
     ipcRenderer.removeAllListeners("screenshot-captured");

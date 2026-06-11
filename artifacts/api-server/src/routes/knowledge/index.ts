@@ -29,6 +29,8 @@ fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadsDir, { recursive: true });
 fs.mkdirSync(sourceMacsDir, { recursive: true });
 
+logger.info({ python3: PYTHON3_BIN }, "MAC parser: using python3 binary");
+
 function sanitizeFilename(name: string): string {
   // Strip directory components, then allow only safe characters
   const base = path.basename(name);
@@ -96,7 +98,13 @@ function runParser(inputPath: string, extraArgs: string[] = []): Promise<{ succe
     });
 
     proc.on("error", (err) => {
-      resolve({ success: false, error: err.message });
+      // Translate ENOENT into a human-readable message so the user knows it's
+      // a server configuration issue, not a problem with their file.
+      const isNotFound = (err as NodeJS.ErrnoException).code === "ENOENT";
+      const detail = isNotFound
+        ? `Python interpreter nije pronađen na serveru (putanja: ${PYTHON3_BIN}). Kontaktiraj administratora.`
+        : err.message;
+      resolve({ success: false, error: detail });
     });
   });
 }

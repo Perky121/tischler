@@ -644,9 +644,91 @@ function stopTts() {
   }
 }
 
+function generateId() {
+  return `conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function createConversation(title = "Novi razgovor") {
+  return { id: generateId(), title, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), messages: [] };
+}
+
 // ── App ────────────────────────────────────────────────────────────────────
 function App() {
-  const [messages, setMessages] = useState([]);
+  // ── Conversation state ─────────────────────────────────────────────────
+  const [conversations, setConversations] = useState(() => {
+    const first = createConversation();
+    return [first];
+  });
+  const [activeConvId, setActiveConvId] = useState(() => {
+    // Will be overwritten from disk in useEffect below
+    return null;
+  });
+
+  // Derive active conversation safely
+  const activeConv = conversations.find((c) => c.id === activeConvId) ?? conversations[0];
+  const messages = activeConv?.messages ?? [];
+
+  // Debounce ref for conversation saves
+  const saveConvTimerRef = React.useRef(null);
+
+  function saveConversationsToDisk(convs, activeId) {
+    if (saveConvTimerRef.current) clearTimeout(saveConvTimerRef.current);
+    saveConvTimerRef.current = setTimeout(() => {
+      window.electron.saveConversations({ activeId, conversations: convs }).catch(() => {});
+    }, 500);
+  }
+
+  // Replace setMessages everywhere — writes into the active conversation
+  function setMessages(updaterOrArray) {
+    setConversations((prevConvs) => {
+      const target = prevConvs.find((c) => c.id === (activeConvId ?? prevConvs[0]?.id));
+      if (!target) return prevConvs;
+      const newMsgs = typeof updaterOrArray === "function"
+        ? updaterOrArray(target.messages)
+        : updaterOrArray;
+      const updated = prevConvs.map((c) =>
+        c.id === target.id
+          ? { ...c, messages: newMsgs, updatedAt: new Date().toISOString() }
+          : c
+      );
+      saveConversationsToDisk(updated, activeConvId ?? prevConvs[0]?.id);
+      return updated;
+    });
+  }
+
+  function setActiveConv(id) {
+    setActiveConvId(id);
+    saveConversationsToDisk(conversations, id);
+  }
+
+  function newConversation() {
+    const conv = createConversation();
+    setConversations((prev) => {
+      const updated = [...prev, conv];
+      saveConversationsToDisk(updated, conv.id);
+      return updated;
+    });
+    setActiveConvId(conv.id);
+  }
+
+  function deleteConversation(id) {
+    window.electron.deleteConversation(id).then((result) => {
+      setConversations((prev) => {
+        const updated = prev.filter((c) => c.id !== id);
+        if (updated.length === 0) {
+          const fresh = createConversation();
+          saveConversationsToDisk([fresh], fresh.id);
+          setActiveConvId(fresh.id);
+          return [fresh];
+        }
+        const newActive = result.activeId ?? updated[0].id;
+        saveConversationsToDisk(updated, newActive);
+        setActiveConvId(newActive);
+        return updated;
+      });
+    }).catch(() => {});
+  }
+
   const [input, setInput] = useState("");
   const [screenshotDataUrl, setScreenshotDataUrl] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -780,6 +862,20 @@ function App() {
 
   // ── Init ─────────────────────────────────────────────────────────────────
   useEffect(() => {
+    // Load persisted conversations from disk
+    window.electron.getConversations().then((data) => {
+      if (data.conversations && data.conversations.length > 0) {
+        setConversations(data.conversations);
+        setActiveConvId(data.activeId ?? data.conversations[0].id);
+      } else {
+        // First run — create default conversation and persist it
+        const first = createConversation();
+        setConversations([first]);
+        setActiveConvId(first.id);
+        window.electron.saveConversations({ activeId: first.id, conversations: [first] }).catch(() => {});
+      }
+    }).catch(() => {});
+
     window.electron.getMtStatus().then((active) => setMtActive(active));
 
     window.electron.onMegaTischlerStatus((active) => setMtActive(active));
@@ -1012,14 +1108,29 @@ function App() {
       setMtWarning(true);
       setTimeout(() => setMtWarning(false), 4000);
     }
+    const isScreenshotOnly = !msgText.trim() && !!currentScreenshot;
+    // For screenshot-only sends we keep an explicit continuation prompt in history
+    // so the API never receives an empty content string (which Anthropic rejects).
+    const SCREENSHOT_CONTINUATION = "Nastavi logično rješavati zadatak na temelju ovog screenshota i prethodnog razgovora.";
+
     const userMsg = {
       role: "user",
-      content: msgText.trim(),
+      // UI shows a placeholder label; history/API will use SCREENSHOT_CONTINUATION
+      content: isScreenshotOnly ? "" : msgText.trim(),
       screenshotThumb: currentScreenshot || null,
     };
 
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
+
+    // Auto-title: use first user message text (or "Screenshot") as conversation title
+    if (messages.length === 0) {
+      const autoTitle = (isScreenshotOnly ? "Screenshot" : msgText.trim()).slice(0, 60) || "Razgovor";
+      setConversations((prev) => prev.map((c) =>
+        c.id === (activeConvId ?? prev[0]?.id) ? { ...c, title: autoTitle } : c
+      ));
+    }
+
     setInput("");
     setScreenshotDataUrl(null);
     setIsStreaming(true);
@@ -1031,9 +1142,17 @@ function App() {
 
       const historyForApi = nextMessages
         .slice(-11, -1)
-        .map((m) => ({ role: m.role, content: m.content }));
+        .map((m) => ({
+          role: m.role,
+          // Replace empty screenshot-only entries in history with the continuation prompt
+          content: m.content || (m.screenshotThumb ? SCREENSHOT_CONTINUATION : ""),
+        }))
+        .filter((m) => m.content); // drop any blank entries that somehow remain
 
-      const body = { message: userMsg.content, history: historyForApi };
+      const body = {
+        message: isScreenshotOnly ? "" : userMsg.content,
+        history: historyForApi,
+      };
       if (currentScreenshot) body.screenshot_base64 = extractBase64(currentScreenshot);
       // Faza C: use refs to avoid stale closure on liveEnabled / sessionContext
       if (liveEnabledRef.current && sessionContextRef.current) {
@@ -1181,6 +1300,33 @@ function App() {
         </div>
       </div>
 
+      {/* Conversation tabs */}
+      <div className="conv-tabs">
+        {conversations.map((conv) => (
+          <div
+            key={conv.id}
+            className={`conv-tab${conv.id === (activeConvId ?? conversations[0]?.id) ? " conv-tab-active" : ""}`}
+            title={conv.title}
+            onClick={() => setActiveConv(conv.id)}
+          >
+            <span className="conv-tab-title">{conv.title}</span>
+            {conversations.length > 1 && (
+              <button
+                className="conv-tab-close"
+                title="Obriši razgovor"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm(`Obriši razgovor "${conv.title}"?`)) {
+                    deleteConversation(conv.id);
+                  }
+                }}
+              >✕</button>
+            )}
+          </div>
+        ))}
+        <button className="conv-tab-new" title="Novi razgovor" onClick={newConversation}>+</button>
+      </div>
+
       {/* Messages */}
       <div className="messages-area" ref={scrollRef}>
         {messages.length === 0 ? (
@@ -1278,7 +1424,11 @@ function App() {
                     </div>
                   )}
                   {isUser ? (
-                    msg.content && <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>
+                    msg.content
+                      ? <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>
+                      : msg.screenshotThumb
+                        ? <div style={{ color: "var(--text3)", fontSize: 12, fontStyle: "italic" }}>nastavi zadatak</div>
+                        : null
                   ) : (
                     msg.content ? (
                       <MarkdownMessage content={msg.content} />

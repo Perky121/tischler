@@ -87,6 +87,7 @@ Korisnik je stručnjak za izradu namještaja koji zna sve o konstrukciji, ali tr
 Uvijek odgovaraj na hrvatskom jeziku.
 Budi direktan i konkretan — daj točnu formulu koju treba upisati i objasni gdje je upisati.
 Kad vidiš screenshot, pažljivo pročitaj dijaloški okvir parametara — identificiraj imena parametara, trenutne vrijednosti i što korisnik pokušava postići.
+Ako korisnik pošalje samo screenshot bez teksta, to znači: nastavi logično rješavati zadatak na kojem smo radili. Pitaj za pojašnjenje samo ako stvarno ne možeš nastaviti.
 
 KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.`,
   ];
@@ -151,6 +152,19 @@ router.post("/chat", async (req, res): Promise<void> => {
   }
 
   const { message, screenshot_base64, history } = parsed.data;
+
+  // Reject if there is nothing to send
+  if (!message.trim() && !screenshot_base64) {
+    res.status(400).json({ error: "Poruka ili screenshot su obavezni." });
+    return;
+  }
+
+  // When screenshot-only, substitute a continuation prompt so Anthropic never
+  // receives an empty text block (which it rejects with an API error).
+  const effectiveMessage = message.trim() || (screenshot_base64
+    ? "Korisnik je poslao screenshot bez dodatnog teksta. Nastavi logično rješavati zadatak na kojem radimo na temelju povijesti razgovora i screenshota. Ako ti nedostaje kontekst za nastavak, postavi jasna pitanja za pojašnjenje."
+    : "");
+
   // Faza C: session context forwarded by Electron renderer
   const sessionCtx = (req.body as Record<string, unknown>).session_context as SessionContext | null ?? null;
 
@@ -186,7 +200,9 @@ router.post("/chat", async (req, res): Promise<void> => {
     });
   }
 
-  userContent.push({ type: "text", text: message });
+  if (effectiveMessage) {
+    userContent.push({ type: "text", text: effectiveMessage });
+  }
 
   chatMessages.push({
     role: "user",
@@ -221,6 +237,7 @@ router.post("/chat", async (req, res): Promise<void> => {
     const detail = err instanceof Error ? err.message : String(err);
     logger.error({ err }, "Error calling Claude API");
     res.write(`data: ${JSON.stringify({ error: `AI greška: ${detail}` })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
   }
 });
