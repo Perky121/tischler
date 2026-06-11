@@ -24,7 +24,9 @@ jobs:
 
       - name: Install dependencies
         working-directory: electron
-        run: npm ci
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
 
       - name: Build Windows installer
         working-directory: electron

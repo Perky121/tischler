@@ -1,2 +1,3 @@
 - [Screenshot base64 za Claude](screenshot-base64.md) — screenshot se mora slati kao čisti base64 bez `data:image/...;base64,` prefixa
 - [TODO.md je izvor istine](todo-workflow.md) — svaki agent mora čitati TODO.md i označavati stavke; plan je u 4 faze (0=browser, 1=Electron, 2=voice, 3=live)
+- [GitHub push workflow](github-push-workflow.md) — push preko inline PAT URL-a; git commit je blokiran (čeka Replit checkpoint); workflow yml treba `workflow` scope
