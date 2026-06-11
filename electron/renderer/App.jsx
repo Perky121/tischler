@@ -304,102 +304,6 @@ function SettingsPanel({
           <button className="btn-icon" onClick={onClose} title="Zatvori">✕</button>
         </div>
 
-        {/* Backend URL */}
-        <div className="settings-section">
-          <div className="settings-label">Backend URL (Replit)</div>
-          <input
-            className="settings-input"
-            type="text"
-            value={backendUrl}
-            onChange={(e) => setBackendUrl(e.target.value)}
-            placeholder="https://...replit.dev"
-          />
-        </div>
-
-        {/* OpenAI API Key */}
-        <div className="settings-section">
-          <div className="settings-label">OpenAI API Key (za glasovni unos)</div>
-          <div style={{ position: "relative" }}>
-            <input
-              className="settings-input"
-              type={showKey ? "text" : "password"}
-              value={openaiKey}
-              onChange={(e) => setOpenaiKey(e.target.value)}
-              placeholder="sk-..."
-              style={{ paddingRight: 48 }}
-            />
-            <button
-              onClick={() => setShowKey((v) => !v)}
-              style={{
-                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-                background: "none", border: "none", cursor: "pointer",
-                fontSize: 12, color: "var(--text3)"
-              }}
-            >
-              {showKey ? "sakrij" : "prikaži"}
-            </button>
-          </div>
-          <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 4 }}>
-            Alternativno: dodaj OPENAI_API_KEY u Replit Secrets
-          </div>
-        </div>
-
-        {/* Microphone */}
-        <div className="settings-section">
-          <div className="settings-label">Mikrofon (F8 glasovni unos)</div>
-          <select
-            className="settings-input"
-            value={micDeviceId}
-            onChange={(e) => setMicDeviceId(e.target.value)}
-            style={{ cursor: "pointer" }}
-          >
-            <option value="">Zadani mikrofon</option>
-            {mics.map((m) => (
-              <option key={m.deviceId} value={m.deviceId}>
-                {m.label || `Mikrofon ${m.deviceId.slice(0, 8)}`}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* TTS */}
-        <div className="settings-section">
-          <div className="settings-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span>Glasovni odgovor (TTS)</span>
-            <label className="tts-toggle">
-              <input
-                type="checkbox"
-                checked={ttsEnabled}
-                onChange={(e) => setTtsEnabled(e.target.checked)}
-                style={{ marginRight: 6 }}
-              />
-              {ttsEnabled ? "Uključen" : "Isključen"}
-            </label>
-          </div>
-          {ttsEnabled && (
-            <>
-              <select
-                className="settings-input"
-                value={ttsVoice}
-                onChange={(e) => setTtsVoice(e.target.value)}
-                style={{ cursor: "pointer", marginTop: 6 }}
-              >
-                {TTS_VOICES.map((v) => (
-                  <option key={v.id} value={v.id}>{v.label}</option>
-                ))}
-              </select>
-              <button
-                className="btn-save"
-                onClick={handleTestVoice}
-                disabled={testingVoice}
-                style={{ marginTop: 6, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-              >
-                {testingVoice ? "Reproducira..." : "🔊 Testiraj glas"}
-              </button>
-            </>
-          )}
-        </div>
-
         {/* Live mode — region + budget */}
         <div className="settings-section">
           <div className="settings-label">Live mod 2.0 — budžet i područje</div>
@@ -523,6 +427,102 @@ function SettingsPanel({
                 Koristi isto područje i za F9 screenshot
               </label>
             </div>
+          )}
+        </div>
+
+        {/* Backend URL */}
+        <div className="settings-section">
+          <div className="settings-label">Backend URL (Replit)</div>
+          <input
+            className="settings-input"
+            type="text"
+            value={backendUrl}
+            onChange={(e) => setBackendUrl(e.target.value)}
+            placeholder="https://...replit.dev"
+          />
+        </div>
+
+        {/* OpenAI API Key */}
+        <div className="settings-section">
+          <div className="settings-label">OpenAI API Key (za glasovni unos)</div>
+          <div style={{ position: "relative" }}>
+            <input
+              className="settings-input"
+              type={showKey ? "text" : "password"}
+              value={openaiKey}
+              onChange={(e) => setOpenaiKey(e.target.value)}
+              placeholder="sk-..."
+              style={{ paddingRight: 48 }}
+            />
+            <button
+              onClick={() => setShowKey((v) => !v)}
+              style={{
+                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 12, color: "var(--text3)"
+              }}
+            >
+              {showKey ? "sakrij" : "prikaži"}
+            </button>
+          </div>
+          <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 4 }}>
+            Alternativno: dodaj OPENAI_API_KEY u Replit Secrets
+          </div>
+        </div>
+
+        {/* Microphone */}
+        <div className="settings-section">
+          <div className="settings-label">Mikrofon (F8 glasovni unos)</div>
+          <select
+            className="settings-input"
+            value={micDeviceId}
+            onChange={(e) => setMicDeviceId(e.target.value)}
+            style={{ cursor: "pointer" }}
+          >
+            <option value="">Zadani mikrofon</option>
+            {mics.map((m) => (
+              <option key={m.deviceId} value={m.deviceId}>
+                {m.label || `Mikrofon ${m.deviceId.slice(0, 8)}`}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* TTS */}
+        <div className="settings-section">
+          <div className="settings-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span>Glasovni odgovor (TTS)</span>
+            <label className="tts-toggle">
+              <input
+                type="checkbox"
+                checked={ttsEnabled}
+                onChange={(e) => setTtsEnabled(e.target.checked)}
+                style={{ marginRight: 6 }}
+              />
+              {ttsEnabled ? "Uključen" : "Isključen"}
+            </label>
+          </div>
+          {ttsEnabled && (
+            <>
+              <select
+                className="settings-input"
+                value={ttsVoice}
+                onChange={(e) => setTtsVoice(e.target.value)}
+                style={{ cursor: "pointer", marginTop: 6 }}
+              >
+                {TTS_VOICES.map((v) => (
+                  <option key={v.id} value={v.id}>{v.label}</option>
+                ))}
+              </select>
+              <button
+                className="btn-save"
+                onClick={handleTestVoice}
+                disabled={testingVoice}
+                style={{ marginTop: 6, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+              >
+                {testingVoice ? "Reproducira..." : "🔊 Testiraj glas"}
+              </button>
+            </>
           )}
         </div>
 

@@ -88,7 +88,16 @@ function accumulateCost(costUsd) {
 async function captureForLive() {
   const screenshot = require("screenshot-desktop");
   const sharp = require("sharp");
-  const imgBuf = await screenshot({ format: "png" });
+
+  // Hide Copilot window so it doesn't appear in the captured screenshot
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(0);
+  await new Promise((r) => setTimeout(r, 150));
+  let imgBuf;
+  try {
+    imgBuf = await screenshot({ format: "png" });
+  } finally {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(1);
+  }
 
   const settings = loadSettings();
   let full = imgBuf;
@@ -210,7 +219,13 @@ async function liveLoop() {
             }
           }
 
-          if (data.relevant && data.message && liveMainWindow) {
+          // Show proactive message on success (relevant=true) OR on API error (relevant=false with error message)
+          const isApiError =
+            !data.relevant &&
+            typeof data.message === "string" &&
+            data.message.startsWith("analyze-screen greška");
+
+          if ((data.relevant || isApiError) && data.message && liveMainWindow) {
             liveMainWindow.webContents.send("live-message", {
               message: data.message,
               callCount: dailyCallCount,
@@ -234,12 +249,58 @@ async function liveLoop() {
   }
 }
 
+async function liveTestPing(win) {
+  // Fire a single analyze-screen call immediately when Live is enabled
+  // so the user sees API connectivity status right away.
+  try {
+    const { full } = await captureForLive();
+    const sharpLib = require("sharp");
+    const payload = await sharpLib(full)
+      .resize({ width: 640, withoutEnlargement: true })
+      .jpeg({ quality: 70 })
+      .toBuffer();
+    const settings = loadSettings();
+    let res;
+    try {
+      res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ screenshot_base64: payload.toString("base64") }),
+      });
+    } catch (netErr) {
+      win.webContents.send("live-message", {
+        message: `[Live test] Mreža nedostupna: ${netErr.message}`,
+        callCount: dailyCallCount, spentUsd: dailySpentUsd,
+        budgetUsd: settings.dailyBudgetUsd || 100, context: null,
+      });
+      return;
+    }
+    const data = await res.json();
+    const msg = res.ok
+      ? (data.message || "[Live test] API OK — ekran primljen, nema relevantnog sadržaja")
+      : `[Live test] HTTP ${res.status}`;
+    win.webContents.send("live-message", {
+      message: msg,
+      callCount: dailyCallCount, spentUsd: dailySpentUsd,
+      budgetUsd: settings.dailyBudgetUsd || 100, context: data.context || null,
+    });
+  } catch (err) {
+    win.webContents.send("live-message", {
+      message: `[Live test] Greška: ${err.message}`,
+      callCount: dailyCallCount, spentUsd: dailySpentUsd,
+      budgetUsd: loadSettings().dailyBudgetUsd || 100, context: null,
+    });
+  }
+}
+
 function startLiveLoop(win) {
   liveMainWindow = win;
   if (liveLoopTimer) clearInterval(liveLoopTimer);
   prevScreenshotBuf = null;
   liveLoopRunning = false;
   liveLoopTimer = setInterval(liveLoop, LIVE_INTERVAL_MS);
+  // Immediately test API connectivity — shows error or confirmation in chat
+  liveTestPing(win).catch((e) => console.error("[live] test-ping error:", e.message));
 }
 
 function stopLiveLoop() {
@@ -358,7 +419,15 @@ async function captureScreenshot() {
   const screenshot = require("screenshot-desktop");
   const sharp = require("sharp");
 
-  const imgBuffer = await screenshot({ format: "png" });
+  // Hide Copilot window so it doesn't appear in the screenshot sent to AI
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(0);
+  await new Promise((r) => setTimeout(r, 150));
+  let imgBuffer;
+  try {
+    imgBuffer = await screenshot({ format: "png" });
+  } finally {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(1);
+  }
   const settings = loadSettings();
 
   let source = imgBuffer;
