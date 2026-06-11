@@ -216,6 +216,11 @@ function SettingsPanel({ onClose }) {
   const [saved, setSaved] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [testingVoice, setTestingVoice] = useState(false);
+  // Live mode cost control
+  const [liveCallCount, setLiveCallCount] = useState(0);
+  const [liveCost, setLiveCost] = useState(0);
+  const [liveLimit, setLiveLimit] = useState(200);
+  const [liveLimitInput, setLiveLimitInput] = useState("200");
 
   useEffect(() => {
     window.electron.getSettings().then((s) => {
@@ -230,6 +235,13 @@ function SettingsPanel({ onClose }) {
     });
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       setMics(devices.filter((d) => d.kind === "audioinput"));
+    }).catch(() => {});
+    window.electron.liveGetStatus().then((s) => {
+      setLiveCallCount(s.callCount);
+      setLiveCost(s.cost);
+      const lim = s.dailyLimit ?? s.limit ?? 200;
+      setLiveLimit(lim);
+      setLiveLimitInput(String(lim));
     }).catch(() => {});
   }, []);
 
@@ -356,6 +368,62 @@ function SettingsPanel({ onClose }) {
           )}
         </div>
 
+        {/* Live mode cost control */}
+        <div className="settings-section">
+          <div className="settings-label">Live mod — kontrola troškova</div>
+          <div className="live-cost-row">
+            <div className="live-cost-stat">
+              <span className="live-cost-num">{liveCallCount}</span>
+              <span className="live-cost-desc">poziva danas</span>
+            </div>
+            <div className="live-cost-stat">
+              <span className="live-cost-num">${liveCost.toFixed(3)}</span>
+              <span className="live-cost-desc">procijenjen trošak</span>
+            </div>
+          </div>
+          {liveCallCount / liveLimit > 0.8 && (
+            <div className="live-cost-warning">
+              ⚠ Potrošeno je {Math.round((liveCallCount / liveLimit) * 100)}% dnevnog limita
+            </div>
+          )}
+          <div className="settings-label" style={{ marginTop: 8 }}>Dnevni limit poziva</div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
+            <input
+              className="settings-input"
+              type="number"
+              min="10"
+              max="1000"
+              value={liveLimitInput}
+              onChange={(e) => setLiveLimitInput(e.target.value)}
+              style={{ width: 80 }}
+            />
+            <button
+              className="btn-save"
+              style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+              onClick={() => {
+                const n = parseInt(liveLimitInput, 10);
+                if (n > 0) {
+                  setLiveLimit(n);
+                  window.electron.liveSetLimit(n).catch(() => {});
+                }
+              }}
+            >
+              Postavi
+            </button>
+            <button
+              className="btn-save"
+              style={{ flex: 1, background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
+              onClick={() => {
+                setLiveCallCount(0);
+                setLiveCost(0);
+                window.electron.liveResetCount().catch(() => {});
+              }}
+            >
+              Resetiraj brojač
+            </button>
+          </div>
+        </div>
+
         {/* Knowledge base stats */}
         <div className="settings-section">
           <div className="settings-label">Baza znanja</div>
@@ -454,6 +522,9 @@ function App() {
   const [recordingSecs, setRecordingSecs] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [liveEnabled, setLiveEnabled] = useState(false);
+  const [liveCallCount, setLiveCallCount] = useState(0);
+  const [liveCost, setLiveCost] = useState(0);
 
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
@@ -552,6 +623,13 @@ function App() {
       toggleRecordingRef.current?.();
     });
 
+    // Load persisted live status
+    window.electron.liveGetStatus().then((s) => {
+      setLiveEnabled(s.enabled);
+      setLiveCallCount(s.callCount);
+      setLiveCost(s.cost ?? 0);
+    }).catch(() => {});
+
     return () => {
       window.electron.removeScreenshotListeners();
       window.electron.removeMtStatusListeners();
@@ -559,6 +637,44 @@ function App() {
       stopRecording();
     };
   }, []);
+
+  // Live mode IPC listeners
+  useEffect(() => {
+    window.electron.onLiveMessage((data) => {
+      setLiveCallCount(data.callCount);
+      setLiveCost(data.cost);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.message, type: "proactive" },
+      ]);
+    });
+    window.electron.onLiveLimitReached((data) => {
+      setLiveEnabled(false);
+      setLiveCallCount(data.count);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `Live mod automatski isključen — dostignut dnevni limit od ${data.limit} poziva.`,
+          type: "proactive",
+        },
+      ]);
+    });
+    return () => {
+      window.electron.removeLiveListeners();
+    };
+  }, []);
+
+  async function toggleLiveMode() {
+    const next = !liveEnabled;
+    setLiveEnabled(next);
+    try {
+      await window.electron.liveSetEnabled(next);
+    } catch (err) {
+      setLiveEnabled(!next); // revert on error
+      console.error("Live mode toggle error:", err);
+    }
+  }
 
   // Auto-scroll
   useEffect(() => {
@@ -719,6 +835,13 @@ function App() {
             <div className={`mt-dot ${mtActive ? "active" : "inactive"}`} />
             <span>{mtActive ? "MT aktivan" : "MT nije pokrenut"}</span>
           </div>
+          <button
+            className={`btn-live${liveEnabled ? " active" : ""}`}
+            title={liveEnabled ? "Isključi live mod" : "Uključi live mod (proaktivni asistent)"}
+            onClick={toggleLiveMode}
+          >
+            {liveEnabled ? "● LIVE" : "○ Live"}
+          </button>
           <button className="btn-icon" title="Postavke" onClick={() => setShowSettings(true)}>⚙</button>
           <button className="btn-icon" title="Minimizirati" onClick={() => window.electron.minimizeWindow()}>─</button>
           <button className="btn-icon close" title="Zatvori" onClick={() => window.electron.closeWindow()}>✕</button>
@@ -745,7 +868,30 @@ function App() {
         ) : (
           messages.map((msg, i) => {
             const isUser = msg.role === "user";
+            const isProactive = msg.type === "proactive";
             const isLast = i === lastIdx;
+
+            if (isProactive) {
+              return (
+                <div key={i} className="msg-row assistant">
+                  <div className="msg-label proactive-label">
+                    <div className="msg-label-icon proactive-icon">👁</div>
+                    Copilot primjetio
+                  </div>
+                  <div className="msg-bubble proactive">
+                    <MarkdownMessage content={msg.content} />
+                    <button
+                      className="proactive-dismiss"
+                      title="Zatvori"
+                      onClick={() => setMessages((prev) => prev.filter((_, j) => j !== i))}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={i} className={`msg-row ${isUser ? "user" : "assistant"}`}>
                 {!isUser && (

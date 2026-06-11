@@ -25,11 +25,17 @@ contextBridge.exposeInMainWorld("electron", {
   // TTS — returns base64 mp3 to play in renderer
   ttsSpeak: (text, voice) => ipcRenderer.invoke("tts-speak", { text, voice }),
 
-  // Faza 3: Live mode
+  // Faza 3: Live mode — invoke
   liveSetEnabled: (enabled) => ipcRenderer.invoke("live-set-enabled", enabled),
   liveGetStatus: () => ipcRenderer.invoke("live-get-status"),
   liveSetLimit: (limit) => ipcRenderer.invoke("live-set-limit", limit),
   liveResetCount: () => ipcRenderer.invoke("live-reset-count"),
+
+  // Faza 3: Live mode — events
+  onLiveMessage: (cb) =>
+    ipcRenderer.on("live-message", (_, data) => cb(data)),
+  onLiveLimitReached: (cb) =>
+    ipcRenderer.on("live-limit-reached", (_, data) => cb(data)),
 
   // Event listeners: main → renderer
   onScreenshotCaptured: (cb) =>
@@ -51,5 +57,9 @@ contextBridge.exposeInMainWorld("electron", {
   },
   removeRecordingListeners: () => {
     ipcRenderer.removeAllListeners("toggle-recording");
+  },
+  removeLiveListeners: () => {
+    ipcRenderer.removeAllListeners("live-message");
+    ipcRenderer.removeAllListeners("live-limit-reached");
   },
 });

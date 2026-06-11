@@ -5,6 +5,7 @@ import chatRouter from "./chat";
 import rulesRouter from "./rules";
 import transcribeRouter from "./transcribe";
 import ttsRouter from "./tts";
+import analyzeScreenRouter from "./analyze-screen";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(chatRouter);
 router.use(rulesRouter);
 router.use(transcribeRouter);
 router.use(ttsRouter);
+router.use(analyzeScreenRouter);
 
 export default router;

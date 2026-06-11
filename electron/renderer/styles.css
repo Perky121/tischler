@@ -129,6 +129,28 @@ html, body, #root {
 .btn-icon:hover { background: var(--bg3); color: var(--text); }
 .btn-icon.close:hover { background: #5a1a1a; color: var(--error); }
 
+.btn-live {
+  -webkit-app-region: no-drag;
+  padding: 0 8px;
+  height: 22px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+.btn-live:hover { border-color: var(--success); color: var(--success); }
+.btn-live.active {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.25);
+}
+
 /* ── Messages ────────────────────────────────────────────────────────────── */
 .messages-area {
   flex: 1;
@@ -242,6 +264,37 @@ html, body, #root {
   padding: 0;
   max-width: 100%;
 }
+
+/* Proactive (live mode) messages */
+.msg-bubble.proactive {
+  position: relative;
+  background: rgba(34, 197, 94, 0.06);
+  border-left: 3px solid var(--success);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 10px 32px 10px 12px;
+  max-width: 100%;
+  color: var(--text);
+}
+.proactive-label { color: var(--success) !important; }
+.proactive-icon {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: var(--success) !important;
+}
+.proactive-dismiss {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.proactive-dismiss:hover { color: var(--text); background: var(--bg3); }
 
 /* Screenshot thumb in message */
 .msg-screenshot {
@@ -552,6 +605,46 @@ textarea.chat-input:disabled { opacity: 0.5; }
   margin-top: 3px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* Live cost control */
+.live-cost-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.live-cost-stat {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.live-cost-num {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--success);
+  line-height: 1;
+}
+.live-cost-desc {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.live-cost-warning {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--warning);
+  margin-bottom: 8px;
 }
 
 .shortcuts-list { display: flex; flex-direction: column; gap: 6px; }
