@@ -1,26 +1,2859 @@
 {
-  "formulas": [],
-  "parameters": [],
+  "formulas": [
+    {
+      "formula": "ABS([KUT]-90)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse([KUT]<90;1;[KUT]>90;0;2)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([KUT]<90;1;-1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([KT]==1;([StranicaL.W]*sin([KZ])*[KT]+([LedaDL.T]-[LedaDD.T]*cos([KZ]))*[KT])/cos([KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([IZR_0]>[KO]) and ([KT]==1);[IZR_0];[KO])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([IZR_0]>[KO]) and ([KT]==1);0;[KO]-[IZR_0])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse([LEDST]==0;0;[LEDST]==1;6,5;7)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse([LEDST]==0;0;[LEDST]==1;6;15,7)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([LEDUD]==0) or ([LEDUS]==0);0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([LEDP]==0;0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([KT]==1;([LedaDD.T]-[LedaDL.T]*cos([KZ]))/cos([KZ])+0,5*tan([KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[StranicaL.X]+cos([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreL.T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "sin([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreD.T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "abs(([StranicaL.Y])-([StranicaD.Y]-([StranicaD.W]+[MSPRS]+[MaskaGoreD.T])))-if([KT]==1;[IZR_11];-[IZR_11])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "POSW-[StranicaD.T]-([IZR_10]-[NP]*tan([KZ])*[IZR_12])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([IZR_10]-[NP]*tan([KZ])*[IZR_12])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([StranicaL.X]+cos([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreL.T])-[NP]*tan([KZ])*abs(([StranicaL.Y]+(if([KT]==1;sin([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreL.T]);-sin([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreL.T]))))-([StranicaD.Y]-([StranicaD.W]+[MSPRS]+[MaskaGoreD.T])))-0*if([KT]==1;sin([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreL.T]);-sin([KZ])*([StranicaL.W]+[MSPRS]+[MaskaGoreL.T])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "abs([PodL.L]*cos([KZ])-[PodL.Y]+[HPP1]*([PodD.Razlika.UtorLedU.Utor_Poluutor.Y]-[LEDUS]-0,5))/cos([KZ])-tan([KZ])*([PodL.W]-([LEDOP]+[LEDUS]))*[NP]-[KT]*[LEDUS]*tan([KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([PodD.W]-[LEDOP]-[LEDUS]+[LedaDD.Y])/cos([KZ])-([PodL.Razlika.UtorLedP.Utor_Poluutor.L]-[LEDUS]*tan([KZ]))*sin([KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[PodL.Y]*0+[PodL.Razlika.UtorLedP.Utor_Poluutor.L]*sin([KZ])+([PodD.W]+[PodD.RezStraznji.OffY]-[LEDOP]-[LEDUS])/cos([KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[GKD]-(0,5)+[MSPRS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[GKL]-(0,5)+[MSPRS]-[MSS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([GKD]-(0,5)+[MSPRS])*tan([KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NP]*((([.X]+NEG([.NP])*[.ODU])-0)*cos([.KZ])-(([.Y]-[.D]+[T])-0)*sin([.KZ])+0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "(([.X]+NEG([.NP])*[.ODU])-0)*sin([.KZ])+(([.Y]-[.D]+[T])-0)*cos([.KZ])+0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Z]+[.LEDPD]*[.DN]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "0+ADD([.KZ])*[.NP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.H]-[.LEDPD]*[.DN]-ifelse([.KVDS1]==0;0;[.KVDS1]==3;[.MaskaGoreHorizD.T];[.KVDS1]==1;[.MSZRG];[.MSS]+[.MSZRG])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.GKL]-NEG([.NP])*[.ODU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...HPP1]==1;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...ODU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...GLU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...SUT]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Act]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]-[W]+[.ODU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.SUT]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.GLU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...HPP1]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..X]+[IOSI]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Z]+[..L]-[W]-[IODO]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Ks]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[ID]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[IS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...ISIN]==0) or ([...ISIN]==2);0;[..T]-4)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "atan([IS]/[ID])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([IDEP1]==0;[H];if([STRAN]<2;[IDEP1];([H]-[IDEP1])/2))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([IS]*sin([KUT]/2)*sin([KUT_I0]-[KUT]/2)/sin([KUT_I0]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([IS]*sin([KUT]/2)*cos([KUT_I0]-[KUT]/2)/sin([KUT_I0]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([IS]*sin(-[KUT]/2)*sin([KUT_I0]+[KUT]/2)/sin(-[KUT_I0]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([IS]*sin(-[KUT]/2)*cos([KUT_I0]+[KUT]/2)/sin(-[KUT_I0]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.STRAN]==1) or ([.Act]==0);0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+ifelse([.Ks]==1;-[.IZR_10];[.Ks]==2;[.IZR_12];[.Ks]==4;-[.IZR_13];[.Ks]==6;[.IZR_11];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]+ifelse([.Ks]==5;[L]-[.IZR_10];[.Ks]==6;[L]-[.IZR_10];[.Ks]==1;-[.IZR_11];[.Ks]==3;[.IZR_13];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Z]+ifelse([.Ks]==3;[.IZR_12];[.Ks]==4;[.IZR_12];[.Ks]==2;-[W]+[.IZR_13];[.Ks]==5;-[W]-[.IZR_11];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.Ks]=3 OR [.Ks]=5);[.KUT];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.Ks]=2 OR [.Ks]=4);[.KUT];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.Ks]=1 OR [.Ks]=6);[.KUT];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Ks]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.D]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.IZR_0]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..RUND1]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..RUND]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..RUND2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..RUND3]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..RUND4]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.STRAN]>0) and ([.Act]==1);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+ifelse([.Ks]==1;-[.IZR_10];[.Ks]==2;[.IZR_12];[.Ks]==4;-[.IZR_13];[.Ks]==6;[.IZR_11];[.H]-[T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]+ifelse([.Ks]==5;[L]-[.IZR_10];[.Ks]==6;[L]-[.IZR_10];[.Ks]==1;-[.IZR_11];[.Ks]==3;[.IZR_13];-[.H]+[T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Z]+ifelse([.Ks]==3;[.IZR_12];[.Ks]==4;[.IZR_12];[.Ks]==2;-[W]+[.IZR_13];[.Ks]==5;-[W]-[.IZR_11];[.H]-[T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...LEDP]==0) and ([...LEDSKL]==0);if(([...LEDIZRK]==0) or ([...LEDIZRK]==2);0;1);0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..X]+[..W]-[W]-[...LEDOP]-(0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...LEDUD]+(0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...LEDUS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..UnutraÅ¡njosti.PoliceU.Polica.Z]-[..PodD.T]-[Dia]/2-[DistL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..BRP3]>0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaD.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..BRP3]>1;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaD.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "50+if([..HPP1]==0;[..ODM_2]*cos([..KZ])+if([..KUT]>90;[..GKL]*sin([..KZ]);0);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..HPP1]==1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+(18)+[..ODU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StropL.Z]-(14)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+[.W]-[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]-NEG(1)*[.ODU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.GKD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "neg([...HPP1])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Y]-[IOSI]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...ISIN]<2;0;[..T]-4)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...HPP1]==0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Y]+[W]-([.ODU])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...LEDP]==0) and ([...LEDSKD]==0);if(([...LEDIZRK]==2) or ([...LEDIZRK]==3);1;0);0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..X]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Y]-[..W]+[W]+[...LEDOP]+(0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Z]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "50+if([..HPP1]==1;[..ODM_2]*cos([..KZ])+if([..KUT]>90;[..GKD]*sin([..KZ]);0);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..HPP1]==0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]-(18)-[..ODU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StropD.Z]-(14)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.HPP1]==0) and ([.KT]==2);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+[.KO]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.Y]-(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodL.Z]+[.PodL.T]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([.StropD.Z]-(0)-([.PodL.Z]+[.PodL.T]+(0)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([.StranicaL.Y]+(0)-([.StranicaD.Y]-(0)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...ISIN]==1) or ([...ISIN]==3);[..T]-4;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]+[...T]-[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaD.NosacPoliceZ1.OfL]-[..PodD.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacZadPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacZadPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..GKD]-50",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..GKD]+50",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaLS.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([..HPP1]==0) and([.Act]==1);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+[.T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]-[..ODU]-(18)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.KT]==2) and ([.HPP1]==1);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.X]-[W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([.LedaDL.Y]+[.LedaDL.W]*sin([.KZ])*[.NP]-[.LedaDL.T]*cos([.KZ])*[.KT]+[T]*[.KT])*0+[.Y]-[.KO]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.W]-[.StranicaD.T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]+if([...KT]=0;([...ODU]-[..T]*sin([...KZ])-[...SUT])/cos([...KZ]);([...ODU]-[...SUT])/cos([...KZ])+([...LedaDD.T]-[...GLU])*tan([...KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Y]-[..T]+[.GLU]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...KT]=0;[...SUT]/cos([...KZ])+([.GLU]-[...ZHS]/2-[...LedaLT.T]*sin([...KZ]))*tan([...KZ]);[...SUT]/cos([...KZ])+[.GLU]*tan([...KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.STRAN]==1;0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.STRAN]>0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacLijPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacLijPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..GKL]-50",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..GKL]+50",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([..HPP1]==1) and ([.Act]==1);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+[..ODU]+(18)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]-[.T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.HPP1]==0) and ([.KZ]<>0);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+if([.KT]==1;[W]*tan([.KZ])+([.LedaLP.T]/cos([.KZ])-[T])+if(([.HPP1]==0) and ([.ODM_1]>[.IZR_0]);[.ODM_1]-[.IZR_0];0);[.KO])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedaLP.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KT]==1;[.StranicaL.X]-[W]*sin([.KZ])-[.ODM_2]*sin([.KZ])*sin([.KZ]);[.LedaLS.X])+if(([.HPP1]==0) and ([.ODM_1]>[.IZR_0]) and ([.KT]==1);[.ODM_2];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KT]==1;[.StranicaL.Y]+[W]*cos([.KZ])+[.ODM_2]*sin([.KZ])*cos([.KZ]);[.LedaLS.Y]-[.LedaLS.W])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedaDD.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.NP]*[.KZ]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "POSD-if([.KT]==1;[.GKD]/cos([.KZ])+[T]*tan([.KZ]);[.GKD]*cos([.KZ]))-[.StranicaL.T]-[.NP]*[.ODM_2]*sin([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaLS.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.KZ]==0) or ([.HPP1]==0);0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]-if([.KT]==0;1;-1)*[.ODM_1]*sin([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]-[.ODM_1]*cos([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaL.W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Y]-[...T]+[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedaDL.Y]+[.LedaDL.W]*sin([.KZ])*[.NP]-[.LedaDL.T]*cos([.KZ])*[.KT]+[T]*[.KT]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.W]-[.StranicaD.T]-[.LedaDL.X]-[.LedaDL.W]*cos([.KZ])-[.LedaDL.T]*sin([.KZ])*[.KT]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==1;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;[.Leda90D.X]+[.ODU]-[T]-([.SUT]-[T])/2;if([.KT]=0;[.LedaDL.X]+([.ODU]-[.SUT]+([.SUT]-[T])/2)*cos([.KZ])-([.LedaDL.T]-[.GLU]+[.ZHS]/2)*sin([.KZ]);[.LedaDL.X]+([.ODU]-[.SUT]+([.SUT]-[T])/2)*cos([.KZ])+([.LedaDL.T]-([.GLU]-[.ZHS]/2))*sin([.KZ])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;[.Leda90D.Y]-[.Leda90D.T]+[.GLU]-[.ZHS]/2;if([.KT]=0;[.LedaDL.Y]-([.ODU]-[.SUT]+([.SUT]-[T])/2)*sin([.KZ])-([.LedaDL.T]-[.GLU]+[.ZHS]/2)*cos([.KZ]);[.LedaDL.Y]+([.ODU]-[.SUT]+([.SUT]-[T])/2)*sin([.KZ])-([.LedaDL.T]-([.GLU]-[.ZHS]/2))*cos([.KZ])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodL.Z]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([.StropL.Z]+[.StropL.T]-(0)-([.PodL.Z]+(0)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;ABS(([.StranicaL.Y]-[.GLU]+[.ZHS]/2)-([.Leda90D.Y]-[.Leda90D.T]+[.GLU]-[.ZHS]/2));ABS(([.StranicaL.Y]-([.GLU]-[.ZHS]/2)*cos([.KZ]))-([.LedaDL.Y]-([.LedaDL.T]-[.GLU]+[.ZHS]/2)*cos([.KZ])))/cos([.KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Y]-[..W]+[D]+[IOSI]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;[.Leda90L.Razlika.Utor_Poluutor.Utor_Poluutor.X];[.LedaLS.Razlika.Utor_Poluutor.Utor_Poluutor.X])+(0.5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.Razlika.Utor_Poluutor.Utor_Poluutor.Y]-[.StranicaD.Razlika.Utor_Poluutor.Utor_Poluutor.W]/2+(0)+[T]/2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.Razlika.Utor_Poluutor.Utor_Poluutor.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.Razlika.Utor_Poluutor.Utor_Poluutor.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([.StranicaD.Razlika.Utor_Poluutor.Utor_Poluutor.X]+[.StranicaD.Razlika.Utor_Poluutor.Utor_Poluutor.T]-(0.5)-(if([.KZ]==0;[.Leda90L.Razlika.Utor_Poluutor.Utor_Poluutor.X];[.LedaLS.Razlika.Utor_Poluutor.Utor_Poluutor.X])+(0.5)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..X]+[..W]-[D]-[IOSI]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+if([.HPP1]==1;[.ODU]*cos([.KZ]);0)+[.NP]*[.ODM_1]*sin([.KZ])-[.IZR_1]*sin([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]+if([.HPP1]==1;[.NP]*[.ODU]*sin([.KZ]);0)-[.ODM_1]*cos([.KZ])+[.NP]*[.IZR_1]*cos([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaL.Z]+[.StranicaL.L]-[T]-(0.5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "abs([.StranicaL.Y]-if([.KZ]==0;[.Leda90D.Y];[.LedaDL.Y]))/cos([.KZ])+[.IZR_1]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaL.W]-if([.HPP1]==1;[.ODU];0)-(0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..StropD.Rx];[..StropD.Ry];[..StropD.Rz];X:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..StropD.Rx];[..StropD.Ry];[..StropD.Rz];Y:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..StropD.Rx];[..StropD.Ry];[..StropD.Rz];Z:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StropD.X]+([..StropD.L]*1)*((cos([..StropD.Rz]))*(cos([..StropD.Ry])))+([..StropD.W]*-1)*(((cos([..StropD.Rz]))*(sin([..StropD.Ry])))*(sin([..StropD.Rx]))-((sin([..StropD.Rz]))*(cos([..StropD.Rx]))))+(0)*(((cos([..StropD.Rz]))*(sin([..StropD.Ry])))*(cos([..StropD.Rx]))+(sin([..StropD.Rz]))*(sin([..StropD.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StropD.Y]+([..StropD.L]*1)*((sin([..StropD.Rz]))*(cos([..StropD.Ry])))+([..StropD.W]*-1)*(((sin([..StropD.Rz]))*(sin([..StropD.Ry])))*(sin([..StropD.Rx]))+(cos([..StropD.Rz]))*(cos([..StropD.Rx])))+(0)*(((sin([..StropD.Rz]))*(sin([..StropD.Ry])))*(cos([..StropD.Rx]))-((cos([..StropD.Rz]))*(sin([..StropD.Rx]))))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StropD.Z]+([..StropD.L]*1)*(-(sin([..StropD.Ry])))+([..StropD.W]*-1)*((cos([..StropD.Ry]))*(sin([..StropD.Rx])))+(0)*((cos([..StropD.Ry]))*(cos([..StropD.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([..KZ]<>0) and ([..HPP1]==0);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;0;-1;0,17364817766693;-0,984807753012208;0;-0,984807753012208;-0,17364817766693;0;0;0;10;[..LedaLP.Rx];[..LedaLP.Ry];[..LedaLP.Rz];X:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;0;-1;0,17364817766693;-0,984807753012208;0;-0,984807753012208;-0,17364817766693;0;0;0;10;[..LedaLP.Rx];[..LedaLP.Ry];[..LedaLP.Rz];Y:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;0;-1;0,17364817766693;-0,984807753012208;0;-0,984807753012208;-0,17364817766693;0;0;0;10;[..LedaLP.Rx];[..LedaLP.Ry];[..LedaLP.Rz];Z:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaLP.X]+(0)*((cos([..LedaLP.Rz]))*(cos([..LedaLP.Ry])))+(0)*(((cos([..LedaLP.Rz]))*(sin([..LedaLP.Ry])))*(sin([..LedaLP.Rx]))-((sin([..LedaLP.Rz]))*(cos([..LedaLP.Rx]))))+([..LedaLP.L]*1)*(((cos([..LedaLP.Rz]))*(sin([..LedaLP.Ry])))*(cos([..LedaLP.Rx]))+(sin([..LedaLP.Rz]))*(sin([..LedaLP.Rx])))-if([..KUT]>90;0,5*tan([..KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaLP.Y]+(0)*((sin([..LedaLP.Rz]))*(cos([..LedaLP.Ry])))+(0)*(((sin([..LedaLP.Rz]))*(sin([..LedaLP.Ry])))*(sin([..LedaLP.Rx]))+(cos([..LedaLP.Rz]))*(cos([..LedaLP.Rx])))+([..LedaLP.L]*1)*(((sin([..LedaLP.Rz]))*(sin([..LedaLP.Ry])))*(cos([..LedaLP.Rx]))-((cos([..LedaLP.Rz]))*(sin([..LedaLP.Rx]))))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaLP.Z]+(0)*(-(sin([..LedaLP.Ry])))+(0)*((cos([..LedaLP.Ry]))*(sin([..LedaLP.Rx])))+([..LedaLP.L]*1)*((cos([..LedaLP.Ry]))*(cos([..LedaLP.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([..KZ]==0) and ([..HPP1]==0);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;0;-1;0;-1;0;-1;0;0;0;0;0;[..Leda90L.Rx];[..Leda90L.Ry];[..Leda90L.Rz];X:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;0;-1;0;-1;0;-1;0;0;0;0;0;[..Leda90L.Rx];[..Leda90L.Ry];[..Leda90L.Rz];Y:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;0;-1;0;-1;0;-1;0;0;0;0;0;[..Leda90L.Rx];[..Leda90L.Ry];[..Leda90L.Rz];Z:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Leda90L.X]+(0)*((cos([..Leda90L.Rz]))*(cos([..Leda90L.Ry])))+(0)*(((cos([..Leda90L.Rz]))*(sin([..Leda90L.Ry])))*(sin([..Leda90L.Rx]))-((sin([..Leda90L.Rz]))*(cos([..Leda90L.Rx]))))+([..Leda90L.L]*1)*(((cos([..Leda90L.Rz]))*(sin([..Leda90L.Ry])))*(cos([..Leda90L.Rx]))+(sin([..Leda90L.Rz]))*(sin([..Leda90L.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Leda90L.Y]+(0)*((sin([..Leda90L.Rz]))*(cos([..Leda90L.Ry])))+(0)*(((sin([..Leda90L.Rz]))*(sin([..Leda90L.Ry])))*(sin([..Leda90L.Rx]))+(cos([..Leda90L.Rz]))*(cos([..Leda90L.Rx])))+([..Leda90L.L]*1)*(((sin([..Leda90L.Rz]))*(sin([..Leda90L.Ry])))*(cos([..Leda90L.Rx]))-((cos([..Leda90L.Rz]))*(sin([..Leda90L.Rx]))))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Leda90L.Z]+(0)*(-(sin([..Leda90L.Ry])))+(0)*((cos([..Leda90L.Ry]))*(sin([..Leda90L.Rx])))+([..Leda90L.L]*1)*((cos([..Leda90L.Ry]))*(cos([..Leda90L.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]-if([.KT]=1;0;sin([.KZ])*[.D])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropL.Z]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.W]-[.StranicaD.T]+if([.KT]=1;0;sin([.KZ])*[.D])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.W]-(0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==1;-90+[..KZ]*[..NP];90)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==1;([..StranicaL.W]-0,5)/cos([..KZ]);if([..KZ]==0;[..Leda90L.X];[..LedaLS.X]-[..KT]*([..LedaLP.T]/cos([..KZ])-[..LedaLS.T]))-if([..KZ]==0;0;[..KT]*0,5*tan([..KZ])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.Y]-0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.Z]+[.StropD.T]-0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==1;0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..KZ]==0;0;1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaDD.Rz]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaDD.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==1;[..LedaDD.Y]+if([..KT]==0;0,5*sin([..KZ]);0);[..Y]-[..ODU])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..KZ]==0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Leda90D.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==1;[..Leda90D.Y];[..Y]-[..ODU])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropL.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropL.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaL.Z]+(0.5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropL.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropL.W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...LEDP]==0;1;0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]+[...W]-([....LEDOP]+[W])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Y]-[...L]+[L]+[....LEDSKL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[....IZR_19]-[....LEDSKL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[....LEDUS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[....LEDUD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...LEDP]==0) and ([...HPP1]==1);1;0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]-if([....KT]==1;-[...W]+([L]-[....LEDUS]*tan([....KZ]))*cos([....KZ]);-[...W]+[L]*cos([....KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Y]-if([....KT]==1;[....IZR_18];[....IZR_17])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "-[....KZ]*[....NP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([....LEDOP]+[....LEDUS])/cos([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaD.Z]+(0.5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodD.Y]-0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodD.Z]+[.PodD.T]-0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==0;[..UtorLedP.Utor_Poluutor.X];[...X])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...Y]-[...W]+[....LEDOP]+[W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==0;ABS([...PodD.X]+[...PodD.L]-(0)-([..UtorLedP.Utor_Poluutor.X]+(0)));[...L])-[....LEDSKD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...LEDP]==0) and ([...HPP1]==0);1;0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....KT]==1;[...RezLijevi.OffX]-if([....IZR_0]>[....KO];0;[....KO]-[....IZR_0])-[L]*sin([....KZ])+[W]*sin([....KZ])*tan([....KZ]);-([....StranicaD.W]-[....LEDOP])*tan([....KZ]))+([....PodL.W]-[....LEDOP]-[....LEDUS])/cos([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "-[...Y]-[...W]+[L]*cos([....KZ])-[....KT]*[W]*sin([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[....KZ]*[....NP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([....LEDOP]-0,5)/cos([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.LEDP]==1;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+if([.KT]==0;[W]*sin([.KZ])*tan([.KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]+if([.KT]==0;[W]*sin([.KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.D]+if([.KT]==1;0;tan([.KZ])*[W])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaL.W]-(0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==1;-[..PodLedD.W];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...LEDP]==1;1;0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==1;[...L];[...L]-([....StranicaD.W]-0,5-[....LEDOP]-[....LEDUS])/cos([....KZ])+[....NP]*[....LEDOP]*tan([....KZ])-[....KT]*[...W]*tan([....KZ]))-[....LEDSKL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...LEDP]==1) and ([...HPP1]==0);1;0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "0+([...W]-[....LEDOP]+0,5)+[....KT]*[W]*sin([....KZ])+neg([....KT])*[...W]*sin([....KZ])*tan([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "0-if([....KT]==1;([...W]-[....LEDOP]+0,5+[W]*sin([....KZ]))*tan([....KZ]);([....LEDOP]-0,5)*tan([....KZ])-[...W]*sin([....KZ]))-([....PodLedD.W]-[....LEDOP]-[....LEDUS])/cos([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.LEDP]==1;if([.LEDST]>0;1;0);0)*[.IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==1;[.PodLedD.Razlika.UtorLedP.Utor_Poluutor.X];([.GKL]-0,5-[.LEDOP]-[.LEDUS])/cos([.KZ])-[.NP]*[Y]*tan([.KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==1;[.PodLedD.Razlika.UtorLedP.Utor_Poluutor.Y];[.LedPodDodD.Y]-[.NP]*[.LEDUS]*sin([.KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodLedD.Razlika.UtorLedU.Utor_Poluutor.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==1;([.LEDOP]-0,5-if([.KUT]<90;[.LEDUS]*sin([.KZ]);0))/cos([.KZ])+[.PodLedL.L]-([.GKD]-0,5)/cos([.KZ])-[.NP]*(if([.KT]>0;[.GKL]-(0,5);0)-[.LEDOP]-[.LEDUS])*tan([.KZ]);[.PodLedL.L]-(if([.KUT]<90;[.GKL]-(0,5)-[.LEDOP]-[.LEDUS];[.LEDOP]+[.LEDUS]))*tan([.KZ])-abs([Y])/cos([.KZ]))-[.LEDSKL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LEDUS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LEDUD]/2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.LEDP]==1;if([.LEDST]==2;1;0);0)*[.IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedPodDodL.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedPodDodL.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodLedL.Razlika.UtorLedU.Utor_Poluutor.Z]+[.PodLedL.Razlika.UtorLedU.Utor_Poluutor.T]-[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedPodDodL.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==0;([.GKL]-0,5)/cos([.KZ])-if([.KT]==0;([.GKD]-0,5)*tan([.KZ]);0);if([.KT]==0;-([.GKL]-0,5)*tan([.KZ]);0))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.W]-[X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..NP]*[..KZ]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..HPP1]==0;[..PodL.W]/cos([..KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==1;[..UtorLedP.Utor_Poluutor.X];[....PodLedD.X])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==0;[...L];abs([..UtorLedP.Utor_Poluutor.X]-([...X]+[...L])))-[....LEDSKD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([...LEDP]==1) and ([...HPP1]==1);1;0)*[...IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[....X]+[....NP]*[...W]*tan([....KZ])+([....PodLedL.W]-[....LEDOP]-[....LEDUS])/cos([....KZ])-[....NP]*([....LEDOP]-0,5-[....KT]*[....LEDUS]*sin([....KZ]))*tan([....KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==1;[.PodLedD.Razlika.UtorLedU.Utor_Poluutor.X];if([.KUT]>90;([.GKL]-[.LEDOP])/cos([.KZ])-([.GKD]-[.LEDOP]-[.LEDUS]-0,5)*tan([.KZ]);([.GKD]-[.LEDOP]-0,5)*tan([.KZ])+([.GKL]-[.LEDOP])/cos([.KZ])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodLedD.Razlika.UtorLedU.Utor_Poluutor.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "abs(if([.HPP1]==1;[.PodLedD.Razlika.UtorLedU.Utor_Poluutor.X]-([.PodLedD.X]+[.PodLedD.L]-[.LEDSKD]);[X]-([.PodLedD.X]+[.PodLedD.L]-[.LEDSKD])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedPodDodD.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedPodDodD.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodLedD.Razlika.UtorLedU.Utor_Poluutor.Z]+[.PodLedD.Razlika.UtorLedU.Utor_Poluutor.T]-[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedPodDodD.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.KVNZ]==0) and ([.HPP1]==1);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;[.Leda90D.X];[.LedaDL.X])+[T]*cos([.KZ])+[.NP]*(if([.KZ]==0;[.Leda90D.T];[.LedaDL.T])+1)*sin([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;[.Leda90D.Y];[.LedaDL.Y])+[.NP]*[T]*sin([.KZ])-(if([.KZ]==0;[.Leda90D.T];[.LedaDL.T])+1)*cos([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.Z]-(53)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "-[.KUT]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS((if([.KZ]==0;[.Leda90D.Y];[.LedaDL.Y])-(if([.KZ]==0;[.Leda90D.T];[.LedaDL.T])+1)*cos([.KZ]))-([.StranicaL.Y]+cos([.KZ])))/cos([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if(([.KVNZ]==0) and ([.HPP1]==0);1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KZ]==0;[.Leda90L.X]+[.Leda90L.T];[.LedaLS.X]+[.LedaLS.T])+(1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "(if([.KZ]==0;[.Leda90D.Y];[.LedaDL.Y])+[.NP]*[T]*sin([.KZ])-(if([.KZ]==0;[.Leda90D.T];[.LedaDL.T])+1)*cos([.KZ]))*0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([.StranicaD.X]-(1)-([.LedaLS.X]+[.LedaLS.T]+(1)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.H]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..LedaLT.X]+[..LedaLT.T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaD.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..PodL.Z]+[..PodL.T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaD.W]-20",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([Y]-MIN([..StranicaD.Y]-[..StranicaD.W];0-582;[..PodL.Y]-[..PodL.W]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([..StropD.Z]-[Z])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[PO]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "([H]-[PO]*[Polica.T])/([PO]+1)+[Polica.T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..BRP3]+1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..OP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...KT]==2;[...Leda90L.X]+[...Leda90L.T];[...LedaLS.X]+[...LedaLS.T]+(0.5))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Y]+if([...HPP1]==0;-[...ODU];ifelse([...KT]==2;[...Leda90D.Y]-[...Leda90D.T]-0,5;[...KT]==1;[...LedaDD.Y]-[...LedaDD.T]-[...OP]*sin([...KZ])-0,5*cos([...KZ]);[...LedaDD.Y]-[...LedaDD.T]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Z]+([.H]-[.PO]*[T])/([.PO]+1)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([...StranicaD.X]-(0.5)-if([...KT]==2;([...Leda90L.X]+[...Leda90L.T]+1);([...LedaLS.X]+[...LedaLS.T]+0,5+0.5)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse([...HPP1]==0;[...StranicaD.W]-[...OP]-[...ODU];([...HPP1]==1) and ([...KT]==2);[...StranicaD.W]-[...OP]-[...Leda90D.T]-0,5;([...HPP1]==1) and ([...KT]==1);[...StranicaD.W]-[...OP]-[...LedaDD.T]-[...OP]*sin([...KZ])-0,5*cos([...KZ])+[...LedaDD.Y];[...StranicaD.W]-[...OP]-[...LedaDD.T]+[...LedaDD.Y])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==1;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;1;0;0;0;-1;-1;0;0;0;0;0;[...PoliceP.Polica.Rx];[...PoliceP.Polica.Ry];[...PoliceP.Polica.Rz];X:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;1;0;0;0;-1;-1;0;0;0;0;0;[...PoliceP.Polica.Rx];[...PoliceP.Polica.Ry];[...PoliceP.Polica.Rz];Y:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(0;1;0;0;0;-1;-1;0;0;0;0;0;[...PoliceP.Polica.Rx];[...PoliceP.Polica.Ry];[...PoliceP.Polica.Rz];Z:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...PoliceP.Polica.X]+([...PoliceP.Polica.W]*1)*((cos([...PoliceP.Polica.Rz]))*(cos([...PoliceP.Polica.Ry])))+([...PoliceP.Polica.L]*-1)*(((cos([...PoliceP.Polica.Rz]))*(sin([...PoliceP.Polica.Ry])))*(sin([...PoliceP.Polica.Rx]))-((sin([...PoliceP.Polica.Rz]))*(cos([...PoliceP.Polica.Rx]))))+([...PoliceP.Polica.T]*1)*(((cos([...PoliceP.Polica.Rz]))*(sin([...PoliceP.Polica.Ry])))*(cos([...PoliceP.Polica.Rx]))+(sin([...PoliceP.Polica.Rz]))*(sin([...PoliceP.Polica.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...PoliceP.Polica.Y]+([...PoliceP.Polica.W]*1)*((sin([...PoliceP.Polica.Rz]))*(cos([...PoliceP.Polica.Ry])))+([...PoliceP.Polica.L]*-1)*(((sin([...PoliceP.Polica.Rz]))*(sin([...PoliceP.Polica.Ry])))*(sin([...PoliceP.Polica.Rx]))+(cos([...PoliceP.Polica.Rz]))*(cos([...PoliceP.Polica.Rx])))+([...PoliceP.Polica.T]*1)*(((sin([...PoliceP.Polica.Rz]))*(sin([...PoliceP.Polica.Ry])))*(cos([...PoliceP.Polica.Rx]))-((cos([...PoliceP.Polica.Rz]))*(sin([...PoliceP.Polica.Rx]))))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...PoliceP.Polica.Z]+([...PoliceP.Polica.W]*1)*(-(sin([...PoliceP.Polica.Ry])))+([...PoliceP.Polica.L]*-1)*((cos([...PoliceP.Polica.Ry]))*(sin([...PoliceP.Polica.Rx])))+([...PoliceP.Polica.T]*1)*((cos([...PoliceP.Polica.Ry]))*(cos([...PoliceP.Polica.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "MIN(MAX([..LedaLT.Y];[..StranicaD.Y]);[..LedaDD.Y]-[..LedaDD.T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ABS([..StranicaD.X]-[X])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse(([...HPP1]==1) and ([...KT]<2);[...LedaDL.X]+[...NP]*([T]+0,5)*sin([...KZ])+[...ODU]*cos([...KZ]);([...HPP1]==1) and ([...KT]==2);[...Leda90D.X]+[...ODU];([...HPP1]==0) and ([...KT]==1);[...ODM_2]-[...ODM_2]*sin([...KZ])*sin([...KZ])+[...LedaLP.T]*cos([...KZ])+([...OP]+0,5/tan([...KZ]))*sin([...KZ])*cos([...KZ]);([...HPP1]==0) and ([...KT]==0);([...LedaLS.W]*sin([...KZ])+[...LedaLP.T])*cos([...KZ])+[...KO]-[...KO]*sin([...KZ])*sin([...KZ]);[...Leda90L.X]+[T])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse(([...HPP1]==1) and ([...KT]<2);[...LedaDL.Y]-([...LedaDL.T]+0,5)*cos([...KZ])+[...NP]*[...ODU]*sin([...KZ]);([...HPP1]==1) and ([...KT]==2);[...Leda90D.Y]-[...Leda90D.T]-(0,5);([...HPP1]==0) and ([...KT]==1);[...ODM_2]*sin([...KZ])*cos([...KZ])+[...LedaLS.Y]+[...LedaLP.T]*sin([...KZ])+([...OP]+0,5/tan([...KZ]))*sin([...KZ])*sin([...KZ]);([...HPP1]==0) and ([...KT]==0);[...LedaLS.Y]-([...LedaLS.W]*sin([...KZ])+[...LedaLP.T])*sin([...KZ])-([...KO]*sin([...KZ])*cos([...KZ]));[...Leda90L.Y]-[...ODU]-0,5)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...KZ]*[...NP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse(([...HPP1]==1) and ([...KT]<2);abs(([...LedaDL.Y]-([...LedaDL.T]+0,5)*cos([...KZ]))-([...StranicaL.Y]+0,5*cos([...KZ])))/cos([...KZ]);([...HPP1]==1) and ([...KT]==2);abs(([...Leda90D.Y]-[...Leda90D.T]-0,5)-([...StranicaL.Y]+0,5));([...HPP1]==0) and ([...KT]<2);POSD-[...StranicaL.T]-0,5;abs(([...Y]-[...ODU]-0,5)-([...StranicaL.Y]+0,5)))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse(([...HPP1]==1) and ([...KT]<2);([...LedaDL.X]+[...NP]*([T]+0,5)*sin([...KZ])+[...ODU]*cos([...KZ]))*0+[...StranicaL.W]-[...ODU]-[...OP];([...HPP1]==1) and ([...KT]==2);[...StranicaL.W]-[...ODU]-[...OP];([...HPP1]==0) and ([...KT]==0);[...StranicaL.W]-[...LedaLS.W]*sin([...KZ])-[...LedaLP.T]-[...OP]-[...KO]*cos([...KZ]);([...HPP1]==0) and ([...KT]==1);[...StranicaL.W]-[...LedaLP.T]-[...ODM_2]-[...OP]-([...OP]+0,5/tan([...KZ]))*sin([...KZ]);[...StranicaL.W]-[...KO]-[...Leda90L.T]-[...OP])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....HPP1]==0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(-1;0;0;0;0;-1;0;-1;0;0;0;0;[...PoliceU.Polica.Rx];[...PoliceU.Polica.Ry];[...PoliceU.Polica.Rz];X:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(-1;0;0;0;0;-1;0;-1;0;0;0;0;[...PoliceU.Polica.Rx];[...PoliceU.Polica.Ry];[...PoliceU.Polica.Rz];Y:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(-1;0;0;0;0;-1;0;-1;0;0;0;0;[...PoliceU.Polica.Rx];[...PoliceU.Polica.Ry];[...PoliceU.Polica.Rz];Z:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...PoliceU.Polica.X]+([...PoliceU.Polica.L]*1)*((cos([...PoliceU.Polica.Rz]))*(cos([...PoliceU.Polica.Ry])))+([...PoliceU.Polica.W]*-1)*(((cos([...PoliceU.Polica.Rz]))*(sin([...PoliceU.Polica.Ry])))*(sin([...PoliceU.Polica.Rx]))-((sin([...PoliceU.Polica.Rz]))*(cos([...PoliceU.Polica.Rx]))))+([...PoliceU.Polica.T]*1)*(((cos([...PoliceU.Polica.Rz]))*(sin([...PoliceU.Polica.Ry])))*(cos([...PoliceU.Polica.Rx]))+(sin([...PoliceU.Polica.Rz]))*(sin([...PoliceU.Polica.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...PoliceU.Polica.Y]+([...PoliceU.Polica.L]*1)*((sin([...PoliceU.Polica.Rz]))*(cos([...PoliceU.Polica.Ry])))+([...PoliceU.Polica.W]*-1)*(((sin([...PoliceU.Polica.Rz]))*(sin([...PoliceU.Polica.Ry])))*(sin([...PoliceU.Polica.Rx]))+(cos([...PoliceU.Polica.Rz]))*(cos([...PoliceU.Polica.Rx])))+([...PoliceU.Polica.T]*1)*(((sin([...PoliceU.Polica.Rz]))*(sin([...PoliceU.Polica.Ry])))*(cos([...PoliceU.Polica.Rx]))-((cos([...PoliceU.Polica.Rz]))*(sin([...PoliceU.Polica.Rx]))))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...PoliceU.Polica.Z]+([...PoliceU.Polica.L]*1)*(-(sin([...PoliceU.Polica.Ry])))+([...PoliceU.Polica.W]*-1)*((cos([...PoliceU.Polica.Ry]))*(sin([...PoliceU.Polica.Rx])))+([...PoliceU.Polica.T]*1)*((cos([...PoliceU.Polica.Ry]))*(cos([...PoliceU.Polica.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KVDS1]==2;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.IZR_15]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreNosacD.Y]-[.MaskaGoreNosacD.W]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreNosacD.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.IZR_13]+[.StranicaD.T]-[.MSZRD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MSS]+if([.MSDPG]>0;ADD([.MSZRG]+[.MSDPG]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreD.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.Y]-[.StropD.W]-[.MSPRS]+[W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StropD.Z]+[.StropD.T]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreD.L]+[.MSZRD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MSS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreD.X]-cos([.KZ])*[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreD.Y]-[.MaskaGoreD.T]-[.NP]*sin([.KZ])*[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreD.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "(POSD*cos([.KZ])-[.NP]*([.StranicaL.W]+[.MSPRS]+[T])*sin([.KZ])-(-[.MaskaGoreD.Y]+[.MaskaGoreD.T]))/cos([.KZ])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreD.W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreL.X]-cos([.KZ])*[W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreL.Y]-[.NP]*sin([.KZ])*[W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreL.L]+[.MSZRL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KVDS1]==3;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse([.KT]==0;[.IZR_6]/cos([.KZ])-[.IZR_7];[.KT]==1;[.IZR_5]*tan([.KZ])+[.IZR_6]/cos([.KZ]);[.IZR_6])",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.StranicaL.Z]+[.StranicaL.L]+(0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "POSW-[X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..MaskaGoreHorizL.X]-if([..KT]>0;0;[..MSS]*sin([..KZ])*tan([..KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "ifelse([.KT]==2];[.MaskaGoreHorizD.X];[.KT]==1];[.MaskaGoreHorizD.X];[.MaskaGoreHorizD.X]+[.MSS]*sin([.KZ])*tan([.KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.MaskaGoreHorizD.Y]-[.MaskaGoreHorizD.W]+(0)+if([.KT]==0;[.MSS]*sin([.KZ]);0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.KT]==2;POSD-[.GKD]-[.MSPRS]+(0,5);((POSD*cos([.KZ]))-[.NP]*([.IZR_6]*sin([.KZ]))+([.MaskaGoreHorizD.Y]-[.MSS]))/cos([.KZ])+if([.KT]==0;[.MSS]*tan([.KZ]);0))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..MaskaGoreHorizD.Rx];[..MaskaGoreHorizD.Ry];[..MaskaGoreHorizD.Rz];X:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..MaskaGoreHorizD.Rx];[..MaskaGoreHorizD.Ry];[..MaskaGoreHorizD.Rz];Y:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..MaskaGoreHorizD.Rx];[..MaskaGoreHorizD.Ry];[..MaskaGoreHorizD.Rz];Z:)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..MaskaGoreHorizD.X]+(0)*((cos([..MaskaGoreHorizD.Rz]))*(cos([..MaskaGoreHorizD.Ry])))+([..MaskaGoreHorizD.W]*-1)*(((cos([..MaskaGoreHorizD.Rz]))*(sin([..MaskaGoreHorizD.Ry])))*(sin([..MaskaGoreHorizD.Rx]))-((sin([..MaskaGoreHorizD.Rz]))*(cos([..MaskaGoreHorizD.Rx]))))+(0)*(((cos([..MaskaGoreHorizD.Rz]))*(sin([..MaskaGoreHorizD.Ry])))*(cos([..MaskaGoreHorizD.Rx]))+(sin([..MaskaGoreHorizD.Rz]))*(sin([..MaskaGoreHorizD.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..MaskaGoreHorizD.Y]+(0)*((sin([..MaskaGoreHorizD.Rz]))*(cos([..MaskaGoreHorizD.Ry])))+([..MaskaGoreHorizD.W]*-1)*(((sin([..MaskaGoreHorizD.Rz]))*(sin([..MaskaGoreHorizD.Ry])))*(sin([..MaskaGoreHorizD.Rx]))+(cos([..MaskaGoreHorizD.Rz]))*(cos([..MaskaGoreHorizD.Rx])))+(0)*(((sin([..MaskaGoreHorizD.Rz]))*(sin([..MaskaGoreHorizD.Ry])))*(cos([..MaskaGoreHorizD.Rx]))-((cos([..MaskaGoreHorizD.Rz]))*(sin([..MaskaGoreHorizD.Rx]))))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..MaskaGoreHorizD.Z]+(0)*(-(sin([..MaskaGoreHorizD.Ry])))+([..MaskaGoreHorizD.W]*-1)*((cos([..MaskaGoreHorizD.Ry]))*(sin([..MaskaGoreHorizD.Rx])))+(0)*((cos([..MaskaGoreHorizD.Ry]))*(cos([..MaskaGoreHorizD.Rx])))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaL.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaL.Z]+[..StranicaL.L]-[Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([..PVD]=0;-0,5;-10)-if([..LEDP]>0;[..LEDPD];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...StranicaL.X]+([...GKL]+[.ZRK])*cos([...KZ])+([...StranicaL.T]-[.ZRL])*sin([...KZ])*[...NP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...StranicaL.Y]+(([...GKL]+[.ZRK])*sin([...KZ])*[...NP]-([...StranicaL.T]-[.ZRL])*cos([...KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([...KT]=0;([...D]*cos([...KZ])+[...GKL]*sin([...KZ])-[...GKD])/cos([...KZ]);([...D]*cos([...KZ])-[...GKL]*sin([...KZ])-[...GKD])/cos([...KZ])-[.Vrata.Vrata.T]*tan([...KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..Vrata.Z]+[..ZRS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.H]-[..ZRS]-[..ZRZ]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.W]-[..ZRL]-[..ZRD]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....LDO]==1;7;6)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.....LDO]==0;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.....LDO]==1;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.....LDO]==2;1;0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[..StranicaD.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...X]+[...GKL]/cos([...KZ])+if([...KT]=0;-[...GKD]*tan([...KZ]);([...GKD]+[..VrataD.Vrata.Vrata.T])*tan([...KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "-[...GKD]-[.ZRK]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[...W]-[...GKL]/cos([...KZ])+if([...KT]=0;[...GKD]*tan([...KZ]);-([...GKD]+[..VrataD.Vrata.Vrata.T])*tan([...KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.X]+[..ZRL]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.Z]+[..ZRS]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([....LDO]>0;7;6)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.LEDP]==0;if([.LEDST]>0;1;0);0)*[.IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==0;[.PodD.Razlika.UtorLedU.Utor_Poluutor.X];[.X]+([.GKL]-[.LEDOP]-0,5-[W])/cos([.KZ])+[.NP]*([.GKD]-[.LEDOP]-0,5-[W])*tan([.KZ])+if([.KUT]<90;1;0)*[W]*tan([.KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodD.Razlika.UtorLedU.Utor_Poluutor.Y]-[.PodD.Razlika.UtorLedU.Utor_Poluutor.W]+(0)+[W]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodD.Razlika.UtorLedU.Utor_Poluutor.Z]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "abs([X]-([.StranicaD.X]-[.LEDSKD]))+if((([.LEDIZRK]==2) or ([.LEDIZRK]==3)) and ([.LEDSKD]==0);[.StranicaD.T];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.LEDP]==0;if([.LEDST]==2;1;0);0)*[.IZR_2]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedlPodD.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.PodD.Razlika.UtorLedU.Utor_Poluutor.Z]+[.PodD.Razlika.UtorLedU.Utor_Poluutor.T]+(0)-[T]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedlPodD.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==0;[.LedlPodD.X];([.GKL]-[.LEDOP]-[.LEDUS]-0,5)/cos([.KZ])-[.NP]*[Y]*tan([.KZ]))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "if([.HPP1]==0;[.PodD.Razlika.UtorLedP.Utor_Poluutor.Y];(-[.GKD]+[.LEDOP])-if([.KUT]<90;[.LEDUS]*sin([.KZ]);0))",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.KZ]*[.NP]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "POSD-[.StranicaL.T]-([.GKD]-0,5)/cos([.KZ])-[.NP]*([.GKL]-0,5-[.LEDOP]-[.LEDUS])*tan([.KZ])+([.LEDOP]-0,5)/cos([.KZ])-if([.KUT]<90;[.LEDUS]*tan([.KZ]);0)-[.LEDSKL]+if((([.LEDIZRK]==1) or ([.LEDIZRK]==3)) and ([.LEDSKL]==0);[.StranicaD.T];0)",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedlPodL.X]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedlPodL.Y]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "[.LedlPodL.L]",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n    <ParFloat>\r\n      <Reserved>true</Reserved>\r\n      <Name>MirXY</Name>\r\n      <Value>0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParFloat>\r\n            <Reserved>false</Reserved>\r\n            <Name>ODU</Name>\r\n            <Formula>[...ODU]</Formula>\r\n            <Value>20",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n            <ParFloat>\r\n              <Reserved>true</Reserved>\r\n              <Name>Ref</Name>\r\n              <Value>0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParFloat>\r\n            <Reserved>false</Reserved>\r\n            <Name>ID</Name>\r\n            <Value>80",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParFloat>\r\n            <Reserved>true</Reserved>\r\n            <Name>Ref</Name>\r\n            <Value>0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParFloat>\r\n          <Reserved>true</Reserved>\r\n          <Name>Qpp</Name>\r\n          <Value>1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParString>\r\n          <Reserved>true</Reserved>\r\n          <Name>Mat</Name>\r\n          <Value>CA_806_14_P2_VI_SXM",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParString>\r\n          <Reserved>true</Reserved>\r\n          <Name>Mat</Name>\r\n          <Value>CA_806_14_P2_VI_DXM",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParFloat>\r\n            <Reserved>false</Reserved>\r\n            <Name>ID</Name>\r\n            <Value>62",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParString>\r\n          <Reserved>true</Reserved>\r\n          <Name>MatSlt</Name>\r\n          <Value />\r\n        </ParString>\r\n        <ParString>\r\n          <Reserved>true</Reserved>\r\n          <Name>MatTwM</Name>\r\n          <Value>7TS",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParString>\r\n          <Reserved>true</Reserved>\r\n          <Name>HC</Name>\r\n          <Value />\r\n        </ParString>\r\n        <ParFloat>\r\n          <Reserved>true</Reserved>\r\n          <Name>OfTh</Name>\r\n          <Value>0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParFloat>\r\n            <Reserved>false</Reserved>\r\n            <Name>ID</Name>\r\n            <Value>56",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParFloat>\r\n            <Reserved>false</Reserved>\r\n            <Name>ODU</Name>\r\n            <Value>20",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParString>\r\n            <Reserved>true</Reserved>\r\n            <Name>MatSlt</Name>\r\n            <Value />\r\n          </ParString>\r\n          <ParString>\r\n            <Reserved>true</Reserved>\r\n            <Name>MatTwM</Name>\r\n            <Value>7TS",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n          <ParString>\r\n            <Reserved>true</Reserved>\r\n            <Name>HC</Name>\r\n            <Value />\r\n          </ParString>\r\n          <ParFloat>\r\n            <Reserved>true</Reserved>\r\n            <Name>OfTh</Name>\r\n            <Value>0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n      <ParString>\r\n        <Reserved>true</Reserved>\r\n        <Name>BPath</Name>\r\n        <Value>Profili\\Camar",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "-6;0;0@-2;0;0@0;2;-0.58579@0;17.8;0@-2;19.8;-0.58579@-4;19.8;0@-4.2;20;0.05858@-4.2;27;0@-6;27;0@-6;20;0@-4;18;-0.58579@-2;18;0@-1.8;17.8;0.05858@-1.8;2;0@-2;1.8;0.05858@-6;1.8;0@-6;0;0",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n    </Parameters>\r\n    <MultiplyComplexNode>\r\n      <Name>PoliceU</Name>\r\n      <Parameters>\r\n        <ParFloat>\r\n          <Reserved>true</Reserved>\r\n          <Name>Act</Name>\r\n          <Value>1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParFloat>\r\n          <Reserved>true</Reserved>\r\n          <Name>Xn</Name>\r\n          <Value>1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n    </Parameters>\r\n    <ComplexNode>\r\n      <Name>VrataL</Name>\r\n      <Parameters>\r\n        <ParFloat>\r\n          <Reserved>true</Reserved>\r\n          <Name>Act</Name>\r\n          <Formula>[.Act]</Formula>\r\n          <Value>1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParFloat>\r\n          <Reserved>false</Reserved>\r\n          <Name>ZRL</Name>\r\n          <Value>2",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        </Parameters>\r\n        <CuboidNode>\r\n          <Name>Vrata</Name>\r\n          <Parameters>\r\n            <ParFloat>\r\n              <Reserved>true</Reserved>\r\n              <Name>Act</Name>\r\n              <Formula>[.Act]</Formula>\r\n              <Value>1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n              <ParString>\r\n                <Reserved>true</Reserved>\r\n                <Name>LimStrPath</Name>\r\n                <Value>....StranicaL",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n              <ParFloat>\r\n                <Reserved>true</Reserved>\r\n                <Name>LimHS</Name>\r\n                <Value>-1",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n              <ParString>\r\n                <Reserved>true</Reserved>\r\n                <Name>LimStrPath</Name>\r\n                <Value>...VrataD.Vrata.Vrata",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n        <ParFloat>\r\n          <Reserved>false</Reserved>\r\n          <Name>ZRL</Name>\r\n          <Value>20",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n              <ParString>\r\n                <Reserved>true</Reserved>\r\n                <Name>LimStrPath</Name>\r\n                <Value>....StranicaD",
+      "source": "KUTNI.mac"
+    },
+    {
+      "formula": "</ParString>\r\n              <ParString>\r\n                <Reserved>true</Reserved>\r\n                <Name>LimStrPath</Name>\r\n                <Value>...VrataL.Vrata.Vrata",
+      "source": "KUTNI.mac"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "T",
+      "description": "",
+      "typical_values": [
+        "6.000000000036982"
+      ]
+    },
+    {
+      "name": "W",
+      "description": "",
+      "typical_values": [
+        "600",
+        "0",
+        "27.000000000018492"
+      ]
+    },
+    {
+      "name": "Y",
+      "description": "",
+      "typical_values": [
+        "0",
+        "-129.5"
+      ]
+    },
+    {
+      "name": "X",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Rz",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Rx",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "HPP1",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Ry",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Z",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ODU",
+      "description": "",
+      "typical_values": [
+        "20"
+      ]
+    },
+    {
+      "name": "LEDOP",
+      "description": "",
+      "typical_values": [
+        "100"
+      ]
+    },
+    {
+      "name": "Ks",
+      "description": "",
+      "typical_values": [
+        "1",
+        "4",
+        "3",
+        "6",
+        "2",
+        "5"
+      ]
+    },
+    {
+      "name": "KUT",
+      "description": "",
+      "typical_values": [
+        "90",
+        "0"
+      ]
+    },
+    {
+      "name": "GKD",
+      "description": "",
+      "typical_values": [
+        "330"
+      ]
+    },
+    {
+      "name": "GKL",
+      "description": "",
+      "typical_values": [
+        "330"
+      ]
+    },
+    {
+      "name": "LEDP",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "MSPRS",
+      "description": "",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "SUT",
+      "description": "",
+      "typical_values": [
+        "4"
+      ]
+    },
+    {
+      "name": "GLU",
+      "description": "",
+      "typical_values": [
+        "12"
+      ]
+    },
+    {
+      "name": "KO",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "D",
+      "description": "",
+      "typical_values": [
+        "600",
+        "0"
+      ]
+    },
+    {
+      "name": "H",
+      "description": "",
+      "typical_values": [
+        "1090",
+        "0"
+      ]
+    },
+    {
+      "name": "MSS",
+      "description": "",
+      "typical_values": [
+        "97"
+      ]
+    },
+    {
+      "name": "LEDST",
+      "description": "",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "LEDIZRK",
+      "description": "",
+      "typical_values": [
+        "3"
+      ]
+    },
+    {
+      "name": "LEDSKL",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LEDSKD",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Act",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "IS",
+      "description": "",
+      "typical_values": [
+        "10",
+        "31.5"
+      ]
+    },
+    {
+      "name": "ISIN",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LDO",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KVDS1",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "STRAN",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "IOSI",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ZRL",
+      "description": "",
+      "typical_values": [
+        "2",
+        "20"
+      ]
+    },
+    {
+      "name": "BRP3",
+      "description": "",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "LEDPD",
+      "description": "",
+      "typical_values": [
+        "18"
+      ]
+    },
+    {
+      "name": "MSZRG",
+      "description": "",
+      "typical_values": [
+        "3"
+      ]
+    },
+    {
+      "name": "IDEP1",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ZRK",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KVNZ",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "MSDPG",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "MSZRD",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ID",
+      "description": "",
+      "typical_values": [
+        "80",
+        "62",
+        "56"
+      ]
+    },
+    {
+      "name": "PVD",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "MSZRL",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RUND",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RUND1",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "RUND2",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "RUND3",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "RUND4",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "IODO",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "DistL",
+      "description": "",
+      "typical_values": [
+        "64"
+      ]
+    },
+    {
+      "name": "Dia",
+      "description": "",
+      "typical_values": [
+        "5"
+      ]
+    },
+    {
+      "name": "OffY",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ZRD",
+      "description": "",
+      "typical_values": [
+        "20",
+        "2"
+      ]
+    },
+    {
+      "name": "ZRZ",
+      "description": "",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "MirXY",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Vis",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Elem",
+      "description": "",
+      "typical_values": [
+        "STR_L",
+        "STR_D",
+        "LEDPUNA",
+        "LEDA",
+        "STROP",
+        "POD",
+        "POD_DEKOR",
+        "7LED_TRAKA_R",
+        "7LED_KANAL_R",
+        "7ZL_OVJ"
+      ]
+    },
+    {
+      "name": "Ref",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ETyp",
+      "description": "",
+      "typical_values": [
+        "0",
+        "30",
+        "1",
+        "10",
+        "3",
+        "2",
+        "24"
+      ]
+    },
+    {
+      "name": "Rwb",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "Edges",
+      "description": "",
+      "typical_values": [
+        "9",
+        "11",
+        "3",
+        "1"
+      ]
+    },
+    {
+      "name": "Side",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "PosH",
+      "description": "",
+      "typical_values": [
+        "2",
+        "0",
+        "0#2"
+      ]
+    },
+    {
+      "name": "OfW",
+      "description": "",
+      "typical_values": [
+        "50"
+      ]
+    },
+    {
+      "name": "OfT",
+      "description": "",
+      "typical_values": [
+        "0",
+        "240.25",
+        "117"
+      ]
+    },
+    {
+      "name": "DistW",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "DistT",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Qty",
+      "description": "",
+      "typical_values": [
+        "3"
+      ]
+    },
+    {
+      "name": "Dep",
+      "description": "",
+      "typical_values": [
+        "5.9"
+      ]
+    },
+    {
+      "name": "Dia2",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Dep2",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Qpp",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Mat",
+      "description": "",
+      "typical_values": [
+        "CA_806_14_P2_VI_SXM",
+        "CA_806_14_P2_VI_DXM",
+        "7TIPLE_VIDE",
+        "CA_875_AC_Z1_20_32",
+        "7TIPLE_EXC",
+        "7TSV_35SIM",
+        "BL_71T6550",
+        "BL_79T8500_REV",
+        "BL_70M2550.TL"
+      ]
+    },
+    {
+      "name": "BPath",
+      "description": "",
+      "typical_values": [
+        "Okov\\Camar",
+        "Profili\\Camar"
+      ]
+    },
+    {
+      "name": "MatTwM",
+      "description": "",
+      "typical_values": [
+        "7TS",
+        "7MASTER"
+      ]
+    },
+    {
+      "name": "MatTwS",
+      "description": "",
+      "typical_values": [
+        "7TSS",
+        "7SLAVE"
+      ]
+    },
+    {
+      "name": "MatBac",
+      "description": "",
+      "typical_values": [
+        "7TIPLE_VIDE",
+        "7TS",
+        "7TIPLE_EXC"
+      ]
+    },
+    {
+      "name": "MatBa2Tk",
+      "description": "",
+      "typical_values": [
+        "7TIPLE_VIDE",
+        "7TS",
+        "7TIPLE_EXC"
+      ]
+    },
+    {
+      "name": "MatBa2Tn",
+      "description": "",
+      "typical_values": [
+        "7VIJ"
+      ]
+    },
+    {
+      "name": "Num",
+      "description": "",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "OfF",
+      "description": "",
+      "typical_values": [
+        "100"
+      ]
+    },
+    {
+      "name": "OfB",
+      "description": "",
+      "typical_values": [
+        "100",
+        "240.25",
+        "117"
+      ]
+    },
+    {
+      "name": "Ras",
+      "description": "",
+      "typical_values": [
+        "128"
+      ]
+    },
+    {
+      "name": "Mid",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "NRas",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "AddF",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "AddB",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "AddR",
+      "description": "",
+      "typical_values": [
+        "32"
+      ]
+    },
+    {
+      "name": "AddO",
+      "description": "",
+      "typical_values": [
+        "32"
+      ]
+    },
+    {
+      "name": "OfTh",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Mir",
+      "description": "",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "Rev",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OfLon",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "CDiv",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "RefEl",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "LimEl2path",
+      "description": "",
+      "typical_values": [
+        ".StropL",
+        ".StropD",
+        ".PodL",
+        ".PodD",
+        ".StranicaL",
+        ".StranicaD",
+        ".MaskaGoreD",
+        ".MaskaGoreL",
+        ".MaskaGore"
+      ]
+    },
+    {
+      "name": "FJoint",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "JPIdx",
+      "description": "",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "OnRot",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "RotX",
+      "description": "",
+      "typical_values": [
+        "-90",
+        "90"
+      ]
+    },
+    {
+      "name": "RotY",
+      "description": "",
+      "typical_values": [
+        "-0",
+        "0"
+      ]
+    },
+    {
+      "name": "OffZ",
+      "description": "",
+      "typical_values": [
+        "1072",
+        "18",
+        "0"
+      ]
+    },
+    {
+      "name": "Mir1",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Mir2",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Xn",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Yn",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Xof",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Yof",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Sep",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OPD",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "MatGer",
+      "description": "",
+      "typical_values": [
+        "7TSG"
+      ]
+    },
+    {
+      "name": "MatSlt",
+      "description": "",
+      "typical_values": [
+        "7TS"
+      ]
+    },
+    {
+      "name": "RotZ",
+      "description": "",
+      "typical_values": [
+        "-90"
+      ]
+    },
+    {
+      "name": "MatPl",
+      "description": "",
+      "typical_values": [
+        "BL_173L8100"
+      ]
+    },
+    {
+      "name": "AMpl",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "AQty",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Vof",
+      "description": "",
+      "typical_values": [
+        "5"
+      ]
+    },
+    {
+      "name": "Sof",
+      "description": "",
+      "typical_values": [
+        "37",
+        "0"
+      ]
+    },
+    {
+      "name": "LimStrPath",
+      "description": "",
+      "typical_values": [
+        "....StranicaL",
+        "...VrataD.Vrata.Vrata",
+        "....StranicaD",
+        "...VrataL.Vrata.Vrata"
+      ]
+    },
+    {
+      "name": "LimHS",
+      "description": "",
+      "typical_values": [
+        "-1"
+      ]
+    },
+    {
+      "name": "LimStr",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LimStr2",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KZ",
+      "description": "koristi se u 259 formula",
+      "typical_values": []
+    },
+    {
+      "name": "KT",
+      "description": "koristi se u 79 formula",
+      "typical_values": []
+    },
+    {
+      "name": "L",
+      "description": "koristi se u 53 formula",
+      "typical_values": []
+    },
+    {
+      "name": "NP",
+      "description": "koristi se u 43 formula",
+      "typical_values": []
+    },
+    {
+      "name": "LEDUS",
+      "description": "koristi se u 28 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OP",
+      "description": "koristi se u 15 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OfL",
+      "description": "koristi se u 13 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_2",
+      "description": "koristi se u 12 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_0",
+      "description": "koristi se u 10 formula",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_2",
+      "description": "koristi se u 10 formula",
+      "typical_values": []
+    },
+    {
+      "name": "ZHS",
+      "description": "koristi se u 10 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_11",
+      "description": "koristi se u 8 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_10",
+      "description": "koristi se u 8 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_12",
+      "description": "koristi se u 8 formula",
+      "typical_values": []
+    },
+    {
+      "name": "KUT_I0",
+      "description": "koristi se u 8 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_13",
+      "description": "koristi se u 7 formula",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_1",
+      "description": "koristi se u 7 formula",
+      "typical_values": []
+    },
+    {
+      "name": "PO",
+      "description": "koristi se u 5 formula",
+      "typical_values": []
+    },
+    {
+      "name": "LEDUD",
+      "description": "koristi se u 4 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_6",
+      "description": "koristi se u 4 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_1",
+      "description": "koristi se u 3 formula",
+      "typical_values": []
+    },
+    {
+      "name": "ZRS",
+      "description": "koristi se u 3 formula",
+      "typical_values": []
+    },
+    {
+      "name": "DN",
+      "description": "koristi se u 2 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_19",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_18",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_17",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OffX",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_15",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_7",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_5",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    }
+  ],
   "syntax_rules": [
-    "Decimal separator is COMMA not dot: 0,5 not 0.5",
-    "Parent parameter: [.W] = one level up",
-    "Root parameter: [....W] = four dots = root level",
-    "Child navigation: [...PoliceP.Polica.W]",
-    "Conditional: if(condition;true;false)",
-    "Multi-conditional: ifelse(c1;v1;c2;v2;default)",
-    "Functions: cos(), sin(), tan(), neg()",
-    "String concatenation with + operator",
-    "Parameter references use square brackets: [W], [D], [H]",
-    "Arithmetic operators: +, -, *, /",
-    "Comparison operators: <, >, <=, >=, =, <>",
-    "Logical operators: and(), or(), not()",
-    "Round function: round(value;decimals)",
-    "Integer function: int(value)",
-    "Minimum/Maximum: min(a;b), max(a;b)",
-    "Absolute value: abs(value)",
-    "Square root: sqrt(value)"
+    "Decimalni separator je ZAREZ ne točka: 0,5 a ne 0.5",
+    "Roditeljski parametar: [.W] = jedan nivo gore",
+    "Korijenski parametar: [....W] = četiri točke = root razina",
+    "Navigacija prema djetetu: [...PoliceP.Polica.W]",
+    "Uvjet: if(uvjet;istina;laž)",
+    "Višestruki uvjet: ifelse(u1;v1;u2;v2;zadano)",
+    "Funkcije: cos(), sin(), tan(), neg()",
+    "Spajanje stringova s + operatorom",
+    "Reference parametara u uglatim zagradama: [W], [D], [H]",
+    "Aritmetički operatori: +, -, *, /",
+    "Operatori usporedbe: <, >, <=, >=, =, <>",
+    "Logički operatori: and(), or(), not()",
+    "Zaokruživanje: round(vrijednost;decimale)",
+    "Cijeli broj: int(vrijednost)",
+    "Min/Max: min(a;b), max(a;b)",
+    "Apsolutna vrijednost: abs(vrijednost)",
+    "Kvadratni korijen: sqrt(vrijednost)"
   ],
   "_meta": {
-    "files_processed": 0
+    "files_processed": 13
   }
 }
