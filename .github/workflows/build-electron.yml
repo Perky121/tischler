@@ -14,6 +14,8 @@ jobs:
   build-windows:
     runs-on: windows-2022
     timeout-minutes: 45
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
