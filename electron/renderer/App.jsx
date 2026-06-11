@@ -47,6 +47,73 @@ function CodeBlock({ code, lang }) {
   );
 }
 
+// ── WorklistCard ──────────────────────────────────────────────────────────────
+
+/**
+ * Parse a ```worklist ... ``` fenced block from an AI message.
+ * Returns the parsed steps array or null if no valid block found.
+ */
+function extractWorklist(content) {
+  const m = content.match(/```worklist\s*([\s\S]*?)```/);
+  if (!m) return null;
+  try {
+    const parsed = JSON.parse(m[1].trim());
+    if (Array.isArray(parsed.steps) && parsed.steps.length > 0) return parsed.steps;
+  } catch { /* fallback to normal markdown */ }
+  return null;
+}
+
+/**
+ * Strip the ```worklist ... ``` block from a content string so the rest
+ * (intro text) can still be shown above the card.
+ */
+function stripWorklist(content) {
+  return content.replace(/```worklist[\s\S]*?```/g, "").trim();
+}
+
+function WorklistCard({ steps }) {
+  const [done, setDone] = React.useState(() => new Array(steps.length).fill(false));
+
+  function toggleDone(i) {
+    setDone((prev) => {
+      const next = [...prev];
+      next[i] = !next[i];
+      return next;
+    });
+  }
+
+  return (
+    <div className="worklist-card">
+      {steps.map((step, i) => (
+        <div key={i} className={`worklist-step${done[i] ? " worklist-step-done" : ""}`}>
+          <div className="worklist-step-header">
+            <button
+              className="worklist-checkbox"
+              title={done[i] ? "Označi kao nedovršeno" : "Označi kao gotovo"}
+              onClick={() => toggleDone(i)}
+              aria-pressed={done[i]}
+            >
+              {done[i] ? "✓" : String(i + 1)}
+            </button>
+            <div className="worklist-step-info">
+              <div className="worklist-step-title">{step.title}</div>
+              {step.where && (
+                <div className="worklist-step-where">{step.where}</div>
+              )}
+            </div>
+          </div>
+          {step.formula && (
+            <CodeBlock code={step.formula} lang="formula" />
+          )}
+          {step.hint && (
+            <div className="worklist-step-hint">💡 {step.hint}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── MarkdownMessage ────────────────────────────────────────────────────────
 function renderInline(text) {
   const tokens = text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*|`[^`\n]+`)/g);
@@ -227,6 +294,7 @@ function SettingsPanel({
   const [showKey, setShowKey] = useState(false);
   const [testingVoice, setTestingVoice] = useState(false);
   const [useRegionForF9, setUseRegionForF9] = useState(false);
+  const [autoLoadModule, setAutoLoadModule] = useState(true);
   const [macUploadStatus, setMacUploadStatus] = useState(null); // null | "uploading" | {ok, count, errors}
   const macFileInputRef = React.useRef(null);
   useEffect(() => {
@@ -237,6 +305,7 @@ function SettingsPanel({
       setTtsEnabled(s.ttsEnabled || false);
       setTtsVoice(s.ttsVoice || "onyx");
       setUseRegionForF9(!!s.useRegionForF9);
+      setAutoLoadModule(s.autoLoadModule !== false);
     });
     window.electron.fetchKnowledgeStats().then((data) => {
       if (!data.error) setStats(data);
@@ -247,7 +316,7 @@ function SettingsPanel({
   }, []);
 
   function handleSave() {
-    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice }).then(() => {
+    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule }).then(() => {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
@@ -428,6 +497,24 @@ function SettingsPanel({
               </label>
             </div>
           )}
+
+          {/* autoLoadModule toggle */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+            <input
+              type="checkbox"
+              id="autoLoadModule"
+              checked={autoLoadModule}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setAutoLoadModule(checked);
+                window.electron.saveSettings({ autoLoadModule: checked }).catch(() => {});
+              }}
+              style={{ cursor: "pointer" }}
+            />
+            <label htmlFor="autoLoadModule" style={{ fontSize: 12, color: "var(--text2)", cursor: "pointer" }}>
+              Automatski učitaj modul kad Live ga prepozna
+            </label>
+          </div>
         </div>
 
         {/* Backend URL */}
@@ -739,13 +826,19 @@ function App() {
   const [recordingSecs, setRecordingSecs] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [liveEnabled, setLiveEnabled] = useState(false);
+  const [liveState, setLiveState] = useState("off"); // off | running | paused
+  const [liveTask, setLiveTask] = useState("");
   const [liveCallCount, setLiveCallCount] = useState(0);
   const [liveSpentUsd, setLiveSpentUsd] = useState(0);
   const [liveBudgetUsd, setLiveBudgetUsd] = useState(100);
   const [liveRegion, setLiveRegion] = useState(null);
   const [sessionContext, setSessionContext] = useState(null);
   const [awaitingRegion, setAwaitingRegion] = useState(false);
+  const [showTaskInput, setShowTaskInput] = useState(false);
+  const [taskInput, setTaskInput] = useState("");
+  // Module bar: track last loaded hint + loading state
+  const [moduleLoadedHint, setModuleLoadedHint] = useState(null); // hint that was last successfully loaded
+  const [moduleLoading, setModuleLoading] = useState(false);
   const [inputHeight, setInputHeight] = useState(INPUT_HEIGHT_DEFAULT);
 
   const scrollRef = useRef(null);
@@ -756,10 +849,10 @@ function App() {
   const resizeStartHeightRef = useRef(0);
   const mediaRecorderRef = useRef(null);
   // Refs for values used inside useCallback without adding to deps (avoids stale closures)
-  const liveEnabledRef = useRef(false);
+  const liveStateRef = useRef("off");
   const sessionContextRef = useRef(null);
   // Track previous live state when opening region picker so cancel can restore it
-  const prevLiveEnabledRef = useRef(false);
+  const prevLiveStateRef = useRef("off");
   // Stable message IDs (avoid re-render issues when dismissing by index)
   const msgIdCounterRef = useRef(0);
   function nextMsgId() { return ++msgIdCounterRef.current; }
@@ -856,6 +949,7 @@ function App() {
 
   // Keep ref pointing to latest toggle function (avoids stale closure in IPC listener)
   toggleRecordingRef.current = () => {
+    if (liveStateRef.current === "running") return;
     if (isRecordingRef.current) stopRecording();
     else startRecording();
   };
@@ -891,7 +985,9 @@ function App() {
 
     // Load persisted live status
     window.electron.liveGetStatus().then((s) => {
-      setLiveEnabled(s.enabled);
+      const state = s.liveState || (s.enabled ? "running" : "off");
+      setLiveState(state);
+      setLiveTask(s.liveTask || "");
       setLiveCallCount(s.callCount ?? 0);
       setLiveSpentUsd(s.spentUsd ?? 0);
       setLiveBudgetUsd(s.budgetUsd ?? 100);
@@ -965,6 +1061,7 @@ function App() {
           id: Date.now(),
           role: "assistant",
           content: data.message,
+          step: data.step || null,
           type: "proactive",
           context: data.context || null,
         },
@@ -972,7 +1069,9 @@ function App() {
     });
 
     window.electron.onLiveBudgetReached((data) => {
-      setLiveEnabled(false);
+      setLiveState("off");
+      setLiveTask("");
+      setShowTaskInput(false);
       setLiveSpentUsd(data.spent ?? 0);
       setMessages((prev) => [
         ...prev,
@@ -1008,19 +1107,42 @@ function App() {
     window.electron.onLiveRegionSelected((region) => {
       setLiveRegion(region);
       setAwaitingRegion(false);
-      // Now actually enable live
-      window.electron.liveSetEnabled(true).then(() => setLiveEnabled(true)).catch(console.error);
+      setShowTaskInput(true);
+      setTaskInput(liveTask || "");
     });
 
     window.electron.onLiveRegionCancelled(() => {
       setAwaitingRegion(false);
-      // Restore live state if it was active before opening picker (e.g. "Change region" then Esc)
-      if (prevLiveEnabledRef.current) {
-        prevLiveEnabledRef.current = false;
-        setLiveEnabled(true);
-        window.electron.liveSetEnabled(true).catch(() => {});
+      const prev = prevLiveStateRef.current;
+      prevLiveStateRef.current = "off";
+      if (prev === "running") {
+        window.electron.liveResume().then(() => setLiveState("running")).catch(() => {});
+      } else if (prev === "paused") {
+        setLiveState("paused");
       }
     });
+
+    window.electron.onLiveStateChanged((data) => {
+      if (data.state) setLiveState(data.state);
+      if (data.task !== undefined) setLiveTask(data.task || "");
+      if (data.spentUsd !== undefined) setLiveSpentUsd(data.spentUsd);
+      if (data.callCount !== undefined) setLiveCallCount(data.callCount);
+      if (data.liveRegion) setLiveRegion(data.liveRegion);
+      if (data.state === "off") {
+        setShowTaskInput(false);
+        setLiveTask("");
+      }
+    });
+
+    // Faza 5C — auto-loaded module notification from main process
+    if (window.electron.onLiveModuleLoaded) {
+      window.electron.onLiveModuleLoaded((data) => {
+        if (data.success) {
+          setModuleLoadedHint(data.hint);
+          setTimeout(() => setModuleLoadedHint(null), 30000);
+        }
+      });
+    }
 
     // Show a visible warning if diff libraries (pixelmatch/pngjs) are not installed
     if (window.electron.onLiveDepsMissing) {
@@ -1042,22 +1164,107 @@ function App() {
     };
   }, []);
 
+  async function stopLiveMode() {
+    setLiveState("off");
+    setLiveTask("");
+    setShowTaskInput(false);
+    await window.electron.liveSetEnabled(false).catch(console.error);
+  }
+
+  async function handleLivePause() {
+    await window.electron.livePause().catch(console.error);
+    setLiveState("paused");
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: "⏸ Live mod pauziran. Postavi pitanje ili klikni **▶ Nastavi**.",
+        type: "proactive",
+        id: `live-paused-${Date.now()}`,
+      },
+    ]);
+  }
+
+  async function handleLiveResume() {
+    await window.electron.liveResume().catch(console.error);
+    setLiveState("running");
+  }
+
+  async function handleStartLive() {
+    const task = taskInput.trim();
+    if (!task) return;
+    const res = await window.electron.liveStart(task).catch(() => ({ ok: false }));
+    if (res?.ok) {
+      setLiveState("running");
+      setLiveTask(task);
+      setShowTaskInput(false);
+    }
+  }
+
+  async function handleUpdateTask() {
+    const task = taskInput.trim();
+    if (!task) return;
+    await window.electron.liveSetTask(task).catch(console.error);
+    setLiveTask(task);
+    setShowTaskInput(false);
+  }
+
+  function cancelTaskInput() {
+    setShowTaskInput(false);
+    setTaskInput("");
+  }
+
+  // Faza 5C — load a detected module into the knowledge base
+  async function loadModuleIntoKb(hint) {
+    if (!hint || moduleLoading) return;
+    setModuleLoading(true);
+    try {
+      const settings = await window.electron.getSettings();
+      const res = await fetch(`${settings.backendUrl}/api/knowledge/reparse-one`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: hint }),
+      });
+      let data;
+      try { data = await res.json(); } catch { data = {}; }
+
+      let content;
+      if (res.status === 404 || (data && !data.success && data.error?.includes("nije pronađen"))) {
+        content = `ℹ Modul ${hint} nije pronađen u source_macs/. Uploadaj datoteku u Postavkama → Baza znanja.`;
+      } else if (!res.ok || !data.success) {
+        content = `⚠ Greška pri učitavanju ${hint}: ${data.error || `HTTP ${res.status}`}`;
+      } else {
+        content = `✓ Modul ${hint} je učitan u bazu znanja. Formule iz ovog modula imaju prednost u odgovorima.`;
+        setModuleLoadedHint(hint);
+        setTimeout(() => setModuleLoadedHint(null), 30000);
+      }
+      setMessages((prev) => [...prev, { role: "assistant", content, type: "proactive" }]);
+    } catch (err) {
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: `⚠ Greška pri učitavanju ${hint}: ${err.message}`,
+        type: "proactive",
+      }]);
+    } finally {
+      setModuleLoading(false);
+    }
+  }
+
   async function toggleLiveMode() {
-    if (liveEnabled) {
-      // Turn off
-      setLiveEnabled(false);
-      window.electron.liveSetEnabled(false).catch(console.error);
+    if (liveState === "running") {
+      await handleLivePause();
       return;
     }
-    // If region already configured, start live directly without re-picking
+    if (liveState === "paused") {
+      await handleLiveResume();
+      return;
+    }
     if (liveRegion) {
-      window.electron.liveSetEnabled(true)
-        .then(() => setLiveEnabled(true))
-        .catch(console.error);
+      setShowTaskInput(true);
+      setTaskInput(liveTask || "");
       return;
     }
-    // No region yet: open picker first
-    prevLiveEnabledRef.current = false;
+    prevLiveStateRef.current = "off";
     setAwaitingRegion(true);
     window.electron.liveStartRegionPicker().catch((err) => {
       setAwaitingRegion(false);
@@ -1066,26 +1273,26 @@ function App() {
   }
 
   async function changeRegion() {
-    const wasEnabled = liveEnabled;
+    const prev = liveState;
     setAwaitingRegion(true);
-    if (liveEnabled) {
-      setLiveEnabled(false);
-      window.electron.liveSetEnabled(false).catch(() => {});
+    if (liveState === "running") {
+      await window.electron.livePause().catch(() => {});
+      setLiveState("paused");
     }
-    // Store previous state so onLiveRegionCancelled can restore it
-    prevLiveEnabledRef.current = wasEnabled;
+    prevLiveStateRef.current = prev;
     window.electron.liveStartRegionPicker().catch((err) => {
       setAwaitingRegion(false);
-      if (wasEnabled) {
-        setLiveEnabled(true);
-        window.electron.liveSetEnabled(true).catch(() => {});
+      if (prev === "running") {
+        window.electron.liveResume().then(() => setLiveState("running")).catch(() => {});
+      } else if (prev === "paused") {
+        setLiveState("paused");
       }
       console.error("Region picker error:", err);
     });
   }
 
   // Keep refs in sync with live state (used in useCallback to avoid stale closures)
-  useEffect(() => { liveEnabledRef.current = liveEnabled; }, [liveEnabled]);
+  useEffect(() => { liveStateRef.current = liveState; }, [liveState]);
   useEffect(() => { sessionContextRef.current = sessionContext; }, [sessionContext]);
 
   // Auto-scroll
@@ -1155,7 +1362,7 @@ function App() {
       };
       if (currentScreenshot) body.screenshot_base64 = extractBase64(currentScreenshot);
       // Faza C: use refs to avoid stale closure on liveEnabled / sessionContext
-      if (liveEnabledRef.current && sessionContextRef.current) {
+      if ((liveStateRef.current === "running" || liveStateRef.current === "paused") && sessionContextRef.current) {
         body.session_context = sessionContextRef.current;
       }
 
@@ -1283,16 +1490,28 @@ function App() {
             <div className={`mt-dot ${mtActive ? "active" : "inactive"}`} />
             <span>{mtActive ? "MT aktivan" : "MT nije pokrenut"}</span>
           </div>
+          {liveState === "paused" && (
+            <button
+              className="btn-live-stop"
+              title="Isključi Live mod"
+              onClick={() => stopLiveMode()}
+            >
+              ✕
+            </button>
+          )}
           <button
-            className={`btn-live${liveEnabled ? " active" : ""}${awaitingRegion ? " awaiting" : ""}`}
+            className={`btn-live${liveState === "running" ? " active pulse" : ""}${liveState === "paused" ? " paused" : ""}${awaitingRegion ? " awaiting" : ""}`}
             title={
               awaitingRegion ? "Odaberi područje za Live..." :
-              liveEnabled ? `● LIVE aktivan (${liveSpentUsd.toFixed(2)}$/${liveBudgetUsd}$) — klik za isključiti` :
-              "Uključi Live mod — odabir područja"
+              liveState === "running" ? `Live aktivan (${liveSpentUsd.toFixed(2)}$/${liveBudgetUsd}$) — pauziraj za chat` :
+              liveState === "paused" ? "Nastavi Live mod" :
+              "Uključi Live mod — odabir područja i zadatka"
             }
             onClick={toggleLiveMode}
           >
-            {awaitingRegion ? "↔ Odaberi..." : liveEnabled ? "● LIVE" : "○ Live"}
+            {awaitingRegion ? "↔ Odaberi..." :
+              liveState === "running" ? "⏸ Pauziraj" :
+              liveState === "paused" ? "▶ Nastavi" : "○ Live"}
           </button>
           <button className="btn-icon" title="Postavke" onClick={() => setShowSettings(true)}>⚙</button>
           <button className="btn-icon" title="Minimizirati" onClick={() => window.electron.minimizeWindow()}>─</button>
@@ -1335,10 +1554,16 @@ function App() {
             <div className="empty-title">MegaTischler Copilot</div>
             <div className="empty-desc">
               Spreman za pisanje parametarskih formula.<br />
-              Postavi pitanje, pritisni F9 za ekran, ili F8 za glas.
+              Postavi pitanje ili pokreni Live mod.
             </div>
             <div className="empty-hints">
-              <div className="empty-hints-label">// primjeri upita</div>
+              <div className="empty-hints-label">// Live mod — 3 koraka</div>
+              <div className="empty-hint">① Klik na <strong>○ Live</strong> → odaberi regiju ekrana</div>
+              <div className="empty-hint">② Odaberi predložak ili opiši zadatak</div>
+              <div className="empty-hint">③ Radi u MegaTischleru — AI prati i daje korake</div>
+            </div>
+            <div className="empty-hints" style={{ marginTop: 8 }}>
+              <div className="empty-hints-label">// ili pitaj odmah</div>
               <div className="empty-hint">"Zašto mi polica ne prati D?"</div>
               <div className="empty-hint">"Formula za širinu vrata s luftom"</div>
               <div className="empty-hint">"Objasni [.D]-[.GLU]-20"</div>
@@ -1354,14 +1579,27 @@ function App() {
             const msgKey = msg.id ?? i;
 
             if (isProactive || isKbSuggest) {
+              const proactiveLabel = isKbSuggest
+                ? "Prijedlog za bazu"
+                : liveTask
+                  ? "Korak prema cilju"
+                  : "Copilot primjetio";
+              const proactiveIcon = isKbSuggest ? "📚" : liveTask ? "🎯" : "👁";
               return (
                 <div key={msgKey} className="msg-row assistant">
                   <div className="msg-label proactive-label">
-                    <div className="msg-label-icon proactive-icon">{isKbSuggest ? "📚" : "👁"}</div>
-                    {isKbSuggest ? "Prijedlog za bazu" : "Copilot primjetio"}
+                    <div className="msg-label-icon proactive-icon">{proactiveIcon}</div>
+                    {proactiveLabel}
                   </div>
                   <div className={`msg-bubble proactive${isKbSuggest ? " kb-suggest" : ""}`}>
-                    <MarkdownMessage content={msg.content} />
+                    {msg.step ? (
+                      <>
+                        {msg.content && <MarkdownMessage content={msg.content} />}
+                        <WorklistCard steps={[msg.step]} />
+                      </>
+                    ) : (
+                      <MarkdownMessage content={msg.content} />
+                    )}
                     {isKbSuggest && msg.context && (
                       <div className="proactive-actions">
                         <button
@@ -1430,9 +1668,19 @@ function App() {
                         ? <div style={{ color: "var(--text3)", fontSize: 12, fontStyle: "italic" }}>nastavi zadatak</div>
                         : null
                   ) : (
-                    msg.content ? (
-                      <MarkdownMessage content={msg.content} />
-                    ) : (
+                    msg.content ? (() => {
+                      const wlSteps = !isStreaming ? extractWorklist(msg.content) : null;
+                      if (wlSteps) {
+                        const intro = stripWorklist(msg.content);
+                        return (
+                          <>
+                            {intro && <MarkdownMessage content={intro} />}
+                            <WorklistCard steps={wlSteps} />
+                          </>
+                        );
+                      }
+                      return <MarkdownMessage content={msg.content} />;
+                    })() : (
                       <div className="thinking">
                         <div className="spinner" />
                         Razmišlja...
@@ -1453,45 +1701,132 @@ function App() {
         )}
       </div>
 
-      {/* Faza E: Module hint banner */}
-      {liveEnabled && sessionContext?.moduleHint && (
+      {/* Faza 5C: Module bar — always visible when Live detects a module */}
+      {sessionContext?.moduleHint && (
         <div className="module-hint-banner">
-          <span>📄 Aktivan modul: <strong>{sessionContext.moduleHint}</strong></span>
+          <span>📄 Modul: <strong>{sessionContext.moduleHint}</strong>
+            {moduleLoadedHint === sessionContext.moduleHint && (
+              <span className="module-loaded-badge"> ✓ učitan</span>
+            )}
+          </span>
           <button
             className="btn-load-mac"
-            title={`Učitaj ${sessionContext.moduleHint} u bazu znanja`}
-            onClick={async () => {
-              const hint = sessionContext.moduleHint;
-              try {
-                const settings = await window.electron.getSettings();
-                const res = await fetch(`${settings.backendUrl}/api/knowledge/reparse-one`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ filename: hint }),
-                });
-                let data;
-                try { data = await res.json(); } catch { data = {}; }
-
-                let content;
-                if (res.status === 404 || (data && !data.success && data.error?.includes("nije pronađen"))) {
-                  content = `ℹ Modul ${hint} nije pronađen u source_macs/. Uploadaj datoteku u Postavkama → Baza znanja.`;
-                } else if (!res.ok || !data.success) {
-                  content = `⚠ Greška pri učitavanju ${hint}: ${data.error || `HTTP ${res.status}`}`;
-                } else {
-                  content = `✓ Modul ${hint} je re-parsiran i spojen s bazom znanja.`;
-                }
-                setMessages((prev) => [...prev, { role: "assistant", content, type: "proactive" }]);
-              } catch (err) {
-                setMessages((prev) => [...prev, {
-                  role: "assistant",
-                  content: `⚠ Greška pri učitavanju ${hint}: ${err.message}`,
-                  type: "proactive",
-                }]);
-              }
-            }}
+            disabled={moduleLoading || moduleLoadedHint === sessionContext.moduleHint}
+            title={moduleLoadedHint === sessionContext.moduleHint
+              ? "Modul je već učitan u bazu"
+              : `Učitaj ${sessionContext.moduleHint} u bazu znanja`}
+            onClick={() => loadModuleIntoKb(sessionContext.moduleHint)}
           >
-            Učitaj u bazu
+            {moduleLoading ? "Učitavam..." : moduleLoadedHint === sessionContext.moduleHint ? "Učitano" : "Učitaj modul"}
           </button>
+        </div>
+      )}
+
+      {/* Faza 5B: Live wizard — 3 steps */}
+      {showTaskInput && (liveState === "off" || liveState === "paused") && (
+        <div className="live-task-panel">
+          <div className="live-wizard-steps">
+            <div className={`live-wizard-step${liveRegion ? " done" : " active"}`}>
+              <span className="live-wizard-num">{liveRegion ? "✓" : "①"}</span>
+              <span>Regija</span>
+              {liveRegion && (
+                <button
+                  type="button"
+                  className="live-wizard-change"
+                  onClick={() => { cancelTaskInput(); changeRegion(); }}
+                >
+                  Promijeni
+                </button>
+              )}
+            </div>
+            <div className="live-wizard-sep">›</div>
+            <div className={`live-wizard-step${liveRegion ? " active" : " disabled"}`}>
+              <span className="live-wizard-num">②</span>
+              <span>Zadatak</span>
+            </div>
+            <div className="live-wizard-sep">›</div>
+            <div className="live-wizard-step disabled">
+              <span className="live-wizard-num">③</span>
+              <span>Pokreni</span>
+            </div>
+          </div>
+
+          <div className="live-task-title">
+            {liveState === "paused" ? "Promijeni zadatak" : "Što treba riješiti?"}
+          </div>
+          <div className="live-task-hint">
+            {liveState === "paused"
+              ? "AI nastavlja s novim zadatkom."
+              : "Opiši cilj — AI prati ekran i daje konkretne korake."}
+          </div>
+
+          <div className="live-task-chips">
+            {[
+              "Parametriziraj širinu police da prati [.D]",
+              "Pomozi s LED / rasvjetom u konstrukciji",
+              "Provjeri formule — vidi greške na ekranu",
+            ].map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                className={`live-task-chip${taskInput === chip ? " selected" : ""}`}
+                onClick={() => setTaskInput(chip)}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          <textarea
+            className="live-task-input"
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            placeholder="ili opiši vlastiti zadatak..."
+            rows={2}
+          />
+          <div className="live-task-actions">
+            {liveState === "paused" ? (
+              <button
+                type="button"
+                className="live-task-start"
+                disabled={!taskInput.trim()}
+                onClick={handleUpdateTask}
+              >
+                Spremi zadatak
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="live-task-start"
+                disabled={!taskInput.trim()}
+                onClick={handleStartLive}
+              >
+                ③ Pokreni Live
+              </button>
+            )}
+            <button type="button" className="live-task-cancel" onClick={cancelTaskInput}>
+              Odustani
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Live 3.0: active task banner */}
+      {(liveState === "running" || liveState === "paused") && liveTask && (
+        <div className="live-task-banner">
+          <span className="live-task-banner-text">🎯 Cilj: <strong>{liveTask}</strong></span>
+          {liveState === "paused" && (
+            <button
+              type="button"
+              className="live-task-edit"
+              onClick={() => {
+                setTaskInput(liveTask);
+                setShowTaskInput(true);
+              }}
+            >
+              Promijeni
+            </button>
+          )}
         </div>
       )}
 
@@ -1531,14 +1866,18 @@ function App() {
               value={input}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Upiši pitanje... (Enter za slanje)"
-              disabled={isStreaming}
+              placeholder={
+                liveState === "running"
+                  ? "Chat je pauziran — klikni ⏸ Pauziraj za postavljanje pitanja"
+                  : "Upiši pitanje... (Enter za slanje)"
+              }
+              disabled={isStreaming || liveState === "running"}
             />
             <div className="input-actions-row">
               <button
                 className={`input-btn-screenshot${screenshotDataUrl ? " active" : ""}`}
                 onClick={handleScreenshotCapture}
-                disabled={isStreaming}
+                disabled={isStreaming || liveState === "running"}
                 title="Snimi ekran (F9)"
               >
                 📷
@@ -1549,7 +1888,7 @@ function App() {
           <button
             className="send-btn"
             onClick={() => handleSend()}
-            disabled={(!input.trim() && !screenshotDataUrl) || isStreaming}
+            disabled={liveState === "running" || (!input.trim() && !screenshotDataUrl) || isStreaming}
             title="Pošalji"
           >
             {isStreaming ? (
@@ -1571,7 +1910,9 @@ function App() {
           liveCallCount={liveCallCount}
           liveRegion={liveRegion}
           setLiveRegion={setLiveRegion}
-          setLiveEnabled={setLiveEnabled}
+          setLiveEnabled={(enabled) => {
+            if (!enabled) stopLiveMode();
+          }}
           setLiveSpentUsd={setLiveSpentUsd}
           setLiveCallCount={setLiveCallCount}
           setLiveBudgetUsd={setLiveBudgetUsd}

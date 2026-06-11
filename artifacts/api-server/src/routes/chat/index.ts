@@ -66,11 +66,89 @@ interface SessionContext {
   lastUpdated?: string;
 }
 
+// ── RAG: relevance-based formula retrieval ────────────────────────────────────
+
+/**
+ * Extract MegaTischler parameter names from any text string.
+ * Captures [W], [.W], [...Polica.W] style references AND bare uppercase
+ * identifiers from natural-language questions ("kako da W prati D").
+ */
+function extractParamNames(text: string): Set<string> {
+  const names = new Set<string>();
+  for (const m of text.matchAll(/\[\.{0,4}([A-Za-z0-9_.]+)\]/g)) {
+    const leaf = m[1].split(".").at(-1);
+    if (leaf) names.add(leaf);
+  }
+  // bare uppercase words likely to be parameter names (2–12 chars)
+  for (const m of text.matchAll(/\b([A-Z][A-Z0-9_]{1,11})\b/g)) {
+    names.add(m[1]);
+  }
+  return names;
+}
+
+/**
+ * Score and select the most relevant formulas for the current query.
+ *
+ * Scoring per formula:
+ *   +20  source module matches Live-detected moduleHint
+ *   + 5  per parameter visible on screen that appears in the formula
+ *   + 3  per parameter mentioned in the user's message
+ *   + 1  formula contains a hierarchy reference [.x] (prefer structured ones)
+ *
+ * Falls back gracefully when no context is available (returns top-50 with
+ * hierarchical formulas ranked first, preserving the previous behaviour).
+ */
+function selectRelevantFormulas(
+  allFormulas: Array<{ formula: string; source: string }>,
+  sessionCtx: SessionContext | null | undefined,
+  userMessage: string,
+  limit = 250,
+): Array<{ formula: string; source: string }> {
+  const module = sessionCtx?.moduleHint ?? null;
+
+  const screenParams = new Set<string>();
+  for (const p of sessionCtx?.parametersSeen ?? []) screenParams.add(p.name);
+  for (const f of sessionCtx?.formulasSeen ?? []) {
+    for (const name of extractParamNames(f)) screenParams.add(name);
+  }
+
+  const questionParams = extractParamNames(userMessage);
+
+  const hasContext = module !== null || screenParams.size > 0 || questionParams.size > 0;
+
+  if (!hasContext) {
+    // No context — use previous behaviour: hierarchical first, then rest
+    const hierarchical = allFormulas.filter((f) => /\[\.+/.test(f.formula));
+    const rest = allFormulas.filter((f) => !/\[\.+/.test(f.formula));
+    return [...hierarchical, ...rest].slice(0, limit);
+  }
+
+  const scored = allFormulas.map((f) => {
+    let score = 0;
+    if (module && f.source === module) score += 20;
+    for (const p of screenParams) {
+      if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 5;
+    }
+    for (const p of questionParams) {
+      if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 3;
+    }
+    if (/\[\.+/.test(f.formula)) score += 1;
+    return score;
+  });
+
+  return allFormulas
+    .map((f, i) => ({ f, score: scored[i] }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ f }) => f);
+}
+
 function buildSystemPrompt(
   kb: ReturnType<typeof readKnowledgeBase>,
   userRules: string,
   sessionCtx?: SessionContext | null,
   conceptualGuide?: string,
+  userMessage = "",
 ): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
@@ -82,10 +160,8 @@ function buildSystemPrompt(
     .join("\n");
 
   const allFormulas: Array<{ formula: string; source: string }> = kb.formulas ?? [];
-  const hierarchical = allFormulas.filter((f) => /\[\.*[A-ZŠĐŽČĆa-z]/.test(f.formula));
-  const rest = allFormulas.filter((f) => !/\[\.*[A-ZŠĐŽČĆa-z]/.test(f.formula));
-  const topFormulas = [...hierarchical, ...rest]
-    .slice(0, 50)
+  const relevantFormulas = selectRelevantFormulas(allFormulas, sessionCtx, userMessage);
+  const topFormulas = relevantFormulas
     .map((f: { formula: string; source: string }) => `${f.formula}  [iz: ${f.source}]`)
     .join("\n");
 
@@ -102,7 +178,28 @@ Budi direktan i konkretan — daj točnu formulu koju treba upisati i objasni gd
 Kad vidiš screenshot, pažljivo pročitaj dijaloški okvir parametara — identificiraj imena parametara, trenutne vrijednosti i što korisnik pokušava postići.
 Ako korisnik pošalje samo screenshot bez teksta, to znači: nastavi logično rješavati zadatak na kojem smo radili. Pitaj za pojašnjenje samo ako stvarno ne možeš nastaviti.
 
-KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.`,
+KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.
+
+FORMAT ODGOVORA — RADNI LIST:
+Nakon kratkog uvoda (max 2 rečenice), UVIJEK završi odgovor s JSON blokom u obliku:
+\`\`\`worklist
+{
+  "steps": [
+    {
+      "title": "Kratki naslov koraka",
+      "where": "Gdje u MegaTischleru upisati (npr. Parametar Polica.W → polje Formula)",
+      "formula": "[.D]-2*0,5",
+      "hint": "Kratka napomena ili null"
+    }
+  ]
+}
+\`\`\`
+Pravila:
+- Maksimalno 5 koraka.
+- "formula" upiši samo ako postoji konkretna formula; inače null.
+- "hint" upiši samo ako postoji nešto što bi moglo zbuniti; inače null.
+- Ne izmišljaj formule — koristi samo ono što je u bazi znanja ili vidljivo na ekranu.
+- Za screenshot-only zahtjev: nastavi korake, nemoj ponavljati plan od početka.`,
   ];
 
   if (conceptualGuide) {
@@ -188,7 +285,7 @@ router.post("/chat", async (req, res): Promise<void> => {
   const kb = readKnowledgeBase();
   const userRules = readRules();
   const conceptualGuide = readConceptualGuide();
-  const systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide);
+  const systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage);
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);

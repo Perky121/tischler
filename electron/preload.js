@@ -31,6 +31,10 @@ contextBridge.exposeInMainWorld("electron", {
   // Faza 2.0: Live mode — invoke
   liveStartRegionPicker: () => ipcRenderer.invoke("live-start-region-picker"),
   liveSetEnabled: (enabled) => ipcRenderer.invoke("live-set-enabled", enabled),
+  liveSetTask: (task) => ipcRenderer.invoke("live-set-task", task),
+  liveStart: (task) => ipcRenderer.invoke("live-start", task),
+  livePause: () => ipcRenderer.invoke("live-pause"),
+  liveResume: () => ipcRenderer.invoke("live-resume"),
   liveGetStatus: () => ipcRenderer.invoke("live-get-status"),
   liveSetBudget: (budget) => ipcRenderer.invoke("live-set-budget", budget),
   liveSetLimit: (limit) => ipcRenderer.invoke("live-set-limit", limit), // compat
@@ -58,6 +62,10 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("live-region-selected", (_, region) => cb(region)),
   onLiveRegionCancelled: (cb) =>
     ipcRenderer.on("live-region-cancelled", () => cb()),
+  onLiveStateChanged: (cb) =>
+    ipcRenderer.on("live-state-changed", (_, data) => cb(data)),
+  onLiveModuleLoaded: (cb) =>
+    ipcRenderer.on("live-module-loaded", (_, data) => cb(data)),
 
   // Event listeners: main → renderer
   onScreenshotCaptured: (cb) =>
@@ -93,5 +101,7 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.removeAllListeners("live-region-selected");
     ipcRenderer.removeAllListeners("live-region-cancelled");
     ipcRenderer.removeAllListeners("live-deps-missing");
+    ipcRenderer.removeAllListeners("live-state-changed");
+    ipcRenderer.removeAllListeners("live-module-loaded");
   },
 });

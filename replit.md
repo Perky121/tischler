@@ -31,7 +31,7 @@ An AI assistant that helps furniture manufacturing professionals write parametri
 - `lib/db/src/schema/` — Drizzle ORM table definitions
 - `lib/integrations-anthropic-ai/` — Anthropic client wrapper
 - `artifacts/api-server/src/routes/` — Express route handlers
-- `artifacts/api-server/parse_mac.py` — Python parser for .mac files
+- `artifacts/api-server/src/lib/parse-mac.ts` — TypeScript parser for .mac files with MTSXENC decoder
 - `artifacts/api-server/data/knowledge_base.json` — extracted formula knowledge (generated)
 - `artifacts/api-server/data/stipe_rules.txt` — user-defined custom rules
 - `artifacts/api-server/uploads/` — temp upload dir (files deleted after parsing)
@@ -40,16 +40,25 @@ An AI assistant that helps furniture manufacturing professionals write parametri
 ## Architecture decisions
 
 - Chat endpoint streams via SSE (Server-Sent Events), not consumed by the generated React Query hook — uses raw fetch + ReadableStream on the client
-- .mac files are uploaded via multipart/form-data to `/api/upload-mac`, parsed by `parse_mac.py` using Python's regex + latin-1 decoding, and merged into `knowledge_base.json`
-- Files are parsed one-by-one with `--merge` flag to incrementally build knowledge base
-- Encrypted .mac content (after MTSXENC marker) is skipped automatically
-- Conversation history (last 10 messages) is sent with each chat request; Claude receives the full system prompt with injected knowledge base on every request
-- Top 50 parameters and 30 most recent formulas are injected into the system prompt
+- .mac files are uploaded via multipart/form-data to `/api/upload-mac`, parsed by the TypeScript parser `parse-mac.ts` (MTSXENC-aware, latin-1 + XOR decode), and merged into `knowledge_base.json`
+- Files are parsed one-by-one and deduplicated by formula string hash
+- MTSXENC-encoded sections are decoded in the parser: `byte = (codepoint - 0x0E80) XOR 0x53`
+- Knowledge base has 1228+ formulas across 9 modules (KUH_VISOKI, KUTNI, MIKROVALNA, NAPA, KUTNI_VANJSKI, VISECI, PECNICA, PERILICA, OTVORENI)
+- Conversation history (last 10 messages) is sent with each chat request
+- RAG: top 250 formulas selected by relevance score (moduleHint +20, screen params +5, question params +3), top 80 parameters injected into system prompt
+- Chat responses use a structured worklist format: AI outputs intro + ```worklist JSON block with steps (title, where, formula, hint)
+- Live analyze (`/api/analyze-screen`) returns `relevant`, `message`, `step` (one concrete action when task active), and `context` (moduleHint, parametersSeen, formulasSeen)
+- Live mod state machine: off → running (pixelmatch diff loop 800ms, API cooldown 4s) → paused → resume
 
 ## Product
 
-- Left panel: Upload .mac files to build a formula knowledge base, view stats (formula count, parameter count), manage "Stipe's Rules" (custom instructions injected into AI system prompt)
-- Right panel: Chat with Claude about MegaTischler formulas. Can attach screenshots of the parameter dialog — Claude reads parameter names and values from the image. Code blocks in responses have copy buttons. Responses stream in real-time.
+- Electron desktop app for Windows communicating with a Replit backend
+- Chat with Claude about MegaTischler parametric formulas; responses include a structured worklist (numbered steps with copy buttons for formulas)
+- F9 screenshot: attach current screen to chat message — Claude reads parameter names, values, and formulas from the dialog
+- F8 voice input: push-to-talk via OpenAI Whisper (Croatian)
+- Live mod: AI watches a selected screen region, detects changes, and sends task-oriented steps in the chat ("Korak prema cilju")
+- Live wizard: 3-step setup (region → task/predlošci → start), pause/resume with chat available while paused
+- Module bar: Live detects active .mac module and auto-loads its formulas into RAG knowledge base
 
 ## User preferences
 
@@ -58,9 +67,11 @@ _Populate as you build — explicit user instructions worth remembering across s
 ## Gotchas
 
 - The `/api/upload-mac` endpoint uses `multer` for multipart file handling — the OpenAPI spec omits the requestBody to avoid Orval `File`/`Blob` type errors in lib typecheck
-- `.mac` files must be parsed with `latin-1` encoding (not UTF-8) and encrypted sections (after MTSXENC marker) must be skipped
+- `.mac` files must be parsed with `latin-1` encoding (not UTF-8); MTSXENC blocks use a shifted UTF-8 encoding where each byte is stored as `codepoint = 0x0E80 + (byte XOR 0x53)`
 - Claude model on AI Integrations: use `claude-opus-4-8` (has vision for screenshots); do not set temperature/top_p/top_k (deprecated on this model)
-- `parse_mac.py` is called from Node via `child_process.spawn("python3", ...)` with `--merge` flag to append to existing knowledge base
+- `parse_mac.py` (Python) is NOT used by the server — it exists as a legacy reference only; the active parser is `artifacts/api-server/src/lib/parse-mac.ts`
+- Decimal separator in MegaTischler formulas is always a comma (0,5), never a dot — this is injected as a critical instruction in the system prompt
+- Screenshot for analyze-screen is sent as raw base64 (no `data:image/...;base64,` prefix) — Anthropic API requirement
 
 ## Pointers
 

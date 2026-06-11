@@ -40,6 +40,13 @@ let dailyCallCount = 0;
 let sessionContext = null;
 // Hash of last seen parameter set to avoid duplicate KB suggestions
 let lastDialogHash = null;
+// Faza 5 — track last auto-loaded module to avoid re-triggering on every frame
+let lastLoadedModuleHint = null;
+
+// Live Mode 3.0 — task-oriented state
+/** @type {"off" | "running" | "paused"} */
+let liveState = "off";
+let liveTask = "";
 
 // ── Anthropic token cost constants (claude-opus-4 pricing) ───────────────────
 const COST_PER_INPUT_TOKEN = 0.000015;   // $15 per 1M input tokens
@@ -127,20 +134,154 @@ function diffImages(buf1, buf2) {
   }
 }
 
+function emitLiveStateChanged() {
+  const settings = loadSettings();
+  if (liveMainWindow && !liveMainWindow.isDestroyed()) {
+    liveMainWindow.webContents.send("live-state-changed", {
+      state: liveState,
+      task: liveTask,
+      spentUsd: dailySpentUsd,
+      budgetUsd: settings.dailyBudgetUsd || 100,
+      callCount: dailyCallCount,
+      liveRegion: settings.liveRegion || null,
+    });
+  }
+}
+
+function buildAnalyzeBody(base64, { resumeMode = false } = {}) {
+  const body = { screenshot_base64: base64 };
+  if (liveTask) body.live_task = liveTask;
+  if (resumeMode) body.resume_mode = true;
+  return body;
+}
+
+async function processAnalyzeResponse(data, settings, { updateBaselineBuf = null } = {}) {
+  if (updateBaselineBuf) prevScreenshotBuf = updateBaselineBuf;
+
+  const costUsd = data.usage?.cost_usd ?? estimateCostUsd(VISION_TOKEN_ESTIMATE + 200, 80);
+  accumulateCost(costUsd);
+
+  if (data.context) {
+    sessionContext = { ...data.context, lastUpdated: new Date().toISOString() };
+    if (liveMainWindow) {
+      liveMainWindow.webContents.send("live-context-updated", sessionContext);
+    }
+
+    const dialogHash = JSON.stringify({
+      p: data.context.parametersSeen,
+      f: data.context.formulasSeen,
+    });
+    if (dialogHash !== lastDialogHash && data.context.parametersSeen?.length > 0) {
+      lastDialogHash = dialogHash;
+      if (liveMainWindow) {
+        liveMainWindow.webContents.send("live-kb-suggest", { context: sessionContext });
+      }
+    }
+
+    // Faza 5C — auto-load module when it changes (fire-and-forget, silent on failure)
+    const hint = data.context.moduleHint;
+    if (hint && hint !== lastLoadedModuleHint && settings.autoLoadModule !== false) {
+      lastLoadedModuleHint = hint;
+      fetch(`${settings.backendUrl}/api/knowledge/reparse-one`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: hint }),
+      }).then((res) => res.json()).then((result) => {
+        if (liveMainWindow && !liveMainWindow.isDestroyed()) {
+          liveMainWindow.webContents.send("live-module-loaded", {
+            hint,
+            success: !!result.success,
+            formulaCount: result.formulaCount,
+          });
+        }
+      }).catch(() => { /* silent */ });
+    }
+  }
+
+  const isApiError =
+    !data.relevant &&
+    typeof data.message === "string" &&
+    data.message.startsWith("analyze-screen greška");
+
+  if ((data.relevant || isApiError) && data.message && liveMainWindow) {
+    liveMainWindow.webContents.send("live-message", {
+      message: data.message,
+      step: data.step || null,
+      callCount: dailyCallCount,
+      spentUsd: dailySpentUsd,
+      budgetUsd: settings.dailyBudgetUsd || 100,
+      context: data.context || null,
+    });
+  }
+}
+
+async function triggerLiveAnalyze(win, resumeMode = false) {
+  try {
+    const { full } = await captureForLive();
+    const sharpLib = require("sharp");
+    const payload = await sharpLib(full)
+      .resize({ width: 1280, withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+    const settings = loadSettings();
+    let res;
+    try {
+      res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildAnalyzeBody(payload.toString("base64"), { resumeMode })),
+      });
+    } catch (netErr) {
+      win.webContents.send("live-message", {
+        message: `Mreža nedostupna: ${netErr.message}`,
+        callCount: dailyCallCount,
+        spentUsd: dailySpentUsd,
+        budgetUsd: settings.dailyBudgetUsd || 100,
+        context: null,
+      });
+      return;
+    }
+
+    liveLastApiCallTs = Date.now();
+    const data = await res.json();
+    if (res.ok) {
+      await processAnalyzeResponse(data, settings);
+    } else {
+      win.webContents.send("live-message", {
+        message: `analyze-screen HTTP ${res.status}`,
+        callCount: dailyCallCount,
+        spentUsd: dailySpentUsd,
+        budgetUsd: settings.dailyBudgetUsd || 100,
+        context: data.context || null,
+      });
+    }
+  } catch (err) {
+    win.webContents.send("live-message", {
+      message: `Greška analize: ${err.message}`,
+      callCount: dailyCallCount,
+      spentUsd: dailySpentUsd,
+      budgetUsd: loadSettings().dailyBudgetUsd || 100,
+      context: null,
+    });
+  }
+}
+
 async function liveLoop() {
   if (liveLoopRunning) return;
   liveLoopRunning = true;
 
   try {
     const settings = loadSettings();
-    if (!settings.liveEnabled) return;
+    if (liveState !== "running") return;
 
-    // Faza B — budget limit check (primary) with fallback to count limit
     const budget = settings.dailyBudgetUsd || 100;
     if (dailySpentUsd >= budget) {
       stopLiveLoop();
+      liveState = "off";
+      settings.liveState = "off";
       settings.liveEnabled = false;
       saveSettings(settings);
+      emitLiveStateChanged();
       if (liveMainWindow) {
         liveMainWindow.webContents.send("live-budget-reached", {
           spent: dailySpentUsd,
@@ -158,7 +299,6 @@ async function liveLoop() {
       const cooldownOk = (now - liveLastApiCallTs) >= LIVE_API_COOLDOWN_MS;
 
       if (diffRatio > LIVE_DIFF_THRESHOLD && cooldownOk) {
-        // Resize full crop to max 1280px before sending to API (reduces payload 4-10x)
         const sharp = require("sharp");
         const apiPayload = await sharp(full)
           .resize({ width: 1280, withoutEnlargement: true })
@@ -170,67 +310,20 @@ async function liveLoop() {
           res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ screenshot_base64: apiPayload.toString("base64") }),
+            body: JSON.stringify(buildAnalyzeBody(apiPayload.toString("base64"))),
           });
         } catch (fetchErr) {
           console.error("[live] fetch error:", fetchErr.message);
-          // Network error: don't touch cooldown or prevBuf — retry when screen changes again
           return;
         }
 
-        // Consume cooldown after receiving ANY server response (not on network failures)
         liveLastApiCallTs = now;
 
         if (res.ok) {
           const data = await res.json();
-
-          // Mark screenshot as baseline only on successful response
-          prevScreenshotBuf = small;
-
-          // Faza B — accumulate real cost (0 on error response)
-          const costUsd = data.usage?.cost_usd ?? estimateCostUsd(VISION_TOKEN_ESTIMATE + 200, 80);
-          accumulateCost(costUsd);
-
-          // Faza C — update session context from response
-          if (data.context) {
-            sessionContext = { ...data.context, lastUpdated: new Date().toISOString() };
-            if (liveMainWindow) {
-              liveMainWindow.webContents.send("live-context-updated", sessionContext);
-            }
-
-            // D3: suggest saving to KB if new dialog detected
-            const dialogHash = JSON.stringify({
-              p: data.context.parametersSeen,
-              f: data.context.formulasSeen,
-            });
-            if (dialogHash !== lastDialogHash && data.context.parametersSeen?.length > 0) {
-              lastDialogHash = dialogHash;
-              if (liveMainWindow) {
-                liveMainWindow.webContents.send("live-kb-suggest", {
-                  context: sessionContext,
-                });
-              }
-            }
-          }
-
-          // Show proactive message on success (relevant=true) OR on API error (relevant=false with error message)
-          const isApiError =
-            !data.relevant &&
-            typeof data.message === "string" &&
-            data.message.startsWith("analyze-screen greška");
-
-          if ((data.relevant || isApiError) && data.message && liveMainWindow) {
-            liveMainWindow.webContents.send("live-message", {
-              message: data.message,
-              callCount: dailyCallCount,
-              spentUsd: dailySpentUsd,
-              budgetUsd: settings.dailyBudgetUsd || 100,
-              context: data.context || null,
-            });
-          }
+          await processAnalyzeResponse(data, settings, { updateBaselineBuf: small });
         } else {
           console.error(`[live] analyze-screen HTTP ${res.status} — no cost charged`);
-          // Don't charge cost and don't update prevBuf so same change retries next cooldown
         }
       }
     } else {
@@ -244,57 +337,18 @@ async function liveLoop() {
 }
 
 async function liveTestPing(win) {
-  // Fire a single analyze-screen call immediately when Live is enabled
-  // so the user sees API connectivity status right away.
-  try {
-    const { full } = await captureForLive();
-    const sharpLib = require("sharp");
-    const payload = await sharpLib(full)
-      .resize({ width: 640, withoutEnlargement: true })
-      .jpeg({ quality: 70 })
-      .toBuffer();
-    const settings = loadSettings();
-    let res;
-    try {
-      res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ screenshot_base64: payload.toString("base64") }),
-      });
-    } catch (netErr) {
-      win.webContents.send("live-message", {
-        message: `[Live test] Mreža nedostupna: ${netErr.message}`,
-        callCount: dailyCallCount, spentUsd: dailySpentUsd,
-        budgetUsd: settings.dailyBudgetUsd || 100, context: null,
-      });
-      return;
-    }
-    const data = await res.json();
-    const msg = res.ok
-      ? (data.message || "[Live test] API OK — ekran primljen, nema relevantnog sadržaja")
-      : `[Live test] HTTP ${res.status}`;
-    win.webContents.send("live-message", {
-      message: msg,
-      callCount: dailyCallCount, spentUsd: dailySpentUsd,
-      budgetUsd: settings.dailyBudgetUsd || 100, context: data.context || null,
-    });
-  } catch (err) {
-    win.webContents.send("live-message", {
-      message: `[Live test] Greška: ${err.message}`,
-      callCount: dailyCallCount, spentUsd: dailySpentUsd,
-      budgetUsd: loadSettings().dailyBudgetUsd || 100, context: null,
-    });
-  }
+  await triggerLiveAnalyze(win, false);
 }
 
-function startLiveLoop(win) {
+function startLiveLoop(win, { skipTestPing = false } = {}) {
   liveMainWindow = win;
   if (liveLoopTimer) clearInterval(liveLoopTimer);
   prevScreenshotBuf = null;
   liveLoopRunning = false;
   liveLoopTimer = setInterval(liveLoop, LIVE_INTERVAL_MS);
-  // Immediately test API connectivity — shows error or confirmation in chat
-  liveTestPing(win).catch((e) => console.error("[live] test-ping error:", e.message));
+  if (!skipTestPing) {
+    liveTestPing(win).catch((e) => console.error("[live] test-ping error:", e.message));
+  }
 }
 
 function stopLiveLoop() {
@@ -538,14 +592,29 @@ function createWindow() {
 
   startMegaTischlerDetector(mainWindow);
 
-  // Init budget tracking
+  // Init budget tracking + Live 3.0 state
   const s = loadSettings();
   checkAndResetDailyBudget(s);
-
-  // Resume live loop if it was active last session (and within budget)
-  if (s.liveEnabled && dailySpentUsd < (s.dailyBudgetUsd || 100)) {
-    startLiveLoop(mainWindow);
+  liveTask = s.liveTask || "";
+  liveState = s.liveState || (s.liveEnabled ? "running" : "off");
+  if (liveState === "paused") {
+    // Paused sessions wait for user to click Nastavi
+    liveState = "paused";
   }
+
+  // Resume live loop only if explicitly running (not paused/off)
+  if (liveState === "running" && dailySpentUsd < (s.dailyBudgetUsd || 100)) {
+    startLiveLoop(mainWindow);
+  } else if (liveState === "running") {
+    liveState = "off";
+    s.liveState = "off";
+    s.liveEnabled = false;
+    saveSettings(s);
+  }
+
+  mainWindow.webContents.once("did-finish-load", () => {
+    emitLiveStateChanged();
+  });
 
   // Warn renderer if diff libraries are missing (Live mode won't work)
   if (diffLibsMissing) {
@@ -562,6 +631,7 @@ app.whenReady().then(() => {
   createWindow();
 
   globalShortcut.register("F9", async () => {
+    if (liveState === "running") return;
     if (mainWindow && !mainWindow.isDestroyed()) {
       try {
         const base64 = await captureScreenshot();
@@ -573,6 +643,7 @@ app.whenReady().then(() => {
   });
 
   globalShortcut.register("F8", () => {
+    if (liveState === "running") return;
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send("toggle-recording");
     }
@@ -729,14 +800,72 @@ ipcMain.on("region-picker-cancelled", () => {
 
 ipcMain.handle("live-set-enabled", (_, enabled) => {
   const settings = loadSettings();
-  settings.liveEnabled = enabled;
-  saveSettings(settings);
-  if (enabled) {
-    if (mainWindow) startLiveLoop(mainWindow);
-  } else {
+  if (!enabled) {
+    liveState = "off";
+    liveTask = "";
+    settings.liveState = "off";
+    settings.liveTask = "";
+    settings.liveEnabled = false;
+    saveSettings(settings);
     stopLiveLoop();
+    emitLiveStateChanged();
+    return { ok: true, state: liveState, enabled: false };
   }
-  return { ok: true, enabled };
+  return { ok: false, error: "Koristi live-start nakon unosa zadatka." };
+});
+
+ipcMain.handle("live-set-task", (_, task) => {
+  liveTask = (task || "").trim();
+  const settings = loadSettings();
+  settings.liveTask = liveTask;
+  saveSettings(settings);
+  return { ok: true, task: liveTask };
+});
+
+ipcMain.handle("live-start", (_, task) => {
+  const trimmed = (task || liveTask || "").trim();
+  if (!trimmed) return { ok: false, error: "Zadatak je obavezan." };
+  const settings = loadSettings();
+  if (!settings.liveRegion) return { ok: false, error: "Prvo odaberi područje ekrana." };
+
+  liveTask = trimmed;
+  liveState = "running";
+  settings.liveTask = liveTask;
+  settings.liveState = "running";
+  settings.liveEnabled = true;
+  saveSettings(settings);
+
+  if (mainWindow) startLiveLoop(mainWindow, { skipTestPing: true });
+  emitLiveStateChanged();
+  return { ok: true, state: liveState };
+});
+
+ipcMain.handle("live-pause", () => {
+  if (liveState !== "running") return { ok: true, state: liveState };
+  liveState = "paused";
+  const settings = loadSettings();
+  settings.liveState = "paused";
+  settings.liveEnabled = false;
+  saveSettings(settings);
+  stopLiveLoop();
+  emitLiveStateChanged();
+  return { ok: true, state: liveState };
+});
+
+ipcMain.handle("live-resume", async () => {
+  if (liveState !== "paused") return { ok: true, state: liveState };
+  liveState = "running";
+  const settings = loadSettings();
+  settings.liveState = "running";
+  settings.liveEnabled = true;
+  saveSettings(settings);
+
+  if (mainWindow) {
+    startLiveLoop(mainWindow, { skipTestPing: true });
+    await triggerLiveAnalyze(mainWindow, true);
+  }
+  emitLiveStateChanged();
+  return { ok: true, state: liveState };
 });
 
 ipcMain.handle("live-reset-count", () => {
@@ -755,7 +884,9 @@ ipcMain.handle("live-reset-count", () => {
 ipcMain.handle("live-get-status", () => {
   const settings = loadSettings();
   return {
-    enabled: !!settings.liveEnabled,
+    enabled: liveState === "running",
+    liveState,
+    liveTask: liveTask || settings.liveTask || "",
     callCount: dailyCallCount,
     spentUsd: dailySpentUsd,
     budgetUsd: settings.dailyBudgetUsd || 100,
@@ -783,13 +914,15 @@ ipcMain.handle("live-set-limit", (_, limit) => {
 ipcMain.handle("live-clear-region", () => {
   const settings = loadSettings();
   delete settings.liveRegion;
-  // Also disable live when region is cleared to prevent unexpected full-screen capture
-  if (settings.liveEnabled) {
-    settings.liveEnabled = false;
-    stopLiveLoop();
-  }
+  liveState = "off";
+  liveTask = "";
+  settings.liveState = "off";
+  settings.liveTask = "";
+  settings.liveEnabled = false;
+  stopLiveLoop();
   saveSettings(settings);
-  return { ok: true, liveDisabled: !settings.liveEnabled };
+  emitLiveStateChanged();
+  return { ok: true, liveDisabled: true };
 });
 
 ipcMain.handle("live-get-session-context", () => {

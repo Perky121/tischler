@@ -222,6 +222,121 @@ html, body, #root {
   border-color: var(--success);
   color: var(--success);
 }
+.btn-live.paused {
+  background: rgba(100, 140, 200, 0.12);
+  border-color: #6a9fd8;
+  color: #6a9fd8;
+}
+.btn-live.active.pulse {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+.btn-live-stop {
+  -webkit-app-region: no-drag;
+  padding: 0 6px;
+  height: 22px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 10px;
+  margin-right: 4px;
+}
+.btn-live-stop:hover {
+  background: #5a1a1a;
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.live-task-panel {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+.live-task-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.live-task-hint {
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.live-task-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12px;
+  resize: vertical;
+  min-height: 64px;
+  font-family: inherit;
+}
+.live-task-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.live-task-start {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: var(--success);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.live-task-start:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.live-task-cancel {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 12px;
+  cursor: pointer;
+}
+.live-task-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  background: rgba(61, 153, 112, 0.08);
+  font-size: 11px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+.live-task-banner-text {
+  flex: 1;
+  line-height: 1.35;
+}
+.live-task-edit {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  font-size: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 
 /* ── Messages ────────────────────────────────────────────────────────────── */
 .messages-area {
@@ -966,4 +1081,152 @@ textarea.chat-input:disabled { opacity: 0.5; }
   background: var(--accent-bg);
   border-color: var(--accent);
   color: var(--text);
+}
+.btn-load-mac:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.module-loaded-badge {
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ── Worklist card ─────────────────────────────────────────────────────────── */
+.worklist-card {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.worklist-step {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  transition: background 0.15s;
+}
+.worklist-step:last-child {
+  border-bottom: none;
+}
+.worklist-step-done {
+  opacity: 0.5;
+}
+.worklist-step-done .worklist-step-title {
+  text-decoration: line-through;
+}
+.worklist-step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.worklist-checkbox {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.worklist-step-done .worklist-checkbox {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+.worklist-checkbox:hover {
+  border-color: var(--accent);
+}
+.worklist-step-info {
+  flex: 1;
+}
+.worklist-step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.worklist-step-where {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.worklist-step .code-block {
+  margin-top: 8px;
+}
+.worklist-step-hint {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ── Live wizard ─────────────────────────────────────────────────────────── */
+.live-wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+.live-wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text3);
+}
+.live-wizard-step.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+.live-wizard-step.done {
+  color: var(--success);
+}
+.live-wizard-step.disabled {
+  opacity: 0.4;
+}
+.live-wizard-num {
+  font-weight: 700;
+}
+.live-wizard-sep {
+  color: var(--text3);
+  opacity: 0.5;
+  font-size: 10px;
+}
+.live-wizard-change {
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text3);
+  font-size: 10px;
+  cursor: pointer;
+}
+.live-task-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.live-task-chip {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.live-task-chip:hover,
+.live-task-chip.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
 }
