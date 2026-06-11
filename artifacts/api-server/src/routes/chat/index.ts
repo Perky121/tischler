@@ -218,8 +218,9 @@ router.post("/chat", async (req, res): Promise<void> => {
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
   } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
     logger.error({ err }, "Error calling Claude API");
-    res.write(`data: ${JSON.stringify({ error: "Greška pri komunikaciji s AI modelom" })}\n\n`);
+    res.write(`data: ${JSON.stringify({ error: `AI greška: ${detail}` })}\n\n`);
     res.end();
   }
 });

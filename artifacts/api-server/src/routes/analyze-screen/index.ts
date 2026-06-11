@@ -135,11 +135,12 @@ router.post("/analyze-screen", async (req, res): Promise<void> => {
     logger.info({ relevant: result.relevant, costUsd }, "analyze-screen response");
     res.json(result);
   } catch (err: unknown) {
+    const detail = err instanceof Error ? err.message : String(err);
     logger.error({ err }, "analyze-screen error");
     // Always include usage with cost_usd:0 so callers don't charge for failed calls
     res.json({
       relevant: false,
-      message: null,
+      message: `analyze-screen greška: ${detail}`,
       context: buildEmptyContext(),
       usage: { input_tokens: 0, output_tokens: 0, cost_usd: 0 },
     });
