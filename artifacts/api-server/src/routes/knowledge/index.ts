@@ -1,10 +1,10 @@
 import { Router, type IRouter } from "express";
 import path from "path";
 import fs from "fs";
-import { spawn } from "child_process";
 import multer from "multer";
 import AdmZip from "adm-zip";
 import { logger } from "../../lib/logger";
+import { mergeFileIntoKb, buildKbFromFiles, SYNTAX_RULES, type KnowledgeBase } from "../../lib/parse-mac";
 
 const router: IRouter = Router();
 
@@ -16,20 +16,12 @@ const dataDir = path.resolve(workspaceRoot, "artifacts/api-server/data");
 const uploadsDir = path.resolve(workspaceRoot, "artifacts/api-server/uploads");
 const sourceMacsDir = path.join(dataDir, "source_macs");
 const knowledgeBasePath = path.join(dataDir, "knowledge_base.json");
-const parseMacPath = path.resolve(workspaceRoot, "artifacts/api-server/parse_mac.py");
-
-// Resolve python3: prefer env override, then check if the Nix path exists (Replit),
-// otherwise fall back to the system "python3" in PATH (macOS/Windows/Linux).
-const NIX_PYTHON3 = "/nix/store/1y5i7y4iqd5pvkdvmj2hwlsjizq2ckq2-python3-3.8.18/bin/python3";
-const PYTHON3_BIN =
-  process.env["PYTHON3_BIN"] ??
-  (fs.existsSync(NIX_PYTHON3) ? NIX_PYTHON3 : "python3");
 
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadsDir, { recursive: true });
 fs.mkdirSync(sourceMacsDir, { recursive: true });
 
-logger.info({ python3: PYTHON3_BIN }, "MAC parser: using python3 binary");
+logger.info("MAC parser: using built-in TypeScript parser (no Python required)");
 
 function sanitizeFilename(name: string): string {
   // Strip directory components, then allow only safe characters
@@ -85,49 +77,46 @@ router.get("/knowledge", (req, res): void => {
   });
 });
 
-function runParser(inputPath: string, extraArgs: string[] = []): Promise<{ success: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    const args = [parseMacPath, inputPath, "--output", knowledgeBasePath, ...extraArgs];
-    const proc = spawn(PYTHON3_BIN, args);
-    let stderr = "";
-
-    proc.stderr.on("data", (d: Buffer) => { stderr += d.toString(); });
-
-    proc.on("close", (code) => {
-      resolve(code === 0 ? { success: true } : { success: false, error: stderr });
-    });
-
-    proc.on("error", (err) => {
-      // Translate ENOENT into a human-readable message so the user knows it's
-      // a server configuration issue, not a problem with their file.
-      const isNotFound = (err as NodeJS.ErrnoException).code === "ENOENT";
-      const detail = isNotFound
-        ? `Python interpreter nije pronađen na serveru (putanja: ${PYTHON3_BIN}). Kontaktiraj administratora.`
-        : err.message;
-      resolve({ success: false, error: detail });
-    });
-  });
-}
-
 type MacFile = { path: string; originalName: string };
 
-async function parseMacFile(file: MacFile): Promise<{ success: boolean; error?: string }> {
-  const result = await runParser(file.path, ["--merge"]);
+function loadKnowledgeBase(): KnowledgeBase {
+  try {
+    if (fs.existsSync(knowledgeBasePath)) {
+      return JSON.parse(fs.readFileSync(knowledgeBasePath, "utf-8")) as KnowledgeBase;
+    }
+  } catch { /* ignore */ }
+  return { formulas: [], parameters: [], syntax_rules: SYNTAX_RULES, _meta: { files_processed: 0 } };
+}
 
-  if (result.success) {
-    // Keep the source file (overwrite same-named older versions) for future re-parsing
+function saveKnowledgeBase(kb: KnowledgeBase): void {
+  fs.writeFileSync(knowledgeBasePath, JSON.stringify(kb, null, 2));
+}
+
+function parseMacFileIntoKb(file: MacFile): { success: boolean; error?: string } {
+  try {
+    const existing = loadKnowledgeBase();
+    mergeFileIntoKb(file.path, existing);
+    saveKnowledgeBase(existing);
+
+    // Keep the source file for future re-parsing
     const destPath = path.join(sourceMacsDir, file.originalName);
     try {
       fs.renameSync(file.path, destPath);
     } catch {
       fs.unlink(file.path, () => {});
     }
-  } else {
-    fs.unlink(file.path, () => {});
-  }
 
-  return result;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err) };
+  }
 }
+
+// Keep old name used further down the file
+function parseMacFile(file: MacFile): Promise<{ success: boolean; error?: string }> {
+  return Promise.resolve(parseMacFileIntoKb(file));
+}
+
 
 function extractMacFilesFromZip(zipPath: string): MacFile[] {
   const zip = new AdmZip(zipPath);
@@ -239,15 +228,10 @@ router.post("/reparse", async (req, res): Promise<void> => {
 
     req.log.info({ count: sourceFiles.length }, "Re-parsing all source MAC files");
 
-    // Fresh parse of the whole folder (no --merge: rebuilds knowledge base from scratch)
-    const result = await runParser(sourceMacsDir);
-
-    if (!result.success) {
-      res.status(500).json({ error: `Ponovno parsiranje nije uspjelo: ${result.error}` });
-      return;
-    }
-
-    const kb = readKnowledgeBase();
+    // Fresh parse of the whole folder — rebuilds knowledge base from scratch
+    const filePaths = sourceFiles.map(f => path.join(sourceMacsDir, f));
+    const kb = buildKbFromFiles(filePaths);
+    saveKnowledgeBase(kb);
     const stats = {
       formulaCount: kb.formulas?.length ?? 0,
       parameterCount: kb.parameters?.length ?? 0,
@@ -286,7 +270,7 @@ router.post("/knowledge/reparse-one", async (req, res): Promise<void> => {
   }
 
   try {
-    const result = await runParser(filePath, ["--merge"]);
+    const result = parseMacFileIntoKb({ path: filePath, originalName: safe });
     if (!result.success) {
       res.status(500).json({ success: false, error: result.error });
       return;

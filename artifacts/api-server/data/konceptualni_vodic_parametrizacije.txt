@@ -1,0 +1,121 @@
+KORISNIČKA PARAMETRIZACIJA MegaTISCHLERpro KONSTRUKCIJE
+
+Zahvaljujući parametrizaciji MegaTISCHLERpro konstrukcije, korisnici programa parametrima si značajno mogu ubrzati i pojednostaviti komercijalnu pripremu posla te tehničku pripremu proizvodnje.
+
+Korisnik si samostalno može parametrizirati:
+1. Uključenje-isključenje elemenata konstrukcije
+2. Dimenzioniranje elemenata konstrukcije
+3. Pozicioniranje elemenata u konstrukciji
+4. Broj istovrsnih elemenata u konstrukciji
+5. Rotaciju elemenata u konstrukciji
+6. Postavljanje i izbor okova s pripadajućim rupama za montažu
+7. Vezanje teksta uz konstrukciju
+
+
+1. PARAMETARSKO UKLJUČENJE-ISKLJUČENJE ELEMENATA KONSTRUKCIJE
+
+Uključivanje-isključivanje elementa u-iz konstrukcije može se izvesti automatski ili ručno po izboru konstruktora.
+
+a. Automatsko uključenje-isključenje elementa konstrukcije:
+Primjer: konstruktor može parametrizirati uključenje središnje letve kreveta ovisno o širini madraca. Ako je madrac širi od 120 cm, središnja letva s okovom i rupama automatski se postavlja u konstrukciju; ako je 120 cm i uži, ne postavlja se.
+Pri projektiranju treba samo unijeti željenu dimenziju madraca — program će iscrtati krevet i automatski isključiti ili uključiti središnju letvu.
+Po istom principu mogu se parametrizirati podnice i drugi elementi ovisni o dimenzijama. Program automatski postavlja 2 podnice za širi krevet, odnosno jednu za uski.
+
+b. Ručno uključenje-isključenje elementa konstrukcije:
+Primjer: krevet u 2 varijante uzglavlja — s ukladom i bez uklade.
+Konstruktor definira parametar (npr. "UKL") i veže ga na ukladu. Kada konstruktor uključi parametar "UKL", uklada zajedno s utorima ("nutovima") za njenu ugradnju automatski se uključuje u konstrukciju uzglavlja. Kada isključi parametar "UKL", uklada zajedno s nutovima automatski se isključuje iz konstrukcije.
+Ovaj način uključivanja-isključivanja elementa može se primijeniti na bilo koji element bilo koje MegaTISCHLERpro konstrukcije.
+
+
+2. PARAMETARSKO DIMENZIONIRANJE ELEMENATA KONSTRUKCIJE
+
+Dimenzioniranje elementa može se parametrizirati za automatski izračun i za ručni unos.
+
+Primjer: uklade kliznih vrata ugradnih ormara.
+U konstrukciju krila s 5 uklada, za svaku ukladu definira se parametar vidljive duljine (npr. VKUD1–VKUD5). Projektant može upisati željenu vidljivu duljinu ili prepustiti programu da sam izračuna.
+
+Primjer projekta kliznih vrata ukupne visine 2000 mm:
+- Druga i četvrta uklada imaju vidljivu duljinu 250 mm (ručno određivanje)
+- Preostale 3 uklade su identične duljine prema raspoloživom prostoru (automatsko određivanje)
+Po upisu vrijednosti parametara, uklade se automatski dimenzioniraju. Program izračunava i krojne dimenzije koje se prenose u krojnu listu.
+
+
+3. PARAMETARSKO POZICIONIRANJE ELEMENATA U KONSTRUKCIJI
+
+Primjer: kutni kuhinjski ormarić s izvlačnim policama Le Mans II za 3 širine vrata (450, 500, 600 mm).
+Konstruktor definira parametar (npr. "ODPLM2") s tri opcione širine. Pri unosu ormarića u projekt, odabere se jedna od 3 opcije i svi elementi konstrukcije, uključivo metalni nosač polica s rupama za učvršćenje, automatski se pozicioniraju na odgovarajuće mjesto.
+Program također automatski odabire odgovarajuće police.
+
+
+4. PARAMETRIZIRANJE BROJA ISTOVRSNIH ELEMENATA U KONSTRUKCIJI
+
+Konstruktor može parametrizirati broj identičnih elemenata za jednostavnu promjenu.
+
+Primjer: komoda s 5 čela ladica s parametriziranim brojem komada.
+Naknadna promjena s 5 na 3 čela: treba samo pozvati parametar broja ladica i umjesto 5 upisati 3 — željena 3 čela automatski zamijene prijašnjih 5.
+Istim postupkom se zamjenjuje manji broj elemenata s većim.
+
+
+5. PARAMETARSKA ROTACIJA ELEMENATA U KONSTRUKCIJI
+
+Elementi se obično postavljaju u XYZ smjeru, ali ponekad je potrebno zarotirati ih oko neke osi.
+
+Primjer: kutni kuhinjski ormarić s parametrom kuta razlike od pravokutnosti (KZ) i smjerom razlike kuta (KT).
+Projektant može postaviti bilo koju razliku kuta i odabrati smjer otklona — svi elementi koji trebaju, automatski se zakreću u konstrukciji. Ormarić se prilagođava prostoriji (npr. kut između susjednih zidova od 75° ili 105°).
+
+
+6. PARAMETARSKO POSTAVLJANJE OKOVA U KONSTRUKCIJU
+
+Primjer: automatski izbor Aventos HF podiznog mehanizma ovisno o visini ormarića i težini vrata.
+
+Konstruktor postavlja:
+- Parametar izračuna težine vrata (ovisi o materijalu i dimenziji vrata)
+- Parametar koji prema visini ormarića odabire polugu odgovarajuće duljine
+- Formule za izračun položaja rupa za učvršćenje Aventos HF okova
+
+Granične visine ormarića za poluge: 480–570, 560–710, 700–900, 760–1040 mm.
+
+Za 4 ormarića različite visine s korisnički parametriziranim Aventos HF mehanizmom:
+- Odabere se materijal fronti (npr. iveral 18 mm)
+- Program sam odabire mehanizam odgovarajuće snage, postavlja poluge potrebne duljine i pozicionira sve rupe za učvršćenje okova
+- U listi materijala svakom ormariću pridružuje se odgovarajuća kombinacija mehanizma i poluge
+
+
+7. PARAMETARSKO VEZANJE TEKSTA U KONSTRUKCIJU
+
+Projektant ili konstruktor trebaju u dokumentaciju prenijeti tekstnu poruku čiji se sadržaj mijenja ovisno o parametrima.
+
+Primjer: sobna vrata s parametrom strane otvaranja (lijevo/desno) i tipa brave (s cilindrom, s običnim ključem, bez ključa).
+Ako projekt sadrži više vrata identične dimenzije u svim kombinacijama otvaranja i brava, parametrima se definira svaka varijanta i upisuje potrebna količina. Parametrizirani tekstovi automatski se ispisuju uz pripadajuće pozicije.
+
+
+MEGATISCHLER PROGRAMSKA (AUTOMATSKA) PARAMETRIZACIJA
+
+Osim korisničke parametrizacije, za najčešće slučajeve ugrađena je automatska programska parametrizacija:
+
+- Gabaritne mjere pozicije (širina, dubina i visina)
+- Položaj vertikalnih pregrada u unutrašnjosti korpusa
+- Položaj polica i horizontalnih pregrada u unutrašnjosti korpusa
+- Položaj i zračnost fronti
+- Prevjes ploče na sve strane korpusa
+- Spoj leđa u korpus:
+  * Na utor ("nut") ili poluutor ("falc")
+  * Elementi u koje se urezuje utor ili poluutor
+  * Odmak utora straga
+  * Dimenzija utora ili poluutora
+  * Zrak leđa po širini i visini
+- Niz drugih slučajeva koji ubrzavaju konstruiranje i čine konstrukciju lako prilagodljivom promjenama
+
+
+KLJUČNI POJMOVI:
+- Uklada: ukrasna dekorativna letva/ploča koja se ugrađuje u vrata ili uzglavlje
+- Nut (utor): pravokutni žlijeb izrezan u materijalu za ugradnju leđa ili uklade
+- Falc (poluutor): utor koji je rezan samo s jedne strane, za ugradnju leđa
+- Korpus: osnovna kutija ormarića (tijelo namještaja)
+- Fronta: prednje lice namještaja (vrata, čela ladica)
+- Podnica: horizontalna ploča unutar kreveta na kojoj leži madrac
+- Okov: metalni dio za spajanje, otvaranje ili mehanizme (šarke, vodilice, Aventos mehanizmi...)
+- Aventos HF: Blumov podizni mehanizam za gornja vrata ormarića
+- Kala (krojna lista): popis svih ploča s dimenzijama za rezanje
+- Le Mans II: Blumov okretni mehanizam za kutne kuhinjske ormare
+- Parametar: korisnički definirana varijabla koja kontrolira dimenzije, položaj ili ponašanje elementa u konstrukciji

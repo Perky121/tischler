@@ -22,6 +22,7 @@ const workspaceRoot = process.cwd().endsWith(path.join("artifacts", "api-server"
 const dataDir = path.resolve(workspaceRoot, "artifacts/api-server/data");
 const knowledgeBasePath = path.join(dataDir, "knowledge_base.json");
 const rulesPath = path.join(dataDir, "stipe_rules.txt");
+const conceptualGuidePath = path.join(dataDir, "konceptualni_vodic_parametrizacije.txt");
 
 function readKnowledgeBase() {
   try {
@@ -45,6 +46,17 @@ function readRules(): string {
   return "";
 }
 
+function readConceptualGuide(): string {
+  try {
+    if (fs.existsSync(conceptualGuidePath)) {
+      return fs.readFileSync(conceptualGuidePath, "utf-8").trim();
+    }
+  } catch {
+    // ignore
+  }
+  return "";
+}
+
 interface SessionContext {
   dialogType?: string;
   parametersSeen?: Array<{ name: string; value: string }>;
@@ -58,6 +70,7 @@ function buildSystemPrompt(
   kb: ReturnType<typeof readKnowledgeBase>,
   userRules: string,
   sessionCtx?: SessionContext | null,
+  conceptualGuide?: string,
 ): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
@@ -91,6 +104,10 @@ Ako korisnik pošalje samo screenshot bez teksta, to znači: nastavi logično rj
 
 KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.`,
   ];
+
+  if (conceptualGuide) {
+    parts.push(`\nKONCEPTUALNI VODIČ PARAMETRIZACIJE:\n${conceptualGuide}`);
+  }
 
   if (syntaxRules) {
     parts.push(`\nPRAVILA SINTAKSE MEGATISCHLER:\n${syntaxRules}`);
@@ -170,7 +187,8 @@ router.post("/chat", async (req, res): Promise<void> => {
 
   const kb = readKnowledgeBase();
   const userRules = readRules();
-  const systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx);
+  const conceptualGuide = readConceptualGuide();
+  const systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide);
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);
