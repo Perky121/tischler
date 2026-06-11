@@ -45,6 +45,16 @@ contextBridge.exposeInMainWorld("electron", {
   // Knowledge base: learn from session
   kbLearn: (data) => ipcRenderer.invoke("kb-learn", data),
 
+  // ── Debug mode ──────────────────────────────────────────────────────────────
+  debugStartRecording: () => ipcRenderer.invoke("debug-start-recording"),
+  debugStopRecording: () => ipcRenderer.invoke("debug-stop-recording"),
+  debugGetFrames: () => ipcRenderer.invoke("debug-get-frames"),
+  debugClearFrames: () => ipcRenderer.invoke("debug-clear-frames"),
+  debugRemoveLastFrame: () => ipcRenderer.invoke("debug-remove-last-frame"),
+  debugGetState: () => ipcRenderer.invoke("debug-get-state"),
+  onDebugFrameCaptured: (cb) =>
+    ipcRenderer.on("debug-frame-captured", (_, data) => cb(data)),
+
   // Faza 2.0: Live mode — events (main → renderer)
   onLiveMessage: (cb) =>
     ipcRenderer.on("live-message", (_, data) => cb(data)),
@@ -103,5 +113,6 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.removeAllListeners("live-deps-missing");
     ipcRenderer.removeAllListeners("live-state-changed");
     ipcRenderer.removeAllListeners("live-module-loaded");
+    ipcRenderer.removeAllListeners("debug-frame-captured");
   },
 });

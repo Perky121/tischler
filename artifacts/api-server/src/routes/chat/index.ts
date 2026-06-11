@@ -260,6 +260,66 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
   return parts.join("\n");
 }
 
+function buildDebugSystemPrompt(
+  kb: ReturnType<typeof readKnowledgeBase>,
+  userRules: string,
+  conceptualGuide: string,
+): string {
+  const syntaxRules = (kb.syntax_rules as string[] ?? []).join("\n");
+
+  const parts = [
+    `Ti si MegaTischler dijagnostički asistent.
+Korisnik ti je poslao niz screenshotova koji prikazuju slijed klikova/radnji u MegaTischleru.
+Uvijek odgovaraj na hrvatskom jeziku.
+Tvoj zadatak je pronaći uzrok problema koji je korisnik opisao, koristeći screenshotove kao dokaz.
+
+KAKO ANALIZIRATI SCREENSHOTOVE:
+- Analiziraj screenshotove REDOM (Screenshot 1 = prvi korak, Screenshot N = zadnji korak)
+- Usporedi parametre, formule i vrijednosti između screenshotova
+- Traži: == vs =, zarez vs točka, ; u if(), zagrade, hijerarhiju [.] i [..] referencija
+- Identificiraj točno gdje nastaje problem
+
+KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). 0,5 ispravno; 0.5 POGREŠKA.
+
+FORMAT ODGOVORA — DIJAGNOSTIČKI RADNI LIST:
+Jedna rečenica: što si pronašao (uzrok greške). Zatim worklist (max 3 koraka):
+\`\`\`worklist
+{
+  "steps": [
+    {
+      "title": "Ispravi separator u formuli",
+      "where": "Dijalog parametara → Polica.W → polje Formula",
+      "formula": "[.D]-2*0,5",
+      "hint": "Koristio si točku (.) umjesto zareza (,) kao decimalni separator"
+    }
+  ]
+}
+\`\`\`
+Pravila:
+- Maksimalno 3 koraka — fokusiraj se na JEDAN uzrok i jedno rješenje
+- "hint" OBAVEZNO objašnjava ZAŠTO je to bio problem
+- Ako nemaš dovoljno informacija, jedno jasno pitanje + korak "pošalji screenshot X dijela"`,
+  ];
+
+  if (conceptualGuide) {
+    parts.push(`\nKONCEPTUALNI VODIČ:\n${conceptualGuide}`);
+  }
+  if (syntaxRules) {
+    parts.push(`\nPRAVILA SINTAKSE:\n${syntaxRules}`);
+  }
+  if (userRules) {
+    parts.push(`\nPRAVILA KORISNIKA:\n${userRules}`);
+  }
+
+  const allFormulas: Array<{ formula: string; source: string }> = kb.formulas ?? [];
+  if (allFormulas.length > 0) {
+    const sample = allFormulas.slice(0, 30).map((f) => f.formula).join("\n");
+    parts.push(`\nBAZA FORMULA (primjeri):\n${sample}`);
+  }
+
+  return parts.join("\n");
+}
+
 router.post("/chat", async (req, res): Promise<void> => {
   const parsed = SendChatBody.safeParse(req.body);
   if (!parsed.success) {
@@ -269,62 +329,95 @@ router.post("/chat", async (req, res): Promise<void> => {
 
   const { message, screenshot_base64, history } = parsed.data;
 
-  // Reject if there is nothing to send
-  if (!message.trim() && !screenshot_base64) {
+  // Debug mode: optional extra fields not in the strict Zod schema
+  const rawBody = req.body as Record<string, unknown>;
+  const mode = rawBody.mode as string | undefined;
+  const screenshots = rawBody.screenshots as Array<{ base64: string; index: number }> | undefined;
+
+  // Debug mode: validate we have screenshots + message
+  if (mode === "debug") {
+    if (!message?.trim()) {
+      res.status(400).json({ error: "Opis problema je obavezan za debug mod." });
+      return;
+    }
+    if (!screenshots || screenshots.length === 0) {
+      res.status(400).json({ error: "Najmanje jedan screenshot je obavezan za debug mod." });
+      return;
+    }
+    if (screenshots.length > 12) {
+      res.status(400).json({ error: "Maksimalno 12 screenshotova." });
+      return;
+    }
+  }
+
+  // Reject if there is nothing to send (normal mode)
+  if (mode !== "debug" && !message.trim() && !screenshot_base64) {
     res.status(400).json({ error: "Poruka ili screenshot su obavezni." });
     return;
   }
 
-  // When screenshot-only, substitute a continuation prompt so Anthropic never
-  // receives an empty text block (which it rejects with an API error).
-  const effectiveMessage = message.trim() || (screenshot_base64
-    ? "Korisnik je poslao screenshot bez dodatnog teksta. Nastavi logično rješavati zadatak na kojem radimo na temelju povijesti razgovora i screenshota. Ako ti nedostaje kontekst za nastavak, postavi jasna pitanja za pojašnjenje."
-    : "");
-
-  // Faza C: session context forwarded by Electron renderer
-  const sessionCtx = (req.body as Record<string, unknown>).session_context as SessionContext | null ?? null;
-
   const kb = readKnowledgeBase();
   const userRules = readRules();
   const conceptualGuide = readConceptualGuide();
-  const systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage);
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);
-
   const chatMessages: MessageParam[] = recentHistory.map((msg) => ({
     role: msg.role as "user" | "assistant",
     content: msg.content,
   }));
 
-  // Build the current user message content
+  let systemPrompt: string;
   const userContent: Array<TextBlockParam | ImageBlockParam> = [];
 
-  if (screenshot_base64) {
-    // Try to detect image media type from base64 prefix
-    let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
-    if (screenshot_base64.startsWith("iVBOR")) mediaType = "image/png";
-    else if (screenshot_base64.startsWith("R0lGOD")) mediaType = "image/gif";
-    else if (screenshot_base64.startsWith("UklGR")) mediaType = "image/webp";
+  if (mode === "debug" && screenshots && screenshots.length > 0) {
+    // ── Debug mode: multi-screenshot analysis ──────────────────────────────────
+    systemPrompt = buildDebugSystemPrompt(kb, userRules, conceptualGuide);
 
+    // Build user message: problem description + labelled screenshots
     userContent.push({
-      type: "image",
-      source: {
-        type: "base64",
-        media_type: mediaType,
-        data: screenshot_base64,
-      },
+      type: "text",
+      text: `Korisnik opisuje problem: "${message.trim()}"\n\nAnaliziraj sljedeće ${screenshots.length} screenshotov${screenshots.length === 1 ? "" : "a"} redom (klik 1…${screenshots.length}).`,
     });
+
+    const sorted = [...screenshots].sort((a, b) => a.index - b.index);
+    for (const shot of sorted) {
+      userContent.push({ type: "text", text: `Screenshot ${shot.index}:` });
+      let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
+      if (shot.base64.startsWith("iVBOR")) mediaType = "image/png";
+      else if (shot.base64.startsWith("R0lGOD")) mediaType = "image/gif";
+      else if (shot.base64.startsWith("UklGR")) mediaType = "image/webp";
+      userContent.push({
+        type: "image",
+        source: { type: "base64", media_type: mediaType, data: shot.base64 },
+      });
+    }
+  } else {
+    // ── Normal / screenshot-single mode ───────────────────────────────────────
+    const effectiveMessage = message.trim() || (screenshot_base64
+      ? "Korisnik je poslao screenshot bez dodatnog teksta. Nastavi logično rješavati zadatak na kojem radimo na temelju povijesti razgovora i screenshota. Ako ti nedostaje kontekst za nastavak, postavi jasna pitanja za pojašnjenje."
+      : "");
+
+    const sessionCtx = rawBody.session_context as SessionContext | null ?? null;
+    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage);
+
+    if (screenshot_base64) {
+      let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
+      if (screenshot_base64.startsWith("iVBOR")) mediaType = "image/png";
+      else if (screenshot_base64.startsWith("R0lGOD")) mediaType = "image/gif";
+      else if (screenshot_base64.startsWith("UklGR")) mediaType = "image/webp";
+      userContent.push({
+        type: "image",
+        source: { type: "base64", media_type: mediaType, data: screenshot_base64 },
+      });
+    }
+
+    if (effectiveMessage) {
+      userContent.push({ type: "text", text: effectiveMessage });
+    }
   }
 
-  if (effectiveMessage) {
-    userContent.push({ type: "text", text: effectiveMessage });
-  }
-
-  chatMessages.push({
-    role: "user",
-    content: userContent,
-  });
+  chatMessages.push({ role: "user", content: userContent });
 
   // Set up SSE
   res.setHeader("Content-Type", "text/event-stream");

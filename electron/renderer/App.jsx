@@ -897,6 +897,12 @@ function App() {
   const [moduleLoading, setModuleLoading] = useState(false);
   const [inputHeight, setInputHeight] = useState(INPUT_HEIGHT_DEFAULT);
 
+  // Debug mod state
+  const [debugState, setDebugState] = useState("off"); // off | recording
+  const [debugFrames, setDebugFrames] = useState([]); // [{index, thumb}]
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [debugProblem, setDebugProblem] = useState("");
+
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
   const inputHeightRef = useRef(INPUT_HEIGHT_DEFAULT);
@@ -1200,6 +1206,17 @@ function App() {
       });
     }
 
+    // Debug mode — frame captured notification
+    if (window.electron.onDebugFrameCaptured) {
+      window.electron.onDebugFrameCaptured((data) => {
+        setDebugFrames((prev) => {
+          const existing = prev.find((f) => f.index === data.index);
+          if (existing) return prev;
+          return [...prev, { index: data.index, thumb: data.thumb }];
+        });
+      });
+    }
+
     // Show a visible warning if diff libraries (pixelmatch/pngjs) are not installed
     if (window.electron.onLiveDepsMissing) {
       window.electron.onLiveDepsMissing(() => {
@@ -1225,6 +1242,152 @@ function App() {
     setLiveTask("");
     setShowTaskInput(false);
     await window.electron.liveSetEnabled(false).catch(console.error);
+  }
+
+  // ── Debug helpers ────────────────────────────────────────────────────────────
+  async function openDebugPanel() {
+    if (liveState === "running") {
+      alert("Live mod je aktivan. Zaustavi Live prije debug snimanja.");
+      return;
+    }
+    setShowDebugPanel(true);
+    setDebugFrames([]);
+    setDebugProblem("");
+    setDebugState("off");
+  }
+
+  async function startDebugRecording() {
+    const result = await window.electron.debugStartRecording();
+    if (!result.ok) {
+      alert(result.error || "Greška pri pokretanju snimanja.");
+      return;
+    }
+    setDebugState("recording");
+  }
+
+  async function stopDebugRecording() {
+    await window.electron.debugStopRecording();
+    setDebugState("off");
+  }
+
+  async function removeLastDebugFrame() {
+    await window.electron.debugRemoveLastFrame();
+    setDebugFrames((prev) => prev.slice(0, -1));
+  }
+
+  async function cancelDebugSession() {
+    await window.electron.debugClearFrames();
+    setDebugState("off");
+    setDebugFrames([]);
+    setDebugProblem("");
+    setShowDebugPanel(false);
+  }
+
+  async function handleDebugSend() {
+    if (!debugProblem.trim() || debugFrames.length === 0 || isStreaming) return;
+
+    // Fetch actual base64 frames from main process
+    const frames = await window.electron.debugGetFrames();
+
+    const userContent = debugProblem.trim();
+    const thumbGrid = debugFrames.map((f) => f.thumb);
+
+    const userMsg = {
+      id: Date.now(),
+      role: "user",
+      content: userContent,
+      debugThumbs: thumbGrid,
+      debugCount: frames.length,
+    };
+
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+
+    if (messages.length === 0) {
+      const autoTitle = ("Debug: " + userContent).slice(0, 60);
+      setConversations((prev) => prev.map((c) =>
+        c.id === (activeConvId ?? prev[0]?.id) ? { ...c, title: autoTitle } : c
+      ));
+    }
+
+    setShowDebugPanel(false);
+    setDebugState("off");
+    setDebugFrames([]);
+    setDebugProblem("");
+    await window.electron.debugClearFrames();
+    setIsStreaming(true);
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+    try {
+      const settings = await window.electron.getSettings();
+      const url = settings.backendUrl;
+
+      const historyForApi = nextMessages
+        .slice(-11, -1)
+        .map((m) => ({
+          role: m.role,
+          content: m.debugCount
+            ? `Debug sesija: ${m.debugCount} screenshota, problem: ${m.content}`
+            : (m.content || (m.screenshotThumb ? SCREENSHOT_CONTINUATION : "")),
+        }))
+        .filter((m) => m.content);
+
+      const body = {
+        message: userContent,
+        history: historyForApi,
+        mode: "debug",
+        screenshots: frames.map((f) => ({ base64: f.base64, index: f.index })),
+      };
+
+      const res = await fetch(`${url}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.body) throw new Error("Nema tijela odgovora");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = "";
+      let lineBuffer = "";
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        lineBuffer += decoder.decode(value, { stream: true });
+        const newlineIdx = lineBuffer.lastIndexOf("\n");
+        if (newlineIdx === -1) continue;
+        const complete = lineBuffer.slice(0, newlineIdx + 1);
+        lineBuffer = lineBuffer.slice(newlineIdx + 1);
+        const lines = complete.split("\n").filter((l) => l.startsWith("data: "));
+        for (const line of lines) {
+          const dataStr = line.slice(6).trim();
+          if (!dataStr) continue;
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.done) { streamDone = true; break; }
+            if (data.error) assistantContent += `\n\n⚠️ ${data.error}`;
+            else if (data.content) assistantContent += data.content;
+            setMessages((prev) => {
+              const cp = [...prev];
+              cp[cp.length - 1] = { role: "assistant", content: assistantContent };
+              return cp;
+            });
+          } catch { /* ignore */ }
+        }
+      }
+    } catch (err) {
+      setMessages((prev) => {
+        const cp = [...prev];
+        cp[cp.length - 1] = { role: "assistant", content: `Greška: ${err.message}` };
+        return cp;
+      });
+    } finally {
+      setIsStreaming(false);
+    }
   }
 
   async function handleLivePause() {
@@ -1365,6 +1528,13 @@ function App() {
     const currentScreenshot = overrideScreenshot !== undefined ? overrideScreenshot : screenshotDataUrl;
     if (!msgText.trim() && !currentScreenshot) return;
     if (isStreaming) return;
+
+    // Parse /debug command
+    if (msgText.trim().toLowerCase() === "/debug") {
+      setInput("");
+      openDebugPanel();
+      return;
+    }
 
     // MT warning (non-blocking)
     if (!mtActive) {
@@ -1717,6 +1887,14 @@ function App() {
                       <div className="msg-screenshot-label">📷 priložen screenshot</div>
                     </div>
                   )}
+                  {isUser && msg.debugThumbs && msg.debugThumbs.length > 0 && (
+                    <div className="debug-thumb-grid">
+                      {msg.debugThumbs.map((thumb, i) => (
+                        <img key={i} src={thumb} alt={`Screenshot ${i + 1}`} className="debug-thumb-small" />
+                      ))}
+                      <div className="msg-screenshot-label">🐛 {msg.debugThumbs.length} debug screenshota</div>
+                    </div>
+                  )}
                   {isUser ? (
                     msg.content
                       ? <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>
@@ -1955,7 +2133,7 @@ function App() {
           </button>
         </div>
 
-        <div className="input-hint">F9 ekran · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos</div>
+        <div className="input-hint">F9 ekran · Enter šalje · Shift+Enter novi red · /debug za dijagnostiku · povuci gornji rub za veći unos</div>
       </div>
 
       {showSettings && (
@@ -1974,6 +2152,83 @@ function App() {
           setLiveBudgetUsd={setLiveBudgetUsd}
           onChangeRegion={changeRegion}
         />
+      )}
+
+      {showDebugPanel && (
+        <div className="debug-overlay">
+          <div className="debug-panel">
+            <div className="debug-panel-header">
+              <span>🐛 Debug sesija</span>
+              <button className="debug-close-btn" onClick={cancelDebugSession}>✕</button>
+            </div>
+
+            <div className="debug-step">
+              <div className="debug-step-label">1. Opiši problem</div>
+              <textarea
+                className="debug-problem-input"
+                placeholder="Što ne radi? Koji dio formule ili parametre istražuješ?"
+                value={debugProblem}
+                onChange={(e) => setDebugProblem(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="debug-step">
+              <div className="debug-step-label">2. Snimaj klikove u MegaTischleru</div>
+              {debugState === "off" ? (
+                <button
+                  className="debug-action-btn debug-record-btn"
+                  onClick={startDebugRecording}
+                  disabled={!debugProblem.trim()}
+                >
+                  ⏺ Počni snimanje klikova
+                </button>
+              ) : (
+                <div>
+                  <div className="debug-recording-banner">
+                    ⏺ Snimanje aktivno — klikni u MegaTischleru (max 12)
+                    <span className="debug-frame-count"> {debugFrames.length}/12</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button className="debug-action-btn debug-stop-btn" onClick={stopDebugRecording}>
+                      ⏹ Zaustavi snimanje
+                    </button>
+                    {debugFrames.length > 0 && (
+                      <button className="debug-action-btn debug-remove-btn" onClick={removeLastDebugFrame}>
+                        ✕ Ukloni zadnji
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {debugFrames.length > 0 && (
+              <div className="debug-step">
+                <div className="debug-step-label">3. Pregled ({debugFrames.length} screenshota)</div>
+                <div className="debug-filmstrip">
+                  {debugFrames.map((f) => (
+                    <div key={f.index} className="debug-film-frame">
+                      <img src={f.thumb} alt={`Klik ${f.index}`} />
+                      <div className="debug-film-label">{f.index}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="debug-actions-row">
+              <button className="debug-cancel-btn" onClick={cancelDebugSession}>Odustani</button>
+              <button
+                className="debug-send-btn"
+                disabled={!debugProblem.trim() || debugFrames.length === 0 || isStreaming || debugState === "recording"}
+                onClick={handleDebugSend}
+              >
+                {isStreaming ? "Šalje..." : `🔍 Pošalji na analizu (${debugFrames.length} screenshot${debugFrames.length === 1 ? "" : "a"})`}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

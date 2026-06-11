@@ -48,6 +48,32 @@ let lastLoadedModuleHint = null;
 let liveState = "off";
 let liveTask = "";
 
+// ── Debug mode ────────────────────────────────────────────────────────────────
+let uiohook = null;
+let uiohookMissing = false;
+try {
+  uiohook = require("uiohook-napi");
+} catch {
+  uiohookMissing = true;
+  console.warn("[debug] uiohook-napi not installed — debug click capture disabled");
+}
+
+/** @type {"off" | "recording"} */
+let debugState = "off";
+/** @type {Array<{index: number, base64: string, ts: number}>} */
+let debugFrames = [];
+const DEBUG_MAX_FRAMES = 12;
+const DEBUG_CLICK_DEBOUNCE_MS = 600;
+let debugLastClickTs = 0;
+let debugCapturing = false; // guard: only one concurrent capture
+
+function stopDebugRecording() {
+  debugState = "off";
+  if (uiohook) {
+    try { uiohook.uIOhook.stop(); } catch { /* ignore */ }
+  }
+}
+
 // ── Anthropic token cost constants (claude-opus-4 pricing) ───────────────────
 const COST_PER_INPUT_TOKEN = 0.000015;   // $15 per 1M input tokens
 const COST_PER_OUTPUT_TOKEN = 0.000075;  // $75 per 1M output tokens
@@ -661,6 +687,7 @@ app.on("window-all-closed", () => {
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();
   if (detectorInterval) clearInterval(detectorInterval);
+  stopDebugRecording();
 });
 
 // ── IPC handlers ──────────────────────────────────────────────────────────────
@@ -827,6 +854,7 @@ ipcMain.handle("live-start", (_, task) => {
   if (!trimmed) return { ok: false, error: "Zadatak je obavezan." };
   const settings = loadSettings();
   if (!settings.liveRegion) return { ok: false, error: "Prvo odaberi područje ekrana." };
+  if (debugState === "recording") return { ok: false, error: "Debug snimanje je aktivno. Zaustavi debug prije Live moda." };
 
   liveTask = trimmed;
   liveState = "running";
@@ -1007,4 +1035,92 @@ ipcMain.handle("kb-learn", async (_, { formulas, parameters, observations }) => 
   } catch (err) {
     return { error: err.message };
   }
+});
+
+// ── Debug mode IPC ────────────────────────────────────────────────────────────
+
+ipcMain.handle("debug-start-recording", () => {
+  if (liveState === "running") {
+    return { ok: false, error: "Live mod je aktivan. Zaustavi Live prije debug snimanja." };
+  }
+  if (uiohookMissing || !uiohook) {
+    return { ok: false, error: "uiohook-napi nije dostupan u ovoj verziji." };
+  }
+
+  debugState = "recording";
+  debugFrames = [];
+  debugLastClickTs = 0;
+  debugCapturing = false;
+
+  uiohook.uIOhook.on("mousedown", async (event) => {
+    if (debugState !== "recording") return;
+    if (debugFrames.length >= DEBUG_MAX_FRAMES) return;
+    if (debugCapturing) return;
+
+    const now = Date.now();
+    if (now - debugLastClickTs < DEBUG_CLICK_DEBOUNCE_MS) return;
+
+    // Ignoriraj klik unutar Copilot prozora
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      const b = mainWindow.getBounds();
+      if (event.x >= b.x && event.x <= b.x + b.width &&
+          event.y >= b.y && event.y <= b.y + b.height) {
+        return;
+      }
+    }
+
+    debugLastClickTs = now;
+    debugCapturing = true;
+
+    try {
+      const base64 = await captureScreenshot();
+      const frame = { index: debugFrames.length + 1, base64, ts: now };
+      debugFrames.push(frame);
+
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("debug-frame-captured", {
+          index: frame.index,
+          thumb: "data:image/jpeg;base64," + base64,
+          total: debugFrames.length,
+        });
+      }
+    } catch (err) {
+      console.error("[debug] capture error:", err.message);
+    } finally {
+      debugCapturing = false;
+    }
+  });
+
+  try {
+    uiohook.uIOhook.start();
+  } catch (err) {
+    stopDebugRecording();
+    return { ok: false, error: "Ne mogu pokrenuti hook: " + err.message };
+  }
+
+  return { ok: true };
+});
+
+ipcMain.handle("debug-stop-recording", () => {
+  stopDebugRecording();
+  return { ok: true, frameCount: debugFrames.length };
+});
+
+ipcMain.handle("debug-get-frames", () => {
+  return debugFrames.map(f => ({ index: f.index, base64: f.base64, ts: f.ts }));
+});
+
+ipcMain.handle("debug-clear-frames", () => {
+  stopDebugRecording();
+  debugFrames = [];
+  return { ok: true };
+});
+
+ipcMain.handle("debug-remove-last-frame", () => {
+  if (debugFrames.length > 0) debugFrames.pop();
+  return { ok: true, frameCount: debugFrames.length };
+});
+
+ipcMain.handle("debug-get-state", () => {
+  return { state: debugState, frameCount: debugFrames.length, uiohookMissing };
 });
