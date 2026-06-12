@@ -353,6 +353,13 @@ function SettingsPanel({
   const [autoLoadModule, setAutoLoadModule] = useState(true);
   const [macUploadStatus, setMacUploadStatus] = useState(null); // null | "uploading" | {ok, count, errors}
   const macFileInputRef = React.useRef(null);
+  const [mtInstallPath, setMtInstallPath] = useState("");
+  const [mtManifest, setMtManifest] = useState(null);
+  const [mtScanning, setMtScanning] = useState(false);
+  const [mtScanError, setMtScanError] = useState(null);
+  const [mtImporting, setMtImporting] = useState(new Set());
+  const [mtDone, setMtDone] = useState(new Set());
+  const [mtSkipped, setMtSkipped] = useState(new Set());
   useEffect(() => {
     window.electron.getSettings().then((s) => {
       setBackendUrl(s.backendUrl || "");
@@ -362,6 +369,7 @@ function SettingsPanel({
       setTtsVoice(s.ttsVoice || "onyx");
       setUseRegionForF9(!!s.useRegionForF9);
       setAutoLoadModule(s.autoLoadModule !== false);
+      setMtInstallPath(s.mtInstallPath || "");
     });
     window.electron.fetchKnowledgeStats().then((data) => {
       if (!data.error) setStats(data);
@@ -372,10 +380,57 @@ function SettingsPanel({
   }, []);
 
   function handleSave() {
-    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule }).then(() => {
+    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule, mtInstallPath }).then(() => {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
+  }
+
+  async function handleMtScan() {
+    const trimmed = mtInstallPath.trim();
+    if (!trimmed) return;
+    setMtScanning(true);
+    setMtScanError(null);
+    setMtManifest(null);
+    setMtDone(new Set());
+    setMtSkipped(new Set());
+    try {
+      await window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule, mtInstallPath: trimmed });
+      const result = await window.electron.mtBridgeScan(trimmed);
+      if (!result.ok) { setMtScanError(result.error); return; }
+      setMtManifest(result.manifest);
+    } catch (err) {
+      setMtScanError(err.message);
+    } finally {
+      setMtScanning(false);
+    }
+  }
+
+  async function handleMtImportFile(item) {
+    setMtImporting(s => new Set([...s, item.fullPath]));
+    try {
+      const result = await window.electron.mtBridgeImportFile({ fullPath: item.fullPath, filename: item.filename });
+      if (result.error) throw new Error(result.error);
+      setMtDone(s => new Set([...s, item.fullPath]));
+      window.electron.fetchKnowledgeStats().then(data => { if (!data.error) setStats(data); });
+    } catch (err) {
+      alert("Greška pri uvozu: " + err.message);
+    } finally {
+      setMtImporting(s => { const n = new Set(s); n.delete(item.fullPath); return n; });
+    }
+  }
+
+  async function handleMtImportAll() {
+    const pending = (mtManifest || []).filter(item =>
+      item.action === "import-mac" &&
+      !item.alreadyLoaded &&
+      !mtDone.has(item.fullPath) &&
+      !mtSkipped.has(item.fullPath) &&
+      !mtImporting.has(item.fullPath)
+    );
+    for (const item of pending) {
+      await handleMtImportFile(item);
+    }
   }
 
   async function handleTestVoice() {
@@ -723,6 +778,135 @@ function SettingsPanel({
                 : `✗ Greška: ${macUploadStatus.error}`}
             </div>
           )}
+        </div>
+
+        {/* MegaTischler Bridge */}
+        <div className="settings-section">
+          <div className="settings-label">Baza datoteka — MegaTischler Bridge</div>
+          <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>
+            Postavi putanju lokalne MegaTischler instalacije za skeniranje dostupnih datoteka.
+          </div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <input
+              className="settings-input"
+              style={{ flex: 1 }}
+              placeholder="C:\MegaCAD_3D_2025 OEM"
+              value={mtInstallPath}
+              onChange={e => setMtInstallPath(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleMtScan(); }}
+            />
+            <button
+              className="btn-save"
+              style={{ whiteSpace: "nowrap", background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)", minWidth: 90 }}
+              onClick={handleMtScan}
+              disabled={mtScanning || !mtInstallPath.trim()}
+            >
+              {mtScanning ? "⏳ Skeniranje..." : "🔍 Skeniraj"}
+            </button>
+          </div>
+
+          {mtScanError && (
+            <div style={{ marginTop: 6, fontSize: 11, color: "#f87171", padding: "4px 8px", borderRadius: 4, background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)" }}>
+              ✗ {mtScanError}
+            </div>
+          )}
+
+          {mtManifest && (() => {
+            const macFiles = mtManifest.filter(f => f.folder === "Mac");
+            const rootFiles = mtManifest.filter(f => f.folder === "(korijen)");
+            const pendingMac = macFiles.filter(f => !f.alreadyLoaded && !mtDone.has(f.fullPath) && !mtSkipped.has(f.fullPath));
+            return (
+              <div style={{ marginTop: 10 }}>
+                {/* MAC modules */}
+                {macFiles.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span>Mac\ — parametarski moduli ({macFiles.length})</span>
+                      {pendingMac.length > 0 && (
+                        <button
+                          className="btn-save"
+                          style={{ fontSize: 10, padding: "2px 8px", background: "var(--accent)", color: "#000", border: "none" }}
+                          onClick={handleMtImportAll}
+                          disabled={mtImporting.size > 0}
+                        >
+                          {mtImporting.size > 0 ? `⏳ Uvoz...` : `↑ Uvezi sve nove (${pendingMac.length})`}
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 280, overflowY: "auto" }}>
+                      {macFiles.map(item => {
+                        const isLoaded = item.alreadyLoaded;
+                        const isDone = mtDone.has(item.fullPath);
+                        const isSkipped = mtSkipped.has(item.fullPath);
+                        const isImporting = mtImporting.has(item.fullPath);
+                        return (
+                          <div key={item.fullPath} style={{
+                            display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 4,
+                            background: "var(--bg3)", fontSize: 11,
+                            opacity: isSkipped ? 0.4 : 1,
+                          }}>
+                            <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text1)" }}>
+                              📄 {item.filename}
+                            </span>
+                            <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>{item.sizeKb} KB</span>
+                            {isLoaded || isDone ? (
+                              <span style={{ color: "var(--accent)", fontSize: 10, whiteSpace: "nowrap" }}>✓ {isDone ? "Uvezeno" : "U bazi"}</span>
+                            ) : isSkipped ? (
+                              <span style={{ color: "var(--text3)", fontSize: 10 }}>—</span>
+                            ) : isImporting ? (
+                              <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>⏳</span>
+                            ) : (
+                              <div style={{ display: "flex", gap: 3 }}>
+                                <button
+                                  className="btn-save"
+                                  style={{ fontSize: 10, padding: "2px 8px", background: "var(--accent)", color: "#000", border: "none" }}
+                                  onClick={() => handleMtImportFile(item)}
+                                >↑ Uvezi</button>
+                                <button
+                                  className="btn-save"
+                                  style={{ fontSize: 10, padding: "2px 6px", background: "transparent", color: "var(--text3)", border: "1px solid var(--border)" }}
+                                  onClick={() => setMtSkipped(s => new Set([...s, item.fullPath]))}
+                                >✕</button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Root files (future) */}
+                {rootFiles.length > 0 && (
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ fontSize: 10, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                      Ostale datoteke — analiza u pripremi ({rootFiles.length})
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 150, overflowY: "auto" }}>
+                      {rootFiles.map(item => (
+                        <div key={item.fullPath} style={{
+                          display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 4,
+                          background: "var(--bg3)", fontSize: 11, opacity: 0.6,
+                        }}>
+                          <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text2)" }}>
+                            📄 {item.filename}
+                          </span>
+                          <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>{item.sizeKb} KB</span>
+                          <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {macFiles.length === 0 && rootFiles.length === 0 && (
+                  <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>
+                    Nije pronađena nijedna poznata datoteka u zadanoj putanji.
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Shortcuts */}

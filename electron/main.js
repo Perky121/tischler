@@ -449,6 +449,7 @@ const DEFAULT_SETTINGS = {
   dailySpentUsd: 0,
   dailyCallCount: 0,
   budgetResetDate: getTodayDateStr(),
+  mtInstallPath: "",
 };
 
 function loadSettings() {
@@ -981,6 +982,145 @@ ipcMain.handle("upload-mac-files", async (_, { files }) => {
     return await res.json();
   } catch (err) {
     return { error: err.message };
+  }
+});
+
+// ── MegaTischler Bridge — file system scanner ─────────────────────────────────
+const MT_SKIP_EXTENSIONS = new Set([
+  ".dll", ".exe", ".drv", ".lib", ".bak", ".tmp", ".ocx",
+  ".sys", ".com", ".bat", ".lnk", ".url", ".htm", ".html",
+  ".pdf", ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".ico",
+  ".zip", ".rar", ".7z", ".tar", ".gz",
+]);
+const MT_FUTURE_EXTENSIONS = new Set([
+  ".def", ".cfg", ".ini", ".par", ".prg", ".mcs", ".bhr",
+  ".mbt", ".txm", ".mdb", ".accdb", ".drv",
+]);
+const MT_ROOT_TEXT_NAMES = new Set([
+  "CMDPAR", "DIMVAL", "LAYGRP", "LINETYP", "LSTYLE", "DOSMENU",
+  "DOSMENU_EN", "INFO", "INFO_EN", "INFO_HR", "INFO_SL",
+  "A1", "ALLSTL", "CUTVIEW", "KEYSHOT", "E_OWNER",
+]);
+
+function classifyMtFile(filename) {
+  const ext = path.extname(filename).toLowerCase();
+  const base = path.basename(filename, ext).toUpperCase();
+  if (ext === ".mac") {
+    return { action: "import-mac", label: "Parametarski modul", desc: "Uvoz formula u bazu znanja" };
+  }
+  if (MT_SKIP_EXTENSIONS.has(ext)) return null;
+  if (MT_FUTURE_EXTENSIONS.has(ext)) {
+    const labels = { ".def": "DEF definicija", ".cfg": "Konfiguracija", ".ini": "Konfiguracija",
+      ".par": "Parametri", ".prg": "Program", ".mcs": "MCS blok", ".bhr": "BHR format",
+      ".mbt": "MBT format", ".txm": "TXM format", ".mdb": "Access baza", ".accdb": "Access baza" };
+    return { action: "future", label: labels[ext] || "Nepoznati format", desc: "Analiza u pripremi" };
+  }
+  if (!ext && MT_ROOT_TEXT_NAMES.has(base)) {
+    return { action: "future", label: "Konfiguracija", desc: "Analiza u pripremi" };
+  }
+  return null;
+}
+
+ipcMain.handle("mt-bridge-scan", async (_, installPath) => {
+  try {
+    const trimmed = (installPath || "").trim();
+    if (!trimmed || !fs.existsSync(trimmed)) {
+      return { ok: false, error: "Putanja ne postoji ili nije dostupna" };
+    }
+
+    const settings = loadSettings();
+
+    // Fetch already-loaded source filenames from backend KB
+    const loadedFiles = new Set();
+    try {
+      const res = await fetch(`${settings.backendUrl}/api/knowledge`);
+      if (res.ok) {
+        const data = await res.json();
+        const formulas = data.formulas || [];
+        formulas.forEach((f) => {
+          if (f.source) loadedFiles.add(f.source.toLowerCase());
+        });
+      }
+    } catch { /* ignore — will show all files as unloaded */ }
+
+    const manifest = [];
+
+    // 1. Scan Mac\ subfolder for .mac files
+    const macDir = path.join(trimmed, "Mac");
+    if (fs.existsSync(macDir) && fs.statSync(macDir).isDirectory()) {
+      let macEntries;
+      try { macEntries = fs.readdirSync(macDir); } catch { macEntries = []; }
+      for (const filename of macEntries) {
+        const cls = classifyMtFile(filename);
+        if (!cls) continue;
+        const fullPath = path.join(macDir, filename);
+        let sizeKb = 0;
+        try { sizeKb = Math.round(fs.statSync(fullPath).size / 1024); } catch { /* ignore */ }
+        manifest.push({
+          id: fullPath,
+          filename,
+          fullPath,
+          folder: "Mac",
+          sizeKb,
+          action: cls.action,
+          label: cls.label,
+          desc: cls.desc,
+          alreadyLoaded: loadedFiles.has(filename.toLowerCase()),
+        });
+      }
+    }
+
+    // 2. Scan root for interesting non-binary files (skip dirs, skip large files >5MB)
+    let rootEntries;
+    try { rootEntries = fs.readdirSync(trimmed, { withFileTypes: true }); } catch { rootEntries = []; }
+    for (const entry of rootEntries) {
+      if (entry.isDirectory()) continue;
+      const cls = classifyMtFile(entry.name);
+      if (!cls || cls.action === "import-mac") continue; // .mac only from Mac\ subfolder
+      const fullPath = path.join(trimmed, entry.name);
+      let sizeKb = 0;
+      try {
+        const st = fs.statSync(fullPath);
+        if (st.size > 5 * 1024 * 1024) continue;
+        sizeKb = Math.round(st.size / 1024);
+      } catch { continue; }
+      manifest.push({
+        id: fullPath,
+        filename: entry.name,
+        fullPath,
+        folder: "(korijen)",
+        sizeKb,
+        action: cls.action,
+        label: cls.label,
+        desc: cls.desc,
+        alreadyLoaded: false,
+      });
+    }
+
+    return { ok: true, manifest };
+  } catch (err) {
+    return { ok: false, error: String(err.message) };
+  }
+});
+
+ipcMain.handle("mt-bridge-import-file", async (_, { fullPath, filename }) => {
+  try {
+    const settings = loadSettings();
+    const buf = fs.readFileSync(fullPath);
+    const form = new FormData();
+    const blob = new Blob([buf], { type: "application/octet-stream" });
+    form.append("files", blob, filename);
+    const res = await fetch(`${settings.backendUrl}/api/upload-mac`, {
+      method: "POST",
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HTTP ${res.status}: ${body}`);
+    }
+    return await res.json();
+  } catch (err) {
+    return { error: String(err.message) };
   }
 });
 
