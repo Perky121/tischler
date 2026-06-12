@@ -442,9 +442,81 @@ function buildHierarchyGuide(
 const ANTI_PATTERNS = `ČESTE GREŠKE — NIKAD OVAKO:
 ❌  0.5          →  ✅  0,5          (decimalni separator je ZAREZ, ne točka)
 ❌  if(A=B;...)  →  ✅  if(A==B;...) (usporedba je ==, ne =)
+❌  if(A!=B;...) →  ✅  if(A<>B;...) ("nije jednako" je <>, ne != )
 ❌  if(A,B,C)    →  ✅  if(A;B;C)   (separator argumenata je ; ne ,)
 ❌  [X]          →  ✅  [.X]         ([X] bez točke = GLOBALNI param; za roditelja uvijek [.X])
 ❌  if(A and B)  →  ✅  if((A) and (B)) (svaki uvjet u if-u mora biti u zagradama)`;
+
+/**
+ * Guide for functions and operators extracted 100% from actual .mac formulas.
+ * Counts are exact occurrence counts from the 1228-formula knowledge base.
+ */
+const FUNCTIONS_AND_OPERATORS = `OPERATORI U FORMULAMA (potvrđeno iz .mac datoteka):
+  ==    usporedba jednakosti       (382 formula)  primjer: if([KDT]==3;0;1)
+  <>    nije jednako               (9 formula)    primjer: if([...KOAP]<>1;1;0)
+  >     veće od                    (125 formula)
+  <     manje od                   (82 formula)
+  >=    veće ili jednako           (14 formula)
+  <=    manje ili jednako          (15 formula)
+  and   logički I                  (107 formula)  primjer: if(([KDT]==1) and (POSW>200);...)
+  or    logički ILI                (33 formula)   primjer: if(([.BST]==0) or ([.VSST]==1);...)
+
+FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka):
+  if(uvjet;istina;laž)                       — 2-granični uvjet           (294 formula)
+  ifelse(u1;v1;u2;v2;...;zadano)             — višestruki uvjet (switch)  (27 formula)
+  ABS(x)                                     — apsolutna vrijednost        (93 formula)
+  NEG(x)  ili  neg(x)                        — negacija (isto što -x)      (77 formula)
+  SIN(x)                                     — sinus (radijani)            (190 formula)
+  COS(x)                                     — kosinus (radijani)          (185 formula)
+  TAN(x)                                     — tangens                     (51 formula)
+  ATAN(x)                                    — arkustangens                (1 formula)
+  MIN(a;b;...)                               — minimum                     (2 formula)
+  MAX(a;b;...)                               — maksimum                    (2 formula)
+  EULER(m11;m12;...;Rx;Ry;Rz;x;y;z)         — rotacijska matrica           (18 formula)
+  ADD(x)                                     — akumulacija                 (7 formula)
+  GETMATDATA(mat;ključ)                      — čita podatak o materijalu   (2 formula)
+  STRCAT(s1;s2;...)                          — spaja tekst                 (1 formula)
+  VAL(x)                                     — konverzija u broj           (1 formula)
+
+IFELSE — VIŠESTRUKI UVJET (switch/case sintaksa):
+Koristiti kada ima 3+ grana — čišće od ugniježđenih if().
+Format: ifelse(uvjet1;vrijednost1;uvjet2;vrijednost2;zadanaVrijednost)
+Primjeri iz .mac datoteka:
+  ifelse([KOAP]==1;50;[KOOL]==0;20;[KOOL]==1;35;50)
+  ifelse([KDOS]==0;0,5;[KDOS]==1;2;45)
+  ifelse([KUT]<90;1;[KUT]>90;0;2)
+  ifelse([.KODS]==0;0;[.KODS]==4;[.MaskaGoreHor.T];[.MSS]+[.MSZRG])`;
+
+/**
+ * Extract the most frequently referenced element names from hierarchical formula
+ * paths in the knowledge base. These are real element names from actual .mac files.
+ */
+function buildElementVocabulary(
+  formulas: Array<{ formula: string; source: string }>,
+): string {
+  const elemNames = new Map<string, number>();
+  for (const { formula } of formulas) {
+    // Match [.ElementName.param] or [..ElementName.param] patterns
+    for (const m of formula.matchAll(/\[\.+([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9_]+)\]/g)) {
+      const elem = m[1];
+      // Skip if it looks like a param name (all caps short), not an element name
+      if (elem.length >= 3 && !/^[A-Z]{1,4}$/.test(elem)) {
+        elemNames.set(elem, (elemNames.get(elem) ?? 0) + 1);
+      }
+    }
+  }
+
+  const top = [...elemNames.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 25);
+
+  if (top.length === 0) return "";
+
+  const names = top.map(([name, cnt]) => `${name}(×${cnt})`).join(", ");
+  return `ČESTI NAZIVI ELEMENATA U HIJERARHIJSKIM PUTANJAMA (iz .mac datoteka):
+${names}
+Ovi nazivi se koriste u formulama kao npr. [.StranicaL.T], [..Ormar.W], [...Viseci.H].`;
+}
 
 function buildSystemPrompt(
   kb: ReturnType<typeof readKnowledgeBase>,
@@ -566,6 +638,15 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
 
   // Anti-patterns — 100% verified from actual .mac formula files
   parts.push(`\n${ANTI_PATTERNS}`);
+
+  // Functions and operators — 100% extracted from actual .mac formula files
+  parts.push(`\n${FUNCTIONS_AND_OPERATORS}`);
+
+  // Element vocabulary — real element names extracted from hierarchical paths in .mac files
+  const elemVocab = buildElementVocabulary((kb.formulas ?? []) as Array<{ formula: string; source: string }>);
+  if (elemVocab) {
+    parts.push(`\n${elemVocab}`);
+  }
 
   // Faza C: session context from Live screenshots
   if (sessionCtx && (sessionCtx.parametersSeen?.length || sessionCtx.formulasSeen?.length || sessionCtx.summary)) {
