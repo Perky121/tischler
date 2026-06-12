@@ -273,13 +273,49 @@ function extractParamNames(text: string): Set<string> {
  * Falls back gracefully when no context is available (returns top-50 with
  * hierarchical formulas ranked first, preserving the previous behaviour).
  */
+/** Keyword → module mapping for query-time module boost (no Live mod needed). */
+const KEYWORD_MODULE_MAP: Array<{ keywords: RegExp; module: string }> = [
+  { keywords: /kutni|kut\s+zida|le\s*mans|karusel|uglovni/i, module: "KUTNI.mac" },
+  { keywords: /kutni\s+vanjski|vanjski\s+kut/i, module: "KUTNI_VANJSKI.mac" },
+  { keywords: /visoki|hladnjak|zamrziva[cč]|stupni|ugradni\s+aparat|aparat/i, module: "KUH_VISOKI.mac" },
+  { keywords: /vise[cć]i|gornji\s+ormar|zidni\s+ormar/i, module: "VISECI.mac" },
+  { keywords: /mikrovalnica|mikrovalna|grilja[cč]/i, module: "MIKROVALNA.mac" },
+  { keywords: /napa|aspirator|odvod\s+para/i, module: "NAPA.mac" },
+  { keywords: /pe[cć]nica|ugradna\s+pe[cć]/i, module: "PECNICA.mac" },
+  { keywords: /perilica|strojno\s+pranje/i, module: "PERILICA.mac" },
+  { keywords: /otvoren[ai]|polica\s+bez\s+vrata|niša|bok\s+polica/i, module: "OTVORENI.mac" },
+];
+
+/** Detect the dominant formula type intent from a user query. */
+function detectQueryIntent(userMessage: string): string | null {
+  const m = userMessage.toLowerCase();
+  if (/pozicion|smjesti|gdje\s+staviti|položaj|pomakni|offset/i.test(m)) return "pozicija";
+  if (/širina|visina|dubina|debljina|dimenz|duljina|mjera/i.test(m)) return "dimenzija";
+  if (/uklju[čc]i|isklju[čc]i|priklju[čc]i|vidljiv|prikaži\s+samo|sakrij/i.test(m)) return "ukljucenje";
+  if (/rotir|zakreni|kut|nagni/i.test(m)) return "rotacija";
+  if (/ako|uvjet|condition|if\s*\(/i.test(m)) return "uvjet";
+  return null;
+}
+
 function selectRelevantFormulas(
-  allFormulas: Array<{ formula: string; source: string }>,
+  allFormulas: Array<{ formula: string; source: string; type?: string }>,
   sessionCtx: SessionContext | null | undefined,
   userMessage: string,
   limit = 250,
-): Array<{ formula: string; source: string }> {
-  const module = sessionCtx?.moduleHint ?? null;
+): Array<{ formula: string; source: string; type?: string }> {
+  const liveModule = sessionCtx?.moduleHint ?? null;
+
+  // Detect keyword-based module hint when Live mod is not active
+  let keywordModule: string | null = null;
+  if (!liveModule && userMessage) {
+    for (const entry of KEYWORD_MODULE_MAP) {
+      if (entry.keywords.test(userMessage)) {
+        keywordModule = entry.module;
+        break;
+      }
+    }
+  }
+  const activeModule = liveModule ?? keywordModule;
 
   const screenParams = new Set<string>();
   for (const p of sessionCtx?.parametersSeen ?? []) screenParams.add(p.name);
@@ -288,11 +324,11 @@ function selectRelevantFormulas(
   }
 
   const questionParams = extractParamNames(userMessage);
+  const queryIntent = detectQueryIntent(userMessage);
 
-  const hasContext = module !== null || screenParams.size > 0 || questionParams.size > 0;
+  const hasContext = activeModule !== null || screenParams.size > 0 || questionParams.size > 0;
 
   if (!hasContext) {
-    // No context — use previous behaviour: hierarchical first, then rest
     const hierarchical = allFormulas.filter((f) => /\[\.+/.test(f.formula));
     const rest = allFormulas.filter((f) => !/\[\.+/.test(f.formula));
     return [...hierarchical, ...rest].slice(0, limit);
@@ -300,13 +336,20 @@ function selectRelevantFormulas(
 
   const scored = allFormulas.map((f) => {
     let score = 0;
-    if (module && f.source === module) score += 20;
+    // Module match: Live-detected gets +20, keyword-detected gets +15
+    if (liveModule && f.source === liveModule) score += 20;
+    else if (keywordModule && f.source === keywordModule) score += 15;
+    // Screen parameters
     for (const p of screenParams) {
       if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 5;
     }
+    // Question parameters
     for (const p of questionParams) {
       if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 3;
     }
+    // Formula type matches detected query intent
+    if (queryIntent && f.type === queryIntent) score += 4;
+    // Hierarchy reference bonus
     if (/\[\.+/.test(f.formula)) score += 1;
     return score;
   });
@@ -340,18 +383,43 @@ function buildSystemPrompt(
   // always appear in the top-80 window regardless of global frequency.
   const visibleParamNames = new Set(sessionCtx?.parametersSeen?.map(p => p.name) ?? []);
 
-  const topParams = ((kb.parameters ?? []) as Array<{ name: string; description: string; typical_values: string[] }>)
-    .slice() // don't mutate the original array
+  // Category groups for parameter display — ordered by purpose
+  const PARAM_CATEGORIES: Record<string, string[]> = {
+    "DIMENZIJSKI":  ["T", "W", "L", "D", "H"],
+    "POZICIJSKI":   ["X", "Y", "Z"],
+    "ROTACIJSKI":   ["Rx", "Ry", "Rz", "KZ", "KT"],
+  };
+  const categorised = new Set(Object.values(PARAM_CATEGORIES).flat());
+
+  const sortedParams = ((kb.parameters ?? []) as Array<{ name: string; description: string; typical_values: string[] }>)
+    .slice()
     .sort((a, b) => {
       const aScore = (visibleParamNames.has(a.name) ? 500 : 0) + (formulaParamFreq.get(a.name) ?? 0);
       const bScore = (visibleParamNames.has(b.name) ? 500 : 0) + (formulaParamFreq.get(b.name) ?? 0);
       return bScore - aScore;
-    })
-    .slice(0, 80)
-    .map(p =>
-      `${p.name}${p.description ? ` — ${p.description}` : ""}${p.typical_values?.length ? ` (tipično: ${p.typical_values.join(", ")})` : ""}`
-    )
-    .join("\n");
+    });
+
+  // Build a categorised display: fixed groups first, then top modular params
+  const formatParam = (p: { name: string; description: string; typical_values: string[] }) =>
+    `${p.name}${p.description ? ` — ${p.description}` : ""}${p.typical_values?.length ? ` (tipično: ${p.typical_values.join(", ")})` : ""}`;
+
+  const paramsByName = new Map(sortedParams.map(p => [p.name, p]));
+  const paramLines: string[] = [];
+
+  for (const [cat, names] of Object.entries(PARAM_CATEGORIES)) {
+    const rows = names.map(n => paramsByName.get(n)).filter(Boolean);
+    if (rows.length) paramLines.push(`[${cat}] ${rows.map(p => formatParam(p!)).join(" | ")}`);
+  }
+
+  // Remaining top params not in fixed categories (up to 80 total slots)
+  const remaining = sortedParams
+    .filter(p => !categorised.has(p.name))
+    .slice(0, 80 - Object.values(PARAM_CATEGORIES).flat().length);
+  if (remaining.length) {
+    paramLines.push(`[MODULARNI]\n${remaining.map(formatParam).join("\n")}`);
+  }
+
+  const topParams = paramLines.join("\n");
 
   const allFormulas: Array<{ formula: string; source: string }> = kb.formulas ?? [];
   const relevantFormulas = selectRelevantFormulas(allFormulas, sessionCtx, userMessage);
@@ -359,10 +427,12 @@ function buildSystemPrompt(
     .map((f: { formula: string; source: string }) => `${f.formula}  [iz: ${f.source}]`)
     .join("\n");
 
-  // Faza D: include learned entries from knowledge base
-  const learnedFormulas: Array<{ formula: string; source: string }> = kb.learned?.formulas ?? [];
-  const learnedParams: Array<{ name: string; description: string; source: string }> = kb.learned?.parameters ?? [];
-  const learnedObs: Array<{ text: string }> = kb.learned?.observations ?? [];
+  // Faza D: include learned entries from knowledge base (new structure: confirmed_formulas/confirmed_patterns/observations)
+  const learnedFormulas: Array<{ formula: string; source: string }> =
+    kb.learned?.confirmed_formulas ?? kb.learned?.formulas ?? [];
+  const learnedParams: Array<{ name: string; description?: string; pattern?: string }> =
+    kb.learned?.confirmed_patterns ?? kb.learned?.parameters ?? [];
+  const learnedObs: Array<{ note?: string; text?: string }> = kb.learned?.observations ?? [];
 
   const parts = [
     `Ti si MegaTischler parametarski asistent za formule.
@@ -410,7 +480,12 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
   if (sessionCtx && (sessionCtx.parametersSeen?.length || sessionCtx.formulasSeen?.length || sessionCtx.summary)) {
     const ctxLines: string[] = [`\nTRENUTNI KONTEKST EKRANA (Live mod):`];
     if (sessionCtx.summary) ctxLines.push(`Ekran: ${sessionCtx.summary}`);
-    if (sessionCtx.moduleHint) ctxLines.push(`Modul: ${sessionCtx.moduleHint}`);
+    if (sessionCtx.moduleHint) {
+      // Inject module description from kb.modules if available
+      const moduleDef = ((kb as unknown as Record<string, unknown>).modules as Array<{ name: string; opis: string }> | undefined)
+        ?.find(m => m.name === sessionCtx.moduleHint);
+      ctxLines.push(`Modul: ${sessionCtx.moduleHint}${moduleDef ? ` — ${moduleDef.opis}` : ""}`);
+    }
     if (sessionCtx.dialogType && sessionCtx.dialogType !== "none") {
       ctxLines.push(`Tip dijaloga: ${sessionCtx.dialogType}`);
     }
@@ -456,12 +531,16 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
   }
 
   if (learnedParams.length > 0) {
-    const lp = learnedParams.slice(0, 20).map(p => `${p.name}${p.description ? ` — ${p.description}` : ""}`).join("\n");
-    parts.push(`\nNAUČENI PARAMETRI IZ SESSIJA:\n${lp}`);
+    const lp = learnedParams.slice(0, 20).map(p =>
+      p.pattern
+        ? `${p.name} — ${p.description ?? ""}: ${p.pattern}`
+        : `${p.name}${p.description ? ` — ${p.description}` : ""}`
+    ).join("\n");
+    parts.push(`\nNAUČENI OBRASCI IZ SESSIJA:\n${lp}`);
   }
 
   if (learnedObs.length > 0) {
-    const lo = learnedObs.slice(0, 10).map(o => `- ${o.text}`).join("\n");
+    const lo = learnedObs.slice(0, 10).map(o => `- ${o.note ?? o.text ?? ""}`).join("\n");
     parts.push(`\nZABILJEŠKE IZ SESSIJA:\n${lo}`);
   }
 
