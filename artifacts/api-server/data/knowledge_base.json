@@ -11787,5 +11787,3681 @@
   ],
   "_meta": {
     "files_processed": 13
-  }
+  },
+  "elements": [
+    {
+      "key": "1VEZH2_PSXX",
+      "description": "VEZ HORIZONTALNI - kant 2 — Prednji/Donji Stražnji/Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGH2_PXXD",
+      "description": "PREGRADA HORIZONTALNA - kant 2 — Prednji Desni",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZV1_XSXX",
+      "description": "VEZ VERTIKALNI - kant 1 — Stražnji/Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2POL1_PXXX",
+      "description": "POLICA - kant 1 — Prednji",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZV1_PXXX",
+      "description": "VEZ VERTIKALNI - kant 1 — Prednji/Desni",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZV2_PSXX",
+      "description": "VEZ VERTIKALNI - kant 2 — Prednji/Desni Stražnji/Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "2PREG1_PXXX",
+      "description": "PREGRADA - kant 1 — Prednji",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGH1_PXXX",
+      "description": "PREGRADA HORIZONTALNA - kant 1 — Prednji",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGH2_PXLX",
+      "description": "PREGRADA HORIZONTALNA - kant 2 — Prednji Lijevi",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGV1_PXXX",
+      "description": "PREGRADA VERTIKALNA- kant 1 — Prednji",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "3LADPZ1_XGXX",
+      "description": "LADICA PREDNJI I ZADNJI - kant 1 — Gornji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADPODP1_XSXX",
+      "description": "LADICA POD - kant 1 — Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADPODP1_PXXX",
+      "description": "LADICA POD - kant 1 — Prednji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADPODP2_PSXX",
+      "description": "LADICA POD - kant 2 — Prednji Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADPRE1_XGXX",
+      "description": "LADICA PREDNJI - kant 1 — Gornji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "7OBES_PAL_O",
+      "description": "PALICA ZA VJEŠANJE OKRUGLA",
+      "category": "Razno",
+      "material": "Okova/profil"
+    },
+    {
+      "key": "1LED_FF",
+      "description": "LEĐA FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "7OBES_PAL_U",
+      "description": "PALICA ZA VJEŠANJE OVALNA",
+      "category": "Razno",
+      "material": "Okova/profil"
+    },
+    {
+      "key": "1LED_FM",
+      "description": "LEĐA FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1LED_MAS",
+      "description": "LEĐA MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1LED_MDF",
+      "description": "LEĐA MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "1MS_FF",
+      "description": "MASKA FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1MS",
+      "description": "MASKA",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1MS_FM",
+      "description": "MASKA FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "7PRAL_U20X20X2",
+      "description": "PROFIL ALUMINIJSKI 20 x 20 x 2",
+      "category": "Razno",
+      "material": "Alu profil"
+    },
+    {
+      "key": "1MS_MDF",
+      "description": "MASKA MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "4RUC_AL_1",
+      "description": "RUČKICA LETVASTA AL 1",
+      "category": "Fronta",
+      "material": "Alu ručka 19mm"
+    },
+    {
+      "key": "1MS_MAS",
+      "description": "MASKA MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1POD_FF",
+      "description": "POD FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "7VIJM_1",
+      "description": "VIJENAC MASIV - PROFIL 1",
+      "category": "Razno",
+      "material": "Masiv",
+      "mac": "Profili\\Stilski 1 - vijenac.MAC"
+    },
+    {
+      "key": "1POD_MDF",
+      "description": "POD MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "7VIJM_2",
+      "description": "VIJENAC MASIV - PROFIL 2",
+      "category": "Razno",
+      "material": "Masiv",
+      "mac": "Profili\\Stilski 2 - vijenac.MAC"
+    },
+    {
+      "key": "7VIJM_3",
+      "description": "VIJENAC MASIV - PROFIL 3",
+      "category": "Razno",
+      "material": "Masiv",
+      "mac": "Profili\\Stilski 3 - vijenac.MAC"
+    },
+    {
+      "key": "1POD",
+      "description": "POD",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7IOD_VODD2_G2L",
+      "description": "IN_OUT DRIVE VODILICA DONJA DVOSTRUKA — ger Lijevo 2 istostrano",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_VERTSL",
+      "description": "IN_OUT DRIVE VERTIKALA ŠIROKA LIJEVA",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "1POD_FM",
+      "description": "POD FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1POD_MAS",
+      "description": "POD MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "2PREGH4_PSLD",
+      "description": "PREGRADA HORIZONTALNA - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7IOD_VODD2_G2D",
+      "description": "IN_OUT DRIVE VODILICA DONJA DVOSTRUKA — ger Desno 2 istostrano",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "2PREGH3_PXLD",
+      "description": "PREGRADA HORIZONTALNA - kant 3 — Prednji Lijevi Desni",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGV4_PSLD",
+      "description": "PREGRADA VERTIKALNA- kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGH_S",
+      "description": "PREGRADA HORIZONTALNA STAKLENA",
+      "category": "Unutrašnjost",
+      "material": "Staklo 10mm"
+    },
+    {
+      "key": "2PREGH3_XSLD",
+      "description": "PREGRADA HORIZONTALNA - kant 3 — Stražnji Lijevi Desni",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2POL4",
+      "description": "POLICA - kant 4",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "3LADPODP4",
+      "description": "LADICA POD - kant 4",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "1ST",
+      "description": "STROP",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "3LADPRE4",
+      "description": "LADICA PREDNJI - kant 4",
+      "category": "Ladica",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "3LADSTR4",
+      "description": "LADICA STRANICA - kant 4",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADZAD4",
+      "description": "LADICA ZADNJI - kant 4",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "1VEZH4",
+      "description": "VEZ HORIZONTALNI - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "9SPOJ_PROFIL",
+      "description": "SPOJNI PROFIL",
+      "category": "Okov",
+      "material": "VO_SPROF_30C 25mm"
+    },
+    {
+      "key": "1ST_FF",
+      "description": "STROP FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1ST_FM",
+      "description": "STROP FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1ST_MAS",
+      "description": "STROP MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1ST_MDF",
+      "description": "STROP MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "1STRD",
+      "description": "STRANICA DESNA",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODG4_PSLD",
+      "description": "PODNOŽJE GORE - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR2_PXDX",
+      "description": "STRANICA - kant 2 — Prednji Donji",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "5PODG_",
+      "description": "PODNOŽJE GORE",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR2_PSXX",
+      "description": "STRANICA - kant 2 — Prednji Stražnji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR3_PXDG",
+      "description": "STRANICA - kant 3 — Prednji Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1STR3_PSXG",
+      "description": "STRANICA - rub 3 — Prednji Stražnji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR3_PSDX",
+      "description": "STRANICA - kant 3 — Prednji Stražnji Donji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODG1_XSXX",
+      "description": "PODNOŽJE GORE - kant 1 — Stražnji",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STRFF1_PXXX",
+      "description": "STRANICA FURNIR - kant furnir 1 — Prednji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODG2_XSLX",
+      "description": "PODNOŽJE GORE - kant 2 — Stražnji Lijevi",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7VS_VERTO",
+      "description": "VOLPATO STILI  VERTIKALA  OTVORENA",
+      "category": "Razno",
+      "material": "VS_MNPVAL09 25mm"
+    },
+    {
+      "key": "5PODG2_XSXD",
+      "description": "PODNOŽJE GORE - kant 2 — Stražnji Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7PODG4_PSLD",
+      "description": "POD - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Razno",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "2PREGH",
+      "description": "PREGRADA HORIZONTALNA",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7IOD_HORD",
+      "description": "IN_OUT DRIVE HORIZONTALA DONJA",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_HORS",
+      "description": "IN_OUT DRIVE HORIZONTALA SREDNJA",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_HORG",
+      "description": "IN_OUT DRIVE HORIZONTALA GORNJA",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_UKLP",
+      "description": "IN_OUT DRIVE UKLADA PUNA",
+      "category": "Razno",
+      "material": "Iveral 10mm"
+    },
+    {
+      "key": "7IOD_UKLS4",
+      "description": "IN_OUT DRIVE UKLADA STAKLO 4 MM",
+      "category": "Razno",
+      "material": "Staklo 4mm"
+    },
+    {
+      "key": "7IOD_UKLZ6",
+      "description": "IN_OUT DRIVE UKLADA ZRCALO 6 MM",
+      "category": "Razno",
+      "material": "5ZRCALO-06 6mm"
+    },
+    {
+      "key": "7IOD_BRT4",
+      "description": "IN_OUT DRIVE BRTVA 4 MM",
+      "category": "Razno",
+      "material": "Vodilica 1,5mm"
+    },
+    {
+      "key": "7IOD_BRT6",
+      "description": "IN_OUT DRIVE BRTVA 6 MM",
+      "category": "Razno",
+      "material": "Vodilica 1,5mm"
+    },
+    {
+      "key": "5PODN_OTP26",
+      "description": "PODNOŽJE OTPRESAK 260 MM",
+      "category": "Podnožje",
+      "material": "9OTPR_P26KDZ 19mm"
+    },
+    {
+      "key": "2PREGV_",
+      "description": "PREGRADA VERTIKALNA",
+      "category": "Unutrašnjost",
+      "material": "MDF 25mm"
+    },
+    {
+      "key": "7VS_VERTP",
+      "description": "VOLPATO STILI  VERTIKALA POKROV",
+      "category": "Razno",
+      "material": "VS_MNSL"
+    },
+    {
+      "key": "7VS_VERT",
+      "description": "VOLPATO STILI  VERTIKALA",
+      "category": "Razno",
+      "material": "VS_MNPVAL09 25mm"
+    },
+    {
+      "key": "Z_LUCNI_FIKT",
+      "description": "LUCNI GRANICE FIKTIVNI",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "7VS_GARDC",
+      "description": "VOLPATO STILI  GARDEROBNA CIJEV",
+      "category": "Razno",
+      "material": "VS_MNKT02PL_09 15mm"
+    },
+    {
+      "key": "6RPLO_",
+      "description": "RADNA PLOČA — Stražnji",
+      "category": "Pultovi",
+      "material": "1RP38_0600 38mm"
+    },
+    {
+      "key": "Z_VS_VERT",
+      "description": "VOLPATO STILI VERTIKALA FIKTIVNI",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9VS_VERT 1mm"
+    },
+    {
+      "key": "1STRD_FF",
+      "description": "STRANICA DESNA FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRD_FM",
+      "description": "STRANICA DESNA FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRD_MAS",
+      "description": "STRANICA DESNA MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1STRD_MDF",
+      "description": "STRANICA DESNA MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADPRE1_DXXX",
+      "description": "LADICA PREDNJI - kant 1 — Donji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADSTR3_XGPS",
+      "description": "LADICA STRANICA - kant 3 — Gornji Prednji Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADPRE2_DGXX",
+      "description": "LADICA PREDNJI - kant 2 — Donji Gornji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADSTR2_XGXS",
+      "description": "LADICA STRANICA - kant 2 — Gornji Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADSTR3_DGXS",
+      "description": "LADICA STRANICA - kant 3 — Donji Gornji Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADZAD2_DGXX",
+      "description": "LADICA ZADNJI - kant 2 — Donji Gornji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADZAD1_XGXX",
+      "description": "LADICA ZADNJI - kant 1 — Gornji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADZAD1_DXXX",
+      "description": "LADICA ZADNJI - kant 1 — Donji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "4KV_LOKD",
+      "description": "KLIZNA VRATA LO KRILO DONJI PROFIL",
+      "category": "Fronta",
+      "material": "4KVLO_KD 15,6mm"
+    },
+    {
+      "key": "4KV_LOKG",
+      "description": "KLIZNA VRATA LO KRILO GORNJI PROFIL",
+      "category": "Fronta",
+      "material": "4KVLO_KG 15,6mm"
+    },
+    {
+      "key": "4KV_LOKS",
+      "description": "KLIZNA VRATA LO KRILO SREDNJI PROFIL",
+      "category": "Fronta",
+      "material": "4KVLO_KS 16,2mm"
+    },
+    {
+      "key": "4KV_LOKV",
+      "description": "KLIZNA VRATA LO KRILO VERTIKALNI PROFIL",
+      "category": "Fronta",
+      "material": "4KVLO_KV 22mm"
+    },
+    {
+      "key": "4KV_LOVDN2",
+      "description": "KLIZNA VRATA LO VODILICA DONJA NALJEPNA 2",
+      "category": "Fronta",
+      "material": "4KVLO_VDN2 8,4mm"
+    },
+    {
+      "key": "4KV_LOVG2",
+      "description": "KLIZNA VRATA LO VODILICA GORNJA 2",
+      "category": "Fronta",
+      "material": "4KVLO_VG2 45mm"
+    },
+    {
+      "key": "4OBRT_AL",
+      "description": "BRTVA OKVIRA AL",
+      "category": "Fronta",
+      "material": "4BRTVA 1mm"
+    },
+    {
+      "key": "4OPOP_AL_S1",
+      "description": "POPREČNICA OKVIRA AL-S1",
+      "category": "Fronta",
+      "material": "4ALOKV_S1 20,6mm"
+    },
+    {
+      "key": "6RPLO_BUK",
+      "description": "RADNA PLOČA — Stražnji",
+      "category": "Pultovi",
+      "material": "Iveral 38mm"
+    },
+    {
+      "key": "1STRL",
+      "description": "STRANICA LIJEVA",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4OPOP_AL_S3",
+      "description": "POPREČNICA OKVIRA AL-S3",
+      "category": "Fronta",
+      "material": "4ALOKV_S3 20,6mm"
+    },
+    {
+      "key": "1STRL_FF",
+      "description": "STRANICA LIJEVA FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "7PALICA_BRAV",
+      "description": "PALICA ZA 3 ZAPORNu BRAVICU",
+      "category": "Razno",
+      "material": "HA_226_07_209"
+    },
+    {
+      "key": "4OPOP_AL_S6",
+      "description": "POPREČNICA OKVIRA AL-S6",
+      "category": "Fronta",
+      "material": "4ALOKV_S6 20,6mm"
+    },
+    {
+      "key": "4OPOP_MDF",
+      "description": "POPREČNICA OKVIRA MDF",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "Z_GAB_XY",
+      "description": "GABARITNI XY KVADAR ZA KONSTRUIRANJE",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9GAB_XY 5mm"
+    },
+    {
+      "key": "1--",
+      "description": "KORPUS",
+      "category": "Korpus"
+    },
+    {
+      "key": "1LED_",
+      "description": "LEĐA",
+      "category": "Korpus",
+      "material": "Iveral 8mm"
+    },
+    {
+      "key": "1LEDP",
+      "description": "LEĐA PUNA",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDT",
+      "description": "LEĐA TANKA",
+      "category": "Korpus",
+      "material": "1HFH03 3,2mm"
+    },
+    {
+      "key": "3LAD_NS",
+      "description": "LADICE STRANICA UNUTARNJA",
+      "category": "Ladica",
+      "material": "GR_F102105358 8mm"
+    },
+    {
+      "key": "1LEDP4_DLDG",
+      "description": "LEĐA PUNA - kant 4 — Desni Lijevi Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4OUKL_MDF",
+      "description": "UKLADA OKVIRA MDF",
+      "category": "Fronta",
+      "material": "MDF 4mm"
+    },
+    {
+      "key": "6RPLO1_XSXX",
+      "description": "RADNA PLOČA - kant 1 — Stražnji",
+      "category": "Pultovi",
+      "material": "EG_F187ST9_40 38mm"
+    },
+    {
+      "key": "1POD4_PSLD",
+      "description": "POD - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1ST_",
+      "description": "STROP",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1STRL_FM",
+      "description": "STRANICA LIJEVA FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "6RPLO2_XSLX",
+      "description": "RADNA PLOČA - kant 2 — Stražnji Lijevi",
+      "category": "Pultovi",
+      "material": "Iveral 38mm"
+    },
+    {
+      "key": "7PR_LETVA",
+      "description": "PRIČVRSNA LETVA",
+      "category": "Razno",
+      "material": "MDF 5mm"
+    },
+    {
+      "key": "1ST4_PSLD",
+      "description": "STROP - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR_",
+      "description": "STRANICA",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1STR_MAS",
+      "description": "STRANICA MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1STR_MDF",
+      "description": "STRANICA MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "7IOD_VODD2",
+      "description": "IN_OUT DRIVE VODILICA DONJA DVOSTRUKA",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_VODG2",
+      "description": "IN_OUT DRIVE VODILICA GORNJA DVOSTRUKA",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_VODD2_GL",
+      "description": "IN_OUT DRIVE VODILICA DONJA DVOSTRUKA — ger Lijevo",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_VODD2_GD",
+      "description": "IN_OUT DRIVE VODILICA DONJA DVOSTRUKA GER D — ger Desno",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_VODD2_G2",
+      "description": "IN_OUT DRIVE VODILICA DONJA DVOSTRUKA — ger Lijevo i Desno",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7PS_PROF_L",
+      "description": "PREGRADNE STIJENE - L PROFIL",
+      "category": "Razno",
+      "material": "4PS-L 36mm"
+    },
+    {
+      "key": "7OBLFF4_PSDG",
+      "description": "OBLOGA FURNIR - kant furnir 4 — Prednji Stražnji Donji Gornji",
+      "category": "Razno",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7PS_PROF_U",
+      "description": "PREGRADNE STIJENE - U PROFIL",
+      "category": "Razno",
+      "material": "4PS-U 16,5mm"
+    },
+    {
+      "key": "1STRL_MAS",
+      "description": "STRANICA LIJEVA MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "3LAD_SYN_ST",
+      "description": "LADICA SYNHRO PALICA",
+      "category": "Ladica"
+    },
+    {
+      "key": "7RLED_PO_LOOX",
+      "description": "POKROV KANALICE ZA LED LOOX",
+      "category": "Razno",
+      "material": "4LED_LOOP 40mm"
+    },
+    {
+      "key": "3LAD_PR_REL",
+      "description": "LADICE PREČNI RELING",
+      "category": "Ladica"
+    },
+    {
+      "key": "7PS_PROF_H",
+      "description": "PREGRADNE STIJENE - H PROFIL",
+      "category": "Razno",
+      "material": "4PS-H 40mm"
+    },
+    {
+      "key": "7LED_POKROV",
+      "description": "LED POKROV KANALICE",
+      "category": "Razno",
+      "material": "SO_MX_SOM1"
+    },
+    {
+      "key": "7PS_PROF_H_GG",
+      "description": "PREGRADNE STIJENE - H PROFIL — Ger lijevo - Ger desno",
+      "category": "Razno",
+      "material": "4PS-H 40mm"
+    },
+    {
+      "key": "3LAD_STAK08",
+      "description": "LADICA STAKLO",
+      "category": "Ladica",
+      "material": "Staklo 8mm"
+    },
+    {
+      "key": "7PS_PROF_H_GR",
+      "description": "PREGRADNE STIJENE - H PROFIL — Ger lijevo - Ravno desno",
+      "category": "Razno",
+      "material": "4PS-H 40mm"
+    },
+    {
+      "key": "7RLED_UK_LOOX",
+      "description": "KANALICA UKOPNA ZA LED LOOX",
+      "category": "Razno",
+      "material": "4LED_LOOUK 40mm"
+    },
+    {
+      "key": "7PS_PROF_H_RG",
+      "description": "PREGRADNE STIJENE - H PROFIL — Ravno lijevo - Ger desno",
+      "category": "Razno",
+      "material": "4PS-H 40mm"
+    },
+    {
+      "key": "7LED_KANAL_UK",
+      "description": "LED KANALICA UKOPNA",
+      "category": "Razno",
+      "material": "SO_MX_SO07NB"
+    },
+    {
+      "key": "1MS_",
+      "description": "MASKA",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7IOD_VODG2_G2",
+      "description": "IN_OUT DRIVE VODILICA GORNJA DVOSTRUKA — ger Lijevo i Desno",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "1STRL_MDF",
+      "description": "STRANICA LIJEVA MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "1STR4_PSDG",
+      "description": "STRANICA - kant 4 — Prednji Stražnji Gornji Donji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STRF",
+      "description": "STRANICA FURNIR",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZH",
+      "description": "VEZ HORIZONTALNI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZH_FF",
+      "description": "VEZ HORIZONTALNI FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZH_FM",
+      "description": "VEZ HORIZONTALNI FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFF4_PSDG",
+      "description": "STRANICA FURNIR - kant furnir 4 — Prednji Stražnji Donji Gornji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZH_MAS",
+      "description": "VEZ HORIZONTALNI MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1VEZH_MDF",
+      "description": "VEZ HORIZONTALNI MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "1VEZV",
+      "description": "VEZ VERTIKALNI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZV_FM",
+      "description": "VEZ VERTIKALNI FURNIR - kant masiv",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZV_FF",
+      "description": "VEZ VERTIKALNI FURNIR - kant furnir",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "2PREG2_PSXX",
+      "description": "PREGRADA - kant 2 — Prednji Stražnji",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STRFM4_PSDG",
+      "description": "STRANICA FURNIR - kant masiv 4 — Prednji Stražnji Donji Gornji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZ_",
+      "description": "VEZ",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR2_XXDG",
+      "description": "STRANICA - kant 2 — Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZV_MAS",
+      "description": "VEZ VERTIKALNI MASIV",
+      "category": "Korpus",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "7PRAL_L40X20X2",
+      "description": "PROFIL ALUMINIJSKI L 40 x 20 x 2",
+      "category": "Razno",
+      "material": "9PL_40_20_2"
+    },
+    {
+      "key": "1VEZV_MDF",
+      "description": "VEZ VERTIKALNI MDF",
+      "category": "Korpus",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "2POL_ST",
+      "description": "POLICA STAKLO",
+      "category": "Unutrašnjost",
+      "material": "Staklo 10mm"
+    },
+    {
+      "key": "2--",
+      "description": "UNUTRAŠNJOST",
+      "category": "Unutrašnjost"
+    },
+    {
+      "key": "2POL4_PSLD",
+      "description": "POLICA - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7RLED_UK_DIVA",
+      "description": "KANALICA UKOPNA ZA LED DIVA",
+      "category": "Razno",
+      "material": "4LED_DIVUK 40mm"
+    },
+    {
+      "key": "Z_KUHAP",
+      "description": "KUHINJSKI APARATI",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "7RLED_PO_DIVA",
+      "description": "POKROV KANALICE ZA LED DIVA",
+      "category": "Razno",
+      "material": "4LED_DIVP 40mm"
+    },
+    {
+      "key": "Z_HLAC",
+      "description": "HLAČNIK",
+      "category": "Fiktivni (ne ispisuje se)"
+    },
+    {
+      "key": "3LAD_STAK10",
+      "description": "LADICA STAKLO",
+      "category": "Ladica",
+      "material": "Staklo 10mm"
+    },
+    {
+      "key": "3--",
+      "description": "LADICA",
+      "category": "Ladica"
+    },
+    {
+      "key": "3LADPOD_",
+      "description": "LADICA POD",
+      "category": "Ladica",
+      "material": "1HFH04 4mm"
+    },
+    {
+      "key": "Z_LADPOD_FIKT",
+      "description": "LADICA POD FIKTIVNI",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "3LADPOD_LIM",
+      "description": "LADICA POD LIM",
+      "category": "Ladica",
+      "material": "5LIM-1 1mm"
+    },
+    {
+      "key": "3LADPODP",
+      "description": "LADICA POD PUNI",
+      "category": "Ladica",
+      "material": "EG_W960ST7_16 16mm"
+    },
+    {
+      "key": "BLOK",
+      "description": "za izradu blokova",
+      "category": "Ostalo"
+    },
+    {
+      "key": "2POLS_",
+      "description": "POLICA - STAKLO",
+      "category": "Unutrašnjost",
+      "material": "Staklo 10mm"
+    },
+    {
+      "key": "7LET_MAS_P",
+      "description": "LETVA MASIV - poprečna",
+      "category": "Razno",
+      "material": "Masiv"
+    },
+    {
+      "key": "3LADPODP4_PSLD",
+      "description": "LADICA POD - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "2POL",
+      "description": "POLICA",
+      "category": "Unutrašnjost",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "4VRAOM4_DLDG",
+      "description": "VRATA OBLOGA  - masiv kant 4 — Desno Lijevo Dolje Gore",
+      "category": "Fronta",
+      "material": "Furniran iveral 16mm"
+    },
+    {
+      "key": "3LADPRE4_DGLD",
+      "description": "LADICA PREDNJI - kant 4 — Donji Gornji Lijevi Desni",
+      "category": "Ladica",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7OKV_AL",
+      "description": "OKVIR ALUMINIJSKI",
+      "category": "Razno",
+      "material": "4ALOKV_US 20mm"
+    },
+    {
+      "key": "3LADSTR3_-GPS",
+      "description": "LADICA STRANICA - kant 3 — Gornji Prednji Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADSTR4_DGPS",
+      "description": "LADICA STRANICA - kant 4 — Donji Gornji Prednji Stražnji",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "2POL_FF",
+      "description": "POLICA FURNIR - kant furnir",
+      "category": "Unutrašnjost",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "2POL_FM",
+      "description": "POLICA FURNIR - kant masiv",
+      "category": "Unutrašnjost",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADZAD4_DGLD",
+      "description": "LADICA ZADNJI - kant 4 — Donji Gornji Lijevi Desni",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LET_IP",
+      "description": "LETVICA IZVLAČNE POLICE",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3REL_KUT",
+      "description": "LADICA RELIG KUTNIK",
+      "category": "Ladica",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "3REL_PAL",
+      "description": "LADICA RELIG PALICA",
+      "category": "Ladica",
+      "material": "BL_ZRG_1104U 5mm"
+    },
+    {
+      "key": "4--",
+      "description": "FRONTA",
+      "category": "Fronta"
+    },
+    {
+      "key": "4CEL4_DLDG",
+      "description": "ČELO LADICE - kant 4 — Desno Lijevo Dolje Gore",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4MAS4_DLDG",
+      "description": "MASKA - kant 4 — Desno Lijevo Dolje Gore",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "3LADPODT",
+      "description": "LADICA POD TANKI",
+      "category": "Ladica",
+      "material": "1HFH04 4mm"
+    },
+    {
+      "key": "2POL_MAS",
+      "description": "POLICA MASIV",
+      "category": "Unutrašnjost",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "4VRA4_DLDG",
+      "description": "VRATA - kant 4 — Desno Lijevo Dolje Gore",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5--",
+      "description": "PODNOŽJE",
+      "category": "Podnožje"
+    },
+    {
+      "key": "7IOD_VODG2_GD",
+      "description": "IN_OUT DRIVE VODILICA GORNJA DVOSTRUKA — ger Desno",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "2POL_MDF",
+      "description": "POLICA MDF",
+      "category": "Unutrašnjost",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "2PREGH_FF",
+      "description": "PREGRADA HORIZONTALNA FURNIR - kant furnir",
+      "category": "Unutrašnjost",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODN_",
+      "description": "PODNOŽJE NAPRIJED",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGH_FM",
+      "description": "PREGRADA HORIZONTALNA FURNIR - kant masiv",
+      "category": "Unutrašnjost",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADZAD",
+      "description": "LADICA ZADNJI",
+      "category": "Ladica",
+      "material": "EG_W960ST7_16 16mm"
+    },
+    {
+      "key": "2PREGH_MAS",
+      "description": "PREGRADA HORIZONTALNA MASIV",
+      "category": "Unutrašnjost",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "2PREGH_MDF",
+      "description": "PREGRADA HORIZONTALNA MDF",
+      "category": "Unutrašnjost",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "2PREGV",
+      "description": "PREGRADA VERTIKALNA",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGV_FF",
+      "description": "PREGRADA VERTIKALNA FURNIR - kant furnir",
+      "category": "Unutrašnjost",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "6--",
+      "description": "PULTOVI",
+      "category": "Pultovi"
+    },
+    {
+      "key": "6KUTLET",
+      "description": "KUTNA LETVA",
+      "category": "Pultovi",
+      "material": "4KUTPLO 25mm"
+    },
+    {
+      "key": "6KUTLET_KU",
+      "description": "KUTNA LETVA - KUTNIK UNUTARNJI",
+      "category": "Pultovi",
+      "material": "4KUTPLO_KU 25mm"
+    },
+    {
+      "key": "6KUTLET_KV",
+      "description": "KUTNA LETVA - KUTNIK VANJSKI",
+      "category": "Pultovi",
+      "material": "4KUTPLO_KV 20mm"
+    },
+    {
+      "key": "6KUTLET_ZD",
+      "description": "KUTNA LETVA - ZAVRŠETAK DESNI",
+      "category": "Pultovi",
+      "material": "4KUTPLO_ZD 25mm"
+    },
+    {
+      "key": "6KUTLET_ZL",
+      "description": "KUTNA LETVA - ZAVRŠETAK LIJEVI",
+      "category": "Pultovi",
+      "material": "4KUTPLO_ZL 25mm"
+    },
+    {
+      "key": "7IOD_VODG2_GL",
+      "description": "IN_OUT DRIVE VODILICA GORNJA DVOSTRUKA — ger Lijevo",
+      "category": "Razno",
+      "material": "VS_MNPVXL09 25mm"
+    },
+    {
+      "key": "5PODND",
+      "description": "PODNOŽJE DESNO",
+      "category": "Podnožje",
+      "material": "VO_BIJELI_MAT_COKUL150 13mm"
+    },
+    {
+      "key": "6RPLO4_PSLD",
+      "description": "RADNA PLOČA - kant 4 — Prednji Stražnji Lijevi Desni",
+      "category": "Pultovi",
+      "material": "Iveral 38mm"
+    },
+    {
+      "key": "4OUKL_ST",
+      "description": "UKLADA OKVIRA STAKLENA",
+      "category": "Fronta",
+      "material": "Staklo 5mm"
+    },
+    {
+      "key": "7--",
+      "description": "RAZNO",
+      "category": "Razno"
+    },
+    {
+      "key": "7LET_KUTNA",
+      "description": "LETVA KUTNA",
+      "category": "Razno",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7LET_MAS",
+      "description": "LETVA MASIV",
+      "category": "Razno",
+      "material": "Masiv"
+    },
+    {
+      "key": "8--",
+      "description": "STOLARIJA",
+      "category": "Stolarija"
+    },
+    {
+      "key": "2PREGV_FM",
+      "description": "PREGRADA VERTIKALNA FURNIR - kant masiv",
+      "category": "Unutrašnjost",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "2PREGV_MAS",
+      "description": "PREGRADA VERTIKALNA MASIV",
+      "category": "Unutrašnjost",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "2PREGV_MDF",
+      "description": "PREGRADA VERTIKALNA MDF",
+      "category": "Unutrašnjost",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADPR",
+      "description": "LADICA PREDNJI",
+      "category": "Ladica",
+      "material": "EG_W960ST7_16 16mm"
+    },
+    {
+      "key": "3LADPRZAD",
+      "description": "LADICA PREDNJI-ZADNJI",
+      "category": "Ladica",
+      "material": "Iveral 16mm"
+    },
+    {
+      "key": "3LADSTRD",
+      "description": "LADICA STRANICA DESNA",
+      "category": "Ladica",
+      "material": "EG_W960ST7_16 16mm"
+    },
+    {
+      "key": "4VRA",
+      "description": "VRATA",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4VRAO_MAS",
+      "description": "VRATA OBLOGA MASIV",
+      "category": "Fronta",
+      "material": "Furniran iveral 16mm"
+    },
+    {
+      "key": "4VRA_ST",
+      "description": "VRATA STAKLENA",
+      "category": "Fronta",
+      "material": "Staklo 5mm"
+    },
+    {
+      "key": "3LADSTRL",
+      "description": "LADICA STRANICA LIJEVA",
+      "category": "Ladica",
+      "material": "EG_W960ST7_16 16mm"
+    },
+    {
+      "key": "3LADPR_MAS",
+      "description": "LADICA PREDNJI MASIV",
+      "category": "Ladica",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "4VRA_FF",
+      "description": "VRATA FURNIR - kant furnir",
+      "category": "Fronta",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "4VRA_FM",
+      "description": "VRATA FURNIR - kant masiv",
+      "category": "Fronta",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1MS1_XLXX",
+      "description": "MASKA - kant 1 — Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4VRA_MAS",
+      "description": "VRATA MASIV",
+      "category": "Fronta",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "4CEL",
+      "description": "ČELO LADICE",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4CEL_FM",
+      "description": "ČELO LADICE FURNIR - kant masiv",
+      "category": "Fronta",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1MS2_DLXX",
+      "description": "MASKA - kant 2 — Desni Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4CEL_FF",
+      "description": "ČELO LADICE FURNIR - kant furnir",
+      "category": "Fronta",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "4CEL_MAS",
+      "description": "ČELO LADICE MASIV",
+      "category": "Fronta",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "7LED_KAPICA_R",
+      "description": "LED ZAVRŠNA KAPICA RAZNA",
+      "category": "Razno",
+      "material": "4LED-KAP_R 2mm"
+    },
+    {
+      "key": "4CEL_MDF",
+      "description": "ČELO LADICE MDF",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "1MS4_DLDG",
+      "description": "MASKA - kant 4 — Desni Lijevi Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1POD_",
+      "description": "POD",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1POD1_PXXX",
+      "description": "POD - kant 1 — Prednji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4UKL_ST",
+      "description": "UKLADA STAKLENA",
+      "category": "Fronta",
+      "material": "Staklo 5mm"
+    },
+    {
+      "key": "5PODNO",
+      "description": "PODNOŽJE OTPRESAK",
+      "category": "Podnožje",
+      "material": "9OTPR 18mm"
+    },
+    {
+      "key": "7IOD_VODG2_G2L",
+      "description": "IN_OUT DRIVE VODILICA GORNJA DVOSTRUKA — ger Lijevo 2 istostrano",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "7IOD_VODG2_G2D",
+      "description": "IN_OUT DRIVE VODILICA GORNJA DVOSTRUKA — ger Desno 2 istostrano",
+      "category": "Razno",
+      "material": "Vodilica"
+    },
+    {
+      "key": "9--",
+      "description": "ELEMENTI OKOVA",
+      "category": "Okov"
+    },
+    {
+      "key": "9VJES_PAL",
+      "description": "PALICA ZA VJEŠANJE",
+      "category": "Okov",
+      "material": "9PALICA 30mm"
+    },
+    {
+      "key": "9VJES_PAL_IZVL",
+      "description": "GARDEROBNI LIFT IZVLAČNI",
+      "category": "Okov",
+      "material": "7NUT_LIFT_GAR"
+    },
+    {
+      "key": "9WI06_D",
+      "description": "WINCH 6 OTKLOPNI DESNI",
+      "category": "Okov",
+      "material": "7WI06_D 20mm"
+    },
+    {
+      "key": "9WI06_L",
+      "description": "WINCH 6 OTKLOPNI LIJEVI",
+      "category": "Okov",
+      "material": "7WI06_L 20mm"
+    },
+    {
+      "key": "9WI10_D",
+      "description": "WINCH 10 OTKLOPNI DESNI",
+      "category": "Okov",
+      "material": "7WI10_D 20mm"
+    },
+    {
+      "key": "9WI10_L",
+      "description": "WINCH 10 OTKLOPNI LIJEVI",
+      "category": "Okov",
+      "material": "7WI10_L 20mm"
+    },
+    {
+      "key": "9WI14_D",
+      "description": "WINCH 14 OTKLOPNI DESNI",
+      "category": "Okov",
+      "material": "7WI14_D 20mm"
+    },
+    {
+      "key": "9WI14_L",
+      "description": "WINCH 14 OTKLOPNI LIJEVI",
+      "category": "Okov",
+      "material": "7WI14_L 20mm"
+    },
+    {
+      "key": "9WI16_D",
+      "description": "WINCH 16 OTKLOPNI DESNI",
+      "category": "Okov",
+      "material": "7WI16_D 20mm"
+    },
+    {
+      "key": "9WI16_L",
+      "description": "WINCH 16 OTKLOPNI LIJEVI",
+      "category": "Okov",
+      "material": "7WI16_L 20mm"
+    },
+    {
+      "key": "9WI20_D",
+      "description": "WINCH 20 OTKLOPNI DESNI",
+      "category": "Okov",
+      "material": "7WI20_D 20mm"
+    },
+    {
+      "key": "9WI20_L",
+      "description": "WINCH 20 OTKLOPNI LIJEVI",
+      "category": "Okov",
+      "material": "7WI20_L 20mm"
+    },
+    {
+      "key": "K--",
+      "description": "KREVETI",
+      "category": "Kreveti"
+    },
+    {
+      "key": "K_DON4_DLDG",
+      "description": "DONOŽJE KREVETA - kant 4 — Desno Lijevo Dolje Gore",
+      "category": "Kreveti",
+      "material": "Iveral 38mm"
+    },
+    {
+      "key": "K_NOGA_M",
+      "description": "NOGA KREVETA OD MASIVA",
+      "category": "Kreveti",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "K_PRECKA_M",
+      "description": "PREČKA KREVETA OD MASIVA",
+      "category": "Kreveti",
+      "material": "Masiv 18mm"
+    },
+    {
+      "key": "K_STR4_DGLD",
+      "description": "STRANICA KREVETA - kant 4 — Dolje Gore Lijevo Desno",
+      "category": "Kreveti",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "K_UKLADA_M",
+      "description": "UKLADA KREVETA OD MASIVA",
+      "category": "Kreveti",
+      "material": "Masiv 18mm"
+    },
+    {
+      "key": "K_UZG4_DLDG",
+      "description": "UZGLAVLJE KREVETA - kant 4 — Desno Lijevo Dolje Gore",
+      "category": "Kreveti",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "T--",
+      "description": "TRGOVAČKA ROBA",
+      "category": "Trgovačka roba"
+    },
+    {
+      "key": "7VODKLIZ",
+      "description": "Vodilica kliznih vrata",
+      "category": "Razno"
+    },
+    {
+      "key": "Z--",
+      "description": "FIKTIVNI ELEMENTI - NE ISPISIVATI",
+      "category": "Fiktivni (ne ispisuje se)"
+    },
+    {
+      "key": "8VR_OSD_H",
+      "description": "OPŠAV STRAŽNJI DOVRATNIKA HORIZONTALNI",
+      "category": "Stolarija",
+      "material": "Masiv 25mm",
+      "mac": "Profili\\Vrata\\Opsava straznja.MAC"
+    },
+    {
+      "key": "8VR_OSD_V",
+      "description": "OPŠAV STRAŽNJI DOVRATNIKA VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv 25mm",
+      "mac": "Profili\\Vrata\\Opsava straznja.MAC"
+    },
+    {
+      "key": "8VR_OPD_H",
+      "description": "OPŠAV PREDNJI DOVRATNIKA HORIZONTALNI",
+      "category": "Stolarija",
+      "material": "Masiv 30mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VR_OPD_V",
+      "description": "OPŠAV PREDNJI DOVRATNIKA VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv 30mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "4OUZD_AL_S1",
+      "description": "UZDUŽNICA OKVIRA AL-S1",
+      "category": "Fronta",
+      "material": "4ALOKV_S1 20,6mm"
+    },
+    {
+      "key": "2PREGH_",
+      "description": "PREGRADA HORIZONTALNA",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VR_DOVD_V",
+      "description": "DOVRATNIK DODATNI VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv 30mm",
+      "mac": "Profili\\Vrata\\Dovratnik dodatak.MAC"
+    },
+    {
+      "key": "4OUZD_AL_S3",
+      "description": "UZDUŽNICA OKVIRA AL-S3",
+      "category": "Fronta",
+      "material": "4ALOKV_S3 20,6mm"
+    },
+    {
+      "key": "8VR_DOVD_H",
+      "description": "DOVRATNIK DODATNI HORIZONTALNI",
+      "category": "Stolarija",
+      "material": "Masiv 30mm",
+      "mac": "Profili\\Vrata\\Dovratnik dodatak.MAC"
+    },
+    {
+      "key": "5PODND_FF",
+      "description": "PODNOŽJE DESNO FURNIR - kant furnir",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "4OUZD_AL_S6",
+      "description": "UZDUŽNICA OKVIRA AL-S6",
+      "category": "Fronta",
+      "material": "4ALOKV_S6 20,6mm"
+    },
+    {
+      "key": "2PREG_",
+      "description": "PREGRADA",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZPP",
+      "description": "VEZ POPREČNI PREDNJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VR_UOD",
+      "description": "UKRAS OPŠAVE DOVRATNIKA",
+      "category": "Stolarija",
+      "material": "4LET_UOD 15mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "4OUZD_MDF",
+      "description": "UZDUŽNICA OKVIRA MDF",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "5PODND_FM",
+      "description": "PODNOŽJE DESNO FURNIR - kant masiv",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODND_MAS",
+      "description": "PODNOŽJE DESNO MASIV",
+      "category": "Podnožje",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "4UKL_STAK",
+      "description": "UKLADA STAKLENA",
+      "category": "Fronta",
+      "material": "Staklo 5mm"
+    },
+    {
+      "key": "5PODND_MDF",
+      "description": "PODNOŽJE DESNO MDF",
+      "category": "Podnožje",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "4OFRI_M",
+      "description": "FRIZ MASIV",
+      "category": "Fronta",
+      "material": "Masiv 26mm",
+      "mac": "Profili\\Friz vrata utor-pero.MAC"
+    },
+    {
+      "key": "3LADPOD08_",
+      "description": "LADICA POD 8 MM",
+      "category": "Ladica",
+      "material": "Iveral 8mm"
+    },
+    {
+      "key": "9KREV_KUT115",
+      "description": "KUTNIK KREVETA 115x115x133",
+      "category": "Okov",
+      "material": "7NOG_KUT115"
+    },
+    {
+      "key": "1ST2_PXXD",
+      "description": "STROP - kant 2 — Prednji Desni",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1POD2_PXXD",
+      "description": "POD - kant 2 — Prednji Desni",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STRFF2_PSXX",
+      "description": "STRANICA FURNIR - kant furnir 2 — Prednji Stražnji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1ST1_PXXX",
+      "description": "STROP - kant 1 — Prednji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1ST2_PXLX",
+      "description": "STROP - kant 2 — Prednji Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1POD2_PXLX",
+      "description": "POD - kant 2 — Prednji Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7LED_TRAKA",
+      "description": "LED TRAKA",
+      "category": "Razno",
+      "material": "SO_LM3014_WN120_WW_24V 3mm"
+    },
+    {
+      "key": "5PODN4_DGLD",
+      "description": "PODNOŽJE NAPRIJED - kant 4 — Donji Gornji Lijevi Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1ST2_PSXX",
+      "description": "STROP - kant 2 — Prednji Stražnji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1POD3_PXLD",
+      "description": "POD - kant 3 — Prednji Lijevi Desni",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4MAS",
+      "description": "MASKA",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1POD2_PSXX",
+      "description": "POD - kant 2 — Prednji Stražnji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1ST3_PXLD",
+      "description": "STROP - kant 3 — Prednji Lijevi Desni",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1ST3_PSLX",
+      "description": "STROP - kant 3 — Prednji Stražnji Lijevi",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "4VRA_MDF",
+      "description": "VRATA MDF",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "4VRA_STAK",
+      "description": "VRATA STAKLENA",
+      "category": "Fronta",
+      "material": "Staklo 5mm"
+    },
+    {
+      "key": "5PODB1_DXXX",
+      "description": "PODNOŽJE BOČNO - kant 1 — Donji",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODB2_DXXD",
+      "description": "PODNOŽJE BOČNO - kant 2 — Donji Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODB2_DXLX",
+      "description": "PODNOŽJE BOČNO - kant 2 — Donji Lijevi",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODB3_DXLD",
+      "description": "PODNOŽJE BOČNO - kant 3 — Donji Lijevi Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODN1_DXXX",
+      "description": "PODNOŽJE NAPRIJED - kant 1 — Donji",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODN2_DXXD",
+      "description": "PODNOŽJE NAPRIJED - kant 2 — Donji Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODN2_DXLX",
+      "description": "PODNOŽJE NAPRIJED - kant 2 — Donji Lijevi",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODN3_DXLD",
+      "description": "PODNOŽJE NAPRIJED - kant 3 — Donji Lijevi Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODS1_DXXX",
+      "description": "PODNOŽJE SREDNJE - kant 1 — Donji",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODZ1_DXXX",
+      "description": "PODNOŽJE STRAGA - kant 1 — Donji",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODZ3_DXLD",
+      "description": "PODNOŽJE STRAGA - kant 3 — Donji Lijevi Desni",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "6RPLO_SL",
+      "description": "SPOJNA LETVA ZA RADNU PLOČU",
+      "category": "Pultovi",
+      "material": "4SPOJ_LET 40mm"
+    },
+    {
+      "key": "6RPLO3_XSLD",
+      "description": "RADNA PLOČA - DUŽNA - kant 3 — Stražnji Lijevi Desni",
+      "category": "Pultovi",
+      "material": "1RP38_0000 38mm"
+    },
+    {
+      "key": "6RPLO3_PSXD",
+      "description": "RADNA PLOČA - DUŽNA - kant 3 — Prednji Stražnji Desni",
+      "category": "Pultovi",
+      "material": "1RP38_0000 38mm"
+    },
+    {
+      "key": "6RPLO3_PSLX",
+      "description": "RADNA PLOČA - DUŽNA - kant 3 — Prednji Stražnji Lijevi",
+      "category": "Pultovi",
+      "material": "1RP38_0000 38mm"
+    },
+    {
+      "key": "7PS_BRT",
+      "description": "PREGRADNE STIJENE - BRTVA",
+      "category": "Razno",
+      "material": "4PS-B 10mm"
+    },
+    {
+      "key": "7VIJ1_XDXX",
+      "description": "VIJENAC - kant 1 — Gornji",
+      "category": "Razno",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "8PRO_BRT_L",
+      "description": "BRTVA PROZORSKA \"L\"",
+      "category": "Stolarija",
+      "material": "4BRT-L7 7mm"
+    },
+    {
+      "key": "8PRO_BRT_R",
+      "description": "BRTVA PROZORSKA RAVNA",
+      "category": "Stolarija",
+      "material": "4BRT-R6 6mm"
+    },
+    {
+      "key": "8VR_DOV_H",
+      "description": "DOVRATNIK HORIZONTALNI",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8PRO_BRT_S",
+      "description": "BRTVA ZA STAKLO",
+      "category": "Stolarija",
+      "material": "4BRT-S5 5mm"
+    },
+    {
+      "key": "8PRO_DOP_H",
+      "description": "DOPROZORNIK HORIZONTALNI",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_DOP_L",
+      "description": "DOPROZORNIK LUK",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_DOP_V",
+      "description": "DOPROZORNIK VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_KRI_H",
+      "description": "KRILO HORIZONTALNI",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_KRI_L",
+      "description": "KRILO LUK",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_KRI_V",
+      "description": "KRILO VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_LET_ST",
+      "description": "LETVICA ZA STAKLO",
+      "category": "Stolarija",
+      "material": "Masiv 18mm"
+    },
+    {
+      "key": "8PRO_LET_SUD",
+      "description": "LETVICA SUDARNA",
+      "category": "Stolarija",
+      "material": "Masiv"
+    },
+    {
+      "key": "8PRO_O1LOZD",
+      "description": "OKOV 1-KRILNI LUČNI OTKLOPNO/ZAOKRETNI DESNI",
+      "category": "Stolarija",
+      "material": "6PRO1L-OZD 26mm"
+    },
+    {
+      "key": "3LADPODP_LB",
+      "description": "LADICA POD PUNI LEGRABOX",
+      "category": "Ladica",
+      "material": "EG_W960ST7_16 16mm"
+    },
+    {
+      "key": "1VEZV4_PSGD",
+      "description": "VEZ VERTIKALNI - kant 4 — Prednji/Desni Stražnji/Lijevi Gornji Donji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP4",
+      "description": "LEĐA PUNA - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP1_XXDX",
+      "description": "LEĐA PUNA - kant 1 — Donji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP2_XLDX",
+      "description": "LEĐA PUNA - kant 2 — Lijevi Donji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZUP",
+      "description": "VEZ UZDUŽNI PREDNJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP2_XXDG",
+      "description": "LEĐA PUNA - kant 2 — Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP2_DXDX",
+      "description": "LEĐA PUNA - kant 2 — Desni Donji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP3_XLDG",
+      "description": "LEĐA PUNA - kant 3 — Lijevi Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1LEDP3_DXDG",
+      "description": "LEĐA PUNA - kant 3 — Desni Donji Gornji",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1MS1_DXXX",
+      "description": "MASKA - kant 1 — Desni",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1MS4",
+      "description": "MASKA - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1STR1_PXXX",
+      "description": "STRANICA - kant 1 — Prednji",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1STRFF3_PXDG",
+      "description": "STRANICA FURNIR - kant furnir 3 — Prednji Donji Gornji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFM2_PSXX",
+      "description": "STRANICA FURNIR - kant masiv 2 — Prednji Stražnji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFF3_PSXG",
+      "description": "STRANICA FURNIR - kant furnir 3 — Prednji Stražnji Gornji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZH1_PXXX",
+      "description": "VEZ HORIZONTALNI - kant 1 — Prednji/Donji",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "1STRFF3_PSDX",
+      "description": "STRANICA FURNIR - kant furnir 3 — Prednji Stražnji Donji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFM3_PXDG",
+      "description": "STRANICA FURNIR - kant masiv 3 — Prednji Donji Gornji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFM1_PXXX",
+      "description": "STRANICA FURNIR - kant masiv 1 — Prednji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFM3_PSXG",
+      "description": "STRANICA FURNIR - kant masiv 3 — Prednji Stražnji Gornji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFM3_PSDX",
+      "description": "STRANICA FURNIR - kant masiv 3 — Prednji Stražnji Donji",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZH1_XSXX",
+      "description": "VEZ HORIZONTALNI - kant 1 — Stražnji/Gornji",
+      "category": "Korpus",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "8PRO_O1LOZL",
+      "description": "OKOV 1-KRILNI LUČNI OTKLOPNO/ZAOKRETNI LIJEVI",
+      "category": "Stolarija",
+      "material": "6PRO1L-OZL 26mm"
+    },
+    {
+      "key": "8VR_DOV_V",
+      "description": "DOVRATNIK VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8PRO_O1OZD",
+      "description": "OKOV 1-KRILNI OTKLOPNO/ZAOKRETNI DESNI",
+      "category": "Stolarija",
+      "material": "6PRO1-OZD 26mm"
+    },
+    {
+      "key": "8PRO_O1OZL",
+      "description": "OKOV 1-KRILNI OTKLOPNO/ZAOKRETNI LIJEVI",
+      "category": "Stolarija",
+      "material": "6PRO1-OZL 26mm"
+    },
+    {
+      "key": "8VR_KROKV_HD",
+      "description": "KRILO OKVIR HORIZONTALNI DONJI",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8PRO_O2OZD",
+      "description": "OKOV 2-KRILNI OTKLOPNO/ZAOKRETNI DESNI",
+      "category": "Stolarija",
+      "material": "6PRO2-OZD 26mm"
+    },
+    {
+      "key": "1POD4",
+      "description": "POD - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8PRO_O2OZL",
+      "description": "OKOV 2-KRILNI OTKLOPNO/ZAOKRETNI LIJEVI",
+      "category": "Stolarija",
+      "material": "6PRO2-OZL 26mm"
+    },
+    {
+      "key": "8VR_KROKV_HG",
+      "description": "KRILO OKVIR HORIZONTALNI GORNJI",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8PRO_O2ZD",
+      "description": "OKOV 2-KRILNI ZAOKRETNI DESNI",
+      "category": "Stolarija",
+      "material": "6PRO2-ZD 26mm"
+    },
+    {
+      "key": "8PRO_O2ZL",
+      "description": "OKOV 2-KRILNI ZAOKRETNI LIJEVI",
+      "category": "Stolarija",
+      "material": "6PRO2-ZL 26mm"
+    },
+    {
+      "key": "8VR_KROKV_HS",
+      "description": "KRILO OKVIR HORIZONTALNI SREDNJI",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8PRO_ST",
+      "description": "STAKLO IZO",
+      "category": "Stolarija",
+      "material": "Staklo 30mm"
+    },
+    {
+      "key": "8VR_BRT_D",
+      "description": "BRTVA DOVRATNIKA",
+      "category": "Stolarija",
+      "material": "4BRT-11X6 7mm"
+    },
+    {
+      "key": "1ST4",
+      "description": "STROP - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VR_KROKV_ISP",
+      "description": "KRILO OKVIR ISPUNA",
+      "category": "Stolarija",
+      "material": "1SACE33 33mm"
+    },
+    {
+      "key": "K_STR2_DGXX",
+      "description": "STRANICA KREVETA - kant 2 — Dolje Gore",
+      "category": "Kreveti",
+      "material": "Iveral 19mm"
+    },
+    {
+      "key": "8VR_KROKV_OBL",
+      "description": "KRILO OKVIR OBLOGA",
+      "category": "Stolarija",
+      "material": "1HFH03 3,2mm"
+    },
+    {
+      "key": "T_PODN_07_19",
+      "description": "PODNICA KREVETA 70 x 190",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-07X19 40mm"
+    },
+    {
+      "key": "8VR_KROKV_PAK",
+      "description": "KRILO OKVIR PAKNA",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "T_PODN_07_20",
+      "description": "PODNICA KREVETA 70 x 200",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-07X20 40mm"
+    },
+    {
+      "key": "8VR_KROKV_V",
+      "description": "KRILO OKVIR VERTIKALNI",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "T_PODN_08_19",
+      "description": "PODNICA KREVETA 80 x 190",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-08X19 40mm"
+    },
+    {
+      "key": "8VR_KRRUB",
+      "description": "KRILO RUB",
+      "category": "Stolarija",
+      "material": "4MAS03 3mm"
+    },
+    {
+      "key": "T_PODN_09_19",
+      "description": "PODNICA KREVETA 90 x 190",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-09X19 40mm"
+    },
+    {
+      "key": "8VR_KRUKL_F",
+      "description": "KRILO UKLADA FURNIRANA",
+      "category": "Stolarija",
+      "material": "Iveral 10mm"
+    },
+    {
+      "key": "1STD4",
+      "description": "STRANICA DESNA - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VR_KRUKL_P",
+      "description": "KRILO UKLADA PUNA",
+      "category": "Stolarija",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "8VR_PLD_H",
+      "description": "POKROVNA LETVA DOVRATNIKA HORIZONTALNA",
+      "category": "Stolarija",
+      "material": "Masiv",
+      "mac": "Profili\\Dovratnik - opsavna letva.MAC"
+    },
+    {
+      "key": "8VR_PLD_V",
+      "description": "POKROVNA LETVA DOVRATNIKA VERTIKALNA",
+      "category": "Stolarija",
+      "material": "Masiv",
+      "mac": "Profili\\Dovratnik - opsavna letva.MAC"
+    },
+    {
+      "key": "9VL_STAB_FR",
+      "description": "VODILICA - STABILIZATOR FRONTE",
+      "category": "Okov",
+      "material": "7_HEVL-STAB-FR"
+    },
+    {
+      "key": "T_PODN_08_20",
+      "description": "PODNICA KREVETA 80 x 200",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-08X20 40mm"
+    },
+    {
+      "key": "T_PODN_09_20",
+      "description": "PODNICA KREVETA 90 x 200",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-09X20 40mm"
+    },
+    {
+      "key": "T_PODN_10_19",
+      "description": "PODNICA KREVETA 100 x 190",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-10X19 40mm"
+    },
+    {
+      "key": "T_PODN_10_20",
+      "description": "PODNICA KREVETA 100 x 200",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-10X20 40mm"
+    },
+    {
+      "key": "T_PODN_12_19",
+      "description": "PODNICA KREVETA 120 x 190",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-12X19 40mm"
+    },
+    {
+      "key": "T_PODN_12_20",
+      "description": "PODNICA KREVETA 120 x 200",
+      "category": "Trgovačka roba",
+      "material": "T-PODN-12X20 40mm"
+    },
+    {
+      "key": "Z_DOV_FALC",
+      "description": "DOVRATNIK FALC",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9DOV-FALC 1mm",
+      "mac": "Profili\\Dovratnik - falc.MAC"
+    },
+    {
+      "key": "Z_LET_FIKT_TIPL",
+      "description": "LETVA FIKTIVNA ZA TIPLE",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "1STL4",
+      "description": "STRANICA LIJEVA - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "Z_VRA_FIKT_S1",
+      "description": "VRATA FIKTIVNA ZA PANT AL S1",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "Z_VRA_FIKT_S6",
+      "description": "VRATA FIKTIVNA ZA PANT AL S6",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "Z_VRA_FIKTIVNA",
+      "description": "VRATA FIKTIVNA PUNA ZA PANTE",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "1STR4",
+      "description": "STRANICA - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4OUKL_STAK",
+      "description": "UKLADA OKVIRA STAKLENA",
+      "category": "Fronta",
+      "material": "Staklo 5mm"
+    },
+    {
+      "key": "7LED_KANAL_R",
+      "description": "LED KANALICA RAZNA",
+      "category": "Razno",
+      "material": "4LED-KAN_R 5mm"
+    },
+    {
+      "key": "7LED_TRAKA_R",
+      "description": "LED TRAKA RAZNA",
+      "category": "Razno",
+      "material": "4LED-TRA_R 2,5mm"
+    },
+    {
+      "key": "7ZL_OVJ",
+      "description": "ZIDNA LETVICA ZA OVJES",
+      "category": "Razno",
+      "material": "CA_875_AC_Z1_20_32"
+    },
+    {
+      "key": "1VEZUS",
+      "description": "VEZ UZDUŽNI STRAŽNJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4VRA4",
+      "description": "VRATA - kant 4",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGH4",
+      "description": "PREGRADA HORIZONTALNA - kant 4",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "2PREGV4",
+      "description": "PREGRADA VERTIKALNA- kant 4",
+      "category": "Unutrašnjost",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODG4",
+      "description": "PODNOŽJE GORE - kant 4",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4CEL4",
+      "description": "ČELO LADICE - kant 4",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4MAS4",
+      "description": "MASKA - kant 4",
+      "category": "Fronta",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODN4",
+      "description": "PODNOŽJE NAPRIJED - kant 4",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODZ4",
+      "description": "PODNOŽJE STRAGA - kant 4",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODB4",
+      "description": "PODNOŽJE BOČNO - kant 4",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "4VRAOM4",
+      "description": "VRATA OBLOGA  - masiv kant 4",
+      "category": "Fronta",
+      "material": "Furniran iveral 16mm"
+    },
+    {
+      "key": "1STRFF4",
+      "description": "STRANICA FURNIR - kant furnir 4",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1STRFM4",
+      "description": "STRANICA FURNIR - kant masiv 4",
+      "category": "Korpus",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZV4",
+      "description": "VEZ VERTIKALNI - kant 4",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "7OBLFF4",
+      "description": "OBLOGA FURNIR - kant furnir 4",
+      "category": "Razno",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "9VJES_PAL_NOS",
+      "description": "NOSAČ PALICE ZA VJEŠANJE",
+      "category": "Okov",
+      "material": "9PALICA_NOSAC"
+    },
+    {
+      "key": "5PODNL",
+      "description": "PODNOŽJE LIJEVO",
+      "category": "Podnožje",
+      "material": "VO_BIJELI_MAT_COKUL150 13mm"
+    },
+    {
+      "key": "Z_BRAVARIJA",
+      "description": "BRAVARIJA",
+      "category": "Fiktivni (ne ispisuje se)",
+      "material": "9D 1mm",
+      "mac": "Profili\\Dovratnik - falc.MAC"
+    },
+    {
+      "key": "4OPOP_AL_AV2",
+      "description": "POPREČNICA OKVIRA AL-AV2 VOLPATO",
+      "category": "Fronta",
+      "material": "VO_80_21_50 20,7mm"
+    },
+    {
+      "key": "5PODNL_FF",
+      "description": "PODNOŽJE LIJEVO FURNIR - kant furnir",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNL_FM",
+      "description": "PODNOŽJE LIJEVO FURNIR - kant masiv",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "4OUZD_AL_AV2",
+      "description": "UZDUŽNICA OKVIRA AL-AV2 VOLPATO",
+      "category": "Fronta",
+      "material": "VO_80_21_50 20,7mm"
+    },
+    {
+      "key": "3LAD_DL",
+      "description": "LADICE DISTANČNA LETVA",
+      "category": "Ladica",
+      "material": "Iveral 25mm"
+    },
+    {
+      "key": "3IZVL_POL",
+      "description": "IZVLAČNA POLICA",
+      "category": "Ladica",
+      "material": "Iveral 25mm"
+    },
+    {
+      "key": "5PODNL_MAS",
+      "description": "PODNOŽJE LIJEVO MASIV",
+      "category": "Podnožje",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "5PODNL_MDF",
+      "description": "PODNOŽJE LIJEVO MDF",
+      "category": "Podnožje",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "5PODNP",
+      "description": "PODNOŽJE PREDNJE",
+      "category": "Podnožje",
+      "material": "VO_BIJELI_MAT_COKUL150 13mm"
+    },
+    {
+      "key": "5PODNP_FF",
+      "description": "PODNOŽJE PREDNJE FURNIR - kant furnir",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNP_FM",
+      "description": "PODNOŽJE PREDNJE FURNIR - kant masiv",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "1VEZUD",
+      "description": "VEZ UZDUŽNI DONJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "3LADPOD_FF",
+      "description": "LADICA POD FURNIR - kant furnir",
+      "category": "Ladica",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADPOD_MAS",
+      "description": "LADICA POD MASIV",
+      "category": "Ladica",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "3LADPOD_MDF",
+      "description": "LADICA POD MDF",
+      "category": "Ladica",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADPR_MDF",
+      "description": "LADICA PREDNJI MDF",
+      "category": "Ladica",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADPR_FF",
+      "description": "LADICA PREDNJI FURNIR - kant furnir",
+      "category": "Ladica",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADPRZAD_FF",
+      "description": "LADICA PREDNJI-ZADNJI FURNIR - kant furnir",
+      "category": "Ladica",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADPRZAD_MAS",
+      "description": "LADICA PREDNJI-ZADNJI MASIV",
+      "category": "Ladica",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "3LADPRZAD_MDF",
+      "description": "LADICA PREDNJI-ZADNJI MDF",
+      "category": "Ladica",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADSTRD_FF",
+      "description": "LADICA STRANICA DESNA FURNIR - kant furnir",
+      "category": "Ladica",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADSTRD_MAS",
+      "description": "LADICA STRANICA DESNA MASIV",
+      "category": "Ladica",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "3LADSTRD_MDF",
+      "description": "LADICA STRANICA DESNA MDF",
+      "category": "Ladica",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADSTRL_FF",
+      "description": "LADICA STRANICA LIJEVA FURNIR - kant furnir",
+      "category": "Ladica",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADSTRL_MAS",
+      "description": "LADICA STRANICA LIJEVA MASIV",
+      "category": "Ladica",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "3LADSTRL_MDF",
+      "description": "LADICA STRANICA LIJEVA MDF",
+      "category": "Ladica",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "3LADZAD_FF",
+      "description": "LADICA ZADNJI FURNIR - kant furnir",
+      "category": "Ladica",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "3LADZAD_MAS",
+      "description": "LADICA ZADNJI MASIV",
+      "category": "Ladica",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "3LADZAD_MDF",
+      "description": "LADICA ZADNJI MDF",
+      "category": "Ladica",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "5PODNP_MAS",
+      "description": "PODNOŽJE PREDNJE MASIV",
+      "category": "Podnožje",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "1VEZPS",
+      "description": "VEZ POPREČNI STRAŽNJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODNP_MDF",
+      "description": "PODNOŽJE PREDNJE MDF",
+      "category": "Podnožje",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "5PODNZ",
+      "description": "PODNOŽJE ZADNJE",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODNZ_FF",
+      "description": "PODNOŽJE ZADNJE FURNIR - kant furnir",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNZ_FM",
+      "description": "PODNOŽJE ZADNJE FURNIR - kant masiv",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNZ_MAS",
+      "description": "PODNOŽJE ZADNJE MASIV",
+      "category": "Podnožje",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "5PODNZ_MDF",
+      "description": "PODNOŽJE ZADNJE MDF",
+      "category": "Podnožje",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "5PODNG",
+      "description": "PODNOŽJE GORNJE",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODNG_FF",
+      "description": "PODNOŽJE GORNJE FURNIR - kant furnir",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNG_FM",
+      "description": "PODNOŽJE GORNJE  FURNIR - kant masiv",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNG_MAS",
+      "description": "PODNOŽJE GORNJE MASIV",
+      "category": "Podnožje",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "5PODNG_MDF",
+      "description": "PODNOŽJE GORNJE MDF",
+      "category": "Podnožje",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "5PODNS",
+      "description": "PODNOŽJE SREDNJE",
+      "category": "Podnožje",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "5PODNS_FF",
+      "description": "PODNOŽJE SREDNJE FURNIR - kant furnir",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNS_FM",
+      "description": "PODNOŽJE SREDNJE FURNIR - kant masiv",
+      "category": "Podnožje",
+      "material": "Furniran iveral 18mm"
+    },
+    {
+      "key": "5PODNS_MAS",
+      "description": "PODNOŽJE SREDNJE MASIV",
+      "category": "Podnožje",
+      "material": "Masivna ploča 18mm"
+    },
+    {
+      "key": "5PODNS_MDF",
+      "description": "PODNOŽJE SREDNJE MDF",
+      "category": "Podnožje",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "6RPLO",
+      "description": "RADNA PLOČA",
+      "category": "Pultovi",
+      "material": "EG_F187ST9_40 38mm"
+    },
+    {
+      "key": "6RPLO_MAS",
+      "description": "RADNA PLOČA MASIV",
+      "category": "Pultovi",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "1VEZVP",
+      "description": "VEZ VERTIKALNI PREDNJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "1VEZVS",
+      "description": "VEZ VERTIKALNI STRAŽNJI",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VD_H_01",
+      "description": "DOVRATNIK HORIZONTALNI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 55mm"
+    },
+    {
+      "key": "8VD_LS_P",
+      "description": "DOVRATNIK LETVICA STAKLA PODNA MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 12mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_LS_G",
+      "description": "DOVRATNIK LETVICA STAKLA GORNJA MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 12mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_LS_L",
+      "description": "DOVRATNIK LETVICA STAKLA LIJEVA MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 12mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_LS_D",
+      "description": "DOVRATNIK LETVICA STAKLA DESNA MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 12mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_LS_GS",
+      "description": "DOVRATNIK LETVICA STAKLA GORNJA STRAŽNJA MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 12mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_D_01_S",
+      "description": "DOVRATNIK DESNI MODEL 01 SENDVIČ",
+      "category": "Stolarija",
+      "material": "Furniran iveral 28mm"
+    },
+    {
+      "key": "STRL",
+      "description": "STRANICA LIJEVA",
+      "category": "Ostalo",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VD_D_01",
+      "description": "DOVRATNIK DESNI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8VD_G_01",
+      "description": "DOVRATNIK GORNJI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8VD_L_01",
+      "description": "DOVRATNIK LIJEVI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 40mm"
+    },
+    {
+      "key": "8VOP_D_01",
+      "description": "OPŠAV PREDNJI DESNI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 20mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_D_01_SF",
+      "description": "DOVRATNIK DESNI MODEL 01 SENDVIČ FURNIR",
+      "category": "Stolarija",
+      "material": "Furniran iveral 28mm"
+    },
+    {
+      "key": "8VOP_G_01",
+      "description": "OPŠAV PREDNJI GORNJI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 20mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VK_01_S",
+      "description": "VRATNO KRILO MODEL 01 SENDVIČ",
+      "category": "Stolarija",
+      "material": "Furniran iveral 38mm"
+    },
+    {
+      "key": "8VD_G_01_S",
+      "description": "DOVRATNIK GORNJI MODEL 01 SENDVIČ",
+      "category": "Stolarija",
+      "material": "Furniran iveral 28mm"
+    },
+    {
+      "key": "8VOP_L_01",
+      "description": "OPŠAV PREDNJI LIJEVI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 20mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_LS_GU",
+      "description": "DOVRATNIK LETVICA STAKLA GORNJA MODEL 01 OTVARANJE UNUTRA",
+      "category": "Stolarija",
+      "material": "Masiv 18mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_G_01_SF",
+      "description": "DOVRATNIK GORNJI MODEL 01 SENDVIČ FURNIR",
+      "category": "Stolarija",
+      "material": "Furniran iveral 28mm"
+    },
+    {
+      "key": "8VD_L_01_S",
+      "description": "DOVRATNIK LIJEVI MODEL 01 SENDVIČ",
+      "category": "Stolarija",
+      "material": "Furniran iveral 28mm"
+    },
+    {
+      "key": "8VD_L_01_SF",
+      "description": "DOVRATNIK LIJEVI MODEL 01 SENDVIČ FURNIR",
+      "category": "Stolarija",
+      "material": "Furniran iveral 28mm"
+    },
+    {
+      "key": "8VOS_D_01",
+      "description": "OPŠAV STRAŽNJI DESNI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 20mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "1VEZVP2",
+      "description": "VEZ VERTIKALNI PREDNJI 2 DEBLJINE",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VOS_G_01",
+      "description": "OPŠAV STRAŽNJI GORNJI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 20mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VOS_L_01",
+      "description": "OPŠAV STRAŽNJI LIJEVI MODEL 01",
+      "category": "Stolarija",
+      "material": "Masiv 20mm",
+      "mac": "Profili\\Vrata\\Opsava prednja.MAC"
+    },
+    {
+      "key": "8VD_H_KR",
+      "description": "DOVRATNIK HORIZONTALNI ZA POZICIONIRANJE KRILA",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_DG_01_C0",
+      "description": "DOVRATNIK DESNI OTVARANJE UNUTRA GER SPOJ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_DH_01_C0",
+      "description": "DOVRATNIK DESNI  OTVARANJE UNUTRA HORIZONTALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_DV_01_C0",
+      "description": "DOVRATNIK DESNI OTVARANJE UNUTRA VERTIKALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_GG_01_C0",
+      "description": "DOVRATNIK GORNJI OTVARANJE UNUTRA GER SPOJ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_GH_01_C0",
+      "description": "DOVRATNIK GORNJI OTVARANJE UNUTRA HORIZONTALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "1VEZVS2",
+      "description": "VEZ VERTIKALNI STRAŽNJI 2 DEBLJINE",
+      "category": "Korpus",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "8VDU_GV_01_C0",
+      "description": "DOVRATNIK GORNJI OTVARANJE UNUTRA VERTIKALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_LG_01_C0",
+      "description": "DOVRATNIK LIJEVI OTVARANJE UNUTRA GER SPOJ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_LH_01_C0",
+      "description": "DOVRATNIK LIJEVI OTVARANJE UNUTRA HORIZONTALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_LV_01_C0",
+      "description": "DOVRATNIK LIJEVI OTVARANJE UNUTRA VERTIKALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VK_01_SF",
+      "description": "VRATNO KRILO MODEL 01 SENDVIČ FURNIR",
+      "category": "Stolarija",
+      "material": "Furniran iveral 38mm"
+    },
+    {
+      "key": "8VDV_DG_01_C0",
+      "description": "DOVRATNIK DESN OTVARANJE VAN GER SPOJ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_DH_01_C0",
+      "description": "DOVRATNIK DESNI OTVARANJE VAN HORIZONTALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_DV_01_C0",
+      "description": "DOVRATNIK DESNI OTVARANJE VAN VERTIKALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_GG_01_C0",
+      "description": "DOVRATNIK GORNJI OTVARANJE VAN GER SPOJ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_GH_01_C0",
+      "description": "DOVRATNIK GORNJI OTVARANJE VAN HORIZONTALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_GV_01_C0",
+      "description": "DOVRATNIK GORNJI OTVARANJE VAN VERTIKALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_SH_01_C0",
+      "description": "DOVRATNIK SREDNJ OTVARANJE UNUTRA CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_SH_01_C0",
+      "description": "DOVRATNIK SREDNJI OTVARANJE VAN CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_LG_01_C0",
+      "description": "DOVRATNIK LIJEVI OTVARANJE VAN GER SPOJ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "VRATAP",
+      "description": "VRATA SA PREVJESOM DOLE",
+      "category": "Ostalo",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "VRATA_MDF_CRUCKA_DESNO",
+      "description": "VRATA MDF CRUCKA DESNO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_CRUCKA_DOLE",
+      "description": "VRATA MDF CRUCKA DOLE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_CRUCKA_GORE",
+      "description": "VRATA MDF CRUCKA GORE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_CRUCKA_LIJEVO",
+      "description": "VRATA MDF CRUCKA LIJEVO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_D_RUCKA_DESNO",
+      "description": "VRATA MDF D RUCKA DESNO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_D_RUCKA_DOLE",
+      "description": "VRATA MDF D RUCKA DOLE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_D_RUCKA_GORE",
+      "description": "VRATA MDF D RUCKA GORE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_D_RUCKA_LIJEVO",
+      "description": "VRATA MDF D RUCKA LIJEVO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_GER_DESNO",
+      "description": "VRATA MDF18 GER RUCKA DESNO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_GER_DOLE",
+      "description": "VRATA MDF18 GER RUCKA DOLE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_GER_GORE",
+      "description": "VRATA MDF18 GER RUCKA GORE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_GER_LIJEVO",
+      "description": "VRATA MDF18 GER RUCKA LIJEVO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "2230070",
+      "description": "VERTIKALNI profil M4, aluminij",
+      "category": "Unutrašnjost",
+      "material": "2230070",
+      "mac": "Okov\\Elgrad\\2230070.MAC"
+    },
+    {
+      "key": "2230083",
+      "description": "Vodilica elgrad",
+      "category": "Unutrašnjost",
+      "material": "2230005 10mm"
+    },
+    {
+      "key": "2250004",
+      "description": "VERTIKALNI profil H3-10",
+      "category": "Unutrašnjost",
+      "material": "2250004",
+      "mac": "Okov\\Elgrad\\2250004.MAC"
+    },
+    {
+      "key": "U104UKL",
+      "description": "U104 IVERAL 10mm ST9",
+      "category": "Ostalo",
+      "material": "EG_U104ST9_10 10mm"
+    },
+    {
+      "key": "U727UKL",
+      "description": "U727 IVERAL 10mm ST9",
+      "category": "Ostalo",
+      "material": "EG_U727ST9_10 10mm"
+    },
+    {
+      "key": "7ALUPROFIL",
+      "description": "Alu profil",
+      "category": "Razno",
+      "material": "2230083 1mm"
+    },
+    {
+      "key": "8VDV_LH_01_C0",
+      "description": "DOVRATNIK LIJEVI OTVARANJE VAN HORIZONTALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_D_C1",
+      "description": "DOVRATNIK DESNI OTVARANJE UNUTRA CNC FAZA 2 — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_LV_01_C0",
+      "description": "DOVRATNIK LIJEVI OTVARANJE VAN VERTIKALA SKROZ CNC — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_L_C1",
+      "description": "DOVRATNIK LIJEVI OTVARANJE UNUTRA CNC FAZA 2 — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDU_G_C1",
+      "description": "DOVRATNIK GORNJI OTVARANJE UNUTRA CNC FAZA 2 — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_D_C1",
+      "description": "DOVRATNIK DESNI OTVARANJE VAN CNC FAZA 2 — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_G_C1",
+      "description": "DOVRATNIK GORNJI OTVARANJE VAN CNC FAZA 2 — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "8VDV_L_C1",
+      "description": "DOVRATNIK LIJEVI OTVARANJE VAN CNC FAFA 2 — MODEL 01",
+      "category": "Stolarija",
+      "material": "9D 1mm"
+    },
+    {
+      "key": "7AKTOR_C",
+      "description": "Profilna ručka vertikalna Aktor C",
+      "category": "Razno",
+      "material": "SCH_103304497"
+    },
+    {
+      "key": "7AKTOR_L",
+      "description": "Profilna ručka vertikalna Aktor L",
+      "category": "Razno",
+      "material": "SCH_103304123"
+    },
+    {
+      "key": "4VRA_MDFJPULL_DESNO",
+      "description": "VRATA MDF JPULL GLODANJE DESNO",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "4VRA_MDFJPULL_DOLE",
+      "description": "VRATA MDF JPULL GLODANJE DOLE",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "4VRA_MDFJPULL_GORE",
+      "description": "VRATA MDF JPULL GLODANJE GORE",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "4VRA_MDFJPULL_LIJEVO",
+      "description": "VRATA MDF JPULL GLODANJE LIJEVO",
+      "category": "Fronta",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_C_RUCKA_DESNO",
+      "description": "VRATA MDF C RUCKA DESNO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "ST",
+      "description": "STROP",
+      "category": "Ostalo",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "LEDPUN",
+      "description": "LEĐA PUNA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "POLICA",
+      "description": "POLICA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "VRATA",
+      "description": "VRATA",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "VR_UNUTAR",
+      "description": "VRATA UNUTRANJA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "VRATA_MAT",
+      "description": "VRATA MEDIJAPAN MAT",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_RUSTIKA",
+      "description": "VRATA MEDIJAPAN RUSTIKA",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_SJAJ",
+      "description": "VRATA MEDIJAPAN SJAJ",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "STR_D",
+      "description": "STRANICA DESNA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "STR_L",
+      "description": "STRANICA LIJEVA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "STR_MDF_SJAJ",
+      "description": "STRANICA MDF SJAJ",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "STR_MDF_MAT",
+      "description": "STRANICA MDF MAT",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "COKUL_NEVIDLJIVI",
+      "description": "COKUL_NEVIDLJIVI",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "FIXNA",
+      "description": "FIXNA PREGRADA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "COKUL_PREDNJI",
+      "description": "COKUL PREDNJI",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "VEZ_NEVIDLJIVI",
+      "description": "VEZ_NEVIDLJIVI",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "POD",
+      "description": "POD",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "VEZ_VIDLJIVI",
+      "description": "VEZ VIDLJIVI",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "STROP",
+      "description": "STROP",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "LEDP",
+      "description": "LEĐA PUNA",
+      "category": "Ostalo",
+      "material": "Iveral 18mm"
+    },
+    {
+      "key": "MS_VIDLJIVA",
+      "description": "MASKA VIDLJIVA",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "DUPLIRANJE",
+      "description": "DUPLIRANJE",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "LEDPUNA",
+      "description": "LEĐA PUNA",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "COKUL_VIDLJIVI",
+      "description": "COKUL_VIDLJIVI",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "LEDA",
+      "description": "LEĐA",
+      "category": "Ostalo",
+      "material": "1HFH04 4mm"
+    },
+    {
+      "key": "MS_NEVIDLJIVA",
+      "description": "MASKA NEVIDLJIVA",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "STROP_DEKOR",
+      "description": "STROP DEKOR",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "STR_DEKOR",
+      "description": "STRANICA DEKOR",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "VEZ_PREDNJI",
+      "description": "VEZ_PREDNJI",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_18 18mm"
+    },
+    {
+      "key": "POD_DEKOR",
+      "description": "POD DEKOR",
+      "category": "Ostalo",
+      "material": "EG_U702ST9_18 18mm"
+    },
+    {
+      "key": "2PREGV25",
+      "description": "PREGRADA VERTIKALNA 25 mm",
+      "category": "Unutrašnjost",
+      "material": "Iveral 25mm"
+    },
+    {
+      "key": "VRATA_MDF_C_RUCKA_DOLE",
+      "description": "VRATA MDF C RUCKA DOLE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "FIXNA25",
+      "description": "FIXNA_BRITVELE",
+      "category": "Ostalo",
+      "material": "EG_W960ST7_25 25mm"
+    },
+    {
+      "key": "VRATA_MDF_C_RUCKA_GORE",
+      "description": "VRATA MDF C RUCKA GORE",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "VRATA_MDF_C_RUCKA_LIJEVO",
+      "description": "VRATA MDF C RUCKA LIJEVO",
+      "category": "Ostalo",
+      "material": "MDF 18mm"
+    },
+    {
+      "key": "2230003",
+      "description": "“H” SREDIŠNJI horizontalni profil za ER10/M4,",
+      "category": "Unutrašnjost",
+      "material": "2230003",
+      "mac": "Okov\\Elgrad\\2230003.MAC"
+    },
+    {
+      "key": "2230005",
+      "description": "DONJA vodilica, aluminij eloksirani - dvostruka",
+      "category": "Unutrašnjost",
+      "material": "2230005 10mm",
+      "mac": "Okov\\Elgrad\\2230005.MAC"
+    }
+  ]
 }

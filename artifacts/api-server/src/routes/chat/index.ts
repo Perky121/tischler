@@ -66,6 +66,71 @@ interface SessionContext {
   lastUpdated?: string;
 }
 
+// ── Element catalog: compact injection into system prompt ─────────────────────
+
+interface ElementEntry {
+  key: string;
+  description: string;
+  category: string;
+  material?: string;
+  mac?: string;
+}
+
+/**
+ * Build a compact elements section for the system prompt.
+ * Injects: naming convention + "Ostalo" (no-prefix) elements + mentioned elements.
+ */
+function buildElementsCatalog(
+  allElements: ElementEntry[],
+  userMessage: string,
+  sessionCtx?: SessionContext | null,
+): string {
+  if (!allElements?.length) return "";
+
+  const lines: string[] = [
+    `KATALOG ELEMENATA (upisuje se u polje "Elem" u dijalogu elementa):`,
+    `Prefiks=kategorija: 1=Korpus, 2=Unutrašnjost, 3=Ladica, 4=Fronta, 5=Podnožje, 6=Pultovi, 7=Razno, 8=Stolarija, 9=Okov, K=Kreveti, Z=Fiktivni(ne ispisuje se)`,
+    `Sufiks=kantovani rubovi: _PXXX=Prednji, _PSXX=P+S, _PXLX=P+L, _PXXD=P+D, _PXLD=P+L+D, _PSLD=svi 4 ruba, _DLDG=D+L+D+G`,
+    `Materijalni sufiks: _FF=furnir-furnir kant, _FM=furnir-masiv kant, _MAS=masiv, _MDF=MDF, _ST=staklo`,
+    `Materijali: 1IL18=iveral18mm, 1IL16=iveral16mm, 1IV18=furniran18mm, 1MDF18=MDF18mm, 1MP18=masiv18mm, 3MAS=masiv profil`,
+    `Fiktivni Z_ elementi se NE ispisuju — služe samo za pozicioniranje/konstruiranje (npr. Z_VRA_FIKTIVNA za pante).`,
+  ];
+
+  // "Ostalo" elements have no numeric prefix — must be listed explicitly
+  const noPrefix = allElements.filter(e => e.category === "Ostalo");
+  if (noPrefix.length) {
+    lines.push(`\nElementi bez prefiksa (navedeni eksplicitno):`);
+    for (const e of noPrefix) {
+      lines.push(`  ${e.key} — ${e.description}${e.material ? ` [${e.material}]` : ""}`);
+    }
+  }
+
+  // Elements explicitly mentioned in user message or visible on screen
+  const mentionedKeys = new Set<string>();
+  const combinedText = [
+    userMessage,
+    ...(sessionCtx?.formulasSeen ?? []),
+    ...(sessionCtx?.parametersSeen?.map(p => p.value) ?? []),
+    sessionCtx?.summary ?? "",
+  ].join(" ").toUpperCase();
+
+  for (const e of allElements) {
+    if (combinedText.includes(e.key.toUpperCase())) {
+      mentionedKeys.add(e.key);
+    }
+  }
+
+  const mentioned = allElements.filter(e => mentionedKeys.has(e.key));
+  if (mentioned.length) {
+    lines.push(`\nElementi vidljivi/spomenuti u ovom kontekstu:`);
+    for (const e of mentioned) {
+      lines.push(`  ${e.key} — ${e.description} [${e.category}${e.material ? ", " + e.material : ""}]${e.mac ? " (.MAC: " + e.mac + ")" : ""}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 // ── RAG: relevance-based formula retrieval ────────────────────────────────────
 
 /**
@@ -231,6 +296,15 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
 
   if (topParams) {
     parts.push(`\nKATALOG PARAMETARA:\n${topParams}`);
+  }
+
+  const elementsCatalog = buildElementsCatalog(
+    (kb.elements ?? []) as ElementEntry[],
+    userMessage,
+    sessionCtx,
+  );
+  if (elementsCatalog) {
+    parts.push(`\n${elementsCatalog}`);
   }
 
   if (topFormulas) {
