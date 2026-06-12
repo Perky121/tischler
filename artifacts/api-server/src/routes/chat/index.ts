@@ -66,6 +66,116 @@ interface SessionContext {
   lastUpdated?: string;
 }
 
+// ── Material catalog: compact injection into system prompt ────────────────────
+
+interface MaterialEntry {
+  key: string;
+  desc: string;
+  desc2: string;
+  thick: number | null;
+  group: number;
+  tier: "core" | "decor" | "hardware";
+}
+
+const GROUP_LABELS: Record<number, string> = {
+  1: "Ploče",
+  2: "Furnir",
+  3: "Masiv",
+  4: "Metarska roba",
+  5: "Staklo/Limovi",
+  6: "Okov prozori",
+  7: "Okov za namještaj",
+  8: "Površinski materijali",
+  9: "Vijci/Spojevi",
+  10: "Nabavna roba",
+  11: "Gabariti",
+};
+
+/**
+ * Build a compact materials section for the system prompt.
+ * Tier "core" materials are always injected (structural boards, edgebanding, glass, hardware).
+ * Tier "decor" and "hardware" materials are injected only when their key appears in context.
+ */
+function buildMaterialsCatalog(
+  allMaterials: MaterialEntry[],
+  userMessage: string,
+  sessionCtx?: SessionContext | null,
+): string {
+  if (!allMaterials?.length) return "";
+
+  // Detect material keys mentioned in context (screenshots, messages, session)
+  const combinedText = [
+    userMessage,
+    ...(sessionCtx?.formulasSeen ?? []),
+    ...(sessionCtx?.parametersSeen?.map(p => `${p.name} ${p.value}`) ?? []),
+    sessionCtx?.summary ?? "",
+  ].join(" ").toUpperCase();
+
+  const mentionedKeys = new Set<string>();
+  for (const m of allMaterials) {
+    if (combinedText.includes(m.key.toUpperCase())) mentionedKeys.add(m.key);
+  }
+
+  const lines: string[] = [
+    `KATALOG MATERIJALA (MAT_KEY — šifra materijala u MegaTischleru):`,
+    `Prefiks grupe: 1=Ploče, 4=Metarska roba (kant trake/profili), 5=Staklo, 7=Okov namještaj, 8=Površinski mat., 9=Vijci`,
+    `DEKORI — konvencija: EG_U702ST9_19=Egger U702 ST9 19mm ploča | _01=0,8mm ultrapas/dekor | _A1023=ABS kant 1mm/23mm | _A0823=ABS 0,8mm/23mm`,
+    `BRENDOVI: EG_=Egger, KA_=Kaindl, SK_=Schattdecor, DDL_=DDL, GR_=Granitog, BL_=Blum, HA_/HE_=Hettich, AS_=AluStyle, GT_=Grass`,
+  ];
+
+  // Group core materials by their group number
+  const coreMats = allMaterials.filter(m => m.tier === "core");
+  const coreByGroup = new Map<number, MaterialEntry[]>();
+  for (const m of coreMats) {
+    const g = coreByGroup.get(m.group) ?? [];
+    g.push(m);
+    coreByGroup.set(m.group, g);
+  }
+
+  // For G7 (hardware) and G9 (screws) — skip pure size-variant entries that end in
+  // an underscore + digits (e.g. 7OPG_KV_F20_21 through _44). Keep the category
+  // headers and base-type keys so the prompt stays compact (~100 G7 entries max).
+  function isHardwareSizeVariant(key: string): boolean {
+    // ends with _digits (size variant like 7OPG_KV_F20_21, 9EU6X09)
+    return /_\d+$/.test(key) || /\d{2,}$/.test(key);
+  }
+
+  const groupOrder = [1, 4, 5, 8, 7, 9];
+  for (const g of groupOrder) {
+    let mats = coreByGroup.get(g);
+    if (!mats?.length) continue;
+
+    // Compact hardware: skip size variants; keep headers + named types
+    if (g === 7 || g === 9) {
+      mats = mats.filter(m => !isHardwareSizeVariant(m.key));
+    }
+
+    const label = GROUP_LABELS[g] ?? `Grupa ${g}`;
+    lines.push(`\n${label.toUpperCase()} (${g}*):`);
+    for (const m of mats) {
+      const thickStr = m.thick ? ` ${m.thick}mm` : "";
+      const d2 = m.desc2 ? ` (${m.desc2})` : "";
+      lines.push(`  ${m.key} — ${m.desc}${thickStr}${d2}`);
+    }
+  }
+
+  // Inject any mentioned decor/hardware materials from context
+  const mentioned = allMaterials.filter(
+    m => m.tier !== "core" && mentionedKeys.has(m.key),
+  );
+  if (mentioned.length) {
+    lines.push(`\nMATERIJALI VIDLJIVI/SPOMINJANI U OVOM KONTEKSTU:`);
+    for (const m of mentioned) {
+      const thickStr = m.thick ? ` ${m.thick}mm` : "";
+      const d2 = m.desc2 ? ` — ${m.desc2}` : "";
+      const groupLabel = GROUP_LABELS[m.group] ?? `Grupa ${m.group}`;
+      lines.push(`  ${m.key} — ${m.desc}${thickStr}${d2} [${groupLabel}]`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 // ── Element catalog: compact injection into system prompt ─────────────────────
 
 interface ElementEntry {
@@ -296,6 +406,15 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
 
   if (topParams) {
     parts.push(`\nKATALOG PARAMETARA:\n${topParams}`);
+  }
+
+  const materialsCatalog = buildMaterialsCatalog(
+    (kb.materials ?? []) as MaterialEntry[],
+    userMessage,
+    sessionCtx,
+  );
+  if (materialsCatalog) {
+    parts.push(`\n${materialsCatalog}`);
   }
 
   const elementsCatalog = buildElementsCatalog(
