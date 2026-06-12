@@ -441,7 +441,6 @@ function buildHierarchyGuide(
 /** Anti-patterns confirmed from actual .mac formula files — 100% verified. */
 const ANTI_PATTERNS = `ČESTE GREŠKE — NIKAD OVAKO:
 ❌  0.5          →  ✅  0,5          (decimalni separator je ZAREZ, ne točka)
-❌  if(A=B;...)  →  ✅  if(A==B;...) (usporedba je ==, ne =)
 ❌  if(A!=B;...) →  ✅  if(A<>B;...) ("nije jednako" je <>, ne != )
 ❌  if(A,B,C)    →  ✅  if(A;B;C)   (separator argumenata je ; ne ,)
 ❌  [X]          →  ✅  [.X]         ([X] bez točke = GLOBALNI param; za roditelja uvijek [.X])
