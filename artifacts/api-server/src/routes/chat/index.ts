@@ -327,9 +327,28 @@ function buildSystemPrompt(
 ): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
-  const topParams = (kb.parameters ?? [])
+  // Build formula-frequency map so the most-referenced params bubble to the top.
+  // This runs fast (<2ms for 1228 formulas) so it's computed per-request.
+  const formulaParamFreq = new Map<string, number>();
+  for (const f of (kb.formulas ?? []) as Array<{ formula: string }>) {
+    for (const m of f.formula.matchAll(/\[\.{0,4}([A-Za-z0-9_.]+)\]/g)) {
+      const leaf = m[1].split(".").at(-1);
+      if (leaf) formulaParamFreq.set(leaf, (formulaParamFreq.get(leaf) ?? 0) + 1);
+    }
+  }
+  // Params currently visible on screen get an extra boost (+500) so they
+  // always appear in the top-80 window regardless of global frequency.
+  const visibleParamNames = new Set(sessionCtx?.parametersSeen?.map(p => p.name) ?? []);
+
+  const topParams = ((kb.parameters ?? []) as Array<{ name: string; description: string; typical_values: string[] }>)
+    .slice() // don't mutate the original array
+    .sort((a, b) => {
+      const aScore = (visibleParamNames.has(a.name) ? 500 : 0) + (formulaParamFreq.get(a.name) ?? 0);
+      const bScore = (visibleParamNames.has(b.name) ? 500 : 0) + (formulaParamFreq.get(b.name) ?? 0);
+      return bScore - aScore;
+    })
     .slice(0, 80)
-    .map((p: { name: string; description: string; typical_values: string[] }) =>
+    .map(p =>
       `${p.name}${p.description ? ` — ${p.description}` : ""}${p.typical_values?.length ? ` (tipično: ${p.typical_values.join(", ")})` : ""}`
     )
     .join("\n");

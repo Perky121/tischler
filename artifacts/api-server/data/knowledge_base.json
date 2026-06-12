@@ -5245,7 +5245,7 @@
     },
     {
       "name": "D",
-      "description": "",
+      "description": "Dubina ormarića/elementa (depth) — korisnički parametar koji definira dubinu od prednjeg do stražnjeg ruba",
       "typical_values": [
         "560",
         "0",
@@ -5732,7 +5732,7 @@
     },
     {
       "name": "H",
-      "description": "",
+      "description": "Visina ormarića/elementa (height) — korisnički parametar za ukupnu visinu konstrukcije",
       "typical_values": [
         "2450",
         "0",
@@ -6376,7 +6376,7 @@
     },
     {
       "name": "Ks",
-      "description": "",
+      "description": "Korekcija stranice — odmak/korekcija pozicije stranice pri montaži ili posebnim konstrukcijama",
       "typical_values": [
         "1",
         "2",
@@ -6607,7 +6607,7 @@
     },
     {
       "name": "L",
-      "description": "",
+      "description": "Duljina elementa — uzdužna dimenzija (za stojećih ploča = visina ploče); često se miješa s H",
       "typical_values": [
         "56"
       ]
@@ -9533,7 +9533,7 @@
     },
     {
       "name": "Rx",
-      "description": "",
+      "description": "Rotacija elementa oko X-osi u stupnjevima — koristi se za nagnute/zarotiran e dijelove",
       "typical_values": [
         "0",
         "180"
@@ -9541,7 +9541,7 @@
     },
     {
       "name": "Ry",
-      "description": "",
+      "description": "Rotacija elementa oko Y-osi u stupnjevima — npr. za horizontalne ploče rotiramo Ry=90",
       "typical_values": [
         "0",
         "180"
@@ -9549,7 +9549,7 @@
     },
     {
       "name": "Rz",
-      "description": "",
+      "description": "Rotacija elementa oko Z-osi u stupnjevima — okretanje u tlocrtu (kutni namještaj)",
       "typical_values": [
         "0"
       ]
@@ -10051,7 +10051,7 @@
     },
     {
       "name": "T",
-      "description": "",
+      "description": "Debljina elementa (thickness) — temeljna dimenzija svake ploče ili profila; npr. [.T] = debljina roditelja",
       "typical_values": [
         "18",
         "23.700287399045052",
@@ -11443,7 +11443,7 @@
     },
     {
       "name": "W",
-      "description": "",
+      "description": "Širina elementa — poprečna dimenzija u lokalnom koordinatnom sustavu elementa",
       "typical_values": [
         "600",
         "18",
@@ -11469,7 +11469,7 @@
     },
     {
       "name": "X",
-      "description": "",
+      "description": "Pozicija elementa na X-osi (horizontala, lijevo→desno) — uvijek u koordinatnom sustavu roditelja",
       "typical_values": [
         "0"
       ]
@@ -11490,7 +11490,7 @@
     },
     {
       "name": "Y",
-      "description": "",
+      "description": "Pozicija elementa na Y-osi (dubina, sprijeda→straga) — uvijek u koordinatnom sustavu roditelja",
       "typical_values": [
         "0",
         "-129.5"
@@ -11512,7 +11512,7 @@
     },
     {
       "name": "Z",
-      "description": "",
+      "description": "Pozicija elementa na Z-osi (vertikala, odozdo→gore) — npr. [.Pod.Z]+[.Pod.T] = vrh poda",
       "typical_values": [
         "0"
       ]

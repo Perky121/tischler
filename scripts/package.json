@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "import-materials": "tsx ./src/import-materials.ts",
+    "patch-core-params": "tsx ./src/patch-core-params.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
