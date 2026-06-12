@@ -354,12 +354,97 @@ function selectRelevantFormulas(
     return score;
   });
 
-  return allFormulas
+  const sorted = allFormulas
     .map((f, i) => ({ f, score: scored[i] }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map(({ f }) => f);
+    .sort((a, b) => b.score - a.score);
+
+  // Type-diversity pass: when context is active, guarantee minimum
+  // representation for each major formula type so the AI always sees
+  // a balanced set (not just 200 pozicija formulas from one module).
+  const MIN_PER_TYPE = 15;
+  const DIVERSE_TYPES = ["pozicija", "ukljucenje", "dimenzija", "rotacija"];
+  const selected: typeof sorted = [];
+  const usedIdx = new Set<number>();
+
+  if (hasContext) {
+    for (const type of DIVERSE_TYPES) {
+      let count = 0;
+      for (let i = 0; i < sorted.length && count < MIN_PER_TYPE; i++) {
+        if (!usedIdx.has(i) && sorted[i].f.type === type) {
+          selected.push(sorted[i]);
+          usedIdx.add(i);
+          count++;
+        }
+      }
+    }
+  }
+
+  // Fill remaining slots from the top of the scored list
+  for (let i = 0; i < sorted.length && selected.length < limit; i++) {
+    if (!usedIdx.has(i)) {
+      selected.push(sorted[i]);
+      usedIdx.add(i);
+    }
+  }
+
+  return selected.slice(0, limit).map(({ f }) => f);
 }
+
+/**
+ * Build a hierarchy reference guide using real examples extracted from the
+ * knowledge base. Only confirmed facts are stated — no assumptions.
+ *
+ * Confirmed by user:
+ *   [X]     = globalni parametar (bez točaka)
+ *   [.X]    = direktni roditelj (1 razina gore)
+ *   [..X]   = djed (2 razine gore)
+ *   [...X]  = root/korijenski ormar (3 razine gore)
+ *   [....X] = 4 razine gore
+ */
+function buildHierarchyGuide(
+  formulas: Array<{ formula: string; source: string }>,
+): string {
+  // Collect one real example per hierarchy depth from the actual KB formulas
+  const examples: Record<string, string> = {};
+  for (const { formula } of formulas) {
+    for (const m of formula.matchAll(/\[(\.*[A-Za-z0-9_.]+)\]/g)) {
+      const ref = m[0];
+      const dots = (m[1].match(/^\.*/) ?? [""])[0].length;
+      const key = ".".repeat(dots);
+      // Prefer formulas that clearly show the reference in context
+      if (!examples[key] || examples[key].length < formula.length) {
+        examples[key] = formula.length <= 80 ? formula : ref;
+      }
+    }
+  }
+
+  const lines = [
+    "HIJERARHIJA REFERENCI U FORMULAMA:",
+    `[X]      — globalni parametar (bez točaka); primjer: [KDT], [KZ], [KT]`,
+    `[.X]     — direktni roditelj (1 razina gore); primjer: ${examples["."] ?? "[.W]"}`,
+    `[..X]    — djed (2 razine gore); primjer: ${examples[".."] ?? "[..StranicaL.T]"}`,
+    `[...X]   — root/korijenski ormar (3 razine gore); primjer: ${examples["..."] ?? "[...W]"}`,
+    `[....X]  — 4 razine gore; primjer: ${examples["...."] ?? "[....Unutranjosti.H.Z]"}`,
+    "",
+    "Referenca može uključivati i ime elementa na putu:",
+    `  [.Pod.Z]       — Z pozicija elementa Pod koji je direktno dijete`,
+    `  [..StranicaL.T] — debljina StranicaL na razini djeda`,
+    `  [...Ormar.W]   — širina Ormar na razini roota`,
+    "",
+    "KRITIČNO: [X] bez točke je GLOBALNI parametar (vrijedi za cijelu konstrukciju).",
+    "Ako misliš na parametar roditelja, uvijek stavi barem jednu točku: [.X]",
+  ];
+
+  return lines.join("\n");
+}
+
+/** Anti-patterns confirmed from actual .mac formula files — 100% verified. */
+const ANTI_PATTERNS = `ČESTE GREŠKE — NIKAD OVAKO:
+❌  0.5          →  ✅  0,5          (decimalni separator je ZAREZ, ne točka)
+❌  if(A=B;...)  →  ✅  if(A==B;...) (usporedba je ==, ne =)
+❌  if(A,B,C)    →  ✅  if(A;B;C)   (separator argumenata je ; ne ,)
+❌  [X]          →  ✅  [.X]         ([X] bez točke = GLOBALNI param; za roditelja uvijek [.X])
+❌  if(A and B)  →  ✅  if((A) and (B)) (svaki uvjet u if-u mora biti u zagradama)`;
 
 function buildSystemPrompt(
   kb: ReturnType<typeof readKnowledgeBase>,
@@ -476,6 +561,12 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
     parts.push(`\nPRAVILA SINTAKSE MEGATISCHLER:\n${syntaxRules}`);
   }
 
+  // Hierarchy guide — built from real KB formula examples, facts confirmed by user
+  parts.push(`\n${buildHierarchyGuide((kb.formulas ?? []) as Array<{ formula: string; source: string }>)}`);
+
+  // Anti-patterns — 100% verified from actual .mac formula files
+  parts.push(`\n${ANTI_PATTERNS}`);
+
   // Faza C: session context from Live screenshots
   if (sessionCtx && (sessionCtx.parametersSeen?.length || sessionCtx.formulasSeen?.length || sessionCtx.summary)) {
     const ctxLines: string[] = [`\nTRENUTNI KONTEKST EKRANA (Live mod):`];
@@ -502,22 +593,38 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
     parts.push(`\nKATALOG PARAMETARA:\n${topParams}`);
   }
 
-  const materialsCatalog = buildMaterialsCatalog(
-    (kb.materials ?? []) as MaterialEntry[],
-    userMessage,
-    sessionCtx,
+  // Slim mode: skip heavy catalogs when there is no screen/module context.
+  // Saves ~4 000 tokens on simple formula questions with no Live mod active.
+  const hasRichContext = !!(
+    sessionCtx && (
+      sessionCtx.parametersSeen?.length ||
+      sessionCtx.formulasSeen?.length ||
+      sessionCtx.moduleHint
+    )
   );
-  if (materialsCatalog) {
-    parts.push(`\n${materialsCatalog}`);
+  const mentionsMaterial = /materijal|ploča|kant|iveral|mdf|furnir|dekor|boja|debljin/i.test(userMessage);
+  const mentionsElement = /element|korpus|stranica|polica|vrata|fronta|leđa|pod|strop/i.test(userMessage);
+
+  if (hasRichContext || mentionsMaterial) {
+    const materialsCatalog = buildMaterialsCatalog(
+      (kb.materials ?? []) as MaterialEntry[],
+      userMessage,
+      sessionCtx,
+    );
+    if (materialsCatalog) {
+      parts.push(`\n${materialsCatalog}`);
+    }
   }
 
-  const elementsCatalog = buildElementsCatalog(
-    (kb.elements ?? []) as ElementEntry[],
-    userMessage,
-    sessionCtx,
-  );
-  if (elementsCatalog) {
-    parts.push(`\n${elementsCatalog}`);
+  if (hasRichContext || mentionsElement) {
+    const elementsCatalog = buildElementsCatalog(
+      (kb.elements ?? []) as ElementEntry[],
+      userMessage,
+      sessionCtx,
+    );
+    if (elementsCatalog) {
+      parts.push(`\n${elementsCatalog}`);
+    }
   }
 
   if (topFormulas) {
