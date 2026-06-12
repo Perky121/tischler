@@ -4915,117 +4915,331 @@
   ],
   "parameters": [
     {
-      "name": "T",
+      "name": "Act",
       "description": "",
       "typical_values": [
-        "18",
-        "23.700287399045052",
-        "23.700000000018491",
-        "5",
-        "11",
-        "6.000000000036982"
+        "1",
+        "0"
       ]
     },
     {
-      "name": "Z",
+      "name": "Add3L",
       "description": "",
       "typical_values": [
         "0"
       ]
     },
     {
-      "name": "Y",
-      "description": "",
-      "typical_values": [
-        "0",
-        "-129.5"
-      ]
-    },
-    {
-      "name": "X",
+      "name": "Add3R",
       "description": "",
       "typical_values": [
         "0"
       ]
     },
     {
-      "name": "W",
-      "description": "",
-      "typical_values": [
-        "600",
-        "18",
-        "0",
-        "98.200287399045052",
-        "98.1500000000185",
-        "5",
-        "80",
-        "20",
-        "27.000000000018492",
-        "31.5"
-      ]
-    },
-    {
-      "name": "L",
-      "description": "",
-      "typical_values": [
-        "56"
-      ]
-    },
-    {
-      "name": "ZRK",
-      "description": "",
-      "typical_values": [
-        "0",
-        "2"
-      ]
-    },
-    {
-      "name": "Rz",
+      "name": "AddB",
       "description": "",
       "typical_values": [
         "0"
       ]
     },
     {
-      "name": "Rx",
+      "name": "AddF",
       "description": "",
       "typical_values": [
-        "0",
-        "180"
+        "0"
       ]
     },
     {
-      "name": "HPP1",
+      "name": "AddO",
+      "description": "",
+      "typical_values": [
+        "32"
+      ]
+    },
+    {
+      "name": "AddR",
+      "description": "",
+      "typical_values": [
+        "32"
+      ]
+    },
+    {
+      "name": "AKTOR",
+      "description": "Aktor tip — Izbor Aktor profila prema otvaranju vrata i položaja u nizu ormara. — [opcije: 1 - C/2 - Liijeva vrata/3 - Lijeva vrata kraj/4 - Desna vrata/5 - Desna vrata kraj]",
+      "typical_values": [
+        "1 - C",
+        "2 - Liijeva vrata",
+        "3 - Lijeva vrata kraj",
+        "4 - Desna vrata",
+        "5 - Desna vrata kraj"
+      ]
+    },
+    {
+      "name": "AKTOR1",
+      "description": "Aktor tip — Izbor Aktor profila prema otvaranju vrata i položaja u nizu ormara. — [opcije: 1 - C/2 - Liijeva vrata/3 - Desna vrata]",
+      "typical_values": [
+        "1 - C",
+        "2 - Liijeva vrata",
+        "3 - Desna vrata"
+      ]
+    },
+    {
+      "name": "AKTOR2",
+      "description": "Aktor Ne/Da",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Alu",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "AMpl",
       "description": "",
       "typical_values": [
         "1"
       ]
     },
     {
-      "name": "Ry",
-      "description": "",
-      "typical_values": [
-        "0",
-        "180"
-      ]
-    },
-    {
-      "name": "ODU",
-      "description": "",
-      "typical_values": [
-        "20",
-        "16"
-      ]
-    },
-    {
-      "name": "Ks",
+      "name": "AQty",
       "description": "",
       "typical_values": [
         "1",
+        "0"
+      ]
+    },
+    {
+      "name": "ASM",
+      "description": "Asimetrična dvokrilna vrata — Mijenjanje dvokrilnih simetričnih vrata u asimetrična.Negativna vrijednost sužava lijevo krilo vrata, a pozivivna vrijednost sužava desno krilo vrata. — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "BBR",
+      "description": "Br",
+      "typical_values": []
+    },
+    {
+      "name": "BBS",
+      "description": "Blenda bočna - strana — [opcije: Ne/Lijeva/Desna/Obje]",
+      "typical_values": [
+        "Ne",
+        "Lijeva",
+        "Desna",
+        "Obje"
+      ]
+    },
+    {
+      "name": "BBW",
+      "description": "Blenda bočna - širina",
+      "typical_values": []
+    },
+    {
+      "name": "BCO",
+      "description": "BoxCover — (cijeli broj)",
+      "typical_values": []
+    },
+    {
+      "name": "BDN",
+      "description": "Poluu./utor. pod",
+      "typical_values": []
+    },
+    {
+      "name": "BLE",
+      "description": "SREDIŠNJI horizontalni profil",
+      "typical_values": []
+    },
+    {
+      "name": "BPath",
+      "description": "Djelomična putanja do makroa",
+      "typical_values": [
+        "Okov\\Volpato\\Spojni",
+        "Profili\\Volpato\\Spojni",
+        "Okov\\Blum\\Vodiice\\Antaro",
+        "Okov\\Blum\\Vodilice\\Antaro",
+        "Okov\\Blum\\Vodilice",
+        "Okov\\Camar",
+        "Profili\\Camar"
+      ]
+    },
+    {
+      "name": "BRK",
+      "description": "Broj vrata — [opcije: 2/3/4] — (cijeli broj)",
+      "typical_values": [
         "2",
-        "5",
-        "4",
         "3",
+        "4"
+      ]
+    },
+    {
+      "name": "BRP3",
+      "description": "Broj polica do 3 — [opcije: 1/2/3]",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "BRPA",
+      "description": "Broj panti — [opcije: 2/3/4/5/6]",
+      "typical_values": [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "name": "BSD",
+      "description": "Poluu./utor. str.D",
+      "typical_values": []
+    },
+    {
+      "name": "BSL",
+      "description": "Poluu./utor. str.L",
+      "typical_values": []
+    },
+    {
+      "name": "BST",
+      "description": "Poluu./utor strop",
+      "typical_values": []
+    },
+    {
+      "name": "BU",
+      "description": "Poluutor/Utor — [opcije: Poluutor/Utor]",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "BUL",
+      "description": "Poluutir / Utor leđa — [opcije: Poluutor/Utor/Bez]",
+      "typical_values": [
+        "Poluutor",
+        "Utor",
+        "Bez"
+      ]
+    },
+    {
+      "name": "BUS",
+      "description": "Poluutor / Utor stranice — [opcije: Poluutor/Utor]",
+      "typical_values": [
+        "Poluutor",
+        "Utor"
+      ]
+    },
+    {
+      "name": "Cdep",
+      "description": "",
+      "typical_values": [
+        "5"
+      ]
+    },
+    {
+      "name": "CDiv",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "Clen",
+      "description": "",
+      "typical_values": [
+        "15"
+      ]
+    },
+    {
+      "name": "CNC",
+      "description": "Filtriranje za CNC obradu — [opcije: Konstrukcija/CNC faza 1/CNC faza 2]",
+      "typical_values": [
+        "Konstrukcija",
+        "CNC faza 1",
+        "CNC faza 2"
+      ]
+    },
+    {
+      "name": "Col",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "COL",
+      "description": "Boja — [opcije: SW/OG/IG/CS/GR] — (cijeli broj)",
+      "typical_values": [
+        "SW",
+        "OG",
+        "IG",
+        "CS",
+        "GR"
+      ]
+    },
+    {
+      "name": "COL1",
+      "description": "Boja 1 — [opcije: IC/SI/ST/ZI] — (cijeli broj)",
+      "typical_values": [
+        "IC",
+        "SI",
+        "ST",
+        "ZI"
+      ]
+    },
+    {
+      "name": "COL2",
+      "description": "Boja2 — [opcije: Alu/Bijela/Crna]",
+      "typical_values": [
+        "Alu",
+        "Bijela",
+        "Crna"
+      ]
+    },
+    {
+      "name": "ConSh",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "CRS",
+      "description": "Crystal stranica",
+      "typical_values": []
+    },
+    {
+      "name": "CRUC1",
+      "description": "C Rucka jednokrilna vrata — [opcije: Lijevo/Desno/Gore/Dolje/Nema]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje",
+        "Nema"
+      ]
+    },
+    {
+      "name": "CRUC2",
+      "description": "C Rucka dvokrilna vrata — [opcije: Lijevo/Desno/Gore/Dolje/Nema]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje",
+        "Nema"
+      ]
+    },
+    {
+      "name": "Cwid",
+      "description": "",
+      "typical_values": [
         "6"
       ]
     },
@@ -5041,797 +5255,101 @@
       ]
     },
     {
-      "name": "H",
-      "description": "",
-      "typical_values": [
-        "2450",
-        "0",
-        "1090",
-        "720"
-      ]
+      "name": "D2",
+      "description": "Dubina 2",
+      "typical_values": []
     },
     {
-      "name": "GLU",
-      "description": "",
-      "typical_values": [
-        "12",
-        "2"
-      ]
-    },
-    {
-      "name": "KDT",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "HDTD1",
-      "description": "",
-      "typical_values": [
-        "3",
-        "0"
-      ]
-    },
-    {
-      "name": "LEDIZRK",
-      "description": "",
-      "typical_values": [
-        "3",
-        "0"
-      ]
-    },
-    {
-      "name": "KOAP",
-      "description": "",
+      "name": "DAP",
+      "description": "Dektiviraj pod",
       "typical_values": [
         "1"
       ]
     },
     {
-      "name": "LEDOP",
-      "description": "",
-      "typical_values": [
-        "100",
-        "200"
-      ]
-    },
-    {
-      "name": "KUT",
-      "description": "",
-      "typical_values": [
-        "0",
-        "90"
-      ]
-    },
-    {
-      "name": "KDOS",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "SUT",
-      "description": "",
-      "typical_values": [
-        "4",
-        "6"
-      ]
-    },
-    {
-      "name": "ZRV",
-      "description": "",
-      "typical_values": [
-        "3",
-        "4"
-      ]
-    },
-    {
-      "name": "KVF",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "GKD",
-      "description": "",
-      "typical_values": [
-        "330"
-      ]
-    },
-    {
-      "name": "LEDP",
-      "description": "",
+      "name": "DAS",
+      "description": "Dektiviraj strop",
       "typical_values": [
         "1"
       ]
     },
     {
-      "name": "Act",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "GKL",
-      "description": "",
-      "typical_values": [
-        "330"
-      ]
-    },
-    {
-      "name": "DIJEL",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "MSS",
-      "description": "",
-      "typical_values": [
-        "97"
-      ]
-    },
-    {
-      "name": "MSPRS",
-      "description": "",
-      "typical_values": [
-        "2"
-      ]
-    },
-    {
-      "name": "KDPU",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KVDS",
-      "description": "",
-      "typical_values": [
-        "0",
-        "3"
-      ]
-    },
-    {
-      "name": "MSZRG",
-      "description": "",
-      "typical_values": [
-        "3"
-      ]
-    },
-    {
-      "name": "ZRL",
-      "description": "",
-      "typical_values": [
-        "1.5",
-        "2",
-        "20"
-      ]
-    },
-    {
-      "name": "ZRS",
-      "description": "",
-      "typical_values": [
-        "-2",
-        "-20",
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "KO",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KVNT",
-      "description": "",
+      "name": "DASD",
+      "description": "Dektiviraj stranicu desnu",
       "typical_values": [
         "1"
       ]
     },
     {
-      "name": "RCN1",
-      "description": "",
+      "name": "DASL",
+      "description": "Dektiviraj stranicu lijevu",
       "typical_values": [
-        "0"
+        "1"
       ]
     },
     {
-      "name": "OfL",
-      "description": "",
-      "typical_values": [
-        "53"
-      ]
+      "name": "DDEB",
+      "description": "Dodatna debljina — (može biti negativan)",
+      "typical_values": []
     },
     {
-      "name": "LEDSKL",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
+      "name": "DDOPG",
+      "description": "Debljina doprozornika gore",
+      "typical_values": []
     },
     {
-      "name": "LEDPD",
-      "description": "",
-      "typical_values": [
-        "18"
-      ]
+      "name": "DDOPV",
+      "description": "Debljina doprozornika vertikalno",
+      "typical_values": []
     },
     {
-      "name": "KVF2",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
+      "name": "DDRUC",
+      "description": "Duzina D rucke",
+      "typical_values": []
     },
     {
-      "name": "RCN",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
+      "name": "DE",
+      "description": "Desno",
+      "typical_values": []
     },
     {
-      "name": "KOFD",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
+      "name": "DEBD",
+      "description": "Debljina doprozornika",
+      "typical_values": []
     },
     {
-      "name": "PO",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1",
-        "2"
-      ]
+      "name": "DEBK",
+      "description": "Debljina krila",
+      "typical_values": []
     },
     {
-      "name": "KODS",
+      "name": "Dep",
       "description": "",
       "typical_values": [
-        "3"
-      ]
-    },
-    {
-      "name": "IS",
-      "description": "",
-      "typical_values": [
-        "75",
-        "10",
-        "31.5",
-        "23",
-        "62",
+        "14",
         "20",
-        "250",
-        "259",
-        "200"
+        "5.9"
       ]
     },
     {
-      "name": "ZZR",
+      "name": "Dep2",
       "description": "",
       "typical_values": [
+        "14",
         "0"
       ]
     },
     {
-      "name": "LEDSKD",
+      "name": "DepSh",
       "description": "",
       "typical_values": [
-        "0"
+        "12"
       ]
     },
     {
-      "name": "BU",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "ZRZ",
-      "description": "",
-      "typical_values": [
-        "3",
-        "-4.5",
-        "5",
-        "2"
-      ]
-    },
-    {
-      "name": "STRAN",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1",
-        "2"
-      ]
-    },
-    {
-      "name": "V1",
-      "description": "",
-      "typical_values": [
-        "176",
-        "0"
-      ]
-    },
-    {
-      "name": "V2",
-      "description": "",
-      "typical_values": [
-        "719.5",
-        "0"
-      ]
-    },
-    {
-      "name": "MSRT",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "ZRD",
-      "description": "",
-      "typical_values": [
-        "1.5",
-        "20",
-        "2"
-      ]
-    },
-    {
-      "name": "LEDST",
-      "description": "",
-      "typical_values": [
-        "2",
-        "0"
-      ]
-    },
-    {
-      "name": "KDF",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KDNV",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "KODPO",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Ins",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PR2",
-      "description": "",
-      "typical_values": [
-        "2"
-      ]
-    },
-    {
-      "name": "SP",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "ID",
-      "description": "",
-      "typical_values": [
-        "150",
-        "80",
-        "62",
-        "56",
-        "49.3",
-        "27.5",
-        "564",
-        "200",
-        "497",
-        "220"
-      ]
-    },
-    {
-      "name": "PRGOS",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PPOL1",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "MSZRL",
-      "description": "",
-      "typical_values": [
-        "1.5",
-        "0"
-      ]
-    },
-    {
-      "name": "OfLon",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PRGOP",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "ISIN",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "LDO",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KVDS1",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PR1",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "KVF1",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "SPOL1",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KOFG",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KOV1",
-      "description": "",
-      "typical_values": [
-        "720"
-      ]
-    },
-    {
-      "name": "KOOP",
-      "description": "",
-      "typical_values": [
-        "590",
-        "600"
-      ]
-    },
-    {
-      "name": "MSZRD",
-      "description": "",
-      "typical_values": [
-        "1.5",
-        "0"
-      ]
-    },
-    {
-      "name": "PVD",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "MSDPG",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "IOSI",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "IDEP1",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "KVNZ",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "BRP3",
-      "description": "",
-      "typical_values": [
-        "2"
-      ]
-    },
-    {
-      "name": "GK",
-      "description": "",
-      "typical_values": [
-        "560"
-      ]
-    },
-    {
-      "name": "ASM",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PR",
-      "description": "",
-      "typical_values": [
-        "2",
-        "4"
-      ]
-    },
-    {
-      "name": "KVNM",
-      "description": "",
-      "typical_values": [
-        "160"
-      ]
-    },
-    {
-      "name": "KOOH",
-      "description": "",
-      "typical_values": [
-        "1780"
-      ]
-    },
-    {
-      "name": "KOOL",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "POGOR",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "PODOL",
-      "description": "",
-      "typical_values": [
-        "2"
-      ]
-    },
-    {
-      "name": "PZL",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PZZ",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "POLOD",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "POLOS",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "MatV",
-      "description": "",
-      "typical_values": [
-        "7LABA_M_30_SW",
-        "7LABA_D_30_SW",
-        "7LABA_D_50_SW",
-        "7LABA_N_30_SW"
-      ]
-    },
-    {
-      "name": "OPS",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "IODO",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "OOSR",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KDF1",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "DMSS",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "AKTOR2",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "KOOM",
-      "description": "",
-      "typical_values": [
-        "380"
-      ]
-    },
-    {
-      "name": "OffX",
-      "description": "",
-      "typical_values": [
-        "18",
-        "582",
-        "0"
-      ]
-    },
-    {
-      "name": "OffY",
-      "description": "",
-      "typical_values": [
-        "-560",
-        "0"
-      ]
-    },
-    {
-      "name": "RUND",
-      "description": "",
-      "typical_values": [
-        "3",
-        "25",
-        "0",
-        "50"
-      ]
-    },
-    {
-      "name": "RUND1",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "RUND2",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "RUND3",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "RUND4",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "PZD",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "PZS",
-      "description": "",
-      "typical_values": [
-        "40"
-      ]
-    },
-    {
-      "name": "POLOP",
-      "description": "",
-      "typical_values": [
-        "20"
-      ]
+      "name": "DES",
+      "description": "Desno",
+      "typical_values": []
     },
     {
       "name": "Dia",
@@ -5842,10 +5360,34 @@
       ]
     },
     {
-      "name": "TipMot",
+      "name": "Dia2",
       "description": "",
       "typical_values": [
+        "8",
         "0"
+      ]
+    },
+    {
+      "name": "DiaSh",
+      "description": "",
+      "typical_values": [
+        "5"
+      ]
+    },
+    {
+      "name": "DIJEL",
+      "description": "Dijeljen",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "DIJEL1",
+      "description": "Dijeljen — [opcije: 1 - Ne/2 - Korpus/3 - Vrata i korpus]",
+      "typical_values": [
+        "1 - Ne",
+        "2 - Korpus",
+        "3 - Vrata i korpus"
       ]
     },
     {
@@ -5857,58 +5399,140 @@
       ]
     },
     {
-      "name": "VPT",
+      "name": "DistT",
       "description": "",
       "typical_values": [
         "0"
       ]
     },
     {
-      "name": "KVOM",
-      "description": "",
-      "typical_values": [
-        "350"
-      ]
-    },
-    {
-      "name": "DASL",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "DASD",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "DAS",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "DAP",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "MirXY",
+      "name": "DistW",
       "description": "",
       "typical_values": [
         "0"
       ]
     },
     {
-      "name": "Vis",
+      "name": "DKDP",
+      "description": "Duljina desnog kraka ploče — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "DKLP",
+      "description": "Duljina lijevog kraka ploče — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "DKPD",
+      "description": "Duljina kraka ploče desno",
+      "typical_values": []
+    },
+    {
+      "name": "DKPL",
+      "description": "Duljina kraka ploče lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "DKRI",
+      "description": "Debljina krila",
+      "typical_values": []
+    },
+    {
+      "name": "DLT",
+      "description": "Tip distancne letve — [opcije: Drvo/Makro]",
+      "typical_values": [
+        "Drvo",
+        "Makro"
+      ]
+    },
+    {
+      "name": "DMAS",
+      "description": "Dodatna maska",
+      "typical_values": []
+    },
+    {
+      "name": "DMSS",
+      "description": "Dodatna maska - širina",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "DN",
+      "description": "Da/Ne",
+      "typical_values": []
+    },
+    {
+      "name": "DP",
+      "description": "Duljina produžetka — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "DPD",
+      "description": "Duljina pulta desno",
+      "typical_values": []
+    },
+    {
+      "name": "DPL",
+      "description": "Duljina pulta lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "DrLeRi",
       "description": "",
       "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "DRUC",
+      "description": "D ruckica jednokrilna vrata — [opcije: Lijevo/Desno/Gore/Dolje/Nema]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje",
+        "Nema"
+      ]
+    },
+    {
+      "name": "DS",
+      "description": "Odredi širinu — [opcije: Element/Širina]",
+      "typical_values": [
+        "Element",
+        "Širina"
+      ]
+    },
+    {
+      "name": "DSIR",
+      "description": "Dodatna širina — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "DSTR",
+      "description": "Druga strana",
+      "typical_values": []
+    },
+    {
+      "name": "DU",
+      "description": "Oblik nastavka — [opcije: D desno/U lijevo i desno]",
+      "typical_values": [
+        "D desno",
+        "U lijevo i desno"
+      ]
+    },
+    {
+      "name": "DVZ",
+      "description": "Dodatna visina straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "Edges",
+      "description": "",
+      "typical_values": [
+        "9",
+        "11",
+        "3",
         "1"
       ]
     },
@@ -5929,13 +5553,6 @@
       ]
     },
     {
-      "name": "Ref",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
       "name": "ETyp",
       "description": "",
       "typical_values": [
@@ -5952,7 +5569,12 @@
       ]
     },
     {
-      "name": "Rwb",
+      "name": "FI",
+      "description": "Promjer — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "FJoint",
       "description": "",
       "typical_values": [
         "0",
@@ -5960,8 +5582,1693 @@
       ]
     },
     {
-      "name": "Mat",
+      "name": "GER",
+      "description": "Ger",
+      "typical_values": []
+    },
+    {
+      "name": "GERB",
+      "description": "Ger dolje",
+      "typical_values": []
+    },
+    {
+      "name": "GERD2",
+      "description": "Ger desno — [opcije: Desno naprijed/Desno nazad]",
+      "typical_values": [
+        "Desno naprijed",
+        "Desno nazad"
+      ]
+    },
+    {
+      "name": "GERDO",
+      "description": "Ger djelomični odmak",
+      "typical_values": []
+    },
+    {
+      "name": "GERDOF",
+      "description": "Ger djelomični odmak za frontu",
+      "typical_values": []
+    },
+    {
+      "name": "GERDOK",
+      "description": "Ger djelomični odmak korpusa",
+      "typical_values": []
+    },
+    {
+      "name": "GERF",
+      "description": "Ger za frontu",
+      "typical_values": []
+    },
+    {
+      "name": "GERL",
+      "description": "Ger lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "GERL2",
+      "description": "Ger lijevo — [opcije: Lijevo naprijed/Lijevo nazad]",
+      "typical_values": [
+        "Lijevo naprijed",
+        "Lijevo nazad"
+      ]
+    },
+    {
+      "name": "GERR",
+      "description": "Ger desno",
+      "typical_values": []
+    },
+    {
+      "name": "GERRUC",
+      "description": "Ger rucka — [opcije: Gore/Dole/Lijevo/Desno/Nema]",
+      "typical_values": [
+        "Gore",
+        "Dole",
+        "Lijevo",
+        "Desno",
+        "Nema"
+      ]
+    },
+    {
+      "name": "GERT",
+      "description": "Ger gore",
+      "typical_values": []
+    },
+    {
+      "name": "GK",
+      "description": "Dubina korpusa",
+      "typical_values": [
+        "560"
+      ]
+    },
+    {
+      "name": "GKD",
+      "description": "Dubina korpusa desno",
+      "typical_values": [
+        "330"
+      ]
+    },
+    {
+      "name": "GKL",
+      "description": "Dubina korpusa lijevo",
+      "typical_values": [
+        "330"
+      ]
+    },
+    {
+      "name": "GLOD",
+      "description": "Glodalo - promjer",
+      "typical_values": []
+    },
+    {
+      "name": "GLOR",
+      "description": "Glodalo - polumjer",
+      "typical_values": []
+    },
+    {
+      "name": "GLP",
+      "description": "Dubina ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "GLP1",
+      "description": "Dubina korpusa 1 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "GLR",
+      "description": "Dubina glodanja",
+      "typical_values": []
+    },
+    {
+      "name": "GLU",
+      "description": "Dubina utora/poluutora — (može biti negativan)",
+      "typical_values": [
+        "12",
+        "2"
+      ]
+    },
+    {
+      "name": "GLUD",
+      "description": "Dubina utora za D rucku",
+      "typical_values": []
+    },
+    {
+      "name": "GOLA",
+      "description": "Aktor Ne/Da",
+      "typical_values": []
+    },
+    {
+      "name": "GPT",
+      "description": "Tip garderobne palice — [opcije: Oval/Okrugla]",
+      "typical_values": [
+        "Oval",
+        "Okrugla"
+      ]
+    },
+    {
+      "name": "GRU",
+      "description": "Dubina rolo utora",
+      "typical_values": []
+    },
+    {
+      "name": "H",
       "description": "",
+      "typical_values": [
+        "2450",
+        "0",
+        "1090",
+        "720"
+      ]
+    },
+    {
+      "name": "H1",
+      "description": "Visina 1",
+      "typical_values": []
+    },
+    {
+      "name": "H2",
+      "description": "Visina 2",
+      "typical_values": []
+    },
+    {
+      "name": "H3",
+      "description": "Visina 3",
+      "typical_values": []
+    },
+    {
+      "name": "H4",
+      "description": "Visina 4",
+      "typical_values": []
+    },
+    {
+      "name": "HC",
+      "description": "",
+      "typical_values": [
+        "L-18"
+      ]
+    },
+    {
+      "name": "HDK",
+      "description": "Leđa desno do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "HDT",
+      "description": "Leđa dolje do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "HDTD",
+      "description": "Leđa dodatna dolje do kraja — [opcije: 1 - Ne/2 - Do cokla/3 - Do poda]",
+      "typical_values": [
+        "1 - Ne",
+        "2 - Do cokla",
+        "3 - Do poda"
+      ]
+    },
+    {
+      "name": "HDTD1",
+      "description": "Leđa dodatna dolje do kraja — [opcije: 1 - Ne/2 - Do cokla/3 - Do poda/4 - Kutni vanjski lijevi/5 - Kutni vanjski desni]",
+      "typical_values": [
+        "3",
+        "0"
+      ]
+    },
+    {
+      "name": "Hig",
+      "description": "",
+      "typical_values": [
+        "150",
+        "0"
+      ]
+    },
+    {
+      "name": "HLAC",
+      "description": "Hlačnik — [opcije: 420/520/720/820/920]",
+      "typical_values": [
+        "420",
+        "520",
+        "720",
+        "820",
+        "920"
+      ]
+    },
+    {
+      "name": "HLACR",
+      "description": "Hlačnik - razmaknica",
+      "typical_values": []
+    },
+    {
+      "name": "HLK",
+      "description": "Leđa lijevo do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "HMC",
+      "description": "Visoki Magic Corner",
+      "typical_values": []
+    },
+    {
+      "name": "HORT",
+      "description": "Horizontala debljina",
+      "typical_values": []
+    },
+    {
+      "name": "HP",
+      "description": "Horizontalna pregrada",
+      "typical_values": []
+    },
+    {
+      "name": "HPOD",
+      "description": "Horizontalna pregrada - odmak dolje",
+      "typical_values": []
+    },
+    {
+      "name": "HPP",
+      "description": "Leđa puna - položaj — [opcije: Lijeva/Desna/Oboja/Kutna/Nijedna/Zaobljena]",
+      "typical_values": [
+        "Lijeva",
+        "Desna",
+        "Oboja",
+        "Kutna",
+        "Nijedna",
+        "Zaobljena"
+      ]
+    },
+    {
+      "name": "HPP1",
+      "description": "Leđa puna - položaj — [opcije: Lijeva/Desna]",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "HSK",
+      "description": "Leđa dolje do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "HV",
+      "description": "Horizontalno/Vertikalno — [opcije: Horizontalno/Vertikalno]",
+      "typical_values": [
+        "Horizontalno",
+        "Vertikalno"
+      ]
+    },
+    {
+      "name": "HW_2535",
+      "description": "25/35 — [opcije: 25/35]",
+      "typical_values": [
+        "25",
+        "35"
+      ]
+    },
+    {
+      "name": "HW_EH",
+      "description": "Istallation heigh",
+      "typical_values": []
+    },
+    {
+      "name": "HW_M",
+      "description": "Door handle spacing",
+      "typical_values": []
+    },
+    {
+      "name": "HW_PP",
+      "description": "Push/Pull — [opcije: Push/Pull]",
+      "typical_values": [
+        "Push",
+        "Pull"
+      ]
+    },
+    {
+      "name": "HW_S",
+      "description": "Door thickness",
+      "typical_values": []
+    },
+    {
+      "name": "HW_SB",
+      "description": "Širina omare",
+      "typical_values": []
+    },
+    {
+      "name": "HW_T1",
+      "description": "Hardware depth",
+      "typical_values": []
+    },
+    {
+      "name": "HW_TB",
+      "description": "Door width",
+      "typical_values": []
+    },
+    {
+      "name": "HW_Z1",
+      "description": "Top gap",
+      "typical_values": []
+    },
+    {
+      "name": "HW_Z2",
+      "description": "Bottom gap",
+      "typical_values": []
+    },
+    {
+      "name": "HW_Z3",
+      "description": "Outer side gap",
+      "typical_values": []
+    },
+    {
+      "name": "HW_Z5",
+      "description": "Door gap space",
+      "typical_values": []
+    },
+    {
+      "name": "HZK",
+      "description": "Leđa gore do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "ID",
+      "description": "Izrez - duljina",
+      "typical_values": [
+        "150",
+        "80",
+        "62",
+        "56",
+        "49.3",
+        "27.5",
+        "564",
+        "200",
+        "497",
+        "220"
+      ]
+    },
+    {
+      "name": "ide",
+      "description": "Poluu./utor. pod",
+      "typical_values": []
+    },
+    {
+      "name": "IDEP",
+      "description": "Izrez dubina — =0 Izrez; >0 Dubina džepa",
+      "typical_values": []
+    },
+    {
+      "name": "IDEP1",
+      "description": "Izrez dubina — =0 Izrez; >0 Dubina džepa / Razmak između dvostranih džepova",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "INF",
+      "description": "Info test — [opcije: A/B/C/D/E/F/G/H/I/J/K/M/N]",
+      "typical_values": []
+    },
+    {
+      "name": "Ins",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "IODO",
+      "description": "Odmak po duljini — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "IOSI",
+      "description": "Odmak po širini — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "IS",
+      "description": "Izrez - širina",
+      "typical_values": [
+        "75",
+        "10",
+        "31.5",
+        "23",
+        "62",
+        "20",
+        "250",
+        "259",
+        "200"
+      ]
+    },
+    {
+      "name": "IS2",
+      "description": "Izrez - širina 2",
+      "typical_values": []
+    },
+    {
+      "name": "ISD",
+      "description": "Izrez sifona - dubina",
+      "typical_values": []
+    },
+    {
+      "name": "ISG",
+      "description": "Izrez sifona - globina",
+      "typical_values": []
+    },
+    {
+      "name": "ISIN",
+      "description": "Izrez za šinu za vješanje — [opcije: 1 - Obje skroz/2 - skraćenje lijevo/3 - Skraćenje desno/4 - Skraćenje na obje strane]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ISOS",
+      "description": "Izrez sifona - odmak po širini — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ISS",
+      "description": "Izrez sifona - širina",
+      "typical_values": []
+    },
+    {
+      "name": "ISTS",
+      "description": "Izrez sifona - tip spoja — [opcije: Tupo/Ger]",
+      "typical_values": [
+        "Tupo",
+        "Ger"
+      ]
+    },
+    {
+      "name": "IU",
+      "description": "Izrez - U oblik",
+      "typical_values": []
+    },
+    {
+      "name": "IV",
+      "description": "Izrez - visina",
+      "typical_values": []
+    },
+    {
+      "name": "IZN",
+      "description": "Odmak od: — [opcije: Van/Unutra]",
+      "typical_values": [
+        "Van",
+        "Unutra"
+      ]
+    },
+    {
+      "name": "IZR_0",
+      "description": "koristi se u 14 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_1",
+      "description": "koristi se u 9 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_10",
+      "description": "koristi se u 18 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_11",
+      "description": "koristi se u 21 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_12",
+      "description": "koristi se u 10 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_13",
+      "description": "koristi se u 9 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_15",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_17",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_18",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_19",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_2",
+      "description": "koristi se u 16 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_5",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_6",
+      "description": "koristi se u 4 formula",
+      "typical_values": []
+    },
+    {
+      "name": "IZR_7",
+      "description": "koristi se u 1 formula",
+      "typical_values": []
+    },
+    {
+      "name": "JEDRAZ",
+      "description": "Jednak razmak",
+      "typical_values": []
+    },
+    {
+      "name": "JEDVIS",
+      "description": "Jednaka visina",
+      "typical_values": []
+    },
+    {
+      "name": "JPIdx",
+      "description": "",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "JPULL",
+      "description": "Jpul rucica",
+      "typical_values": []
+    },
+    {
+      "name": "KDF",
+      "description": "Kuhinjski donji - fronte — [opcije: 1 - Lijeva zaokretna/2 - Desna zaokretna/3 - Dvokrilna zaokretna/4 - Ladica AAB/5 - Ladica AA/6 - Ladica ABB/7 - Ladica AAAA/8 - Izvlačna košara]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KDF1",
+      "description": "Kuhinjski donji - fronte — [opcije: Ladica/Otklopna vrata]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KDNV",
+      "description": "Kuhinjski donji - nogice visina — [opcije: 100/150]",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "KDOS",
+      "description": "Kuhinjski donji - odmak sprijeda — [opcije: 0,5/2/Aktor]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KDOSG",
+      "description": "Kuhinjski donji - odmak sprijeda - Gola — [opcije: 0,5/2/Gola]",
+      "typical_values": [
+        "0,5",
+        "2",
+        "Gola"
+      ]
+    },
+    {
+      "name": "KDOSZI",
+      "description": "Kuhinjski donji - odmak stropa gore za indukciju",
+      "typical_values": []
+    },
+    {
+      "name": "KDPU",
+      "description": "Kuhinjski donji - pozicija ugradnje — [opcije: 1 - Niz/2 - Otok L/3 - Otok S/4 - Otok D]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KDT",
+      "description": "Kuhinjski donji - tip — [opcije: Obični/Indukcija/Kuhalo/Sudoper]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KKLD",
+      "description": "Kuhinjski kutni lijevi-desni — [opcije: 1 - Lijevi kut/2 - Desni kut]",
+      "typical_values": [
+        "1 - Lijevi kut",
+        "2 - Desni kut"
+      ]
+    },
+    {
+      "name": "KKUT",
+      "description": "Korpus kutni — [opcije: 45+dubina L/45+dubina D/Dubina L i D]",
+      "typical_values": [
+        "45+dubina L",
+        "45+dubina D",
+        "Dubina L i D"
+      ]
+    },
+    {
+      "name": "KKV",
+      "description": "Kuhinjski kutni - vrata — [opcije: 1 - Jednokrilna/2 - Dvokrilna]",
+      "typical_values": [
+        "1 - Jednokrilna",
+        "2 - Dvokrilna"
+      ]
+    },
+    {
+      "name": "KLS",
+      "description": "Tip okovnog kliznog sustava — [opcije: ER10-M4/H3-10]",
+      "typical_values": [
+        "ER10-M4",
+        "H3-10"
+      ]
+    },
+    {
+      "name": "KO",
+      "description": "Odmak od kuta zidova — Odmak leđa zbog nepravilnosti zidova u kutu — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KOAP",
+      "description": "Kuhinjski ormar - aparati — [opcije: 1 - Bez/2 - Hladnjak/3 - Pećnica/4 - Pećnica + mikrovalna]",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "KODPO",
+      "description": "Kuhinjski ormar - dodatni pod - odmak — X = 0  bez dodatnog poda",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KODS",
+      "description": "Kuhinjski ormar do stropa — [opcije: 1 - Ne/2 - zajednička maska/3 - L maska bez izreza/4 - L maska s izrezom/5 - I maska]",
+      "typical_values": [
+        "3"
+      ]
+    },
+    {
+      "name": "KOFD",
+      "description": "Kuhinjski ormar - fronta dolje — [opcije: 1-Lijeva zaokretna/2-Desna zaokretna/3-Ladica AAB/4-Ladica AA/5-Ladica ABB/6-Ladica AAAA/7-Lijeva 2 zaokretna/8-Desna 2 zaokretna]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KOFG",
+      "description": "Kuhinjski ormar - fronta gore — [opcije: Lijeva zaokretna/Desna zaokretna/Podizna]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KOOH",
+      "description": "Kuhinjski ormar - otvor za hladnjak/svijetli otvor",
+      "typical_values": [
+        "1780"
+      ]
+    },
+    {
+      "name": "KOOL",
+      "description": "Kuhinjski ormar - leđa odmak — [opcije: 20/35/50]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KOOM",
+      "description": "Kuhinjski ormar - otvor za mikrovalnu",
+      "typical_values": [
+        "380"
+      ]
+    },
+    {
+      "name": "KOOP",
+      "description": "Kuhinjski ormar - otvor za pećnicu",
+      "typical_values": [
+        "590",
+        "600"
+      ]
+    },
+    {
+      "name": "KORAK",
+      "description": "Korak",
+      "typical_values": []
+    },
+    {
+      "name": "KOT",
+      "description": "Kut odreza",
+      "typical_values": []
+    },
+    {
+      "name": "KOV1",
+      "description": "Kuhinjski ormar - visina dolje",
+      "typical_values": [
+        "720"
+      ]
+    },
+    {
+      "name": "KPKS",
+      "description": "Kut zidova — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "KRAJD",
+      "description": "Krajnja desna",
+      "typical_values": []
+    },
+    {
+      "name": "KRAJL",
+      "description": "Krajnja lijeva",
+      "typical_values": []
+    },
+    {
+      "name": "KRPD",
+      "description": "Kut razlike pravokutnosti desno",
+      "typical_values": []
+    },
+    {
+      "name": "KRPL",
+      "description": "Kut razlike pravokutnosti lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "Ks",
+      "description": "",
+      "typical_values": [
+        "1",
+        "2",
+        "5",
+        "4",
+        "3",
+        "6"
+      ]
+    },
+    {
+      "name": "KT",
+      "description": "Kut šiljasti/tupi — Smjer odstupanja od pravokutnosti ugla zidova",
+      "typical_values": []
+    },
+    {
+      "name": "KTD",
+      "description": "Kut šiljasti/tupi desni",
+      "typical_values": []
+    },
+    {
+      "name": "KTL",
+      "description": "Kut šiljasti/tupi lijevi",
+      "typical_values": []
+    },
+    {
+      "name": "KUT",
+      "description": "Kut — (može biti negativan)",
+      "typical_values": [
+        "0",
+        "90"
+      ]
+    },
+    {
+      "name": "KUT_45",
+      "description": "Kut između -45 i 45 stupnjeva — (može biti negativan, raspon: -45–45)",
+      "typical_values": []
+    },
+    {
+      "name": "KUT_90",
+      "description": "Kut između 10 i 90 stupnjeva — (raspon: 10–90)",
+      "typical_values": []
+    },
+    {
+      "name": "KUT_I0",
+      "description": "koristi se u 16 formula",
+      "typical_values": []
+    },
+    {
+      "name": "KUT1",
+      "description": "Kut prvi",
+      "typical_values": []
+    },
+    {
+      "name": "KUT2",
+      "description": "Kut drugi",
+      "typical_values": []
+    },
+    {
+      "name": "KUT3",
+      "description": "Kut treći",
+      "typical_values": []
+    },
+    {
+      "name": "KUT4",
+      "description": "Kut četvrti",
+      "typical_values": []
+    },
+    {
+      "name": "KUT5",
+      "description": "Kut peti",
+      "typical_values": []
+    },
+    {
+      "name": "KUTD",
+      "description": "Kut desno",
+      "typical_values": []
+    },
+    {
+      "name": "KUTL",
+      "description": "Kut lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "KUTNP",
+      "description": "Kutnik položaj držača — [opcije: Okomito/Paralelno] — (cijeli broj)",
+      "typical_values": [
+        "Okomito",
+        "Paralelno"
+      ]
+    },
+    {
+      "name": "KUTNS",
+      "description": "Kutnik vidljiva širina",
+      "typical_values": []
+    },
+    {
+      "name": "KUTP",
+      "description": "Kut - pozitivni",
+      "typical_values": []
+    },
+    {
+      "name": "KUTS",
+      "description": "Kut šiljasti/tupi — Smjer odstupanja od pravokutnosti ugla zidova — [opcije: Tupi/Šiljasti]",
+      "typical_values": [
+        "Tupi",
+        "Šiljasti"
+      ]
+    },
+    {
+      "name": "KUTV1",
+      "description": "Kut prve vertikale",
+      "typical_values": []
+    },
+    {
+      "name": "KUTV2",
+      "description": "Kut druge vertikale",
+      "typical_values": []
+    },
+    {
+      "name": "KUTV3",
+      "description": "Kut treće vertikale",
+      "typical_values": []
+    },
+    {
+      "name": "KUTV4",
+      "description": "Kut četvrte vertikale",
+      "typical_values": []
+    },
+    {
+      "name": "KUTV5",
+      "description": "Kut pete vertikale",
+      "typical_values": []
+    },
+    {
+      "name": "KUTZ",
+      "description": "Kut razlike pravokutnosti zidova — Iznos kuta odstupanja od pravokutnosti ugla zidova (razlika od 90 stupnjeva)",
+      "typical_values": []
+    },
+    {
+      "name": "KUTZX",
+      "description": "Kut zakretanja po osi X — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "KUTZY",
+      "description": "Kut zakretanja po osi Y — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "KUTZZ",
+      "description": "Kut zakretanja po osi Z — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "KVDS",
+      "description": "Kuhinjski viseći - maska do stropa — [opcije: 1 - Ne/2 - zajednička maska/3 - L maska bez izreza/4 - L maska s izrezom/5 - I maska]",
+      "typical_values": [
+        "0",
+        "3"
+      ]
+    },
+    {
+      "name": "KVDS1",
+      "description": "Kuhinjski viseći - maska do stropa — [opcije: 1 - Ne/2 - Da - bez maske/3 - Vertikalna maska/4 - Horizontalna maska]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KVF",
+      "description": "Kuhinjski viseći fronte — [opcije: 1 - Zaokretna lijeva/2 - Zaokretna desna/3 - Zaokretna dvokrilna/4 - Podizna jednokrilna HK-XS/5 - Podizna jednokrilna HK/6 - Podizna jednokrilna HK-S/7 - Podizna dvokrilna HF/8 - Podizna dvokrilna HK-XS/9 - Podizna dvokrilna HK/10 - Podizna dvokrilna HK-S]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KVF1",
+      "description": "Kuhinjski viseći fronte — [opcije: 1 - Zaokretna lijeva/2 - Zaokretna desna/3 - Zaokretna dvokrilna]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KVF2",
+      "description": "Kuhinjski viseći fronte — [opcije: 1 - Zaokretna lijeva/2 - Zaokretna desna/3 - Podizna HK-XS/4 - Podizna HK/5 - Podizna HK-S]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "KVNI",
+      "description": "Kuhinjski viseći - napa izvlačna debljina",
+      "typical_values": []
+    },
+    {
+      "name": "KVNM",
+      "description": "Kuhinjski viseći - napa - visina motora",
+      "typical_values": [
+        "160"
+      ]
+    },
+    {
+      "name": "KVNT",
+      "description": "Kuhinjski viseći - napa tip — [opcije: 1 - Izvlačna/2 - Podgradna]",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "KVNZ",
+      "description": "Kuhinjski viseći - nosač zidni — Za vješanje se korist zidna letvai: 1 - tog ormarića / 2 - nekog drugog ormarića. — [opcije: 1 - Da/2 - Zajednički]",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "KVOM",
+      "description": "Kuhinjski viseći - otvor za mikrovalnu",
+      "typical_values": [
+        "350"
+      ]
+    },
+    {
+      "name": "KZ",
+      "description": "Kut razlike pravokutnosti zidova — Iznos kuta odstupanja od pravokutnosti ugla zidova (razlika od 90 stupnjeva)",
+      "typical_values": []
+    },
+    {
+      "name": "L",
+      "description": "",
+      "typical_values": [
+        "56"
+      ]
+    },
+    {
+      "name": "L1",
+      "description": "Duljina 1",
+      "typical_values": []
+    },
+    {
+      "name": "LADOB",
+      "description": "Ladičar odmak bočno — [opcije: Maska lijevo/Maska desno/Maska obostrano/Odmak lijevo/Odmak desno/Odmak obostrano]",
+      "typical_values": [
+        "Maska lijevo",
+        "Maska desno",
+        "Maska obostrano",
+        "Odmak lijevo",
+        "Odmak desno",
+        "Odmak obostrano"
+      ]
+    },
+    {
+      "name": "LADOH",
+      "description": "Ladičar odmak horizontale od poda",
+      "typical_values": []
+    },
+    {
+      "name": "LADOS",
+      "description": "Ladičar odmak širina",
+      "typical_values": []
+    },
+    {
+      "name": "LD",
+      "description": "Lijevo/Desno — [opcije: Llijevo/Desno]",
+      "typical_values": [
+        "Llijevo",
+        "Desno"
+      ]
+    },
+    {
+      "name": "LD0",
+      "description": "Vrata — [opcije: Lijeva/Desna/Bez]",
+      "typical_values": [
+        "Lijeva",
+        "Desna",
+        "Bez"
+      ]
+    },
+    {
+      "name": "LD1",
+      "description": "Strana — [opcije: Lijevo/Desno]",
+      "typical_values": [
+        "Lijevo",
+        "Desno"
+      ]
+    },
+    {
+      "name": "LD2",
+      "description": "Strana: lijeva/desna/obje — [opcije: Lijeva/Desna/Obje]",
+      "typical_values": [
+        "Lijeva",
+        "Desna",
+        "Obje"
+      ]
+    },
+    {
+      "name": "LDO",
+      "description": "Lijevo / desno otvaranje — [opcije: Lijevo/Desno/Lijevo-Desno] — (cijeli broj)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LDU",
+      "description": "Nastavak — [opcije: Lijevi/Desni/Oba]",
+      "typical_values": [
+        "Lijevi",
+        "Desni",
+        "Oba"
+      ]
+    },
+    {
+      "name": "LDU0",
+      "description": "Stijene bočne — [opcije: Lijeva/Desna/Lijeva i desna/Bez]",
+      "typical_values": [
+        "Lijeva",
+        "Desna",
+        "Lijeva i desna",
+        "Bez"
+      ]
+    },
+    {
+      "name": "LE",
+      "description": "Lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "LEDDUD",
+      "description": "LED duljina desno — 0 = briši; 1 = izračun; n = izmjera",
+      "typical_values": []
+    },
+    {
+      "name": "LEDDUL",
+      "description": "LED duljina lijevo — 0 = briši; 1 = izračun; n = izmjera",
+      "typical_values": []
+    },
+    {
+      "name": "LEDIZR",
+      "description": "LED izrez — [opcije: Ne/Lijevi/Desni/Oba]",
+      "typical_values": [
+        "Ne",
+        "Lijevi",
+        "Desni",
+        "Oba"
+      ]
+    },
+    {
+      "name": "LEDIZRK",
+      "description": "LED izrez do kraja — [opcije: 1 - Ne/2 - Lijevi/3 - Desni/4 - Oba]",
+      "typical_values": [
+        "3",
+        "0"
+      ]
+    },
+    {
+      "name": "LEDIZRP",
+      "description": "LED izrez poda — [opcije: Ne/Lijevi/Desni/Oba]",
+      "typical_values": [
+        "Ne",
+        "Lijevi",
+        "Desni",
+        "Oba"
+      ]
+    },
+    {
+      "name": "LEDIZRS",
+      "description": "LED izrez stropa — [opcije: Ne/Lijevi/Desni/Oba]",
+      "typical_values": [
+        "Ne",
+        "Lijevi",
+        "Desni",
+        "Oba"
+      ]
+    },
+    {
+      "name": "LEDKAP",
+      "description": "LED kapica",
+      "typical_values": []
+    },
+    {
+      "name": "LEDKAPT",
+      "description": "LED debljina kapice",
+      "typical_values": []
+    },
+    {
+      "name": "LEDKD",
+      "description": "LED kanalica tip - desno — [opcije: Ravna/Kutna/Ne]",
+      "typical_values": [
+        "Ravna",
+        "Kutna",
+        "Ne"
+      ]
+    },
+    {
+      "name": "LEDKL",
+      "description": "LED kanalica tip - lijevo — [opcije: Ravna/Kutna/Ne]",
+      "typical_values": [
+        "Ravna",
+        "Kutna",
+        "Ne"
+      ]
+    },
+    {
+      "name": "LEDOBL",
+      "description": "LED maska - oblik — [opcije: I/L/D/U]",
+      "typical_values": [
+        "I",
+        "L",
+        "D",
+        "U"
+      ]
+    },
+    {
+      "name": "LEDODD",
+      "description": "LED odmak dolje desno",
+      "typical_values": []
+    },
+    {
+      "name": "LEDODL",
+      "description": "LED odmak dolje lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "LEDOGD",
+      "description": "LED odmak gore desno",
+      "typical_values": []
+    },
+    {
+      "name": "LEDOGL",
+      "description": "LED odmak gore lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "LEDOP",
+      "description": "LED odmak prednji",
+      "typical_values": [
+        "100",
+        "200"
+      ]
+    },
+    {
+      "name": "LEDOPD",
+      "description": "LED odmak prednji desno",
+      "typical_values": []
+    },
+    {
+      "name": "LEDOPL",
+      "description": "LED odmak prednji lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "LEDP",
+      "description": "LED pod dodatni — Dodatni pod za LED rasvjetu — [opcije: 1 - Ne/2 - Da/3 - Zajednički]",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "LEDPC",
+      "description": "LED pod dodatni cijeli — [opcije: Lijevi/Desni]",
+      "typical_values": [
+        "Lijevi",
+        "Desni"
+      ]
+    },
+    {
+      "name": "LEDPD",
+      "description": "LED pod dodatni - debljina — Smanjenje visine ormarića za debljinu zajedničkog dodatnog poda za LED rasvjetu",
+      "typical_values": [
+        "18"
+      ]
+    },
+    {
+      "name": "LEDPO",
+      "description": "LED pod dodatni odmak sprijeda",
+      "typical_values": []
+    },
+    {
+      "name": "LEDSD",
+      "description": "LED snaga desno — [opcije: 30 po metru/60 po metru/120 po metru/240 po metru]",
+      "typical_values": [
+        "30 po metru",
+        "60 po metru",
+        "120 po metru",
+        "240 po metru"
+      ]
+    },
+    {
+      "name": "LEDSET",
+      "description": "LED sastav — [opcije: 1 - Ne/2 - Kanalica/3 - Traka/4 - Kanalica+traka]",
+      "typical_values": [
+        "1 - Ne",
+        "2 - Kanalica",
+        "3 - Traka",
+        "4 - Kanalica+traka"
+      ]
+    },
+    {
+      "name": "LEDSKD",
+      "description": "LED skraćenje desno",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LEDSKL",
+      "description": "LED skraćenje lijevo",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LEDSL",
+      "description": "LED snaga lijevo — [opcije: 30 po metru/60 po metru/120 po metru/240 po metru]",
+      "typical_values": [
+        "30 po metru",
+        "60 po metru",
+        "120 po metru",
+        "240 po metru"
+      ]
+    },
+    {
+      "name": "LEDSM",
+      "description": "LED širina maske",
+      "typical_values": []
+    },
+    {
+      "name": "LEDSMD",
+      "description": "LED - širina desne maske",
+      "typical_values": []
+    },
+    {
+      "name": "LEDSML",
+      "description": "LED širina lijeve maske",
+      "typical_values": []
+    },
+    {
+      "name": "LEDST",
+      "description": "LED sastav — [opcije: 1 - Ne/2 - Traka/3 - Kanalica+traka]",
+      "typical_values": [
+        "2",
+        "0"
+      ]
+    },
+    {
+      "name": "LEDUD",
+      "description": "LED utor dubina",
+      "typical_values": []
+    },
+    {
+      "name": "LEDUS",
+      "description": "LED utor širina",
+      "typical_values": []
+    },
+    {
+      "name": "LETD",
+      "description": "Letva - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "LETI",
+      "description": "Letva - izračun — [opcije: Razmaka/Letvice/Letvice i razmaka]",
+      "typical_values": [
+        "Razmaka",
+        "Letvice",
+        "Letvice i razmaka"
+      ]
+    },
+    {
+      "name": "LETK",
+      "description": "Letvice do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "LETR",
+      "description": "Letva - razmak",
+      "typical_values": []
+    },
+    {
+      "name": "LETS",
+      "description": "Letva - širina",
+      "typical_values": []
+    },
+    {
+      "name": "LIJ",
+      "description": "Lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "LimB",
+      "description": "",
+      "typical_values": [
+        "121",
+        "7",
+        "4",
+        "96",
+        "114",
+        "6"
+      ]
+    },
+    {
+      "name": "LimBa",
+      "description": "",
+      "typical_values": [
+        "124",
+        "8",
+        "57",
+        "5"
+      ]
+    },
+    {
+      "name": "LimEl2path",
+      "description": "",
+      "typical_values": [
+        ".StranicaL",
+        ".StranicaD",
+        ".StranicaLG",
+        ".StranicaDG",
+        ".LedaP.Leda",
+        ".MaskaPoda",
+        ".PodDodatni",
+        ".Pod",
+        "..StranicaL",
+        "..StranicaD"
+      ]
+    },
+    {
+      "name": "LimF",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LimFr",
+      "description": "",
+      "typical_values": [
+        "1",
+        "115",
+        "0"
+      ]
+    },
+    {
+      "name": "LimHin",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LimHS",
+      "description": "",
+      "typical_values": [
+        "-2",
+        "-1"
+      ]
+    },
+    {
+      "name": "LimL",
+      "description": "",
+      "typical_values": [
+        "1",
+        "115"
+      ]
+    },
+    {
+      "name": "LimR",
+      "description": "",
+      "typical_values": [
+        "2",
+        "116"
+      ]
+    },
+    {
+      "name": "LimSh",
+      "description": "",
+      "typical_values": [
+        "125",
+        "126",
+        "73",
+        "98",
+        "124",
+        "127",
+        "12",
+        "48",
+        "97"
+      ]
+    },
+    {
+      "name": "LimStr",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LimStr2",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "LimStr2Path",
+      "description": "",
+      "typical_values": [
+        "....Ormar.StranicaD",
+        "....Ormar.StranicaL",
+        "....Donji.StranicaL",
+        "....Viseci.StranicaD",
+        "....Viseci.StranicaL",
+        "....Donji.VezP"
+      ]
+    },
+    {
+      "name": "LimStrPath",
+      "description": "",
+      "typical_values": [
+        "....Ormar.StranicaL",
+        "....Ormar.StranicaD",
+        "..VrataZ.Vrata",
+        "....Ormar.Strop",
+        "....StranicaL",
+        "...VrataD.Vrata.Vrata",
+        "....StranicaD",
+        "...VrataL.Vrata.Vrata",
+        "....Donji.StranicaL",
+        "....Donji.StranicaD"
+      ]
+    },
+    {
+      "name": "LimT",
+      "description": "",
+      "typical_values": [
+        "3",
+        "119",
+        "122",
+        "123",
+        "47",
+        "96"
+      ]
+    },
+    {
+      "name": "LKD",
+      "description": "Letvica kutna - desna",
+      "typical_values": []
+    },
+    {
+      "name": "LKKU",
+      "description": "Letvica kutna - kutnik unutrašnji",
+      "typical_values": []
+    },
+    {
+      "name": "LKL",
+      "description": "Letvica kutna - lijeva",
+      "typical_values": []
+    },
+    {
+      "name": "LKP",
+      "description": "Letvica kutna - prednja",
+      "typical_values": []
+    },
+    {
+      "name": "LKPD",
+      "description": "Letvica kutna prednja desna",
+      "typical_values": []
+    },
+    {
+      "name": "LKPL",
+      "description": "Letvica kutna prednja lijeva",
+      "typical_values": []
+    },
+    {
+      "name": "LKS",
+      "description": "Letvica kutna - stražnja",
+      "typical_values": []
+    },
+    {
+      "name": "LKSS",
+      "description": "Letvica kutna - skraćenje sprijeda",
+      "typical_values": []
+    },
+    {
+      "name": "LKW",
+      "description": "Letvica kutna - širina",
+      "typical_values": []
+    },
+    {
+      "name": "LKZD",
+      "description": "Letvica kutna - završetak desni",
+      "typical_values": []
+    },
+    {
+      "name": "LKZL",
+      "description": "Letvica kutna - završetak lijevi",
+      "typical_values": []
+    },
+    {
+      "name": "LKZT",
+      "description": "Letvica kutna - završetak debljina",
+      "typical_values": []
+    },
+    {
+      "name": "LMPPG",
+      "description": "LeMans položaj g.police (1-5) — Položaj gornje police po redoslijedu rastera — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "LPDN",
+      "description": "Ladica-prednji dio — Ladica s ili bez prednjeg dijela",
+      "typical_values": []
+    },
+    {
+      "name": "LPDP",
+      "description": "Ladica-prednji do poda",
+      "typical_values": []
+    },
+    {
+      "name": "LPOS",
+      "description": "Leđa puna - odmak straga",
+      "typical_values": []
+    },
+    {
+      "name": "LPREK",
+      "description": "Leđa - preklop",
+      "typical_values": []
+    },
+    {
+      "name": "LPT",
+      "description": "Leđa puna/tanka — [opcije: Puna/Tanka]",
+      "typical_values": [
+        "Puna",
+        "Tanka"
+      ]
+    },
+    {
+      "name": "LPUN",
+      "description": "Leđa - puna — [opcije: Lijeva/Desna/Oboja/Kutna] — (cijeli broj)",
+      "typical_values": [
+        "Lijeva",
+        "Desna",
+        "Oboja",
+        "Kutna"
+      ]
+    },
+    {
+      "name": "LRSDN",
+      "description": "Ladice rupa straga Da/ne — Ladice rupe na stražnjem dijelu Da/Ne",
+      "typical_values": []
+    },
+    {
+      "name": "LSTD",
+      "description": "Letvica za staklo - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "LSTS",
+      "description": "Letvica za staklo - širina",
+      "typical_values": []
+    },
+    {
+      "name": "LTP",
+      "description": "Leđa tanke - puna",
+      "typical_values": []
+    },
+    {
+      "name": "LU",
+      "description": "Oblik nastavka — [opcije: L=Lijevo/U lijevo i desno]",
+      "typical_values": [
+        "L=Lijevo",
+        "U lijevo i desno"
+      ]
+    },
+    {
+      "name": "LUTD",
+      "description": "Ladice utor dubina — Dubina utora na podu ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "LUTS",
+      "description": "Ladice utor širina — Širina utora na podu ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "LZDP",
+      "description": "Ladica-zadnji do poda",
+      "typical_values": []
+    },
+    {
+      "name": "Mat",
+      "description": "Materijal",
       "typical_values": [
         "VO_SPROF_KAP_D80_39S",
         "7TIPLE_VIDE",
@@ -5976,16 +7283,1965 @@
       ]
     },
     {
-      "name": "BPath",
+      "name": "MatBa2Tk",
       "description": "",
       "typical_values": [
-        "Okov\\Volpato\\Spojni",
-        "Profili\\Volpato\\Spojni",
-        "Okov\\Blum\\Vodiice\\Antaro",
-        "Okov\\Blum\\Vodilice\\Antaro",
-        "Okov\\Blum\\Vodilice",
-        "Okov\\Camar",
-        "Profili\\Camar"
+        "7TIPLE_VIDE",
+        "7TS",
+        "7TIPLE_EXC"
+      ]
+    },
+    {
+      "name": "MatBa2Tn",
+      "description": "",
+      "typical_values": [
+        "7VIJ"
+      ]
+    },
+    {
+      "name": "MatBac",
+      "description": "",
+      "typical_values": [
+        "7TIPLE_VIDE",
+        "7TS",
+        "7TIPLE_EXC"
+      ]
+    },
+    {
+      "name": "MatGer",
+      "description": "",
+      "typical_values": [
+        "7TSG",
+        "7TIPSTD_GER_K"
+      ]
+    },
+    {
+      "name": "MatPl",
+      "description": "",
+      "typical_values": [
+        "BL_173L8100"
+      ]
+    },
+    {
+      "name": "MatSlt",
+      "description": "",
+      "typical_values": [
+        "7TS",
+        "7TIPSTD_K"
+      ]
+    },
+    {
+      "name": "MatTwM",
+      "description": "",
+      "typical_values": [
+        "7MASTER",
+        "7TS",
+        "7TIPSTD_M_K"
+      ]
+    },
+    {
+      "name": "MatTwS",
+      "description": "",
+      "typical_values": [
+        "7SLAVE",
+        "7TSS",
+        "7TIPSTD_S_K"
+      ]
+    },
+    {
+      "name": "MatV",
+      "description": "",
+      "typical_values": [
+        "7LABA_M_30_SW",
+        "7LABA_D_30_SW",
+        "7LABA_D_50_SW",
+        "7LABA_N_30_SW"
+      ]
+    },
+    {
+      "name": "MATVOD",
+      "description": "Materijal vodilice",
+      "typical_values": []
+    },
+    {
+      "name": "MBD",
+      "description": "Maska bočna D — [opcije: Ne/1 - I profil/2 - L profil]",
+      "typical_values": [
+        "Ne",
+        "1 - I profil",
+        "2 - L profil"
+      ]
+    },
+    {
+      "name": "MBL",
+      "description": "Maska bočna L — [opcije: Ne/1 - I profil/2 - L profil]",
+      "typical_values": [
+        "Ne",
+        "1 - I profil",
+        "2 - L profil"
+      ]
+    },
+    {
+      "name": "MCT",
+      "description": "Magic Corner Tip (1,2,3) — if([MCT]>3,X,[MCT,]1 = Arena Style; 2 = Arena Classic; 3 = Metal Basket)",
+      "typical_values": []
+    },
+    {
+      "name": "MCT1",
+      "description": "Magic Corner tip košarica — [opcije: Arena Style Plus/Arena Classic/Žičana]",
+      "typical_values": [
+        "Arena Style Plus",
+        "Arena Classic",
+        "Žičana"
+      ]
+    },
+    {
+      "name": "Mid",
+      "description": "",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "MIN",
+      "description": "Minimalna vrijednost",
+      "typical_values": []
+    },
+    {
+      "name": "Mir",
+      "description": "",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "Mir1",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Mir2",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "MirXY",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "MOZ",
+      "description": "Minimalni odmak straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "MOZD",
+      "description": "Dodatni odmak straga (0/19/79) — Dodatni odmak straga zbog elemenata za automatiziranje otvaranja/zatvaranja ladica (0= bez automatizma, 19 = Tipmatic, 79 = Sensotronic — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "MPath",
+      "description": "",
+      "typical_values": [
+        "Okov\\Blum\\Vodilice\\Z96.10E1.MAC",
+        "Razno\\Zrak.MAC"
+      ]
+    },
+    {
+      "name": "MSDPG",
+      "description": "Maska, dodatno proširenje gore — Proširenje maske iznad gabaritne visine pozicije.",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "MSG",
+      "description": "Poruka",
+      "typical_values": []
+    },
+    {
+      "name": "MSPRS",
+      "description": "Maska - prevjes sprijeda — (može biti negativan)",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "MSRT",
+      "description": "Maska - rešetka tip — [opcije: 1 - GTV/2 - Schachermayer]",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "MSS",
+      "description": "Maska širina",
+      "typical_values": [
+        "97"
+      ]
+    },
+    {
+      "name": "MSZRD",
+      "description": "Maska zrak desno — (može biti negativan)",
+      "typical_values": [
+        "1.5",
+        "0"
+      ]
+    },
+    {
+      "name": "MSZRG",
+      "description": "Maska zrak gore — Zajednička maska: Odmak stranice od gabaritne visine, Maska: Odmak vrha maske od gabaritne visine",
+      "typical_values": [
+        "3"
+      ]
+    },
+    {
+      "name": "MSZRL",
+      "description": "Maska zrak lijevo — (može biti negativan)",
+      "typical_values": [
+        "1.5",
+        "0"
+      ]
+    },
+    {
+      "name": "MTUKL",
+      "description": "Materijal uklade — [opcije: U104 IVERAL 10mm ST9/U727 IVERAL 10mm ST9/W980 IVERAL 10mm ST2]",
+      "typical_values": [
+        "U104 IVERAL 10mm ST9",
+        "U727 IVERAL 10mm ST9",
+        "W980 IVERAL 10mm ST2"
+      ]
+    },
+    {
+      "name": "N10",
+      "description": "Broj otvora (od 1 do 10) — (cijeli broj, raspon: 1–10)",
+      "typical_values": []
+    },
+    {
+      "name": "N5",
+      "description": "Broj elemenata 1-5 — [opcije: 1/2/3/4/5]",
+      "typical_values": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "name": "NASTD",
+      "description": "Nastavak desno — [opcije: Bez/Naprijed/Nazad]",
+      "typical_values": [
+        "Bez",
+        "Naprijed",
+        "Nazad"
+      ]
+    },
+    {
+      "name": "NASTL",
+      "description": "Nastavak lijevo — [opcije: Bez/Naprijed/Nazad]",
+      "typical_values": [
+        "Bez",
+        "Naprijed",
+        "Nazad"
+      ]
+    },
+    {
+      "name": "NIZ",
+      "description": "Položaj u nizu — [opcije: Sam/Krajnji L/Krajnji D/Srednji]",
+      "typical_values": [
+        "Sam",
+        "Krajnji L",
+        "Krajnji D",
+        "Srednji"
+      ]
+    },
+    {
+      "name": "NP",
+      "description": "Predznak — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "NP1",
+      "description": "Predznak",
+      "typical_values": []
+    },
+    {
+      "name": "NRas",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "NS",
+      "description": "Broj po širini",
+      "typical_values": []
+    },
+    {
+      "name": "NSEG",
+      "description": "Broj segmenata — [opcije: 0-Bez/1/2/3/-] — (cijeli broj, raspon: 0–3)",
+      "typical_values": [
+        "0-Bez",
+        "1",
+        "2",
+        "3",
+        "-"
+      ]
+    },
+    {
+      "name": "Num",
+      "description": "",
+      "typical_values": [
+        "2",
+        "1",
+        "200",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "name": "NumS",
+      "description": "",
+      "typical_values": [
+        "3"
+      ]
+    },
+    {
+      "name": "NV",
+      "description": "Broj po visini",
+      "typical_values": []
+    },
+    {
+      "name": "O",
+      "description": "",
+      "typical_values": []
+    },
+    {
+      "name": "OBLVU",
+      "description": "Obloga vanjska/unutarnja — [opcije: Bez/Vanjska/Unutarnja/Obje]",
+      "typical_values": [
+        "Bez",
+        "Vanjska",
+        "Unutarnja",
+        "Obje"
+      ]
+    },
+    {
+      "name": "OBS",
+      "description": "Odmak bloka od naprijed — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODDD",
+      "description": "Odmak desnog dijela — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODDU",
+      "description": "Odmak po dubini",
+      "typical_values": []
+    },
+    {
+      "name": "ODGL",
+      "description": "Odmak po dubini",
+      "typical_values": []
+    },
+    {
+      "name": "ODHP",
+      "description": "Odmak hor. pregrade — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODLD",
+      "description": "Odmak lijevog dijela — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODLS",
+      "description": "Odmak leđa straga — Odmak leđa od zadnje točke korpusa — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_1",
+      "description": "Odmak 1",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_2",
+      "description": "Odmak 2",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_3",
+      "description": "Odmak 3",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_4",
+      "description": "Odmak 4",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_5",
+      "description": "Odmak 5",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_6",
+      "description": "Odmak 6",
+      "typical_values": []
+    },
+    {
+      "name": "ODM_7",
+      "description": "Odmak 7",
+      "typical_values": []
+    },
+    {
+      "name": "ODMC",
+      "description": "C Rucka odmak od krajeva — [opcije: 100]",
+      "typical_values": []
+    },
+    {
+      "name": "ODMDG",
+      "description": "Suženje donožja odozgo — Smanjenje odozgo širine donožja kreveta u odnosu na visinu pozicije — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMDN",
+      "description": "Produženje donožja lijevo — Produženje donožja kreveta na lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMDS",
+      "description": "Produženje donožja desno — Produženje donožja kreveta na desno — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMKZ",
+      "description": "Odmak od kuta zidova — Odmak desnih-punih leđa ormarića od ugla zidova — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMLD",
+      "description": "Odmak leđa desnih",
+      "typical_values": []
+    },
+    {
+      "name": "ODMLG",
+      "description": "Suženje uzglavlja odozgo — Smanjenje odozgo širine uzglavlja kreveta u odnosu na visinu pozicije — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMLL",
+      "description": "Odmak leđa lijevih",
+      "typical_values": []
+    },
+    {
+      "name": "ODMLN",
+      "description": "Produženje uzglavlja lijevo — Produženje uzglavlja kreveta na lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMLS",
+      "description": "Produženje uzglavlja desno — Produženje uzglavlja kreveta na desno — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMND",
+      "description": "Suženje stranice lijeve odozdo — Smanjenje odozdo širine lijeve stranice kreveta u odnosu na donju točku pozicije — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMNG",
+      "description": "Suženje stranice lijeve odozgo — Smanjenje odozgo širine lijeve stranice kreveta u odnosu na visinu pozicije — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMOS",
+      "description": "Odmak od stranice — - odmak na lijevo    + odmak na desno",
+      "typical_values": []
+    },
+    {
+      "name": "ODMP",
+      "description": "Odmik palice",
+      "typical_values": []
+    },
+    {
+      "name": "ODMPG",
+      "description": "Odmak palice po dubini/širini — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMPP",
+      "description": "Odmak pera prednjeg",
+      "typical_values": []
+    },
+    {
+      "name": "ODMPS",
+      "description": "Odmak pera stražnjeg",
+      "typical_values": []
+    },
+    {
+      "name": "ODMS",
+      "description": "Odmak sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMSD",
+      "description": "Suženje stranice desne odozdo — Smanjenje odozdo širine desne stranice kreveta u odnosu na donju točku pozicije — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMSDG",
+      "description": "Odmak-strana desno-gore — Strana odmaka kose police od ugla — [opcije: Lijevo/Desno/Gore/Dolje]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje"
+      ]
+    },
+    {
+      "name": "ODMSG",
+      "description": "Suženje stranice desne odozgo — Smanjenje odozgo širine desne stranice kreveta u odnosu na visinu pozicije — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMSLG",
+      "description": "Odmak-strana lijevo-gore — Strana odmaka kose police od ugla — [opcije: Lijevo/Desno/Gore/Dolje]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje"
+      ]
+    },
+    {
+      "name": "ODMSO",
+      "description": "Odmak stranice odozdo",
+      "typical_values": []
+    },
+    {
+      "name": "ODMST",
+      "description": "Strana odmaka — [opcije: Lijevo/Desno/Gore/Dolje]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje"
+      ]
+    },
+    {
+      "name": "ODMVB",
+      "description": "Odmak veza po duljini — Odmak poprečnih vezova kreveta od uzglavlja i donožja — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMVD",
+      "description": "Odmak veza od stranice odozdo — Smanjenje odozdo širine vezova u odnosu na donju točku lijeve stranice kreveta — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMVG",
+      "description": "Odmak veza od stranice odozgo — Smanjenje odozgo širine vezova u odnosu na gornju točku lijeve stranice kreveta — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMVN",
+      "description": "Odmak veza od stranice lijeve — Odmak lijevog uzdužnog veza od lijeve stranice kreveta — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMVP",
+      "description": "Odmak veznika sprijeda",
+      "typical_values": []
+    },
+    {
+      "name": "ODMVS",
+      "description": "Odmak veza od stranice desne — Odmak desnog uzdužnog veza od desne stranice kreveta — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODMVZ",
+      "description": "Odmak veznika straga",
+      "typical_values": []
+    },
+    {
+      "name": "ODPD",
+      "description": "Odmak desno — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODPL",
+      "description": "Odmak lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODPLM",
+      "description": "Odmak za LeMans (450/500/600) — Odmak vertikalne pregrade za izvlačne kutne police Le Mans Kesseboehmer (širina vrata 450/500/600) — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODPLM2",
+      "description": "Odmak za vrata Le Mans — Širina korpusa mora minimalno biti: - za vrata širine 450 = 1009, - za vrata širine 500 = 1059, - za vrata širine 600 = 1259 mm. — [opcije: 450/500/600]",
+      "typical_values": [
+        "450",
+        "500",
+        "600"
+      ]
+    },
+    {
+      "name": "ODPLS",
+      "description": "Odmak punih leđa straga",
+      "typical_values": []
+    },
+    {
+      "name": "ODPMC",
+      "description": "Odmak za Magic Corner (min. 450) — Odmak vertikalne pregrade za izvlačne kutne police Magic Corner Kesseboehmer (širina vrata minimalno 450 mm) — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODPO",
+      "description": "Odmak odozdo",
+      "typical_values": []
+    },
+    {
+      "name": "ODPS",
+      "description": "Odmak sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODPU",
+      "description": "Odmak od ugla",
+      "typical_values": []
+    },
+    {
+      "name": "ODPZ",
+      "description": "Odmak straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODR",
+      "description": "Odmak glodanja — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODRKZ",
+      "description": "Odrez u kutu zidova — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODS",
+      "description": "Odmak poda sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODSD",
+      "description": "Odmak prednjeg dijela — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODSI",
+      "description": "Odmak po širini",
+      "typical_values": []
+    },
+    {
+      "name": "ODSM",
+      "description": "Ormar do stropa - maska — [opcije: 1 - Ne/2 - Da - bez maske/3 - L maska/4 - Polegnuta maska]",
+      "typical_values": [
+        "1 - Ne",
+        "2 - Da - bez maske",
+        "3 - L maska",
+        "4 - Polegnuta maska"
+      ]
+    },
+    {
+      "name": "ODSP",
+      "description": "Odmak poda odozdo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODU",
+      "description": "Odmak utora/leđa — (može biti negativan)",
+      "typical_values": [
+        "20",
+        "16"
+      ]
+    },
+    {
+      "name": "ODUP",
+      "description": "Odmak utora prednji",
+      "typical_values": []
+    },
+    {
+      "name": "ODUS",
+      "description": "Odmak utora stražnji",
+      "typical_values": []
+    },
+    {
+      "name": "ODVI",
+      "description": "Odmak po visini",
+      "typical_values": []
+    },
+    {
+      "name": "ODVP",
+      "description": "Odmak ver. pregrade — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODZ",
+      "description": "Odmak poda straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ODZD",
+      "description": "Odmak zadnjega dijela — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OfB",
+      "description": "",
+      "typical_values": [
+        "100",
+        "25",
+        "240.25",
+        "117",
+        "75",
+        "126.875"
+      ]
+    },
+    {
+      "name": "OfBL",
+      "description": "",
+      "typical_values": [
+        "50",
+        "30"
+      ]
+    },
+    {
+      "name": "OfBLE",
+      "description": "",
+      "typical_values": [
+        "50",
+        "0"
+      ]
+    },
+    {
+      "name": "OfBR",
+      "description": "",
+      "typical_values": [
+        "50",
+        "30"
+      ]
+    },
+    {
+      "name": "OfBRI",
+      "description": "",
+      "typical_values": [
+        "50",
+        "0"
+      ]
+    },
+    {
+      "name": "OfD",
+      "description": "",
+      "typical_values": [
+        "100",
+        "150",
+        "0",
+        "75"
+      ]
+    },
+    {
+      "name": "OfF",
+      "description": "",
+      "typical_values": [
+        "100",
+        "25",
+        "75"
+      ]
+    },
+    {
+      "name": "OffL",
+      "description": "koristi se u 5 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OfFL",
+      "description": "",
+      "typical_values": [
+        "50"
+      ]
+    },
+    {
+      "name": "OfFLE",
+      "description": "",
+      "typical_values": [
+        "50"
+      ]
+    },
+    {
+      "name": "OffR",
+      "description": "koristi se u 5 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OfFR",
+      "description": "",
+      "typical_values": [
+        "50"
+      ]
+    },
+    {
+      "name": "OfFRI",
+      "description": "",
+      "typical_values": [
+        "50"
+      ]
+    },
+    {
+      "name": "OffX",
+      "description": "",
+      "typical_values": [
+        "18",
+        "582",
+        "0"
+      ]
+    },
+    {
+      "name": "OffY",
+      "description": "",
+      "typical_values": [
+        "-560",
+        "0"
+      ]
+    },
+    {
+      "name": "OffZ",
+      "description": "",
+      "typical_values": [
+        "1072",
+        "18",
+        "0"
+      ]
+    },
+    {
+      "name": "OfH",
+      "description": "",
+      "typical_values": [
+        "10"
+      ]
+    },
+    {
+      "name": "OfHb",
+      "description": "",
+      "typical_values": [
+        "10",
+        "30",
+        "0"
+      ]
+    },
+    {
+      "name": "OfL",
+      "description": "",
+      "typical_values": [
+        "53"
+      ]
+    },
+    {
+      "name": "OfLon",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OFP",
+      "description": "Odmak fix police",
+      "typical_values": []
+    },
+    {
+      "name": "OFREL",
+      "description": "Razmak relinga",
+      "typical_values": []
+    },
+    {
+      "name": "OfSh",
+      "description": "",
+      "typical_values": [
+        "10"
+      ]
+    },
+    {
+      "name": "OfT",
+      "description": "",
+      "typical_values": [
+        "100",
+        "0",
+        "240.25",
+        "117",
+        "126.875"
+      ]
+    },
+    {
+      "name": "OfTh",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OfU",
+      "description": "",
+      "typical_values": [
+        "100",
+        "150",
+        "75"
+      ]
+    },
+    {
+      "name": "OfW",
+      "description": "",
+      "typical_values": [
+        "0",
+        "50",
+        "10"
+      ]
+    },
+    {
+      "name": "OfWL",
+      "description": "koristi se u 2 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OfWR",
+      "description": "koristi se u 2 formula",
+      "typical_values": []
+    },
+    {
+      "name": "OGL",
+      "description": "Ogledalo",
+      "typical_values": []
+    },
+    {
+      "name": "OGP",
+      "description": "Ograda - položaj — [opcije: Ispred/Iznad]",
+      "typical_values": [
+        "Ispred",
+        "Iznad"
+      ]
+    },
+    {
+      "name": "OGV",
+      "description": "Ograda - visina",
+      "typical_values": []
+    },
+    {
+      "name": "OGVI",
+      "description": "Ograda - visina ispod",
+      "typical_values": []
+    },
+    {
+      "name": "OKVRP",
+      "description": "Okvir - razmak prečki",
+      "typical_values": []
+    },
+    {
+      "name": "OKVS",
+      "description": "Okvir - širina",
+      "typical_values": []
+    },
+    {
+      "name": "OKVSV",
+      "description": "Okvir - širina veza",
+      "typical_values": []
+    },
+    {
+      "name": "OMAX",
+      "description": "Odmak maksimalni",
+      "typical_values": []
+    },
+    {
+      "name": "OnBa",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OnFr",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ONL",
+      "description": "Odmak naslonske letve — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OnRot",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "OnSh",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OOK",
+      "description": "Odmak obline — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OOSR",
+      "description": "Odmak od sredine — Negativna vrijednost odmiče elemente vezane uz cijev  lijevo, a pozitivna desno od sredine ormarića. — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OP",
+      "description": "Odmak police — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OPAD",
+      "description": "Odmak panta dolje",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG",
+      "description": "Odmak panta gore",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG02",
+      "description": "Odmak panta gore 2 korekcija",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG03",
+      "description": "Odmak panta gore 3 korekcija",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG04",
+      "description": "Odmak panta gore 4 korekcija",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG05",
+      "description": "Odmak panta gore 5 korekcija",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG2",
+      "description": "Odmak panta gore 2 — 0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG3",
+      "description": "Odmak panta gore 3 — 0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG4",
+      "description": "Odmak panta gore 4 — 0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak",
+      "typical_values": []
+    },
+    {
+      "name": "OPAG5",
+      "description": "Odmak panta gore 5 — 0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak",
+      "typical_values": []
+    },
+    {
+      "name": "OPD",
+      "description": "Odmak police po duljini — (može biti negativan)",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "OPR",
+      "description": "Odmak profila",
+      "typical_values": []
+    },
+    {
+      "name": "OPS",
+      "description": "Odmak ladice odozdo — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "OPSM",
+      "description": "Minimalni odmak ladice odozdo",
+      "typical_values": []
+    },
+    {
+      "name": "OPZ",
+      "description": "Odmak ladice straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ORG",
+      "description": "Odrez po dubini",
+      "typical_values": []
+    },
+    {
+      "name": "ORS",
+      "description": "Odrez po širini",
+      "typical_values": []
+    },
+    {
+      "name": "OSDS",
+      "description": "Odmak str.D sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSDZ",
+      "description": "Odmak str.D straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSIRPD",
+      "description": "Širina oplate prednje desno",
+      "typical_values": []
+    },
+    {
+      "name": "OSIRPG",
+      "description": "Širina oplate prednje gore",
+      "typical_values": []
+    },
+    {
+      "name": "OSIRPL",
+      "description": "Širina oplate prednje lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "OSIRSD",
+      "description": "Širina oplate stražnje desno",
+      "typical_values": []
+    },
+    {
+      "name": "OSIRSG",
+      "description": "Širina oplate stražnje gore",
+      "typical_values": []
+    },
+    {
+      "name": "OSIRSL",
+      "description": "Širina oplate stražnje lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "OSLS",
+      "description": "Odmak str.L sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSLZ",
+      "description": "Odmak str.L straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSP",
+      "description": "Odmak pred.dijela ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSPD",
+      "description": "Oblik spoja ploča desno — [opcije: Ne/Uzdužni/Poprečni]",
+      "typical_values": [
+        "Ne",
+        "Uzdužni",
+        "Poprečni"
+      ]
+    },
+    {
+      "name": "OSPL",
+      "description": "Oblik spoja ploča lijevo — [opcije: Ne/Uzdužni/Poprečni]",
+      "typical_values": [
+        "Ne",
+        "Uzdužni",
+        "Poprečni"
+      ]
+    },
+    {
+      "name": "OSS",
+      "description": "Odmak stropa sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSTR",
+      "description": "Obostrana izrada",
+      "typical_values": []
+    },
+    {
+      "name": "OSV",
+      "description": "Bočni odmak vodilice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSZ",
+      "description": "Odmak stropa straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OSZG",
+      "description": "Odmak stropa odozgo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OTV",
+      "description": "Otvaranje — [opcije: Lijevo van/Desno van/Lijevo unutra/Desno unutra]",
+      "typical_values": [
+        "Lijevo van",
+        "Desno van",
+        "Lijevo unutra",
+        "Desno unutra"
+      ]
+    },
+    {
+      "name": "OTVP",
+      "description": "Otvaranje prikaži",
+      "typical_values": []
+    },
+    {
+      "name": "OV",
+      "description": "Odmak veza — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OVS",
+      "description": "Odmak vrata sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OZG",
+      "description": "Odmak gore — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OZMO",
+      "description": "Odmak od zidarske mjere otvora",
+      "typical_values": []
+    },
+    {
+      "name": "OZP",
+      "description": "Odmak zad.dijela ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OZS",
+      "description": "Odmak cokla sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "OZZ",
+      "description": "Odmak cokla straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PAN",
+      "description": "Panti — [opcije: Ne/Vertikalno/Horizontalno]",
+      "typical_values": [
+        "Ne",
+        "Vertikalno",
+        "Horizontalno"
+      ]
+    },
+    {
+      "name": "PD",
+      "description": "Prevjes desno — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PDS",
+      "description": "Pod ispod ladice",
+      "typical_values": []
+    },
+    {
+      "name": "PDUD",
+      "description": "Poluutor dodatni uz utor - dubina",
+      "typical_values": []
+    },
+    {
+      "name": "PDUS",
+      "description": "Poluutor dodatni uz utor - širina",
+      "typical_values": []
+    },
+    {
+      "name": "PDV",
+      "description": "Preklop kliznih vrata — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PERO",
+      "description": "Pero u utor — [opcije: Ne/Jednostrano/Dvostrano] — (cijeli broj)",
+      "typical_values": [
+        "Ne",
+        "Jednostrano",
+        "Dvostrano"
+      ]
+    },
+    {
+      "name": "PGLU",
+      "description": "Dubina utora ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PKUT",
+      "description": "Ploča kutna — [opcije: 45+širina L/45+širina D/Širina L i D]",
+      "typical_values": [
+        "45+širina L",
+        "45+širina D",
+        "Širina L i D"
+      ]
+    },
+    {
+      "name": "PKV",
+      "description": "Preklop kliznih vrata",
+      "typical_values": []
+    },
+    {
+      "name": "PL",
+      "description": "Prevjes lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PLOND",
+      "description": "Nastavak ploče na desnoj strani — [opcije: Ne/Bočno/Sprijeda]",
+      "typical_values": [
+        "Ne",
+        "Bočno",
+        "Sprijeda"
+      ]
+    },
+    {
+      "name": "PLONL",
+      "description": "Nastavak ploče na lijevoj strani — [opcije: Ne/Bočno/Sprijeda]",
+      "typical_values": [
+        "Ne",
+        "Bočno",
+        "Sprijeda"
+      ]
+    },
+    {
+      "name": "PLP",
+      "description": "Podna prednja letva - broj — Izbor koliko podnih letava — [opcije: Ne/Prednja/Stražnja/Obje]",
+      "typical_values": [
+        "Ne",
+        "Prednja",
+        "Stražnja",
+        "Obje"
+      ]
+    },
+    {
+      "name": "PO",
+      "description": "Broj polica",
+      "typical_values": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "POBOC",
+      "description": "Broj polica bočnih",
+      "typical_values": []
+    },
+    {
+      "name": "PODD",
+      "description": "Odmak podnice ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PODOD",
+      "description": "Pod - odmak dolje",
+      "typical_values": []
+    },
+    {
+      "name": "PODOL",
+      "description": "Broj polica dolje",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "PODOP",
+      "description": "Pod - odmak prednji",
+      "typical_values": []
+    },
+    {
+      "name": "PODOS",
+      "description": "Pod - odmak stražnji",
+      "typical_values": []
+    },
+    {
+      "name": "POGOR",
+      "description": "Broj polica gore",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "POK",
+      "description": "Poklopac",
+      "typical_values": []
+    },
+    {
+      "name": "POLOD",
+      "description": "Polica - odmak po duljini",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "POLOP",
+      "description": "Polica - odmak prednji — (može biti negativan)",
+      "typical_values": [
+        "20"
+      ]
+    },
+    {
+      "name": "POLOS",
+      "description": "Polica - odmak stražnji",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "POM1",
+      "description": "Pomoćno 1",
+      "typical_values": []
+    },
+    {
+      "name": "POM2",
+      "description": "Pomoćno 2 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "POM3",
+      "description": "Pomoćno 3 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "POM4",
+      "description": "Pomoćno 4 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "POMD",
+      "description": "Pomak po duljini — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "POMS",
+      "description": "Pomak po širini — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PosH",
+      "description": "",
+      "typical_values": [
+        "1",
+        "2",
+        "0",
+        "0#2"
+      ]
+    },
+    {
+      "name": "POZRUC",
+      "description": "Pozicija rucke — [opcije: Lijevo/Desno/Gore/Dolje/Nema]",
+      "typical_values": [
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje",
+        "Nema"
+      ]
+    },
+    {
+      "name": "PPD",
+      "description": "Podnožje desno - produljenje — Produljenje desne podne maske",
+      "typical_values": []
+    },
+    {
+      "name": "PPG",
+      "description": "Pomak po dubini",
+      "typical_values": []
+    },
+    {
+      "name": "PPL",
+      "description": "Podnožje lijevo - produljenje — Produljenje lijeve podne maske",
+      "typical_values": []
+    },
+    {
+      "name": "PPOL",
+      "description": "Pod - položaj — Položaj poda u odnosu na stranice korpusa. — [opcije: Između stranica/Ispod stranica/Ger]",
+      "typical_values": [
+        "Između stranica",
+        "Ispod stranica",
+        "Ger"
+      ]
+    },
+    {
+      "name": "PPOL1",
+      "description": "Pod - položaj — Položaj poda u odnosu na stranice korpusa. — [opcije: Između stranica/Ispod stranica]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "PPP",
+      "description": "Podnožje prednje - produljenje — Produljenje prednje podne maske",
+      "typical_values": []
+    },
+    {
+      "name": "PPS",
+      "description": "Prekrivanje poda/stropa",
+      "typical_values": []
+    },
+    {
+      "name": "PR",
+      "description": "Broj ladica",
+      "typical_values": [
+        "2",
+        "4"
+      ]
+    },
+    {
+      "name": "PR1",
+      "description": "Broj ladica 1 — Jedna ili nijedna ladica — (raspon: 0–1)",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "PR2",
+      "description": "Broj ladica 2 — Od bez ladica do dvije ladice — (raspon: 0–2)",
+      "typical_values": [
+        "2"
+      ]
+    },
+    {
+      "name": "PR3",
+      "description": "Broj ladica 3 — Od bez ladica do tri ladice — (raspon: 0–3)",
+      "typical_values": []
+    },
+    {
+      "name": "PR4",
+      "description": "Broj ladica 4 — Od bez ladica do črtiri ladice — (raspon: 0–4)",
+      "typical_values": []
+    },
+    {
+      "name": "PRDOL",
+      "description": "Prevjes dolje",
+      "typical_values": []
+    },
+    {
+      "name": "PREV",
+      "description": "Prevjes dole — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PRG",
+      "description": "Broj pregrada",
+      "typical_values": []
+    },
+    {
+      "name": "PRGOD",
+      "description": "Pregrada - odmak donji",
+      "typical_values": []
+    },
+    {
+      "name": "PRGOP",
+      "description": "Pregrada - odmak prednji — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "PRGOR",
+      "description": "Prevjes gore",
+      "typical_values": []
+    },
+    {
+      "name": "PRGOS",
+      "description": "Pregrada - odmak stražnji",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "PROF",
+      "description": "Profili — 0 = bez profila;  1 =  profil 1;  2 = profil 2;  3 = profil 3",
+      "typical_values": []
+    },
+    {
+      "name": "PROV",
+      "description": "Provjera unosa — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PRP",
+      "description": "Produljenje radne ploče",
+      "typical_values": []
+    },
+    {
+      "name": "PRR",
+      "description": "Ladice - raspored — [opcije: AA/AB/AAB/ABB] — (cijeli broj)",
+      "typical_values": [
+        "AA",
+        "AB",
+        "AAB",
+        "ABB"
+      ]
+    },
+    {
+      "name": "PRS",
+      "description": "Prevjes sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PRU",
+      "description": "Polumjer rolo utora — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PRZ",
+      "description": "Prevjes straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PS",
+      "description": "Prevjes sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PSD",
+      "description": "Prevjes dolje desno — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PSDD",
+      "description": "Produljenje stranice desne dolje — Produljenje stranice desne dolje za krajnje kuhinjske ormariće s nogicama",
+      "typical_values": []
+    },
+    {
+      "name": "PSL",
+      "description": "Prevjes dolje lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PSLD",
+      "description": "Produljenje stranice lijeve dolje — Produljenje stranice lijeve dolje za krajnje kuhinjske ormariće s nogicama",
+      "typical_values": []
+    },
+    {
+      "name": "PSS",
+      "description": "Prevjes dolje sprijeda — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PSZ",
+      "description": "Prevjes dolje straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "PTP",
+      "description": "Peka tip police — [opcije: Libell/Liro/LiroPlus]",
+      "typical_values": [
+        "Libell",
+        "Liro",
+        "LiroPlus"
+      ]
+    },
+    {
+      "name": "PUD",
+      "description": "Poluutor širina",
+      "typical_values": []
+    },
+    {
+      "name": "PUS",
+      "description": "Poluutor dubina",
+      "typical_values": []
+    },
+    {
+      "name": "PVD",
+      "description": "Prevjes vrata dolje — [opcije: 0,5/10]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "PZ",
+      "description": "Prva van / unutra — [opcije: 1. Van/2. Unutra]",
+      "typical_values": [
+        "1. Van",
+        "2. Unutra"
+      ]
+    },
+    {
+      "name": "PZD",
+      "description": "Prevjes gore desno — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "PZDV",
+      "description": "Pomak po Z prednjeg kliznog krila",
+      "typical_values": []
+    },
+    {
+      "name": "PZL",
+      "description": "Prevjes gore lijevo — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "PZS",
+      "description": "Prevjes gore sprijeda — (može biti negativan)",
+      "typical_values": [
+        "40"
+      ]
+    },
+    {
+      "name": "PZZ",
+      "description": "Prevjes gore straga — (može biti negativan)",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Qpp",
+      "description": "",
+      "typical_values": [
+        "2",
+        "1"
+      ]
+    },
+    {
+      "name": "Qty",
+      "description": "",
+      "typical_values": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "R",
+      "description": "Radijus zaokruženja",
+      "typical_values": []
+    },
+    {
+      "name": "R1",
+      "description": "Radius 1 zaokruženja",
+      "typical_values": []
+    },
+    {
+      "name": "R2",
+      "description": "Radius 2 zaokruženja",
+      "typical_values": []
+    },
+    {
+      "name": "R3",
+      "description": "Radius 3 zaokruženja",
+      "typical_values": []
+    },
+    {
+      "name": "RA4",
+      "description": "Reling za uredske mape A4 — Reling za A4 uredske mape. Unutarnja širina korpusa 396 mm. Minimalna \"Dodatna visina straga\" DVZ = 235 + debljina poda ladice - VZP (Visina zadnjeg djela ladice)..",
+      "typical_values": []
+    },
+    {
+      "name": "RAA4",
+      "description": "Adapter ili reling za mape A4 — Adapter za pločasti reling ili ovalni reling za uredske mape za A4. — [opcije: Ovalni/Adapter]",
+      "typical_values": [
+        "Ovalni",
+        "Adapter"
+      ]
+    },
+    {
+      "name": "Ras",
+      "description": "",
+      "typical_values": [
+        "128",
+        "64"
+      ]
+    },
+    {
+      "name": "Ras32",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RASPK",
+      "description": "Raspored krila — [opcije: _-- PS/--_ SP/_--_ PSP/--_-- SPS/_--_-- PSPS/--_--_ SPSP/--__-- SPPS]",
+      "typical_values": [
+        "_-- PS",
+        "--_ SP",
+        "_--_ PSP",
+        "--_-- SPS",
+        "_--_-- PSPS",
+        "--_--_ SPSP",
+        "--__-- SPPS"
+      ]
+    },
+    {
+      "name": "Raz",
+      "description": "",
+      "typical_values": [
+        "150,Z150",
+        "S0",
+        "25,32",
+        "41",
+        "75,S0,Z75",
+        "50,Z50"
+      ]
+    },
+    {
+      "name": "RCN",
+      "description": "Rupa za cijev od nape — [opcije: Ne/Prolazna/Lijevo/Desno]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RCN1",
+      "description": "Rupa za cijev od nape — [opcije: 1 - Gore/2 - Straga/3 - Lijevo/4 - Desno]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RCNFI",
+      "description": "Rupa za cijev od nape - promjer",
+      "typical_values": []
+    },
+    {
+      "name": "RCNOG",
+      "description": "Rupa za cijev od nape - odmak gore",
+      "typical_values": []
+    },
+    {
+      "name": "RCNOS",
+      "description": "Rupa za cijev od nape - odmak straga",
+      "typical_values": []
+    },
+    {
+      "name": "RCNPO",
+      "description": "Rupa za cijev od nape - odmak poda",
+      "typical_values": []
+    },
+    {
+      "name": "RCNPS",
+      "description": "Rupa za cijev od nape - širina poda",
+      "typical_values": []
+    },
+    {
+      "name": "RDN",
+      "description": "Reling — Reling palice Da/Ne",
+      "typical_values": []
+    },
+    {
+      "name": "RDN2",
+      "description": "Broj relinga — [opcije: 1/2/3]",
+      "typical_values": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "RDUB",
+      "description": "Rupa za vijak - dubina — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RDV",
+      "description": "Razmak kliznih vrata",
+      "typical_values": []
+    },
+    {
+      "name": "Ref",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RefEl",
+      "description": "",
+      "typical_values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "Rev",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "RFI",
+      "description": "Rupa za vijak - promjer — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RGP",
+      "description": "Ručkica glodana - položaj — [opcije: Dolje:sredina/Dolje lijevo/Dolje desno/Gore sredina/Gore lijevo/Gore desno/Lijevo sredina/Lijevo gore/Lijevo dolje/Desno sredina/Desno gore/Desno dolje]",
+      "typical_values": [
+        "Dolje:sredina",
+        "Dolje lijevo",
+        "Dolje desno",
+        "Gore sredina",
+        "Gore lijevo",
+        "Gore desno",
+        "Lijevo sredina",
+        "Lijevo gore",
+        "Lijevo dolje",
+        "Desno sredina",
+        "Desno gore",
+        "Desno dolje"
+      ]
+    },
+    {
+      "name": "RL",
+      "description": "Radius luka",
+      "typical_values": []
+    },
+    {
+      "name": "RLVU",
+      "description": "Radius luka vanjski/unutarnji — [opcije: Vanjski/Unutarnji]",
+      "typical_values": [
+        "Vanjski",
+        "Unutarnji"
       ]
     },
     {
@@ -6016,332 +9272,439 @@
       ]
     },
     {
-      "name": "Side",
-      "description": "",
+      "name": "RP",
+      "description": "Razmak ladica",
+      "typical_values": []
+    },
+    {
+      "name": "RP1",
+      "description": "Radna ploča - kom po širini — Radna ploča izrađena u jednoj ili dvije širine — [opcije: 2/1]",
       "typical_values": [
-        "0",
+        "2",
         "1"
       ]
     },
     {
-      "name": "OnRot",
-      "description": "",
+      "name": "RPD",
+      "description": "Radna ploča - produljenje desno — Produljenje desne radne ploče",
+      "typical_values": []
+    },
+    {
+      "name": "RPDK",
+      "description": "Radna ploča - duljina kraka",
+      "typical_values": []
+    },
+    {
+      "name": "RPDK1",
+      "description": "Radna ploča - duljina kraka",
+      "typical_values": []
+    },
+    {
+      "name": "RPDN",
+      "description": "Radna ploča Da/Ne",
+      "typical_values": []
+    },
+    {
+      "name": "RPG",
+      "description": "Radna ploča dodatna - povišenje — Odmak u visinu dodatne radne ploče u odnosu na osnovnu radnu ploču",
+      "typical_values": []
+    },
+    {
+      "name": "RPGS",
+      "description": "Radna ploča dodatna - proširenje",
+      "typical_values": []
+    },
+    {
+      "name": "RPL",
+      "description": "Radna ploča - produljenje lijevo — Produljenje lijeve radne ploče",
+      "typical_values": []
+    },
+    {
+      "name": "RPN",
+      "description": "Radna ploča - nastavak — [opcije: Bez/Lijevi/Desni]",
+      "typical_values": [
+        "Bez",
+        "Lijevi",
+        "Desni"
+      ]
+    },
+    {
+      "name": "RPO",
+      "description": "Reling pločasti/okrugli — Pločaste/Okrugle reling palice — [opcije: Okr./Plos.]",
+      "typical_values": [
+        "Okr.",
+        "Plos."
+      ]
+    },
+    {
+      "name": "RPOBL",
+      "description": "Radna ploča - oblik — [opcije: I/L/D/U]",
+      "typical_values": [
+        "I",
+        "L",
+        "D",
+        "U"
+      ]
+    },
+    {
+      "name": "RPOT",
+      "description": "Reling s potporom — Reling palice s potporom Da/Ne",
+      "typical_values": []
+    },
+    {
+      "name": "RPP",
+      "description": "Reling palica poprečna - broj — Broj poprečnih reling palica — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RPPD",
+      "description": "Radna ploča - produljenje desno — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RPPL",
+      "description": "Radna ploča - produljenje lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RPPO",
+      "description": "Reling palica poprečna - odmak — Međusobni razmak poprečnih reling palica",
+      "typical_values": []
+    },
+    {
+      "name": "RPS",
+      "description": "Radna ploča - širina",
+      "typical_values": []
+    },
+    {
+      "name": "RPSD",
+      "description": "Radna ploča - širina desno",
+      "typical_values": []
+    },
+    {
+      "name": "RPSL",
+      "description": "Radna ploča - širina lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "RPTS",
+      "description": "Radna ploča -  tip spoja — [opcije: Bočni/Prednji/Ger]",
+      "typical_values": [
+        "Bočni",
+        "Prednji",
+        "Ger"
+      ]
+    },
+    {
+      "name": "RPV",
+      "description": "Uzdužna reling palica — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RPVD",
+      "description": "Radna ploča - veznik duljina",
+      "typical_values": []
+    },
+    {
+      "name": "RPZ",
+      "description": "Radna ploča - zarez — Širina zareza radne ploče na spoju",
+      "typical_values": []
+    },
+    {
+      "name": "RSTR",
+      "description": "Radius strana — [opcije: Vanjski/Unutarnji]",
+      "typical_values": [
+        "Vanjski",
+        "Unutarnji"
+      ]
+    },
+    {
+      "name": "RU",
+      "description": "Radijus unutarnjeg zaobljenja — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RUBI",
+      "description": "Rub izbor — Rub elementa prema kojemu će biti okrenut ravni rub širine izreza — [opcije: 1/2/3/4]",
       "typical_values": [
         "1",
-        "0"
-      ]
-    },
-    {
-      "name": "MatGer",
-      "description": "",
-      "typical_values": [
-        "7TSG",
-        "7TIPSTD_GER_K"
-      ]
-    },
-    {
-      "name": "MatSlt",
-      "description": "",
-      "typical_values": [
-        "7TS",
-        "7TIPSTD_K"
-      ]
-    },
-    {
-      "name": "MatTwM",
-      "description": "",
-      "typical_values": [
-        "7MASTER",
-        "7TS",
-        "7TIPSTD_M_K"
-      ]
-    },
-    {
-      "name": "MatTwS",
-      "description": "",
-      "typical_values": [
-        "7SLAVE",
-        "7TSS",
-        "7TIPSTD_S_K"
-      ]
-    },
-    {
-      "name": "MatBac",
-      "description": "",
-      "typical_values": [
-        "7TIPLE_VIDE",
-        "7TS",
-        "7TIPLE_EXC"
-      ]
-    },
-    {
-      "name": "MatBa2Tk",
-      "description": "",
-      "typical_values": [
-        "7TIPLE_VIDE",
-        "7TS",
-        "7TIPLE_EXC"
-      ]
-    },
-    {
-      "name": "MatBa2Tn",
-      "description": "",
-      "typical_values": [
-        "7VIJ"
-      ]
-    },
-    {
-      "name": "Num",
-      "description": "",
-      "typical_values": [
         "2",
-        "1",
-        "200",
         "3",
         "4"
       ]
     },
     {
-      "name": "OfF",
-      "description": "",
+      "name": "RUBK",
+      "description": "Rub kosi",
+      "typical_values": []
+    },
+    {
+      "name": "RUBKL",
+      "description": "Rub kosi leđa",
+      "typical_values": []
+    },
+    {
+      "name": "RUC1S",
+      "description": "JPull jednokrilna vrata — [opcije: Lijevo/Desno/Gore/Dolje/Nema]",
       "typical_values": [
-        "100",
-        "25",
-        "75"
+        "Lijevo",
+        "Desno",
+        "Gore",
+        "Dolje",
+        "Nema"
       ]
     },
     {
-      "name": "OfB",
-      "description": "",
+      "name": "RUC2S",
+      "description": "JPull dvokrilna vrata — [opcije: Između/Gore/Dolje/Nema]",
       "typical_values": [
-        "100",
-        "25",
-        "240.25",
-        "117",
-        "75",
-        "126.875"
+        "Između",
+        "Gore",
+        "Dolje",
+        "Nema"
       ]
     },
     {
-      "name": "Ras",
-      "description": "",
+      "name": "RUND",
+      "description": "Rund radius",
       "typical_values": [
-        "128",
-        "64"
-      ]
-    },
-    {
-      "name": "Mid",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "NRas",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "AddF",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "AddB",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "AddR",
-      "description": "",
-      "typical_values": [
-        "32"
-      ]
-    },
-    {
-      "name": "AddO",
-      "description": "",
-      "typical_values": [
-        "32"
-      ]
-    },
-    {
-      "name": "OfTh",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Mir",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "Rev",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "CDiv",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "RefEl",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "LimEl2path",
-      "description": "",
-      "typical_values": [
-        ".StranicaL",
-        ".StranicaD",
-        ".StranicaLG",
-        ".StranicaDG",
-        ".LedaP.Leda",
-        ".MaskaPoda",
-        ".PodDodatni",
-        ".Pod",
-        "..StranicaL",
-        "..StranicaD"
-      ]
-    },
-    {
-      "name": "FJoint",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "JPIdx",
-      "description": "",
-      "typical_values": [
-        "0",
-        "1"
-      ]
-    },
-    {
-      "name": "Raz",
-      "description": "",
-      "typical_values": [
-        "150,Z150",
-        "S0",
-        "25,32",
-        "41",
-        "75,S0,Z75",
-        "50,Z50"
-      ]
-    },
-    {
-      "name": "Edges",
-      "description": "",
-      "typical_values": [
-        "9",
-        "11",
         "3",
-        "1"
+        "25",
+        "0",
+        "50"
       ]
     },
     {
-      "name": "Mir1",
-      "description": "",
+      "name": "RUND0",
+      "description": "Sakrij rund",
+      "typical_values": []
+    },
+    {
+      "name": "RUND1",
+      "description": "Rund 1",
       "typical_values": [
+        "1",
         "0"
       ]
     },
     {
-      "name": "Mir2",
-      "description": "",
+      "name": "RUND2",
+      "description": "Rund 2",
       "typical_values": [
+        "1",
         "0"
       ]
     },
     {
-      "name": "Hig",
-      "description": "",
+      "name": "RUND3",
+      "description": "Rund 3",
       "typical_values": [
-        "150",
+        "1",
         "0"
       ]
     },
     {
-      "name": "UseH",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Ver",
-      "description": "",
-      "typical_values": [
-        "V1"
-      ]
-    },
-    {
-      "name": "Type",
-      "description": "",
-      "typical_values": [
-        "HandleChannel"
-      ]
-    },
-    {
-      "name": "Timestamp",
-      "description": "",
-      "typical_values": [
-        "1757854287565"
-      ]
-    },
-    {
-      "name": "Xn",
-      "description": "",
+      "name": "RUND4",
+      "description": "Rund 4",
       "typical_values": [
         "1"
       ]
     },
     {
-      "name": "Yn",
+      "name": "RV",
+      "description": "Radijus vanjskog zaobljenja — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "RV23",
+      "description": "Reling ugao 2/3 — [opcije: 2/3]",
+      "typical_values": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "Rwb",
       "description": "",
       "typical_values": [
+        "0",
         "1"
       ]
     },
     {
-      "name": "Xof",
+      "name": "Rx",
+      "description": "",
+      "typical_values": [
+        "0",
+        "180"
+      ]
+    },
+    {
+      "name": "Ry",
+      "description": "",
+      "typical_values": [
+        "0",
+        "180"
+      ]
+    },
+    {
+      "name": "Rz",
       "description": "",
       "typical_values": [
         "0"
       ]
     },
     {
-      "name": "Yof",
+      "name": "RZI",
+      "description": "Radius izreza",
+      "typical_values": []
+    },
+    {
+      "name": "RZL",
+      "description": "Radius zaokruženja leđa",
+      "typical_values": []
+    },
+    {
+      "name": "RZP",
+      "description": "Zaobljen zaslon podn.",
+      "typical_values": []
+    },
+    {
+      "name": "S23",
+      "description": "Druga i treća zajedno",
+      "typical_values": []
+    },
+    {
+      "name": "SBVBT",
+      "description": "Tip bravice — [opcije: Cilindar/Obični/Wc]",
+      "typical_values": [
+        "Cilindar",
+        "Obični",
+        "Wc"
+      ]
+    },
+    {
+      "name": "SBVD",
+      "description": "Dočepnik Da/Ne",
+      "typical_values": []
+    },
+    {
+      "name": "SBVFD",
+      "description": "Dubina falca — Uključuje falc na dovratniku bez brtve + debljina prednje pokrovne lajsne — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SBVFS",
+      "description": "Širina falca — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SBVKD",
+      "description": "Debljina krila — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SBVKOD",
+      "description": "Odmak krila dolje — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SBVLK",
+      "description": "Kutni spoj pokrovnih letvica — [opcije: Ger/Vertikalna skroz/Horizontalna skroz]",
+      "typical_values": [
+        "Ger",
+        "Vertikalna skroz",
+        "Horizontalna skroz"
+      ]
+    },
+    {
+      "name": "SBVLS",
+      "description": "Širina pokrovne letvice",
+      "typical_values": []
+    },
+    {
+      "name": "SBVPS",
+      "description": "Širina prečke za nadsvjetlo",
+      "typical_values": []
+    },
+    {
+      "name": "SBVPT",
+      "description": "Tip panta — Kod skrivenih panti mjeri se odmak panta od prednje plohe vrata. — [opcije: Vidljivi/Skriveni 4 mm/Skriveni 5 mm]",
+      "typical_values": [
+        "Vidljivi",
+        "Skriveni 4 mm",
+        "Skriveni 5 mm"
+      ]
+    },
+    {
+      "name": "SBVSV",
+      "description": "Visina svjetlog otvora s nadsjvjetlom — 0 - bez prečke i nadsvjetla, >0 - svjetli otvor od poda do prečke",
+      "typical_values": []
+    },
+    {
+      "name": "ScO",
       "description": "",
       "typical_values": [
         "0"
+      ]
+    },
+    {
+      "name": "Sd",
+      "description": "",
+      "typical_values": [
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "SDD",
+      "description": "Prednji dio do poda",
+      "typical_values": []
+    },
+    {
+      "name": "SDOP",
+      "description": "Širina doprozornika",
+      "typical_values": []
+    },
+    {
+      "name": "SDOPD",
+      "description": "Širina doprozornika desno",
+      "typical_values": []
+    },
+    {
+      "name": "SDOPL",
+      "description": "Širina doprozornika lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "SDOPP",
+      "description": "Širina doprozornika dolje",
+      "typical_values": []
+    },
+    {
+      "name": "SDOPS",
+      "description": "Širina doprozornika gore",
+      "typical_values": []
+    },
+    {
+      "name": "SDOPV",
+      "description": "Širina doprozornika vertikalnog",
+      "typical_values": []
+    },
+    {
+      "name": "SE",
+      "description": "Širina elementa",
+      "typical_values": []
+    },
+    {
+      "name": "SEGL",
+      "description": "Broj segmenata luka — [opcije: 1/2/3/4/5]",
+      "typical_values": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
       ]
     },
     {
@@ -6353,372 +9716,49 @@
       ]
     },
     {
-      "name": "OfFL",
-      "description": "",
+      "name": "SF",
+      "description": "Širina friza",
+      "typical_values": []
+    },
+    {
+      "name": "SFD",
+      "description": "Širina friza desno",
+      "typical_values": []
+    },
+    {
+      "name": "SFL",
+      "description": "Širina friza lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "SFS",
+      "description": "Širina friza dolje",
+      "typical_values": []
+    },
+    {
+      "name": "SFV",
+      "description": "Širina srednjeg friza",
+      "typical_values": []
+    },
+    {
+      "name": "SFZ",
+      "description": "Širina friza gore",
+      "typical_values": []
+    },
+    {
+      "name": "SGP",
+      "description": "Smjer garderobne palice — [opcije: Po širini/Po dubini]",
       "typical_values": [
-        "50"
+        "Po širini",
+        "Po dubini"
       ]
     },
     {
-      "name": "OfFR",
-      "description": "",
-      "typical_values": [
-        "50"
-      ]
-    },
-    {
-      "name": "OfBL",
-      "description": "",
-      "typical_values": [
-        "50",
-        "30"
-      ]
-    },
-    {
-      "name": "OfBR",
-      "description": "",
-      "typical_values": [
-        "50",
-        "30"
-      ]
-    },
-    {
-      "name": "OfU",
-      "description": "",
-      "typical_values": [
-        "100",
-        "150",
-        "75"
-      ]
-    },
-    {
-      "name": "OfD",
-      "description": "",
-      "typical_values": [
-        "100",
-        "150",
-        "0",
-        "75"
-      ]
-    },
-    {
-      "name": "Dep",
-      "description": "",
-      "typical_values": [
-        "14",
-        "20",
-        "5.9"
-      ]
-    },
-    {
-      "name": "TypC",
+      "name": "Side",
       "description": "",
       "typical_values": [
         "0",
         "1"
-      ]
-    },
-    {
-      "name": "NumS",
-      "description": "",
-      "typical_values": [
-        "3"
-      ]
-    },
-    {
-      "name": "OnSh",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "OfSh",
-      "description": "",
-      "typical_values": [
-        "10"
-      ]
-    },
-    {
-      "name": "DepSh",
-      "description": "",
-      "typical_values": [
-        "12"
-      ]
-    },
-    {
-      "name": "DiaSh",
-      "description": "",
-      "typical_values": [
-        "5"
-      ]
-    },
-    {
-      "name": "ScO",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Ras32",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Add3L",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Add3R",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "OnBa",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "OfBLE",
-      "description": "",
-      "typical_values": [
-        "50",
-        "0"
-      ]
-    },
-    {
-      "name": "OfBRI",
-      "description": "",
-      "typical_values": [
-        "50",
-        "0"
-      ]
-    },
-    {
-      "name": "OnFr",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "OfFLE",
-      "description": "",
-      "typical_values": [
-        "50"
-      ]
-    },
-    {
-      "name": "OfFRI",
-      "description": "",
-      "typical_values": [
-        "50"
-      ]
-    },
-    {
-      "name": "ConSh",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Clen",
-      "description": "",
-      "typical_values": [
-        "15"
-      ]
-    },
-    {
-      "name": "Cwid",
-      "description": "",
-      "typical_values": [
-        "6"
-      ]
-    },
-    {
-      "name": "Cdep",
-      "description": "",
-      "typical_values": [
-        "5"
-      ]
-    },
-    {
-      "name": "LimL",
-      "description": "",
-      "typical_values": [
-        "1",
-        "115"
-      ]
-    },
-    {
-      "name": "LimR",
-      "description": "",
-      "typical_values": [
-        "2",
-        "116"
-      ]
-    },
-    {
-      "name": "LimB",
-      "description": "",
-      "typical_values": [
-        "121",
-        "7",
-        "4",
-        "96",
-        "114",
-        "6"
-      ]
-    },
-    {
-      "name": "LimT",
-      "description": "",
-      "typical_values": [
-        "3",
-        "119",
-        "122",
-        "123",
-        "47",
-        "96"
-      ]
-    },
-    {
-      "name": "LimBa",
-      "description": "",
-      "typical_values": [
-        "124",
-        "8",
-        "57",
-        "5"
-      ]
-    },
-    {
-      "name": "LimFr",
-      "description": "",
-      "typical_values": [
-        "1",
-        "115",
-        "0"
-      ]
-    },
-    {
-      "name": "LimSh",
-      "description": "",
-      "typical_values": [
-        "125",
-        "126",
-        "73",
-        "98",
-        "124",
-        "127",
-        "12",
-        "48",
-        "97"
-      ]
-    },
-    {
-      "name": "LimHin",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "MatPl",
-      "description": "",
-      "typical_values": [
-        "BL_173L8100"
-      ]
-    },
-    {
-      "name": "AMpl",
-      "description": "",
-      "typical_values": [
-        "1"
-      ]
-    },
-    {
-      "name": "AQty",
-      "description": "",
-      "typical_values": [
-        "1",
-        "0"
-      ]
-    },
-    {
-      "name": "Vof",
-      "description": "",
-      "typical_values": [
-        "5",
-        "4",
-        "7",
-        "6"
-      ]
-    },
-    {
-      "name": "Sof",
-      "description": "",
-      "typical_values": [
-        "0",
-        "37"
-      ]
-    },
-    {
-      "name": "OfT",
-      "description": "",
-      "typical_values": [
-        "100",
-        "0",
-        "240.25",
-        "117",
-        "126.875"
-      ]
-    },
-    {
-      "name": "LimStrPath",
-      "description": "",
-      "typical_values": [
-        "....Ormar.StranicaL",
-        "....Ormar.StranicaD",
-        "..VrataZ.Vrata",
-        "....Ormar.Strop",
-        "....StranicaL",
-        "...VrataD.Vrata.Vrata",
-        "....StranicaD",
-        "...VrataL.Vrata.Vrata",
-        "....Donji.StranicaL",
-        "....Donji.StranicaD"
-      ]
-    },
-    {
-      "name": "LimStr2Path",
-      "description": "",
-      "typical_values": [
-        "....Ormar.StranicaD",
-        "....Ormar.StranicaL",
-        "....Donji.StranicaL",
-        "....Viseci.StranicaD",
-        "....Viseci.StranicaL",
-        "....Donji.VezP"
-      ]
-    },
-    {
-      "name": "LimHS",
-      "description": "",
-      "typical_values": [
-        "-2",
-        "-1"
       ]
     },
     {
@@ -6734,320 +9774,1847 @@
       ]
     },
     {
-      "name": "Sd",
-      "description": "",
+      "name": "SIR",
+      "description": "Širina glodanja — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SK",
+      "description": "Širina korpusa",
+      "typical_values": []
+    },
+    {
+      "name": "SKD",
+      "description": "Širina korpusa desno",
+      "typical_values": []
+    },
+    {
+      "name": "SKL",
+      "description": "Širina korpusa lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "SKPD",
+      "description": "Širina kraka ploče desno",
+      "typical_values": []
+    },
+    {
+      "name": "SKPL",
+      "description": "Širina kraka ploče lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "SKRD",
+      "description": "Skraćenje duljine — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SKRI",
+      "description": "Širina krila",
+      "typical_values": []
+    },
+    {
+      "name": "SLET",
+      "description": "Širina letve — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SLOJ3",
+      "description": "Slojeva do 3 — [opcije: 1/2/3]",
       "typical_values": [
         "1",
-        "0"
-      ]
-    },
-    {
-      "name": "Col",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Alu",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "HC",
-      "description": "",
-      "typical_values": [
-        "L-18"
-      ]
-    },
-    {
-      "name": "DrLeRi",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "MPath",
-      "description": "",
-      "typical_values": [
-        "Okov\\Blum\\Vodilice\\Z96.10E1.MAC",
-        "Razno\\Zrak.MAC"
-      ]
-    },
-    {
-      "name": "PosH",
-      "description": "",
-      "typical_values": [
-        "1",
-        "2",
-        "0",
-        "0#2"
-      ]
-    },
-    {
-      "name": "OfW",
-      "description": "",
-      "typical_values": [
-        "0",
-        "50",
-        "10"
-      ]
-    },
-    {
-      "name": "DistW",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "DistT",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "Qty",
-      "description": "",
-      "typical_values": [
         "2",
         "3"
       ]
     },
     {
-      "name": "Dia2",
+      "name": "SM",
+      "description": "Širina maske",
+      "typical_values": []
+    },
+    {
+      "name": "SMD",
+      "description": "Broj međudijelova",
+      "typical_values": []
+    },
+    {
+      "name": "SMF",
+      "description": "Širina maske fronte",
+      "typical_values": []
+    },
+    {
+      "name": "SMK",
+      "description": "Širina maske korpusa",
+      "typical_values": []
+    },
+    {
+      "name": "Sof",
       "description": "",
       "typical_values": [
-        "8",
+        "0",
+        "37"
+      ]
+    },
+    {
+      "name": "SOG",
+      "description": "Sa ojacanjem",
+      "typical_values": []
+    },
+    {
+      "name": "SOTV",
+      "description": "Širina otvora",
+      "typical_values": []
+    },
+    {
+      "name": "SP",
+      "description": "Strana podnožja — [opcije: 1 - Bez/2 - Prednji/3 - Prednji+L/4 - Prednji+D/5 - Prednji+L+D]",
+      "typical_values": [
         "0"
       ]
     },
     {
-      "name": "Dep2",
-      "description": "",
+      "name": "SPD",
+      "description": "Širina pulta desno",
+      "typical_values": []
+    },
+    {
+      "name": "SPDRZ",
+      "description": "Strana držača podnožja — [opcije: 1 - Bez/2 - Prednji/3 - Prednj+L/4 - Prednji+D/5 - Prednji+L+D]",
       "typical_values": [
-        "14",
+        "1 - Bez",
+        "2 - Prednji",
+        "3 - Prednj+L",
+        "4 - Prednji+D",
+        "5 - Prednji+L+D"
+      ]
+    },
+    {
+      "name": "SPL",
+      "description": "Širina pulta lijevo — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SPOL",
+      "description": "Strop - položaj — Položaj stropa u odnosu na stranice korpusa. — [opcije: Između stranica/Iznad stranica/Ger]",
+      "typical_values": [
+        "Između stranica",
+        "Iznad stranica",
+        "Ger"
+      ]
+    },
+    {
+      "name": "SPOL1",
+      "description": "Strop položaj — Položaj stropa u odnosu na stranice korpusa. — [opcije: Između stranica/Iznad stranica]",
+      "typical_values": [
         "0"
       ]
     },
     {
-      "name": "Qpp",
-      "description": "",
+      "name": "SRP",
+      "description": "Širina radne ploče — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SRU",
+      "description": "Širina rolo utora",
+      "typical_values": []
+    },
+    {
+      "name": "SSPD",
+      "description": "Stranica - strana produljenja dolje — [opcije: Ne/Lijeva/Desna/Obje]",
       "typical_values": [
-        "2",
-        "1"
+        "Ne",
+        "Lijeva",
+        "Desna",
+        "Obje"
       ]
     },
     {
-      "name": "OffZ",
+      "name": "SSPR",
+      "description": "Skraćenja sprijeda",
+      "typical_values": []
+    },
+    {
+      "name": "SSTR",
+      "description": "Širina stranice",
+      "typical_values": []
+    },
+    {
+      "name": "STPOG",
+      "description": "Strop - odmak gore",
+      "typical_values": []
+    },
+    {
+      "name": "STPOP",
+      "description": "Strop - odmak prednji",
+      "typical_values": []
+    },
+    {
+      "name": "STPOS",
+      "description": "Strop - odmak stražnji",
+      "typical_values": []
+    },
+    {
+      "name": "STPS",
+      "description": "Strop - sastavljen — [opcije: Ne/Da/Vezovi]",
+      "typical_values": [
+        "Ne",
+        "Da",
+        "Vezovi"
+      ]
+    },
+    {
+      "name": "STR",
+      "description": "Straga",
+      "typical_values": []
+    },
+    {
+      "name": "STRAN",
+      "description": "Strana elementa — [opcije: Osnovna/Druga/Obje]",
+      "typical_values": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "STROP",
+      "description": "Strop - vrsta — [opcije: Puni/Vezovi/Bez]",
+      "typical_values": [
+        "Puni",
+        "Vezovi",
+        "Bez"
+      ]
+    },
+    {
+      "name": "SUP",
+      "description": "Širina uzdužne ploče",
+      "typical_values": []
+    },
+    {
+      "name": "SUT",
+      "description": "Širina utora — (može biti negativan)",
+      "typical_values": [
+        "4",
+        "6"
+      ]
+    },
+    {
+      "name": "SUTD",
+      "description": "Sirina utora za D rucku",
+      "typical_values": []
+    },
+    {
+      "name": "SUZG",
+      "description": "Suženje odozgo",
+      "typical_values": []
+    },
+    {
+      "name": "SV",
+      "description": "Širina veza",
+      "typical_values": []
+    },
+    {
+      "name": "SVD",
+      "description": "Širina veza donjeg",
+      "typical_values": []
+    },
+    {
+      "name": "SVKL",
+      "description": "Širina veza kutnih leđa",
+      "typical_values": []
+    },
+    {
+      "name": "SVL",
+      "description": "Suženje visine ladice",
+      "typical_values": []
+    },
+    {
+      "name": "SVLM",
+      "description": "Širina veznika LeMans (max. 65) — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SVMC",
+      "description": "Širina veznika Magic Corner (max. 65) — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "SYSY",
+      "description": "Odmak sinhro osovine po Y",
+      "typical_values": []
+    },
+    {
+      "name": "SYSZ",
+      "description": "Odmak sinhro osovine po Z",
+      "typical_values": []
+    },
+    {
+      "name": "T",
       "description": "",
       "typical_values": [
-        "1072",
         "18",
+        "23.700287399045052",
+        "23.700000000018491",
+        "5",
+        "11",
+        "6.000000000036982"
+      ]
+    },
+    {
+      "name": "T1",
+      "description": "Debljina 1",
+      "typical_values": []
+    },
+    {
+      "name": "Timestamp",
+      "description": "",
+      "typical_values": [
+        "1757854287565"
+      ]
+    },
+    {
+      "name": "TipMot",
+      "description": "",
+      "typical_values": [
         "0"
       ]
     },
     {
-      "name": "OPD",
+      "name": "TRDV",
+      "description": "Tip razmaka kliznih vrata — [opcije: 1. Između lica/2. Zrak između krila]",
+      "typical_values": [
+        "1. Između lica",
+        "2. Zrak između krila"
+      ]
+    },
+    {
+      "name": "TROK",
+      "description": "Trokut - vrsta — AAA = istostranični, ABB = istokračni — [opcije: AAA/ABB]",
+      "typical_values": [
+        "AAA",
+        "ABB"
+      ]
+    },
+    {
+      "name": "TTY",
+      "description": "Tandem tip — 0-tandem, 1-movento — [opcije: Tandem/Movento]",
+      "typical_values": [
+        "Tandem",
+        "Movento"
+      ]
+    },
+    {
+      "name": "TXT_01",
+      "description": "Tekst 1",
+      "typical_values": []
+    },
+    {
+      "name": "TXT_02",
+      "description": "Tekst 2",
+      "typical_values": []
+    },
+    {
+      "name": "TXT_03",
+      "description": "Tekst 3",
+      "typical_values": []
+    },
+    {
+      "name": "TXT_04",
+      "description": "Tekst 4",
+      "typical_values": []
+    },
+    {
+      "name": "TypC",
       "description": "",
       "typical_values": [
+        "0",
         "1"
       ]
     },
     {
-      "name": "LimStr",
+      "name": "Type",
       "description": "",
       "typical_values": [
-        "0"
+        "HandleChannel"
       ]
-    },
-    {
-      "name": "LimStr2",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "LimF",
-      "description": "",
-      "typical_values": [
-        "0"
-      ]
-    },
-    {
-      "name": "OfH",
-      "description": "",
-      "typical_values": [
-        "10"
-      ]
-    },
-    {
-      "name": "OfHb",
-      "description": "",
-      "typical_values": [
-        "10",
-        "30",
-        "0"
-      ]
-    },
-    {
-      "name": "KZ",
-      "description": "koristi se u 259 formula",
-      "typical_values": []
-    },
-    {
-      "name": "KT",
-      "description": "koristi se u 79 formula",
-      "typical_values": []
-    },
-    {
-      "name": "NP",
-      "description": "koristi se u 43 formula",
-      "typical_values": []
-    },
-    {
-      "name": "BDN",
-      "description": "koristi se u 38 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ODSP",
-      "description": "koristi se u 35 formula",
-      "typical_values": []
     },
     {
       "name": "UDD",
-      "description": "koristi se u 30 formula",
-      "typical_values": []
-    },
-    {
-      "name": "LEDUS",
-      "description": "koristi se u 28 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ZHV",
-      "description": "koristi se u 22 formula",
-      "typical_values": []
-    },
-    {
-      "name": "LPT",
-      "description": "koristi se u 21 formula",
-      "typical_values": []
-    },
-    {
-      "name": "IZR_11",
-      "description": "koristi se u 21 formula",
-      "typical_values": []
-    },
-    {
-      "name": "UTS",
-      "description": "koristi se u 20 formula",
-      "typical_values": []
-    },
-    {
-      "name": "IZR_10",
-      "description": "koristi se u 18 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ODS",
-      "description": "koristi se u 17 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ODZ",
-      "description": "koristi se u 17 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OSZG",
-      "description": "koristi se u 16 formula",
-      "typical_values": []
-    },
-    {
-      "name": "KUT_I0",
-      "description": "koristi se u 16 formula",
-      "typical_values": []
-    },
-    {
-      "name": "HDT",
-      "description": "koristi se u 16 formula",
-      "typical_values": []
-    },
-    {
-      "name": "IZR_2",
-      "description": "koristi se u 16 formula",
+      "description": "Utor/poluutor dolje do kraja",
       "typical_values": []
     },
     {
       "name": "UDS",
-      "description": "koristi se u 15 formula",
+      "description": "Utor/poluutor gore do kraja",
+      "typical_values": []
+    },
+    {
+      "name": "UKL",
+      "description": "Uklada",
+      "typical_values": []
+    },
+    {
+      "name": "UKL1L",
+      "description": "Uklada 1 - duljina — 0 = Jedna uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade",
+      "typical_values": []
+    },
+    {
+      "name": "UKL1M",
+      "description": "Uklada 1 -materijal — [opcije: Puna/Staklo/Zrcalo]",
+      "typical_values": [
+        "Puna",
+        "Staklo",
+        "Zrcalo"
+      ]
+    },
+    {
+      "name": "UKL2D",
+      "description": "Uklada 2 - duljina — 0 = Nema druge uklade; >0 = vidljiva širina uklade",
+      "typical_values": []
+    },
+    {
+      "name": "UKL2L",
+      "description": "Uklada 2 - duljina — 0 = Nema druge i ostalih uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade",
+      "typical_values": []
+    },
+    {
+      "name": "UKL2M",
+      "description": "Uklada 2 - materijal — [opcije: Puna/Staklo/Zrcalo]",
+      "typical_values": [
+        "Puna",
+        "Staklo",
+        "Zrcalo"
+      ]
+    },
+    {
+      "name": "UKL3L",
+      "description": "Uklada 3 - duljina — 0 = Nema treće i ostalih uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade",
+      "typical_values": []
+    },
+    {
+      "name": "UKL3M",
+      "description": "Uklada 3 - materijal — [opcije: Puna/Staklo/Zrcalo]",
+      "typical_values": [
+        "Puna",
+        "Staklo",
+        "Zrcalo"
+      ]
+    },
+    {
+      "name": "UKL4L",
+      "description": "Uklada 4 - duljina — 0 = Nema četvrte i ostalih uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade",
+      "typical_values": []
+    },
+    {
+      "name": "UKL4M",
+      "description": "Uklada 4 - materijal — [opcije: Puna/Staklo/Zrcalo]",
+      "typical_values": [
+        "Puna",
+        "Staklo",
+        "Zrcalo"
+      ]
+    },
+    {
+      "name": "UKL5L",
+      "description": "Uklada 5 - duljina — 0 = Nema pete uklade; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade",
+      "typical_values": []
+    },
+    {
+      "name": "UKL5M",
+      "description": "Uklada 5 - materijal — [opcije: Puna/Staklo/Zrcalo]",
+      "typical_values": [
+        "Puna",
+        "Staklo",
+        "Zrcalo"
+      ]
+    },
+    {
+      "name": "UKLRAS",
+      "description": "Uklade - identičan raspored",
+      "typical_values": []
+    },
+    {
+      "name": "UKLZU",
+      "description": "Uklada - zaobljenje uglova",
+      "typical_values": []
+    },
+    {
+      "name": "UKRS",
+      "description": "Ukruta širina",
+      "typical_values": []
+    },
+    {
+      "name": "UseH",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "UTC",
+      "description": "Utor - čelo ladice",
+      "typical_values": []
+    },
+    {
+      "name": "UTD",
+      "description": "Utor - duljina",
+      "typical_values": []
+    },
+    {
+      "name": "UTDN",
+      "description": "Utor Da/Ne — (cijeli broj)",
+      "typical_values": []
+    },
+    {
+      "name": "UTDO",
+      "description": "Utor dodatni - odmak",
+      "typical_values": []
+    },
+    {
+      "name": "UTDUB",
+      "description": "Utor - dubina",
+      "typical_values": []
+    },
+    {
+      "name": "UTIZR",
+      "description": "Izračun širine — 1. Zadana širina utora, izračun istaka - najbliže zadanoj širini; 2. Zadan istak, izračun širine utora - najbliže zadanoj širini; 3. Širine utora i istaka identične - najbliže zadanoj širini utora. — [opcije: Istaka/Utora/Istaka i utora]",
+      "typical_values": [
+        "Istaka",
+        "Utora",
+        "Istaka i utora"
+      ]
+    },
+    {
+      "name": "UTP",
+      "description": "Utor - produljenje",
+      "typical_values": []
+    },
+    {
+      "name": "UTRAZ",
+      "description": "Utor - razmak",
+      "typical_values": []
+    },
+    {
+      "name": "UTRUB",
+      "description": "Utor do ruba — 1. Na obje strane utor odmaknur od ruba; 2. Na obje strane utor do ruba; 3. Utor uz lijevi rub; 4. Utor uz desni rub. — [opcije: Ne/Da oba/Da lijevi-donji/Da desn-gornjii]",
+      "typical_values": [
+        "Ne",
+        "Da oba",
+        "Da lijevi-donji",
+        "Da desn-gornjii"
+      ]
+    },
+    {
+      "name": "UTRUB2",
+      "description": "Utor do ruba dvokrilnih vrata — [opcije: 1 - Ne zajedno/2 - Da zajedno/3 - Ne odvojeno/4 - Da odvojeno/5 - L odvojeno/6 - D odvojeno]",
+      "typical_values": [
+        "1 - Ne zajedno",
+        "2 - Da zajedno",
+        "3 - Ne odvojeno",
+        "4 - Da odvojeno",
+        "5 - L odvojeno",
+        "6 - D odvojeno"
+      ]
+    },
+    {
+      "name": "UTS",
+      "description": "Utor - skraćenje",
+      "typical_values": []
+    },
+    {
+      "name": "UTSIR",
+      "description": "Utor - širina",
+      "typical_values": []
+    },
+    {
+      "name": "UTZ",
+      "description": "Utor - zrak",
+      "typical_values": []
+    },
+    {
+      "name": "UTZV",
+      "description": "Utor - zrak po visini",
+      "typical_values": []
+    },
+    {
+      "name": "UZNN",
+      "description": "Uznožje nisko",
+      "typical_values": []
+    },
+    {
+      "name": "V1",
+      "description": "Visina 1",
+      "typical_values": [
+        "176",
+        "0"
+      ]
+    },
+    {
+      "name": "V2",
+      "description": "Visina 2",
+      "typical_values": [
+        "719.5",
+        "0"
+      ]
+    },
+    {
+      "name": "V3",
+      "description": "Visina 3",
+      "typical_values": []
+    },
+    {
+      "name": "V4",
+      "description": "Visina 4",
+      "typical_values": []
+    },
+    {
+      "name": "V5",
+      "description": "Visina 5",
+      "typical_values": []
+    },
+    {
+      "name": "VDDUS",
+      "description": "Vrata dovratnik dubina utora za staklo",
+      "typical_values": []
+    },
+    {
+      "name": "VDFD",
+      "description": "Vrata dovratnik dubina falca",
+      "typical_values": []
+    },
+    {
+      "name": "VDFS",
+      "description": "Vrata dovratnik širina falca",
+      "typical_values": []
+    },
+    {
+      "name": "VDHS",
+      "description": "Vrata dovratnik širina horizontale",
+      "typical_values": []
+    },
+    {
+      "name": "VDHT",
+      "description": "Vrata dovratnik debljina horizontale",
+      "typical_values": []
+    },
+    {
+      "name": "VDL",
+      "description": "Vez dodatni iza leđa",
+      "typical_values": []
+    },
+    {
+      "name": "VDN",
+      "description": "Vrata dovratnik nadsvjetlo",
+      "typical_values": []
+    },
+    {
+      "name": "VDOP",
+      "description": "Vrata dovratnik debljina pera opšave",
+      "typical_values": []
+    },
+    {
+      "name": "VDOS",
+      "description": "Vrata dovratnik širina opšave",
+      "typical_values": []
+    },
+    {
+      "name": "VDOSS",
+      "description": "Vrata dovratnik širina opšave stražnje",
+      "typical_values": []
+    },
+    {
+      "name": "VDOT",
+      "description": "Vrata dovratnik debljina opšave",
+      "typical_values": []
+    },
+    {
+      "name": "VDPD",
+      "description": "Vrata dovratnik debljina pera",
+      "typical_values": []
+    },
+    {
+      "name": "VDPOB",
+      "description": "Vrata dovratnik odmak bočni panta",
+      "typical_values": []
+    },
+    {
+      "name": "VDPOD",
+      "description": "Vrata dolje - pant odmak dolje",
+      "typical_values": []
+    },
+    {
+      "name": "VDPOG",
+      "description": "Vrata dolje - pant odmak gore",
+      "typical_values": []
+    },
+    {
+      "name": "VDPS",
+      "description": "Vrata dovratnik širina pera",
+      "typical_values": []
+    },
+    {
+      "name": "VDS",
+      "description": "Vrata dovratnik spoj — [opcije: Vertikala skroz/Horizontala skroz/Ger/Bez horizontale]",
+      "typical_values": [
+        "Vertikala skroz",
+        "Horizontala skroz",
+        "Ger",
+        "Bez horizontale"
+      ]
+    },
+    {
+      "name": "VDSS",
+      "description": "Vrata divratnik sastav sendviča — [opcije: Sendvič boja/Sendvič furnir]",
+      "typical_values": [
+        "Sendvič boja",
+        "Sendvič furnir"
+      ]
+    },
+    {
+      "name": "VDT",
+      "description": "Vrata dovratnik debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VDUBD",
+      "description": "Dovratnik dubina utora za brtvu",
+      "typical_values": []
+    },
+    {
+      "name": "VDUBS",
+      "description": "Dovratnik širina utora za brtvu",
+      "typical_values": []
+    },
+    {
+      "name": "VDUBS1",
+      "description": "Dovratnik dodatak širine za brtvu",
+      "typical_values": []
+    },
+    {
+      "name": "Ver",
+      "description": "",
+      "typical_values": [
+        "V1"
+      ]
+    },
+    {
+      "name": "VERTN",
+      "description": "Broj vertikala — [opcije: Bez/1/2/3/4/5]",
+      "typical_values": [
+        "Bez",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "name": "VERTR",
+      "description": "Vertikale razmak — [opcije: Jednak/Različit]",
+      "typical_values": [
+        "Jednak",
+        "Različit"
+      ]
+    },
+    {
+      "name": "VERTT",
+      "description": "Vertikala debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VGPOD",
+      "description": "Vrata gore - pant odmak dolje",
+      "typical_values": []
+    },
+    {
+      "name": "VGPOG",
+      "description": "Vrata gore - pant odmak gore",
+      "typical_values": []
+    },
+    {
+      "name": "VHOD",
+      "description": "Vrata horizontala odmak odozdo",
+      "typical_values": []
+    },
+    {
+      "name": "VIJD",
+      "description": "Vijenac - desni",
+      "typical_values": []
+    },
+    {
+      "name": "VIJL",
+      "description": "Vijenac - lijevi",
+      "typical_values": []
+    },
+    {
+      "name": "VIJN",
+      "description": "Vijenac - nosač",
+      "typical_values": []
+    },
+    {
+      "name": "VIJNS",
+      "description": "Vijenac - nosač širina",
+      "typical_values": []
+    },
+    {
+      "name": "VIJP",
+      "description": "Vijenac - prednji",
+      "typical_values": []
+    },
+    {
+      "name": "VIJS",
+      "description": "Vijenac - strana — [opcije: Ne/Lijeva/Desna/Obje]",
+      "typical_values": [
+        "Ne",
+        "Lijeva",
+        "Desna",
+        "Obje"
+      ]
+    },
+    {
+      "name": "VIJZ",
+      "description": "Vijenac - stražnji",
+      "typical_values": []
+    },
+    {
+      "name": "VIP",
+      "description": "Visina ladice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "Vis",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "VK",
+      "description": "Visina korpusa",
+      "typical_values": []
+    },
+    {
+      "name": "VKB1",
+      "description": "Brtva 1 krila — [opcije: Ne/Sredina/Odmak dolje/Odmak falc]",
+      "typical_values": [
+        "Ne",
+        "Sredina",
+        "Odmak dolje",
+        "Odmak falc"
+      ]
+    },
+    {
+      "name": "VKB2",
+      "description": "Brtva 2 krila — [opcije: Ne/Odmak dolje/Odmak falc]",
+      "typical_values": [
+        "Ne",
+        "Odmak dolje",
+        "Odmak falc"
+      ]
+    },
+    {
+      "name": "VKBKS",
+      "description": "Brtva krila - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKBO1",
+      "description": "Brtva krila - odmak 1",
+      "typical_values": []
+    },
+    {
+      "name": "VKBO2",
+      "description": "Brtva krila - odmak 2",
+      "typical_values": []
+    },
+    {
+      "name": "VKBOB",
+      "description": "Vrata krilo odmak brave bočni",
+      "typical_values": []
+    },
+    {
+      "name": "VKBOO",
+      "description": "Vrata krilo odmak brave odozdo",
+      "typical_values": []
+    },
+    {
+      "name": "VKBPO",
+      "description": "Vrata krilo odmak prihvatnika brave",
+      "typical_values": []
+    },
+    {
+      "name": "VKBT",
+      "description": "Vrata krilo tip brave — [opcije: Cilindar/Ključ/WC]",
+      "typical_values": [
+        "Cilindar",
+        "Ključ",
+        "WC"
+      ]
+    },
+    {
+      "name": "VKBUS1",
+      "description": "Brtva uklade tip 1 - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKBUS2",
+      "description": "Brtva uklade tip 2 - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKBUT",
+      "description": "Brtva krila - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKBUT1",
+      "description": "Brtva uklade tip 1 - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKBUT2",
+      "description": "Brtva uklade tip 2 - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKBVW",
+      "description": "Brtva vanjska - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKF",
+      "description": "Vratno krilo - falc",
+      "typical_values": []
+    },
+    {
+      "name": "VKFD",
+      "description": "Vratno krilo - dubina falca",
+      "typical_values": []
+    },
+    {
+      "name": "VKFP",
+      "description": "Vratno krilo - proširenje u falcu",
+      "typical_values": []
+    },
+    {
+      "name": "VKFS",
+      "description": "Vratno krilo - širina falca — Dodatni falc za prag dolje na krilu",
+      "typical_values": []
+    },
+    {
+      "name": "VKKB",
+      "description": "Krila - broj",
+      "typical_values": []
+    },
+    {
+      "name": "VKKD",
+      "description": "Kut desni — Kutno nastavljanje kliznih vrata na desnoj strani — [opcije: Ne/Sprijeda/Straga]",
+      "typical_values": [
+        "Ne",
+        "Sprijeda",
+        "Straga"
+      ]
+    },
+    {
+      "name": "VKKL",
+      "description": "Kut lijevi — Kutno nastavljanje kliznih vrata na lijevoj strani — [opcije: Ne/Sprijeda/Straga]",
+      "typical_values": [
+        "Ne",
+        "Sprijeda",
+        "Straga"
+      ]
+    },
+    {
+      "name": "VKKO",
+      "description": "Odmak krila od kraja vodilice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKO1",
+      "description": "Odmak krila manji na kutnom spoju — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKO2",
+      "description": "Odmak krila veći na kutnom spoju — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKOD",
+      "description": "Odmak krila od podne vodilice",
+      "typical_values": []
+    },
+    {
+      "name": "VKKOG",
+      "description": "Odmak krila od stropa — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKOS",
+      "description": "Odmak simetrale krila straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKP",
+      "description": "Preklop krila — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKR",
+      "description": "Razmak prednjih i stražnjih krila — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKS",
+      "description": "Širina krila — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKKT",
+      "description": "Debljina krila — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKNDO",
+      "description": "Nosač profila donji - odmak",
+      "typical_values": []
+    },
+    {
+      "name": "VKNGO",
+      "description": "Nosač profila gornji - odmak",
+      "typical_values": []
+    },
+    {
+      "name": "VKNVO",
+      "description": "Nosač profila vertikalni - odmak",
+      "typical_values": []
+    },
+    {
+      "name": "VKOD",
+      "description": "Vratno krilo - odmak odoozdo",
+      "typical_values": []
+    },
+    {
+      "name": "VKOSU",
+      "description": "Odmak simetrala uklade i vertikalnog profila",
+      "typical_values": []
+    },
+    {
+      "name": "VKPB",
+      "description": "Preklopi - broj",
+      "typical_values": []
+    },
+    {
+      "name": "VKPDT",
+      "description": "Profil donji - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPDW",
+      "description": "Profil donji - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPGT",
+      "description": "Profil gornji - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPGW",
+      "description": "Profil gornji - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPK",
+      "description": "Položaj krila — [opcije: Lijevo/Sredina/Desno]",
+      "typical_values": [
+        "Lijevo",
+        "Sredina",
+        "Desno"
+      ]
+    },
+    {
+      "name": "VKPKT",
+      "description": "Ptofil kutni - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPKW",
+      "description": "Profil kutni  - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPOB",
+      "description": "Vrata krilo odmak bočni panta",
+      "typical_values": []
+    },
+    {
+      "name": "VKPST",
+      "description": "Profil srednji - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPSW",
+      "description": "Profil srednji - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPVD",
+      "description": "Poklopac vodilice donje",
+      "typical_values": []
+    },
+    {
+      "name": "VKPVT",
+      "description": "Profil vertikalni - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKPVW",
+      "description": "Profil vertikalni - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKRSP",
+      "description": "Krila - raspored — [opcije: 2  _¬/2  ¬_/3  _¬_/3   ¬_¬/4   _¬_¬/4   ¬_¬_/4   ¬_ _¬/5   _¬_¬_/5   ¬_¬_¬/5   ¬_ _¬_/5   _¬_ _¬]",
+      "typical_values": [
+        "2  _¬",
+        "2  ¬_",
+        "3  _¬_",
+        "3   ¬_¬",
+        "4   _¬_¬",
+        "4   ¬_¬_",
+        "4   ¬_ _¬",
+        "5   _¬_¬_",
+        "5   ¬_¬_¬",
+        "5   ¬_ _¬_",
+        "5   _¬_ _¬"
+      ]
+    },
+    {
+      "name": "VKSF",
+      "description": "Vratno krilo - širina friza",
+      "typical_values": []
+    },
+    {
+      "name": "VKSFD",
+      "description": "Vratno krilo - širina friza dolje",
+      "typical_values": []
+    },
+    {
+      "name": "VKUB",
+      "description": "Uklade broj",
+      "typical_values": []
+    },
+    {
+      "name": "VKUD1",
+      "description": "Uklada 1 duljina — <100 = Izračun , >=100 = Vidljiva duljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUD2",
+      "description": "Uklada 2 duljina — <100 = Izračun , >=100 = Vidljiva duljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUD3",
+      "description": "Uklada 3 duljina — <100 = Izračun , >=100 = Vidljiva duljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUD4",
+      "description": "Uklada 4 duljina — <100 = Izračun , >=100 = Vidljiva duljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUD5",
+      "description": "Uklada 5 duljina — <100 = Izračun , >=100 = Vidljiva duljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUHD",
+      "description": "Utor horizontalni - produljenje uklade",
+      "typical_values": []
+    },
+    {
+      "name": "VKUHD1",
+      "description": "Utor horizontalni - produljenje uklade tip 1 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKUHD2",
+      "description": "Utor horizontalni - produljenje uklade tip 2 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKUHD3",
+      "description": "Utor horizontalni - produljenje uklade tip 3 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKUHT",
+      "description": "Utor horizontalni - dubina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUHW",
+      "description": "Utor horizontalni - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUI",
+      "description": "Uklade broj za izračun",
+      "typical_values": []
+    },
+    {
+      "name": "VKUI1",
+      "description": "Uklada 1 duljina izračunata",
+      "typical_values": []
+    },
+    {
+      "name": "VKUI2",
+      "description": "Uklada 2 duljina izračunata",
+      "typical_values": []
+    },
+    {
+      "name": "VKUI3",
+      "description": "Uklada 3 duljina izračunata",
+      "typical_values": []
+    },
+    {
+      "name": "VKUI4",
+      "description": "Uklada 4 duljina izračunata",
+      "typical_values": []
+    },
+    {
+      "name": "VKUI5",
+      "description": "Uklada 5 duljina izračunata",
+      "typical_values": []
+    },
+    {
+      "name": "VKUID",
+      "description": "Uklada duljina izračunata",
+      "typical_values": []
+    },
+    {
+      "name": "VKUIU",
+      "description": "Uklade duljina izračunata - ukupna",
+      "typical_values": []
+    },
+    {
+      "name": "VKUK1",
+      "description": "Uklada 1 — [opcije: Ploča/Staklo/Ogledalo]",
+      "typical_values": [
+        "Ploča",
+        "Staklo",
+        "Ogledalo"
+      ]
+    },
+    {
+      "name": "VKUK2",
+      "description": "Uklada 2 — [opcije: Ne/Ploča/Staklo/Ogledalo]",
+      "typical_values": [
+        "Ne",
+        "Ploča",
+        "Staklo",
+        "Ogledalo"
+      ]
+    },
+    {
+      "name": "VKUK3",
+      "description": "Uklada 3 — [opcije: Ne/Ploča/Staklo/Ogledalo]",
+      "typical_values": [
+        "Ne",
+        "Ploča",
+        "Staklo",
+        "Ogledalo"
+      ]
+    },
+    {
+      "name": "VKUK4",
+      "description": "Uklada 4 — [opcije: Ne/Ploča/Staklo/Ogledalo]",
+      "typical_values": [
+        "Ne",
+        "Ploča",
+        "Staklo",
+        "Ogledalo"
+      ]
+    },
+    {
+      "name": "VKUK5",
+      "description": "Uklada 5 — [opcije: Ne/Ploča/Staklo/Ogledalo]",
+      "typical_values": [
+        "Ne",
+        "Ploča",
+        "Staklo",
+        "Ogledalo"
+      ]
+    },
+    {
+      "name": "VKUUS",
+      "description": "Utor za ukladu - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUVD",
+      "description": "Utor vertikalni - proširenje uklade",
+      "typical_values": []
+    },
+    {
+      "name": "VKUVD1",
+      "description": "Utor vertikalni - produljenje uklade tip 1 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKUVD2",
+      "description": "Utor vertikalni - produljenje uklade tip 2 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKUVD3",
+      "description": "Utor vertikalni - produljenje uklade tip 3 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKUVT",
+      "description": "Utor vertikalni - dubina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUVW",
+      "description": "Utor vertikalni - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKUZ1",
+      "description": "Uklada tip 1 zračnost",
+      "typical_values": []
+    },
+    {
+      "name": "VKUZ2",
+      "description": "Uklada tip 2 zračnost",
+      "typical_values": []
+    },
+    {
+      "name": "VKVD",
+      "description": "Vodilica donja — Položaj i način učvršćenja donje vodilice za pod — [opcije: Naljepna/Ukop puni/Ukop djelomični]",
+      "typical_values": [
+        "Naljepna",
+        "Ukop puni",
+        "Ukop djelomični"
+      ]
+    },
+    {
+      "name": "VKVDDT",
+      "description": "Vodilica donja djelomično ukopna - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDDW",
+      "description": "Vodilica donja djelomično ukopna - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDNT",
+      "description": "Vodilica donja naljepna - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDNW",
+      "description": "Vodilica donja naljepna - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDO",
+      "description": "Odmak simetrala donje prema gornjoj vodilici — Odmak straga simetrale donje vodilice u odnosu na simetralu gornje vodilice — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDUT",
+      "description": "Vodilica donja ukopna - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDUW",
+      "description": "Vodilica donja ukopna - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDZ",
+      "description": "Z položaj vodilice donje — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDZ1",
+      "description": "Z položaj vodilice donje - tip 1 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDZ2",
+      "description": "Z položaj vodilice donje - tip 2 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKVDZ3",
+      "description": "Z položaj vodilice donje - tipa 3 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKVGT",
+      "description": "Vodilica gornja - debljina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVGW",
+      "description": "Vodilica gornja - širina",
+      "typical_values": []
+    },
+    {
+      "name": "VKVOD",
+      "description": "Visina otvora — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VKVOS",
+      "description": "Odmak vodilice gornje straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VL",
+      "description": "Visina letve",
+      "typical_values": []
+    },
+    {
+      "name": "VLK",
+      "description": "Visina luka",
+      "typical_values": []
+    },
+    {
+      "name": "VO",
+      "description": "Visina obline",
+      "typical_values": []
+    },
+    {
+      "name": "VOD",
+      "description": "Visina otvora — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "Vof",
+      "description": "",
+      "typical_values": [
+        "5",
+        "4",
+        "7",
+        "6"
+      ]
+    },
+    {
+      "name": "VOS",
+      "description": "Visina obline odozdo",
+      "typical_values": []
+    },
+    {
+      "name": "VOSD",
+      "description": "Vrata opšava širina desno",
+      "typical_values": []
+    },
+    {
+      "name": "VOSDP",
+      "description": "Širina desne prednje obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VOSDZ",
+      "description": "Širina desne stražnje obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VOSG",
+      "description": "Vrata opšava širina gore",
+      "typical_values": []
+    },
+    {
+      "name": "VOSGP",
+      "description": "Širina gornje prednje obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VOSGZ",
+      "description": "Širina gornje stražnje obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VOSL",
+      "description": "Vrata opšava širina lijevo",
+      "typical_values": []
+    },
+    {
+      "name": "VOSLP",
+      "description": "Širina lijeve prednje obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VOSLZ",
+      "description": "Širina lijeve stražnje obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VOZ",
+      "description": "Visina obline odozgo",
+      "typical_values": []
+    },
+    {
+      "name": "VOZR",
+      "description": "Zrak obloge",
+      "typical_values": []
+    },
+    {
+      "name": "VP",
+      "description": "Visina podnožja",
+      "typical_values": []
+    },
+    {
+      "name": "VPS",
+      "description": "Vez prednji smjer — Smjer prednjeg veza hoorizontalno ili vertikalno. — [opcije: Horizontalno/Vertikalno]",
+      "typical_values": [
+        "Horizontalno",
+        "Vertikalno"
+      ]
+    },
+    {
+      "name": "VPST",
+      "description": "Vez prednji smjer - tip — Smjer prednjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala. — [opcije: Horizontalno/Vertikalno/Al profil]",
+      "typical_values": [
+        "Horizontalno",
+        "Vertikalno",
+        "Al profil"
+      ]
+    },
+    {
+      "name": "VPT",
+      "description": "Veznik prednji sudopera - tip — Samo za prednji veznik sudopera — [opcije: Drvo/Al]",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "VR",
+      "description": "Broj vrata",
+      "typical_values": []
+    },
+    {
+      "name": "VR1",
+      "description": "Vrata — [opcije: 1 - Ne/2 - Jednokrilna Lijeva/3 - Jednokrilna Desna/4 - Dvokrilna]",
+      "typical_values": [
+        "1 - Ne",
+        "2 - Jednokrilna Lijeva",
+        "3 - Jednokrilna Desna",
+        "4 - Dvokrilna"
+      ]
+    },
+    {
+      "name": "VRDOL",
+      "description": "Vrata dolje — [opcije: 1 - Do poda/2 - Do dna]",
+      "typical_values": [
+        "1 - Do poda",
+        "2 - Do dna"
+      ]
+    },
+    {
+      "name": "VRK",
+      "description": "Vrata - krila — [opcije: 1/2]",
+      "typical_values": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "name": "VRMI",
+      "description": "Izbor vrata - maska — [opcije: Vrata/Maska]",
+      "typical_values": [
+        "Vrata",
+        "Maska"
+      ]
+    },
+    {
+      "name": "VRMS",
+      "description": "Širina vrata - maska",
+      "typical_values": []
+    },
+    {
+      "name": "VRPOD",
+      "description": "Vrata - pant odmak dolje",
+      "typical_values": []
+    },
+    {
+      "name": "VRPOG",
+      "description": "Vrata - pant odmak gore",
+      "typical_values": []
+    },
+    {
+      "name": "VS",
+      "description": "Vez - smjer — [opcije: Horizontalno/Vertikalno]",
+      "typical_values": [
+        "Horizontalno",
+        "Vertikalno"
+      ]
+    },
+    {
+      "name": "VS_ODM",
+      "description": "Odmak od zida — [opcije: 170/245/295]",
+      "typical_values": [
+        "170",
+        "245",
+        "295"
+      ]
+    },
+    {
+      "name": "VS_SZ",
+      "description": "Vezanje za — [opcije: Strop/Zid]",
+      "typical_values": [
+        "Strop",
+        "Zid"
+      ]
+    },
+    {
+      "name": "VS_VN",
+      "description": "Vertikalni nosač — [opcije: S pokrovom/Puni]",
+      "typical_values": [
+        "S pokrovom",
+        "Puni"
+      ]
+    },
+    {
+      "name": "VS_VS",
+      "description": "Veznik srednji",
+      "typical_values": []
+    },
+    {
+      "name": "VS_VSO",
+      "description": "Odmak srednjeg veznika od poda",
+      "typical_values": []
+    },
+    {
+      "name": "VSP",
+      "description": "Visina prednjeg dijela",
+      "typical_values": []
+    },
+    {
+      "name": "VSS",
+      "description": "Vez stražnji smjer — Smjer stražnjeg veza hoorizontalno ili vertikalno. — [opcije: Horizontalno/Vertikalno]",
+      "typical_values": [
+        "Horizontalno",
+        "Vertikalno"
+      ]
+    },
+    {
+      "name": "VSST",
+      "description": "Vez stražnji smjer - tip — Smjer stražnjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala. — [opcije: Horizontalno/Vertikalno/Al profil]",
+      "typical_values": [
+        "Horizontalno",
+        "Vertikalno",
+        "Al profil"
+      ]
+    },
+    {
+      "name": "VSVP",
+      "description": "Vez stražnji vertikalni položaj — Položaj steažnjeg veza ispred ili iza leđa. — [opcije: Ispred leđa/Iza leđa]",
+      "typical_values": [
+        "Ispred leđa",
+        "Iza leđa"
+      ]
+    },
+    {
+      "name": "VV",
+      "description": "Visina vijenca",
+      "typical_values": []
+    },
+    {
+      "name": "VZ",
+      "description": "Visina straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "VZP",
+      "description": "Visina zadnjega dijela na ladici — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "W",
+      "description": "",
+      "typical_values": [
+        "600",
+        "18",
+        "0",
+        "98.200287399045052",
+        "98.1500000000185",
+        "5",
+        "80",
+        "20",
+        "27.000000000018492",
+        "31.5"
+      ]
+    },
+    {
+      "name": "W1",
+      "description": "Širina 1 — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "W2",
+      "description": "Širina 2",
+      "typical_values": []
+    },
+    {
+      "name": "X",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Xn",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Xof",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Y",
+      "description": "",
+      "typical_values": [
+        "0",
+        "-129.5"
+      ]
+    },
+    {
+      "name": "Yn",
+      "description": "",
+      "typical_values": [
+        "1"
+      ]
+    },
+    {
+      "name": "Yof",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "Z",
+      "description": "",
+      "typical_values": [
+        "0"
+      ]
+    },
+    {
+      "name": "ZAH",
+      "description": "Zahvatnik",
+      "typical_values": []
+    },
+    {
+      "name": "ZAK",
+      "description": "Blokada",
+      "typical_values": []
+    },
+    {
+      "name": "ZDD",
+      "description": "Zadnji dio do poda",
+      "typical_values": []
+    },
+    {
+      "name": "ZDP",
+      "description": "Zrak dna ladice",
+      "typical_values": []
+    },
+    {
+      "name": "ZDPZ",
+      "description": "Zrak dna ladice straga — (može biti negativan)",
+      "typical_values": []
+    },
+    {
+      "name": "ZDV",
+      "description": "Vanjska klizna vrata",
+      "typical_values": []
+    },
+    {
+      "name": "ZH",
+      "description": "Zrak leđa",
+      "typical_values": []
+    },
+    {
+      "name": "ZHP",
+      "description": "Zrak leđa - poluutor",
       "typical_values": []
     },
     {
       "name": "ZHS",
-      "description": "koristi se u 15 formula",
+      "description": "Zrak leđa po širini — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "OP",
-      "description": "koristi se u 15 formula",
+      "name": "ZHU",
+      "description": "Zrak leđa u utoru",
       "typical_values": []
     },
     {
-      "name": "VSST",
-      "description": "koristi se u 14 formula",
+      "name": "ZHV",
+      "description": "Zrak leđa po visini — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "IZR_0",
-      "description": "koristi se u 14 formula",
+      "name": "ZKAP",
+      "description": "Završna kapica",
       "typical_values": []
     },
     {
-      "name": "BST",
-      "description": "koristi se u 12 formula",
+      "name": "ZKB",
+      "description": "Zrak krila bočno",
       "typical_values": []
     },
     {
-      "name": "BSL",
-      "description": "koristi se u 11 formula",
+      "name": "ZKD",
+      "description": "Zrak krila dolje",
       "typical_values": []
     },
     {
-      "name": "OSS",
-      "description": "koristi se u 11 formula",
+      "name": "ZKG",
+      "description": "Zrak krila gore",
       "typical_values": []
     },
     {
-      "name": "IZR_12",
-      "description": "koristi se u 10 formula",
+      "name": "ZKLD",
+      "description": "Završetak kutne letve desni",
       "typical_values": []
     },
     {
-      "name": "DN",
-      "description": "koristi se u 10 formula",
+      "name": "ZKLL",
+      "description": "Završetak kutne letve lijevi",
       "typical_values": []
     },
     {
-      "name": "ODM_2",
-      "description": "koristi se u 10 formula",
+      "name": "ZKLT",
+      "description": "Završetak kutne letve - debljina",
       "typical_values": []
     },
     {
-      "name": "BSD",
-      "description": "koristi se u 9 formula",
+      "name": "ZKRP",
+      "description": "Zarez kutne radne ploče — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "IZR_13",
-      "description": "koristi se u 9 formula",
+      "name": "ZO",
+      "description": "S oblinom",
       "typical_values": []
     },
     {
@@ -7056,264 +11623,142 @@
       "typical_values": []
     },
     {
-      "name": "IZR_1",
-      "description": "koristi se u 9 formula",
+      "name": "ZP",
+      "description": "Sa coklom",
       "typical_values": []
     },
     {
-      "name": "LPOS",
-      "description": "koristi se u 8 formula",
-      "typical_values": []
-    },
-    {
-      "name": "VPST",
-      "description": "koristi se u 7 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ODM_1",
-      "description": "koristi se u 7 formula",
-      "typical_values": []
-    },
-    {
-      "name": "HDTD",
-      "description": "koristi se u 6 formula",
-      "typical_values": []
-    },
-    {
-      "name": "LEDUD",
-      "description": "koristi se u 6 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OSLZ",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OSDZ",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "SV",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OSZ",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OffL",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OffR",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "SMF",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "KVNI",
-      "description": "koristi se u 5 formula",
-      "typical_values": []
-    },
-    {
-      "name": "SPDRZ",
-      "description": "koristi se u 4 formula",
-      "typical_values": []
-    },
-    {
-      "name": "GLP",
-      "description": "koristi se u 4 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RDN",
-      "description": "koristi se u 4 formula",
-      "typical_values": []
-    },
-    {
-      "name": "IZR_6",
-      "description": "koristi se u 4 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ZDPZ",
-      "description": "koristi se u 3 formula",
-      "typical_values": []
-    },
-    {
-      "name": "SM",
-      "description": "koristi se u 3 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RCNFI",
-      "description": "koristi se u 3 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RCNPO",
-      "description": "koristi se u 3 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OSLS",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OSDS",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OfWL",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OfWR",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RPDN",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ZDP",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ZZP",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "FI",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "LEDPO",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RCNPS",
-      "description": "koristi se u 2 formula",
-      "typical_values": []
-    },
-    {
-      "name": "KDOSZI",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "ZHU",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "OZS",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
+      "name": "ZP1",
+      "description": "Cokl — [opcije: Ne/Prednji/Prednji+Stražnji]",
+      "typical_values": [
+        "Ne",
+        "Prednji",
+        "Prednji+Stražnji"
+      ]
     },
     {
       "name": "ZPG",
-      "description": "koristi se u 1 formula",
+      "description": "Zrak podnožja gore",
       "typical_values": []
     },
     {
-      "name": "OZZ",
-      "description": "koristi se u 1 formula",
+      "name": "ZPVID",
+      "description": "Cokl vidljivi",
       "typical_values": []
     },
     {
-      "name": "MOZ",
-      "description": "koristi se u 1 formula",
+      "name": "ZR",
+      "description": "Zrak fronte — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "OPSM",
-      "description": "koristi se u 1 formula",
+      "name": "ZRB",
+      "description": "Zrak bočno — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "VZP",
-      "description": "koristi se u 1 formula",
+      "name": "ZRD",
+      "description": "Zrak desno — (može biti negativan)",
+      "typical_values": [
+        "1.5",
+        "20",
+        "2"
+      ]
+    },
+    {
+      "name": "ZRI",
+      "description": "Zrak iza — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "DVZ",
-      "description": "koristi se u 1 formula",
+      "name": "ZRIZ",
+      "description": "Debljina vodilica ladice — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "ZAH",
-      "description": "koristi se u 1 formula",
+      "name": "ZRK",
+      "description": "Zrak od korpusa — (može biti negativan)",
+      "typical_values": [
+        "0",
+        "2"
+      ]
+    },
+    {
+      "name": "ZRL",
+      "description": "Zrak lijevo — (može biti negativan)",
+      "typical_values": [
+        "1.5",
+        "2",
+        "20"
+      ]
+    },
+    {
+      "name": "ZRP",
+      "description": "Zrak uklade",
       "typical_values": []
     },
     {
-      "name": "COL",
-      "description": "koristi se u 1 formula",
+      "name": "ZRS",
+      "description": "Zrak ispod — (može biti negativan)",
+      "typical_values": [
+        "-2",
+        "-20",
+        "0",
+        "1"
+      ]
+    },
+    {
+      "name": "ZRV",
+      "description": "Zrak između — (može biti negativan)",
+      "typical_values": [
+        "3",
+        "4"
+      ]
+    },
+    {
+      "name": "ZRVK",
+      "description": "Zrak između - kanal",
       "typical_values": []
     },
     {
-      "name": "IZR_19",
-      "description": "koristi se u 1 formula",
+      "name": "ZRZ",
+      "description": "Zrak iznad — (može biti negativan)",
+      "typical_values": [
+        "3",
+        "-4.5",
+        "5",
+        "2"
+      ]
+    },
+    {
+      "name": "ZSP",
+      "description": "Zrak prednjeg dijela ladice — (može biti negativan)",
       "typical_values": []
     },
     {
-      "name": "IZR_18",
-      "description": "koristi se u 1 formula",
+      "name": "ZUT",
+      "description": "Zrak u utoru",
       "typical_values": []
     },
     {
-      "name": "IZR_17",
-      "description": "koristi se u 1 formula",
+      "name": "ZWT",
+      "description": "Zamjena širina-debljina — [opcije: Širina/Debljina]",
+      "typical_values": [
+        "Širina",
+        "Debljina"
+      ]
+    },
+    {
+      "name": "ZZP",
+      "description": "Zrak zadnjeg dijela ladice",
       "typical_values": []
     },
     {
-      "name": "IZR_15",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "IZR_7",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "IZR_5",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RCNOS",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "RCNOG",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
-    },
-    {
-      "name": "H1",
-      "description": "koristi se u 1 formula",
-      "typical_values": []
+      "name": "ZZR",
+      "description": "Zrak za ručkicu",
+      "typical_values": [
+        "0"
+      ]
     }
   ],
   "syntax_rules": [
