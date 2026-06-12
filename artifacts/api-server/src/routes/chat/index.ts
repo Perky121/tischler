@@ -460,6 +460,13 @@ const FUNCTIONS_AND_OPERATORS = `OPERATORI U FORMULAMA (potvrđeno iz .mac datot
   <=    manje ili jednako          (15 formula)
   and   logički I                  (107 formula)  primjer: if(([KDT]==1) and (POSW>200);...)
   or    logički ILI                (33 formula)   primjer: if(([.BST]==0) or ([.VSST]==1);...)
+Napomena: AND i OR (velika slova) su ekvivalentni with and/or (mala slova) — oba oblika postoje u .mac datotekama.
+
+SISTEMSKE VARIJABLE (bez uglatih zagrada — NE pisati [POSW]):
+  POSW  — širina pozicije elementa u prostoru (22 formula)  primjer: if(POSW>200;[KDOSZI];0,5)
+  POSD  — dubina pozicije elementa u prostoru (5 formula)   primjer: ifelse([.KDT]==0;[.SV];[.KDT]==1;POSD-...
+  POSH  — visina pozicije elementa u prostoru (5 formula)   primjer: POSH-ifelse([.KODS]==0;0;...)
+Ove varijable MegaTischler automatski pruža — ne trebaju [] i ne mogu se postaviti kao parametri.
 
 FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka):
   if(uvjet;istina;laž)                       — 2-granični uvjet           (294 formula)
@@ -548,7 +555,7 @@ function buildSystemPrompt(
   };
   const categorised = new Set(Object.values(PARAM_CATEGORIES).flat());
 
-  const sortedParams = ((kb.parameters ?? []) as Array<{ name: string; description: string; typical_values: string[] }>)
+  const sortedParams = ((kb.parameters ?? []) as Array<{ name: string; description: string; typical_values: string[]; observed_values?: string[] }>)
     .slice()
     .sort((a, b) => {
       const aScore = (visibleParamNames.has(a.name) ? 500 : 0) + (formulaParamFreq.get(a.name) ?? 0);
@@ -557,8 +564,15 @@ function buildSystemPrompt(
     });
 
   // Build a categorised display: fixed groups first, then top modular params
-  const formatParam = (p: { name: string; description: string; typical_values: string[] }) =>
-    `${p.name}${p.description ? ` — ${p.description}` : ""}${p.typical_values?.length ? ` (tipično: ${p.typical_values.join(", ")})` : ""}`;
+  // observed_values take priority over typical_values — they are derived from real formula conditions
+  const formatParam = (p: { name: string; description: string; typical_values: string[]; observed_values?: string[] }) => {
+    const valHint = p.observed_values?.length
+      ? ` [opažene vrijednosti: ${p.observed_values.join(", ")}]`
+      : p.typical_values?.length
+        ? ` (tipično: ${p.typical_values.join(", ")})`
+        : "";
+    return `${p.name}${p.description ? ` — ${p.description}` : ""}${valHint}`;
+  };
 
   const paramsByName = new Map(sortedParams.map(p => [p.name, p]));
   const paramLines: string[] = [];
@@ -656,7 +670,20 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
       // Inject module description from kb.modules if available
       const moduleDef = ((kb as unknown as Record<string, unknown>).modules as Array<{ name: string; opis: string }> | undefined)
         ?.find(m => m.name === sessionCtx.moduleHint);
-      ctxLines.push(`Modul: ${sessionCtx.moduleHint}${moduleDef ? ` — ${moduleDef.opis}` : ""}`);
+      // Module-dominant formula type — derived from actual formula type counts in KB
+      const MODULE_DOMINANT_TYPE: Record<string, string> = {
+        "KUH_VISOKI.mac":   "dominantno pozicijske formule (49%)",
+        "KUTNI.mac":        "dominantno ROTACIJSKE formule (35%) — EULER() i SIN/COS/TAN česti",
+        "KUTNI_VANJSKI.mac":"dominantno pozicijske formule (49%)",
+        "MIKROVALNA.mac":   "dominantno pozicijske formule (57%)",
+        "NAPA.mac":         "dominantno pozicijske formule (59%)",
+        "VISECI.mac":       "dominantno formule uključenja (43%)",
+        "PECNICA.mac":      "dominantno pozicijske formule (48%)",
+        "PERILICA.mac":     "mješovit (pozicija + reference)",
+        "OTVORENI.mac":     "mješovit (reference + dimenzije)",
+      };
+      const typHint = MODULE_DOMINANT_TYPE[sessionCtx.moduleHint ?? ""] ?? "";
+      ctxLines.push(`Modul: ${sessionCtx.moduleHint}${moduleDef ? ` — ${moduleDef.opis}` : ""}${typHint ? ` | ${typHint}` : ""}`);
     }
     if (sessionCtx.dialogType && sessionCtx.dialogType !== "none") {
       ctxLines.push(`Tip dijaloga: ${sessionCtx.dialogType}`);
