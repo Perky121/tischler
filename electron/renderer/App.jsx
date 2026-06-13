@@ -688,6 +688,10 @@ function SettingsPanel({
   setLiveCallCount,
   setLiveBudgetUsd,
   onChangeRegion,
+  mtInstallPath,
+  setMtInstallPath,
+  mtManifest,
+  setMtManifest,
 }) {
   const [backendUrl, setBackendUrl] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
@@ -703,8 +707,6 @@ function SettingsPanel({
   const [autoLoadModule, setAutoLoadModule] = useState(true);
   const [macUploadStatus, setMacUploadStatus] = useState(null); // null | "uploading" | {ok, count, errors}
   const macFileInputRef = React.useRef(null);
-  const [mtInstallPath, setMtInstallPath] = useState("");
-  const [mtManifest, setMtManifest] = useState(null);
   const [mtScanning, setMtScanning] = useState(false);
   const [mtScanError, setMtScanError] = useState(null);
   const [mtImporting, setMtImporting] = useState(new Set());
@@ -719,7 +721,6 @@ function SettingsPanel({
       setTtsVoice(s.ttsVoice || "onyx");
       setUseRegionForF9(!!s.useRegionForF9);
       setAutoLoadModule(s.autoLoadModule !== false);
-      setMtInstallPath(s.mtInstallPath || "");
     });
     window.electron.fetchKnowledgeStats().then((data) => {
       if (!data.error) setStats(data);
@@ -1442,6 +1443,10 @@ function App() {
   const [moduleLoading, setModuleLoading] = useState(false);
   const [inputHeight, setInputHeight] = useState(INPUT_HEIGHT_DEFAULT);
 
+  // Bridge persistent connection state (shared with /istraži command)
+  const [mtInstallPath, setMtInstallPath] = useState("");
+  const [mtManifest, setMtManifest] = useState(null);
+
   // Debug mod state
   const [debugState, setDebugState] = useState("off"); // off | recording
   const [debugFrames, setDebugFrames] = useState([]); // [{index, thumb}]
@@ -1608,6 +1613,7 @@ function App() {
         setInputHeight(h);
         inputHeightRef.current = h;
       }
+      if (s.mtInstallPath) setMtInstallPath(s.mtInstallPath);
     }).catch(() => {});
 
     return () => {
@@ -2067,6 +2073,114 @@ function App() {
   }, [messages]);
 
   // ── Send ──────────────────────────────────────────────────────────────────
+  async function handleBridgeResearch(query) {
+    const userMsg = { role: "user", content: `/istraži ${query}`, id: nextMsgId() };
+    const placeholderId = nextMsgId();
+    setMessages(prev => [...prev, userMsg, { role: "assistant", content: "📚 Istražujem...", id: placeholderId }]);
+    setIsStreaming(true);
+
+    const updatePlaceholder = (text) =>
+      setMessages(prev => prev.map(m => m.id === placeholderId ? { ...m, content: text } : m));
+
+    try {
+      const settings = await window.electron.getSettings();
+      const backendUrl = settings.backendUrl || "https://tischler1.replit.app";
+
+      // Ensure manifest is loaded
+      let manifest = mtManifest;
+      if (!manifest) {
+        const installPath = mtInstallPath || settings.mtInstallPath || "";
+        if (!installPath) {
+          updatePlaceholder("⚠️ Baza nije spojena. Otvori Postavke (⚙) → odaberi MegaTischler mapu.");
+          return;
+        }
+        updatePlaceholder("📂 Skeniram direktorij...");
+        const scanResult = await window.electron.mtBridgeScan(installPath);
+        if (!scanResult.ok) throw new Error(scanResult.error);
+        manifest = scanResult.manifest;
+        setMtManifest(manifest);
+      }
+
+      // Step 1: Find relevant files
+      updatePlaceholder("🔍 Tražim relevantne datoteke...");
+      const manifestRes = await fetch(`${backendUrl}/api/bridge/analyze-manifest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: query, manifest }),
+      });
+      const manifestData = await manifestRes.json();
+      const recs = (manifestData.recommendations || [])
+        .filter(r => r.priority !== "low")
+        .slice(0, 5);
+
+      if (recs.length === 0) {
+        updatePlaceholder("ℹ️ Nisam pronašao relevantne datoteke za ovaj upit.");
+        return;
+      }
+
+      // Step 2: Read and analyze each file
+      const findings = [];
+      for (const rec of recs) {
+        updatePlaceholder(`📖 Čitam ${rec.filename}...`);
+        try {
+          const fileData = await window.electron.mtBridgeReadFile({ fullPath: rec.fullPath });
+          if (fileData.error) continue;
+          const fileRes = await fetch(`${backendUrl}/api/bridge/analyze-file`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: rec.filename, contentBase64: fileData.base64, action: rec.action }),
+          });
+          const fileResult = await fileRes.json();
+          if (fileResult.knowledge || fileResult.description) {
+            findings.push({ filename: rec.filename, action: rec.action, knowledge: fileResult.knowledge || fileResult.description });
+          }
+        } catch { /* preskoči grešku za ovaj fajl */ }
+      }
+
+      if (findings.length === 0) {
+        updatePlaceholder("⚠️ Nisam uspio pročitati niti jednu datoteku.");
+        return;
+      }
+
+      // Step 3: Stream summary
+      updatePlaceholder("");
+      const summaryRes = await fetch(`${backendUrl}/api/bridge/research-summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, findings }),
+      });
+
+      const reader = summaryRes.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.delta) {
+              accumulated += parsed.delta;
+              setMessages(prev => prev.map(m => m.id === placeholderId ? { ...m, content: accumulated } : m));
+            }
+          } catch { /* ignore */ }
+        }
+      }
+    } catch (err) {
+      updatePlaceholder(`⚠️ Greška: ${err.message}`);
+    } finally {
+      setIsStreaming(false);
+    }
+  }
+
   const handleSend = useCallback(async (overrideInput, overrideScreenshot) => {
     const msgText = overrideInput !== undefined ? overrideInput : input;
     // overrideScreenshot lets callers bypass the stale screenshotDataUrl closure
@@ -2078,6 +2192,14 @@ function App() {
     if (msgText.trim().toLowerCase() === "/debug") {
       setInput("");
       openDebugPanel();
+      return;
+    }
+
+    // Parse /istraži command
+    if (msgText.trim().toLowerCase().startsWith("/istraži")) {
+      const query = msgText.trim().slice("/istraži".length).trim();
+      setInput("");
+      handleBridgeResearch(query || "pregledaj bazu i reci što pronalaziš");
       return;
     }
 
@@ -2284,6 +2406,12 @@ function App() {
               liveState === "running" ? "⏸ Pauziraj" :
               liveState === "paused" ? "▶ Nastavi" : "○ Live"}
           </button>
+          {mtManifest && (
+            <span
+              style={{ fontSize: 10, color: "var(--accent)", padding: "2px 6px", background: "rgba(56,189,248,0.1)", borderRadius: 4, border: "1px solid rgba(56,189,248,0.3)", cursor: "default", userSelect: "none" }}
+              title={`Tischler Bridge spojen: ${mtManifest.length} datoteka`}
+            >🔌 {mtManifest.length}</span>
+          )}
           <button className="btn-icon" title="AI istraži bazu datoteka" onClick={() => setShowBridgeAgent(true)}>🗄</button>
           <button className="btn-icon" title="Postavke" onClick={() => setShowSettings(true)}>⚙</button>
           <button className="btn-icon" title="Minimizirati" onClick={() => window.electron.minimizeWindow()}>─</button>
@@ -2679,7 +2807,7 @@ function App() {
           </button>
         </div>
 
-        <div className="input-hint">F9 ekran · Enter šalje · Shift+Enter novi red · /debug za dijagnostiku · povuci gornji rub za veći unos</div>
+        <div className="input-hint">F9 ekran · /istraži [upit] za Bridge · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos</div>
       </div>
 
       {showBridgeAgent && (
@@ -2701,6 +2829,10 @@ function App() {
           setLiveCallCount={setLiveCallCount}
           setLiveBudgetUsd={setLiveBudgetUsd}
           onChangeRegion={changeRegion}
+          mtInstallPath={mtInstallPath}
+          setMtInstallPath={setMtInstallPath}
+          mtManifest={mtManifest}
+          setMtManifest={setMtManifest}
         />
       )}
 

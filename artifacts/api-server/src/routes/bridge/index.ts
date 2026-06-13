@@ -284,4 +284,69 @@ router.post("/bridge/save-insight", (req, res): void => {
   }
 });
 
+// ── POST /api/bridge/research-summary ─────────────────────────────────────────
+// Streaming SSE: takes research query + file findings, returns formatted answer.
+router.post("/bridge/research-summary", async (req, res): Promise<void> => {
+  try {
+    const { query, findings } = req.body as {
+      query: string;
+      findings: Array<{ filename: string; action: string; knowledge: string }>;
+    };
+
+    if (!query || !Array.isArray(findings)) {
+      res.status(400).json({ error: "query i findings su obavezni" });
+      return;
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const sendEvent = (data: string) => {
+      res.write(`data: ${JSON.stringify({ delta: data })}\n\n`);
+    };
+
+    const kb = readKb();
+    const findingsText = findings
+      .map(f => `### ${f.filename}\n${f.knowledge || "(nema uvida)"}`)
+      .join("\n\n");
+
+    const stream = anthropic.messages.stream({
+      model: "claude-opus-4-8",
+      max_tokens: 2048,
+      system: `Ti si ekspert za MegaTischler CAD parametrizaciju. Odgovaraš na pitanja korisnika na temelju istraživanja MegaTischler datoteka.
+Baza znanja sadrži ${kb.formulas?.length ?? 0} formula i ${(kb.parameters as unknown[])?.length ?? 0} parametara.
+Decimalni separator u formulama je uvijek ZAREZ (0,5 — ne 0.5).
+
+FORMAT ODGOVORA:
+- Odgovaraj na HRVATSKOM
+- Kad god postoje konkretne formule ili koraci, koristi worklist format:
+  kratki uvod, zatim \`\`\`worklist blok s JSON nizom steps gdje svaki korak ima: title, where, formula, hint
+- Ako nema formula, odgovori tekstualno s ključnim uvidima`,
+      messages: [{
+        role: "user",
+        content: `Korisnikov upit: "${query}"\n\nPronađeno u MegaTischler datotekama:\n\n${findingsText}`,
+      }],
+    });
+
+    for await (const event of stream) {
+      if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+        sendEvent(event.delta.text);
+      }
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
+  } catch (err) {
+    logger.error({ err }, "bridge/research-summary error");
+    if (!res.headersSent) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: "Greška pri generiranju odgovora" })}\n\n`);
+      res.end();
+    }
+  }
+});
+
 export default router;
