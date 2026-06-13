@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } = require("electron");
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
@@ -1020,6 +1020,17 @@ function classifyMtFile(filename) {
   }
   return null;
 }
+
+ipcMain.handle("mt-browse-folder", async () => {
+  const win = BrowserWindow.getFocusedWindow();
+  const result = await dialog.showOpenDialog(win, {
+    title: "Odaberi mapu MegaTischler instalacije",
+    properties: ["openDirectory"],
+    buttonLabel: "Odaberi mapu",
+  });
+  if (result.canceled || !result.filePaths.length) return { canceled: true };
+  return { canceled: false, path: result.filePaths[0] };
+});
 
 ipcMain.handle("mt-bridge-scan", async (_, installPath) => {
   try {

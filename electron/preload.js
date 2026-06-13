@@ -88,6 +88,7 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("toggle-recording", () => cb()),
 
   // MegaTischler Bridge — file system scanner
+  mtBrowseFolder: () => ipcRenderer.invoke("mt-browse-folder"),
   mtBridgeScan: (installPath) => ipcRenderer.invoke("mt-bridge-scan", installPath),
   mtBridgeImportFile: (args) => ipcRenderer.invoke("mt-bridge-import-file", args),
   mtBridgeReadFile: (args) => ipcRenderer.invoke("mt-bridge-read-file", args),

@@ -736,8 +736,8 @@ function SettingsPanel({
     });
   }
 
-  async function handleMtScan() {
-    const trimmed = mtInstallPath.trim();
+  async function handleMtScanWith(pathToScan) {
+    const trimmed = (pathToScan || "").trim();
     if (!trimmed) return;
     setMtScanning(true);
     setMtScanError(null);
@@ -745,7 +745,6 @@ function SettingsPanel({
     setMtDone(new Set());
     setMtSkipped(new Set());
     try {
-      await window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule, mtInstallPath: trimmed });
       const result = await window.electron.mtBridgeScan(trimmed);
       if (!result.ok) { setMtScanError(result.error); return; }
       setMtManifest(result.manifest);
@@ -754,6 +753,10 @@ function SettingsPanel({
     } finally {
       setMtScanning(false);
     }
+  }
+
+  async function handleMtScan() {
+    await handleMtScanWith(mtInstallPath);
   }
 
   async function handleMtImportFile(item) {
@@ -1134,25 +1137,32 @@ function SettingsPanel({
         <div className="settings-section">
           <div className="settings-label">Baza datoteka — MegaTischler Bridge</div>
           <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>
-            Postavi putanju lokalne MegaTischler instalacije za skeniranje dostupnih datoteka.
+            Odaberi mapu MegaTischler instalacije za skeniranje dostupnih datoteka.
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <input
-              className="settings-input"
-              style={{ flex: 1 }}
-              placeholder="C:\MegaCAD_3D_2025 OEM"
-              value={mtInstallPath}
-              onChange={e => setMtInstallPath(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleMtScan(); }}
-            />
             <button
               className="btn-save"
-              style={{ whiteSpace: "nowrap", background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)", minWidth: 90 }}
-              onClick={handleMtScan}
-              disabled={mtScanning || !mtInstallPath.trim()}
+              style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)", textAlign: "left" }}
+              onClick={async () => {
+                const res = await window.electron.mtBrowseFolder();
+                if (!res.canceled) {
+                  setMtInstallPath(res.path);
+                  await window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule, mtInstallPath: res.path });
+                  handleMtScanWith(res.path);
+                }
+              }}
+              disabled={mtScanning}
             >
-              {mtScanning ? "⏳ Skeniranje..." : "🔍 Skeniraj"}
+              📁 {mtInstallPath ? mtInstallPath : "Odaberi mapu instalacije..."}
             </button>
+            {mtInstallPath && (
+              <button
+                className="btn-save"
+                style={{ background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)", padding: "6px 10px" }}
+                onClick={() => { setMtInstallPath(""); setMtManifest(null); setMtScanError(null); }}
+                title="Obriši putanju"
+              >✕</button>
+            )}
           </div>
 
           {mtScanError && (
