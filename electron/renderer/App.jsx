@@ -325,351 +325,299 @@ const TTS_VOICES = [
   { id: "fable",   label: "Fable (ekspresivni)" },
 ];
 
-// ── BridgeAgentPanel ───────────────────────────────────────────────────────
-function BridgeAgentPanel({ onClose }) {
-  const [step, setStep] = React.useState("idle");
-  const [task, setTask] = React.useState("");
-  const [installPath, setInstallPath] = React.useState("");
+// ── BridgePage ─────────────────────────────────────────────────────────────
+function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setMtManifest, initialQuery }) {
+  const [bridgeMsgs, setBridgeMsgs] = React.useState([]);
+  const [bridgeInput, setBridgeInput] = React.useState(initialQuery || "");
+  const [isStreaming, setIsStreaming] = React.useState(false);
   const [backendUrl, setBackendUrl] = React.useState("https://tischler1.replit.app");
-  const [recommendations, setRecommendations] = React.useState([]);
-  const [approvals, setApprovals] = React.useState({});
-  const [fileResults, setFileResults] = React.useState({});
-  const [currentFile, setCurrentFile] = React.useState(null);
-  const [answers, setAnswers] = React.useState({});
-  const [error, setError] = React.useState(null);
-  const [saveStatus, setSaveStatus] = React.useState({});
+  const [findings, setFindings] = React.useState({});
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [isScanning, setIsScanning] = React.useState(false);
+  const scrollRef = React.useRef(null);
+  const msgCounter = React.useRef(0);
+  const findingsRef = React.useRef({});
+  const manifestRef = React.useRef(mtManifest);
+
+  function nextId() { return ++msgCounter.current; }
+
+  React.useEffect(() => { manifestRef.current = mtManifest; }, [mtManifest]);
+  React.useEffect(() => { findingsRef.current = findings; }, [findings]);
 
   React.useEffect(() => {
-    window.electron.getSettings().then(s => {
-      setInstallPath(s.mtInstallPath || "");
-      setBackendUrl(s.backendUrl || "https://tischler1.replit.app");
+    window.electron.getSettings().then(async (s) => {
+      const url = s.backendUrl || "https://tischler1.replit.app";
+      setBackendUrl(url);
+      let manifest = mtManifest;
+      if (!manifest && (mtInstallPath || s.mtInstallPath)) {
+        const p = (mtInstallPath || s.mtInstallPath || "").trim();
+        if (p) {
+          setIsScanning(true);
+          const result = await window.electron.mtBridgeScan(p);
+          setIsScanning(false);
+          if (result.ok) { setMtManifest(result.manifest); manifest = result.manifest; }
+        }
+      }
+      streamAgentMsg(null, url, manifest || [], {});
     });
   }, []);
 
-  async function handleAnalyze() {
-    if (!task.trim() || !installPath.trim()) return;
-    setStep("analyzing");
-    setError(null);
-    setRecommendations([]);
-    setApprovals({});
-    setFileResults({});
+  React.useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [bridgeMsgs]);
+
+  async function streamAgentMsg(userMsg, url, manifest, currentFindings) {
+    const placeholderId = nextId();
+    setIsStreaming(true);
+    if (userMsg) {
+      setBridgeMsgs(prev => [...prev, { id: nextId(), role: "user", content: userMsg }]);
+    }
+    setBridgeMsgs(prev => [...prev, { id: placeholderId, role: "assistant", content: "", isLoading: true }]);
+
     try {
-      const scanResult = await window.electron.mtBridgeScan(installPath.trim());
-      if (!scanResult.ok) throw new Error(scanResult.error);
-      const res = await fetch(`${backendUrl}/api/bridge/analyze-manifest`, {
+      const convHistory = bridgeMsgs
+        .filter(m => !m.isLoading && !m.isProgress && m.content)
+        .map(m => ({ role: m.role, content: m.content }));
+      if (userMsg) convHistory.push({ role: "user", content: userMsg });
+
+      const res = await fetch(`${url}/api/bridge/agent-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task: task.trim(), manifest: scanResult.manifest }),
+        body: JSON.stringify({
+          messages: convHistory,
+          manifest: manifest || [],
+          findings: currentFindings || {},
+          isGreeting: !userMsg,
+        }),
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      const recs = data.recommendations || [];
-      setRecommendations(recs);
-      const initApprovals = {};
-      recs.forEach(r => { initApprovals[r.fullPath] = r.priority !== "low"; });
-      setApprovals(initApprovals);
-      setStep("recommendations");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.delta) {
+              accumulated += parsed.delta;
+              setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
+                ? { ...m, content: accumulated, isLoading: false } : m));
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+      const suggestMatch = accumulated.match(/<suggest_files>([\s\S]*?)<\/suggest_files>/);
+      if (suggestMatch) {
+        try {
+          const suggestedFiles = JSON.parse(suggestMatch[1]);
+          const cleanContent = accumulated.replace(/<suggest_files>[\s\S]*?<\/suggest_files>/, "").trim();
+          setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
+            ? { ...m, content: cleanContent, suggestedFiles, isLoading: false } : m));
+        } catch { /* keep as is */ }
+      }
     } catch (err) {
-      setError(err.message);
-      setStep("idle");
+      setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
+        ? { ...m, content: `⚠️ Greška: ${err.message}`, isLoading: false } : m));
+    } finally {
+      setIsStreaming(false);
     }
   }
 
-  async function handleReadFiles() {
-    const approved = recommendations.filter(r => approvals[r.fullPath]);
-    if (approved.length === 0) return;
-    setStep("reading");
-    setError(null);
-    const results = {};
-    for (const rec of approved) {
-      setCurrentFile(rec.filename);
+  async function handleSend() {
+    if (!bridgeInput.trim() || isStreaming || isAnalyzing) return;
+    const msg = bridgeInput.trim();
+    setBridgeInput("");
+    await streamAgentMsg(msg, backendUrl, manifestRef.current || [], findingsRef.current);
+  }
+
+  async function handleAnalyze(files) {
+    if (isAnalyzing || !files.length) return;
+    setIsAnalyzing(true);
+    const newFindings = { ...findingsRef.current };
+    const analyzedNames = [];
+    const progressId = nextId();
+
+    setBridgeMsgs(prev => [...prev, { id: progressId, role: "assistant", content: `📖 Pripremam analizu...`, isProgress: true }]);
+
+    for (const file of files) {
+      setBridgeMsgs(prev => prev.map(m => m.id === progressId
+        ? { ...m, content: `📖 Čitam ${file.filename}...` } : m));
       try {
-        const fileData = await window.electron.mtBridgeReadFile({ fullPath: rec.fullPath });
-        if (fileData.error) throw new Error(fileData.error);
+        const fileData = await window.electron.mtBridgeReadFile({ fullPath: file.fullPath });
+        if (fileData.error) continue;
         const res = await fetch(`${backendUrl}/api/bridge/analyze-file`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filename: rec.filename, contentBase64: fileData.base64, action: rec.action }),
+          body: JSON.stringify({ filename: file.filename, contentBase64: fileData.base64, action: file.action }),
         });
         const result = await res.json();
-        results[rec.fullPath] = { ...result, recommendation: rec };
-      } catch (err) {
-        results[rec.fullPath] = { error: err.message, recommendation: rec };
-      }
+        if (result.knowledge || result.description) {
+          newFindings[file.filename] = { knowledge: result.knowledge || result.description, action: file.action };
+          analyzedNames.push(file.filename);
+        }
+      } catch { /* preskoči */ }
     }
-    setFileResults(results);
-    setCurrentFile(null);
-    setStep("results");
+
+    setBridgeMsgs(prev => prev.filter(m => m.id !== progressId));
+    setFindings(newFindings);
+    findingsRef.current = newFindings;
+    setIsAnalyzing(false);
+
+    const summary = analyzedNames.length > 0
+      ? `Upravo si završio analizu ovih datoteka: ${analyzedNames.join(", ")}. Reci mi detaljno što si naučio — koje parametre, formule ili informacije si pronašao?`
+      : "Pokušao sam analizirati datoteke, ali nisam uspio dobiti korisne podatke. Možeš li mi reći što je pošlo po zlu?";
+
+    await streamAgentMsg(summary, backendUrl, manifestRef.current || [], newFindings);
   }
 
-  async function handleSaveAll() {
-    const approved = recommendations.filter(r => approvals[r.fullPath]);
-    const newStatus = {};
-    for (const rec of approved) {
-      const result = fileResults[rec.fullPath];
-      if (!result || result.error) continue;
-      newStatus[rec.fullPath] = "saving";
-      setSaveStatus({ ...newStatus });
+  async function handleSaveFindings() {
+    const entries = Object.entries(findingsRef.current);
+    if (!entries.length) return;
+    let saved = 0;
+    for (const [filename, data] of entries) {
       try {
-        if (rec.action === "import-mac") {
-          await window.electron.mtBridgeImportFile({ fullPath: rec.fullPath, filename: rec.filename });
-          newStatus[rec.fullPath] = "saved";
-        } else if (result.canSave && result.knowledge) {
-          const fileAnswers = Object.entries(answers)
-            .filter(([k]) => k.startsWith(rec.fullPath + "::"))
-            .map(([k, a]) => ({ question: k.replace(rec.fullPath + "::", ""), answer: String(a) }));
+        if (data.action === "import-mac") {
+          const item = (manifestRef.current || []).find(m => m.filename === filename);
+          if (item) await window.electron.mtBridgeImportFile({ fullPath: item.fullPath, filename });
+        } else {
           await fetch(`${backendUrl}/api/bridge/save-insight`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ source: rec.filename, insight: result.knowledge, answeredQuestions: fileAnswers }),
+            body: JSON.stringify({ source: filename, insight: data.knowledge }),
           });
-          newStatus[rec.fullPath] = "saved";
-        } else {
-          newStatus[rec.fullPath] = "skipped";
         }
-      } catch {
-        newStatus[rec.fullPath] = "error";
-      }
-      setSaveStatus({ ...newStatus });
+        saved++;
+      } catch { /* preskoči */ }
     }
-    setStep("done");
+    const saveId = nextId();
+    setBridgeMsgs(prev => [...prev, {
+      id: saveId,
+      role: "assistant",
+      content: `✅ Znanje iz ${saved} datoteke(a) uspješno je dodano u bazu. Svaki put kad pitaš Copilota nešto o formulama, koristit će i ove podatke.`,
+    }]);
+    setFindings({});
+    findingsRef.current = {};
   }
 
-  const priorityColor = { high: "var(--accent)", medium: "#f59e0b", low: "var(--text3)" };
-  const priorityLabel = { high: "visok", medium: "srednji", low: "nizak" };
-  const actionLabel = { "import-mac": "uvoz formula", "read-text": "analiza teksta", "hex-probe": "analiza binarnog" };
+  async function handleBrowse() {
+    const res = await window.electron.mtBrowseFolder();
+    if (res.canceled) return;
+    setMtInstallPath(res.path);
+    await window.electron.saveSettings({ mtInstallPath: res.path });
+    setIsScanning(true);
+    setMtManifest(null);
+    const scan = await window.electron.mtBridgeScan(res.path);
+    setIsScanning(false);
+    if (scan.ok) { setMtManifest(scan.manifest); manifestRef.current = scan.manifest; }
+  }
+
+  const hasPendingFindings = Object.keys(findings).length > 0;
+  const macCount = (mtManifest || []).filter(f => f.folder === "Mac").length;
+  const loadedCount = (mtManifest || []).filter(f => f.folder === "Mac" && f.alreadyLoaded).length;
 
   return (
-    <div className="settings-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="settings-panel" style={{ maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
-        <div className="settings-header">
-          <span className="settings-title">🗄 AI istraži bazu datoteka</span>
-          <button className="settings-close" onClick={onClose}>✕</button>
+    <div className="bridge-overlay">
+      <div className="bridge-page">
+
+        {/* Header */}
+        <div className="bridge-header">
+          <span className="bridge-title">🗄 Bridge — Istraživanje baze</span>
+          <div style={{ flex: 1 }} />
+          {mtInstallPath ? (
+            <div className="bridge-conn-badge connected">
+              🔌 {(mtInstallPath.split("\\").pop() || mtInstallPath.split("/").pop() || mtInstallPath) || mtInstallPath}
+              <button className="bridge-conn-change" onClick={handleBrowse} title="Promijeni mapu">📁</button>
+            </div>
+          ) : (
+            <button className="bridge-conn-badge disconnected" onClick={handleBrowse}>
+              🔌 Spoji MegaTischler instalaciju
+            </button>
+          )}
+          <button className="bridge-close" onClick={onClose}>✕</button>
         </div>
 
-        <div style={{ overflowY: "auto", flex: 1, padding: "0 16px 16px" }}>
+        {/* Stat bar */}
+        {isScanning && <div className="bridge-stat-bar">⏳ Skeniram instalacijski direktorij...</div>}
+        {mtManifest && !isScanning && (
+          <div className="bridge-stat-bar">
+            {macCount} .mac modula ({loadedCount} u bazi znanja) · {(mtManifest || []).filter(f => f.folder !== "Mac").length} ostalih datoteka
+          </div>
+        )}
+        {!mtManifest && !isScanning && !mtInstallPath && (
+          <div className="bridge-stat-bar" style={{ color: "#f59e0b" }}>⚠ Odaberi mapu MegaTischler instalacije da počnemo</div>
+        )}
 
-          {/* ── IDLE / ANALYZE ── */}
-          {(step === "idle" || step === "analyzing") && (
-            <div className="settings-section">
-              <div className="settings-label">Zadaj AI zadatak</div>
-              <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 8 }}>
-                Opiši što želiš saznati iz MegaTischler baze. AI će pregledati dostupne datoteke i preporučiti koje pročitati.
-              </div>
-              {!installPath && (
-                <div style={{ marginBottom: 8, fontSize: 11, padding: "6px 10px", borderRadius: 4, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }}>
-                  ⚠ Putanja MegaTischler instalacije nije postavljena. Postavi je u Postavkama → Baza datoteka.
-                </div>
+        {/* Chat */}
+        <div className="bridge-chat" ref={scrollRef}>
+          {bridgeMsgs.map(msg => (
+            <div key={msg.id} className={`bridge-msg ${msg.role}${msg.isProgress ? " progress" : ""}`}>
+              {msg.role === "assistant" && !msg.isProgress && (
+                <div className="bridge-msg-label">MT BRIDGE</div>
               )}
-              <textarea
-                style={{ width: "100%", minHeight: 80, background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text1)", fontSize: 12, padding: "8px 10px", resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
-                placeholder="Npr: Pregledaj bazu i reci mi koje datoteke sadrže informacije o parametrizaciji ladica i korpusa"
-                value={task}
-                onChange={e => setTask(e.target.value)}
-                disabled={step === "analyzing"}
-              />
-              {error && (
-                <div style={{ marginTop: 6, fontSize: 11, color: "#f87171", padding: "4px 8px", borderRadius: 4, background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)" }}>
-                  ✗ {error}
-                </div>
-              )}
-              <button
-                className="btn-save"
-                style={{ marginTop: 8, width: "100%", background: "var(--accent)", color: "#000", border: "none", opacity: (!task.trim() || !installPath || step === "analyzing") ? 0.5 : 1 }}
-                disabled={!task.trim() || !installPath || step === "analyzing"}
-                onClick={handleAnalyze}
-              >
-                {step === "analyzing" ? "⏳ AI analizira bazu..." : "🔍 Analiziraj bazu"}
-              </button>
-            </div>
-          )}
-
-          {/* ── RECOMMENDATIONS ── */}
-          {step === "recommendations" && (
-            <div>
-              <div className="settings-section">
-                <div className="settings-label">AI preporuke</div>
-                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 8 }}>
-                  AI je pronašao {recommendations.length} relevantnih datoteka. Potvrdi ili odbij svaku preporuku.
-                </div>
-                {recommendations.length === 0 && (
-                  <div style={{ fontSize: 11, color: "var(--text3)" }}>AI nije pronašao relevantne datoteke za ovaj zadatak.</div>
+              <div className="bridge-msg-content">
+                {msg.isLoading ? (
+                  <span className="bridge-loading-dots"><span>●</span><span>●</span><span>●</span></span>
+                ) : (
+                  <MarkdownMessage content={msg.content} />
                 )}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {recommendations.map(rec => (
-                    <div key={rec.fullPath} style={{
-                      padding: "8px 10px", borderRadius: 6, background: "var(--bg3)",
-                      border: `1px solid ${approvals[rec.fullPath] ? "rgba(74,222,128,0.3)" : "var(--border)"}`,
-                      opacity: approvals[rec.fullPath] === false ? 0.45 : 1,
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                        <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: "var(--text1)" }}>📄 {rec.filename}</span>
-                        <span style={{ fontSize: 10, color: priorityColor[rec.priority] || "var(--text3)" }}>
-                          ● {priorityLabel[rec.priority] || rec.priority}
-                        </span>
-                        <span style={{ fontSize: 10, color: "var(--text3)", background: "var(--bg2)", borderRadius: 3, padding: "1px 5px" }}>
-                          {actionLabel[rec.action] || rec.action}
-                        </span>
-                        <button
-                          style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "1px solid var(--border)", cursor: "pointer",
-                            background: approvals[rec.fullPath] ? "var(--accent)" : "var(--bg2)",
-                            color: approvals[rec.fullPath] ? "#000" : "var(--text3)" }}
-                          onClick={() => setApprovals(a => ({ ...a, [rec.fullPath]: !a[rec.fullPath] }))}
-                        >
-                          {approvals[rec.fullPath] ? "✓ Prihvaćeno" : "✕ Odbijeno"}
-                        </button>
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--text2)", lineHeight: 1.4 }}>{rec.reason}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
-              <div style={{ display: "flex", gap: 8, padding: "0 0 8px" }}>
-                <button className="btn-save" style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-                  onClick={() => { setStep("idle"); setRecommendations([]); }}>
-                  ← Natrag
-                </button>
-                <button className="btn-save" style={{ flex: 2, background: "var(--accent)", color: "#000", border: "none" }}
-                  disabled={!recommendations.some(r => approvals[r.fullPath])}
-                  onClick={handleReadFiles}>
-                  ▶ Čitaj odabrane datoteke ({recommendations.filter(r => approvals[r.fullPath]).length})
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── READING ── */}
-          {step === "reading" && (
-            <div className="settings-section">
-              <div className="settings-label">Čitanje datoteka...</div>
-              <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 12 }}>
-                AI čita i analizira svaku odabranu datoteku.
-              </div>
-              {recommendations.filter(r => approvals[r.fullPath]).map(rec => {
-                const done = !!fileResults[rec.fullPath];
-                const active = currentFile === rec.filename;
-                return (
-                  <div key={rec.fullPath} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, padding: "6px 8px", borderRadius: 4, background: "var(--bg3)" }}>
-                    <span style={{ fontSize: 14 }}>{done ? "✓" : active ? "⏳" : "○"}</span>
-                    <span style={{ flex: 1, fontSize: 11, color: active ? "var(--text1)" : done ? "var(--accent)" : "var(--text3)" }}>
-                      {rec.filename}
-                    </span>
-                    {done && !fileResults[rec.fullPath].error && (
-                      <span style={{ fontSize: 10, color: "var(--accent)" }}>
-                        {fileResults[rec.fullPath].formulaCount !== undefined
-                          ? `${fileResults[rec.fullPath].formulaCount} formula`
-                          : "analiza gotova"}
-                      </span>
-                    )}
-                    {done && fileResults[rec.fullPath].error && (
-                      <span style={{ fontSize: 10, color: "#f87171" }}>Greška</span>
-                    )}
+              {msg.suggestedFiles && msg.suggestedFiles.length > 0 && (
+                <div className="bridge-suggest-action">
+                  <div className="bridge-suggest-files">
+                    {msg.suggestedFiles.map(f => (
+                      <span key={f.fullPath || f.filename} className="bridge-file-chip">📄 {f.filename}</span>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ── RESULTS ── */}
-          {step === "results" && (
-            <div>
-              <div className="settings-section">
-                <div className="settings-label">Rezultati analize</div>
-                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 8 }}>
-                  Pregled onoga što je AI pronašao. Odgovori na pitanja (nije obavezno) pa spremi znanje u bazu.
+                  <button
+                    className="bridge-analyze-btn"
+                    disabled={isAnalyzing || isStreaming}
+                    onClick={() => handleAnalyze(msg.suggestedFiles)}
+                  >
+                    {isAnalyzing ? "⏳ Analiziram..." : `🔍 Analiziraj ove datoteke (${msg.suggestedFiles.length})`}
+                  </button>
                 </div>
-                {Object.entries(fileResults).map(([fullPath, result]) => {
-                  const rec = result.recommendation;
-                  const hasError = !!result.error;
-                  const questions = result.questions || [];
-                  return (
-                    <div key={fullPath} style={{ marginBottom: 10, padding: "10px 12px", borderRadius: 6, background: "var(--bg3)", border: `1px solid ${hasError ? "rgba(248,113,113,0.3)" : "var(--border)"}` }}>
-                      <div style={{ fontWeight: 600, fontSize: 12, color: "var(--text1)", marginBottom: 6 }}>
-                        📄 {rec.filename}
-                        {result.formulaCount !== undefined && (
-                          <span style={{ marginLeft: 8, fontSize: 11, color: "var(--accent)", fontWeight: 400 }}>
-                            {result.formulaCount} formula · {result.paramCount} parametara
-                          </span>
-                        )}
-                      </div>
-                      {hasError ? (
-                        <div style={{ fontSize: 11, color: "#f87171" }}>✗ {result.error}</div>
-                      ) : (
-                        <>
-                          <div style={{ fontSize: 11, color: "var(--text2)", lineHeight: 1.5, marginBottom: questions.length ? 8 : 0 }}>
-                            {result.knowledge}
-                          </div>
-                          {questions.length > 0 && (
-                            <div style={{ marginTop: 8 }}>
-                              <div style={{ fontSize: 10, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
-                                AI pita:
-                              </div>
-                              {questions.map((q, i) => (
-                                <div key={i} style={{ marginBottom: 6 }}>
-                                  <div style={{ fontSize: 11, color: "var(--text2)", marginBottom: 3 }}>❓ {q}</div>
-                                  <input
-                                    className="settings-input"
-                                    style={{ fontSize: 11 }}
-                                    placeholder="Tvoj odgovor (neobavezno)..."
-                                    value={answers[`${fullPath}::${q}`] || ""}
-                                    onChange={e => setAnswers(a => ({ ...a, [`${fullPath}::${q}`]: e.target.value }))}
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{ display: "flex", gap: 8, padding: "0 0 8px" }}>
-                <button className="btn-save" style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-                  onClick={() => setStep("recommendations")}>
-                  ← Natrag
-                </button>
-                <button className="btn-save" style={{ flex: 2, background: "var(--accent)", color: "#000", border: "none" }}
-                  onClick={handleSaveAll}>
-                  💾 Spremi znanje u bazu
-                </button>
-              </div>
+              )}
             </div>
-          )}
-
-          {/* ── DONE ── */}
-          {step === "done" && (
-            <div className="settings-section">
-              <div className="settings-label">✓ Znanje spremljeno</div>
-              <div style={{ fontSize: 11, color: "var(--text2)", lineHeight: 1.5, marginBottom: 12 }}>
-                Analiza je završena. Baza znanja je ažurirana.
-              </div>
-              {Object.entries(saveStatus).map(([fullPath, status]) => {
-                const rec = fileResults[fullPath]?.recommendation;
-                if (!rec) return null;
-                const icons = { saved: "✓", saving: "⏳", error: "✗", skipped: "—" };
-                const colors = { saved: "var(--accent)", saving: "var(--text3)", error: "#f87171", skipped: "var(--text3)" };
-                return (
-                  <div key={fullPath} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, fontSize: 11 }}>
-                    <span style={{ color: colors[status] || "var(--text3)" }}>{icons[status] || "?"}</span>
-                    <span style={{ flex: 1, color: "var(--text2)" }}>{rec.filename}</span>
-                    <span style={{ color: colors[status] || "var(--text3)" }}>{status}</span>
-                  </div>
-                );
-              })}
-              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <button className="btn-save" style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-                  onClick={() => { setStep("idle"); setTask(""); setRecommendations([]); setFileResults({}); setSaveStatus({}); }}>
-                  ↺ Novi zadatak
-                </button>
-                <button className="btn-save" style={{ flex: 1, background: "var(--accent)", color: "#000", border: "none" }}
-                  onClick={onClose}>
-                  Zatvori
-                </button>
-              </div>
+          ))}
+          {hasPendingFindings && (
+            <div className="bridge-save-bar">
+              <span>💾 Analiza završena — spremi znanje u bazu?</span>
+              <button className="bridge-save-btn" onClick={handleSaveFindings}>Spremi u bazu</button>
             </div>
           )}
         </div>
+
+        {/* Input */}
+        <div className="bridge-input-row">
+          <textarea
+            className="bridge-input"
+            placeholder="Pitaj Bridge agenta... (npr. Koje datoteke opisuju ladice?)"
+            value={bridgeInput}
+            onChange={e => setBridgeInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+            disabled={isStreaming || isAnalyzing}
+            rows={2}
+          />
+          <button
+            className="bridge-send-btn"
+            onClick={handleSend}
+            disabled={!bridgeInput.trim() || isStreaming || isAnalyzing}
+          >
+            {isStreaming ? <><div className="spinner" style={{ width: 10, height: 10, borderWidth: 2 }} /> Šalje...</> : "▶ Pošalji"}
+          </button>
+        </div>
+
       </div>
     </div>
   );
@@ -688,11 +636,9 @@ function SettingsPanel({
   setLiveCallCount,
   setLiveBudgetUsd,
   onChangeRegion,
-  mtInstallPath,
-  setMtInstallPath,
-  mtManifest,
-  setMtManifest,
+  onOpenBridge,
 }) {
+  const [activeTab, setActiveTab] = React.useState("opce");
   const [backendUrl, setBackendUrl] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
   const [micDeviceId, setMicDeviceId] = useState("");
@@ -705,13 +651,9 @@ function SettingsPanel({
   const [testingVoice, setTestingVoice] = useState(false);
   const [useRegionForF9, setUseRegionForF9] = useState(false);
   const [autoLoadModule, setAutoLoadModule] = useState(true);
-  const [macUploadStatus, setMacUploadStatus] = useState(null); // null | "uploading" | {ok, count, errors}
+  const [macUploadStatus, setMacUploadStatus] = useState(null);
   const macFileInputRef = React.useRef(null);
-  const [mtScanning, setMtScanning] = useState(false);
-  const [mtScanError, setMtScanError] = useState(null);
-  const [mtImporting, setMtImporting] = useState(new Set());
-  const [mtDone, setMtDone] = useState(new Set());
-  const [mtSkipped, setMtSkipped] = useState(new Set());
+
   useEffect(() => {
     window.electron.getSettings().then((s) => {
       setBackendUrl(s.backendUrl || "");
@@ -731,60 +673,10 @@ function SettingsPanel({
   }, []);
 
   function handleSave() {
-    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule, mtInstallPath }).then(() => {
+    window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule }).then(() => {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
-  }
-
-  async function handleMtScanWith(pathToScan) {
-    const trimmed = (pathToScan || "").trim();
-    if (!trimmed) return;
-    setMtScanning(true);
-    setMtScanError(null);
-    setMtManifest(null);
-    setMtDone(new Set());
-    setMtSkipped(new Set());
-    try {
-      const result = await window.electron.mtBridgeScan(trimmed);
-      if (!result.ok) { setMtScanError(result.error); return; }
-      setMtManifest(result.manifest);
-    } catch (err) {
-      setMtScanError(err.message);
-    } finally {
-      setMtScanning(false);
-    }
-  }
-
-  async function handleMtScan() {
-    await handleMtScanWith(mtInstallPath);
-  }
-
-  async function handleMtImportFile(item) {
-    setMtImporting(s => new Set([...s, item.fullPath]));
-    try {
-      const result = await window.electron.mtBridgeImportFile({ fullPath: item.fullPath, filename: item.filename });
-      if (result.error) throw new Error(result.error);
-      setMtDone(s => new Set([...s, item.fullPath]));
-      window.electron.fetchKnowledgeStats().then(data => { if (!data.error) setStats(data); });
-    } catch (err) {
-      alert("Greška pri uvozu: " + err.message);
-    } finally {
-      setMtImporting(s => { const n = new Set(s); n.delete(item.fullPath); return n; });
-    }
-  }
-
-  async function handleMtImportAll() {
-    const pending = (mtManifest || []).filter(item =>
-      item.action === "import-mac" &&
-      !item.alreadyLoaded &&
-      !mtDone.has(item.fullPath) &&
-      !mtSkipped.has(item.fullPath) &&
-      !mtImporting.has(item.fullPath)
-    );
-    for (const item of pending) {
-      await handleMtImportFile(item);
-    }
   }
 
   async function handleTestVoice() {
@@ -803,25 +695,15 @@ function SettingsPanel({
     if (!files || files.length === 0) return;
     setMacUploadStatus("uploading");
     try {
-      // Read all files as base64 in the renderer (FileReader), then pass to main
       const filesData = await Promise.all(Array.from(files).map((file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result.split(",")[1];
-          resolve({ name: file.name, base64 });
-        };
+        reader.onloadend = () => { const base64 = reader.result.split(",")[1]; resolve({ name: file.name, base64 }); };
         reader.onerror = reject;
         reader.readAsDataURL(file);
       })));
-
       const result = await window.electron.uploadMacFiles({ files: filesData });
       if (result.error) throw new Error(result.error);
-
-      // Refresh stats
-      window.electron.fetchKnowledgeStats().then((data) => {
-        if (!data.error) setStats(data);
-      });
-
+      window.electron.fetchKnowledgeStats().then((data) => { if (!data.error) setStats(data); });
       setMacUploadStatus({ ok: true, count: filesData.length });
       setTimeout(() => setMacUploadStatus(null), 3000);
     } catch (err) {
@@ -832,472 +714,206 @@ function SettingsPanel({
 
   return (
     <div className="settings-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="settings-panel">
-        <div className="settings-header">
+      <div className="settings-panel" style={{ display: "flex", flexDirection: "column", padding: 0, overflow: "hidden" }}>
+
+        <div className="settings-header" style={{ padding: "14px 16px 0", marginBottom: 0 }}>
           <span className="settings-title">⚙ Postavke</span>
           <button className="btn-icon" onClick={onClose} title="Zatvori">✕</button>
         </div>
 
-        {/* Live mode — region + budget */}
-        <div className="settings-section">
-          <div className="settings-label">Live mod 2.0 — budžet i područje</div>
-
-          {/* Budget display */}
-          <div className="live-cost-row">
-            <div className="live-cost-stat">
-              <span className="live-cost-num">${liveSpentUsd.toFixed(2)}</span>
-              <span className="live-cost-desc">potrošeno danas</span>
-            </div>
-            <div className="live-cost-stat">
-              <span className="live-cost-num">${liveBudgetUsd}</span>
-              <span className="live-cost-desc">dnevni budžet</span>
-            </div>
-            <div className="live-cost-stat">
-              <span className="live-cost-num">{liveCallCount}</span>
-              <span className="live-cost-desc">AI poziva</span>
-            </div>
-          </div>
-
-          {/* Budget progress bar */}
-          {(() => {
-            const pct = liveBudgetUsd > 0 ? liveSpentUsd / liveBudgetUsd : 0;
-            return (
-              <>
-                <div className="live-budget-bar">
-                  <div
-                    className={`live-budget-fill${pct > 0.8 ? " warning" : ""}`}
-                    style={{ width: `${Math.min(100, pct * 100).toFixed(1)}%` }}
-                  />
-                </div>
-                {pct > 0.8 && (
-                  <div className="live-cost-warning">
-                    ⚠ Potrošeno {Math.round(pct * 100)}% dnevnog budžeta
-                  </div>
-                )}
-              </>
-            );
-          })()}
-
-          {/* Budget input */}
-          <div className="settings-label" style={{ marginTop: 8 }}>Dnevni budžet (USD)</div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
-            <input
-              className="settings-input"
-              type="number"
-              min="1"
-              max="500"
-              defaultValue={liveBudgetUsd}
-              key={liveBudgetUsd}
-              onBlur={(e) => {
-                const n = parseFloat(e.target.value);
-                if (n > 0) {
-                  setLiveBudgetUsd && setLiveBudgetUsd(n);
-                  window.electron.liveSetBudget(n).catch(() => {});
-                }
-              }}
-              style={{ width: 80 }}
-            />
-            <button
-              className="btn-save"
-              style={{ flex: 1, background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
-              onClick={() => {
-                setLiveSpentUsd && setLiveSpentUsd(0);
-                setLiveCallCount && setLiveCallCount(0);
-                window.electron.liveResetCount().catch(() => {});
-              }}
-            >
-              Resetiraj brojač
-            </button>
-          </div>
-
-          {/* Region */}
-          <div className="settings-label" style={{ marginTop: 10 }}>Praćeno područje ekrana</div>
-          {liveRegion ? (
-            <div className="live-region-info">
-              <span className="live-region-coords">
-                {liveRegion.x},{liveRegion.y} — {liveRegion.width}×{liveRegion.height}px
-              </span>
-              <button
-                className="btn-save"
-                style={{ fontSize: 11, padding: "3px 8px", background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-                onClick={() => { onChangeRegion && onChangeRegion(); }}
-              >
-                Promijeni
-              </button>
-              <button
-                className="btn-save"
-                style={{ fontSize: 11, padding: "3px 8px", background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
-                onClick={() => {
-                  window.electron.liveClearRegion().then((result) => {
-                    if (result?.liveDisabled && setLiveEnabled) setLiveEnabled(false);
-                  }).catch(() => {});
-                  setLiveRegion && setLiveRegion(null);
-                }}
-              >
-                Ukloni
-              </button>
-            </div>
-          ) : (
-            <div style={{ color: "var(--text3)", fontSize: 12, marginTop: 4 }}>
-              Nije odabrano — klik na Live gumb za odabir
-            </div>
-          )}
-
-          {/* useRegionForF9 toggle */}
-          {liveRegion && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
-              <input
-                type="checkbox"
-                id="useRegionForF9"
-                checked={useRegionForF9}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setUseRegionForF9(checked);
-                  window.electron.saveSettings({ useRegionForF9: checked }).catch(() => {});
-                }}
-                style={{ cursor: "pointer" }}
-              />
-              <label htmlFor="useRegionForF9" style={{ fontSize: 12, color: "var(--text2)", cursor: "pointer" }}>
-                Koristi isto područje i za F9 screenshot
-              </label>
-            </div>
-          )}
-
-          {/* autoLoadModule toggle */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
-            <input
-              type="checkbox"
-              id="autoLoadModule"
-              checked={autoLoadModule}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setAutoLoadModule(checked);
-                window.electron.saveSettings({ autoLoadModule: checked }).catch(() => {});
-              }}
-              style={{ cursor: "pointer" }}
-            />
-            <label htmlFor="autoLoadModule" style={{ fontSize: 12, color: "var(--text2)", cursor: "pointer" }}>
-              Automatski učitaj modul kad Live ga prepozna
-            </label>
-          </div>
+        <div className="settings-tabs">
+          {[["opce","Opće"],["live","Live mod"],["baza","Baza znanja"]].map(([id, label]) => (
+            <button key={id} className={`settings-tab${activeTab === id ? " active" : ""}`}
+              onClick={() => setActiveTab(id)}>{label}</button>
+          ))}
         </div>
 
-        {/* Backend URL */}
-        <div className="settings-section">
-          <div className="settings-label">Backend URL (Replit)</div>
-          <input
-            className="settings-input"
-            type="text"
-            value={backendUrl}
-            onChange={(e) => setBackendUrl(e.target.value)}
-            placeholder="https://...replit.dev"
-          />
-        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 16px" }}>
 
-        {/* OpenAI API Key */}
-        <div className="settings-section">
-          <div className="settings-label">OpenAI API Key (za glasovni unos)</div>
-          <div style={{ position: "relative" }}>
-            <input
-              className="settings-input"
-              type={showKey ? "text" : "password"}
-              value={openaiKey}
-              onChange={(e) => setOpenaiKey(e.target.value)}
-              placeholder="sk-..."
-              style={{ paddingRight: 48 }}
-            />
-            <button
-              onClick={() => setShowKey((v) => !v)}
-              style={{
-                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-                background: "none", border: "none", cursor: "pointer",
-                fontSize: 12, color: "var(--text3)"
-              }}
-            >
-              {showKey ? "sakrij" : "prikaži"}
-            </button>
-          </div>
-          <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 4 }}>
-            Alternativno: dodaj OPENAI_API_KEY u Replit Secrets
-          </div>
-        </div>
-
-        {/* Microphone */}
-        <div className="settings-section">
-          <div className="settings-label">Mikrofon (F8 glasovni unos)</div>
-          <select
-            className="settings-input"
-            value={micDeviceId}
-            onChange={(e) => setMicDeviceId(e.target.value)}
-            style={{ cursor: "pointer" }}
-          >
-            <option value="">Zadani mikrofon</option>
-            {mics.map((m) => (
-              <option key={m.deviceId} value={m.deviceId}>
-                {m.label || `Mikrofon ${m.deviceId.slice(0, 8)}`}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* TTS */}
-        <div className="settings-section">
-          <div className="settings-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span>Glasovni odgovor (TTS)</span>
-            <label className="tts-toggle">
-              <input
-                type="checkbox"
-                checked={ttsEnabled}
-                onChange={(e) => setTtsEnabled(e.target.checked)}
-                style={{ marginRight: 6 }}
-              />
-              {ttsEnabled ? "Uključen" : "Isključen"}
-            </label>
-          </div>
-          {ttsEnabled && (
+          {/* ── Tab: Opće ── */}
+          {activeTab === "opce" && (
             <>
-              <select
-                className="settings-input"
-                value={ttsVoice}
-                onChange={(e) => setTtsVoice(e.target.value)}
-                style={{ cursor: "pointer", marginTop: 6 }}
-              >
-                {TTS_VOICES.map((v) => (
-                  <option key={v.id} value={v.id}>{v.label}</option>
-                ))}
-              </select>
-              <button
-                className="btn-save"
-                onClick={handleTestVoice}
-                disabled={testingVoice}
-                style={{ marginTop: 6, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-              >
-                {testingVoice ? "Reproducira..." : "🔊 Testiraj glas"}
+              <div className="settings-section">
+                <div className="settings-label">Backend URL (Replit)</div>
+                <input className="settings-input" type="text" value={backendUrl}
+                  onChange={(e) => setBackendUrl(e.target.value)} placeholder="https://...replit.dev" />
+              </div>
+              <div className="settings-section">
+                <div className="settings-label">OpenAI API Key (za glasovni unos)</div>
+                <div style={{ position: "relative" }}>
+                  <input className="settings-input" type={showKey ? "text" : "password"}
+                    value={openaiKey} onChange={(e) => setOpenaiKey(e.target.value)}
+                    placeholder="sk-..." style={{ paddingRight: 48 }} />
+                  <button onClick={() => setShowKey((v) => !v)}
+                    style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text3)" }}>
+                    {showKey ? "sakrij" : "prikaži"}
+                  </button>
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 4 }}>Alternativno: dodaj OPENAI_API_KEY u Replit Secrets</div>
+              </div>
+              <div className="settings-section">
+                <div className="settings-label">Mikrofon (F8 glasovni unos)</div>
+                <select className="settings-input" value={micDeviceId}
+                  onChange={(e) => setMicDeviceId(e.target.value)} style={{ cursor: "pointer" }}>
+                  <option value="">Zadani mikrofon</option>
+                  {mics.map((m) => <option key={m.deviceId} value={m.deviceId}>{m.label || `Mikrofon ${m.deviceId.slice(0, 8)}`}</option>)}
+                </select>
+              </div>
+              <div className="settings-section">
+                <div className="settings-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span>Glasovni odgovor (TTS)</span>
+                  <label className="tts-toggle">
+                    <input type="checkbox" checked={ttsEnabled}
+                      onChange={(e) => setTtsEnabled(e.target.checked)} style={{ marginRight: 6 }} />
+                    {ttsEnabled ? "Uključen" : "Isključen"}
+                  </label>
+                </div>
+                {ttsEnabled && (
+                  <>
+                    <select className="settings-input" value={ttsVoice}
+                      onChange={(e) => setTtsVoice(e.target.value)} style={{ cursor: "pointer", marginTop: 6 }}>
+                      {TTS_VOICES.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+                    </select>
+                    <button className="btn-save" onClick={handleTestVoice} disabled={testingVoice}
+                      style={{ marginTop: 6, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}>
+                      {testingVoice ? "Reproducira..." : "🔊 Testiraj glas"}
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="settings-section">
+                <div className="settings-label">Tipkovni prečaci</div>
+                <div className="shortcuts-list">
+                  <div className="shortcut-row"><span className="shortcut-key">F9</span><span className="shortcut-desc">Snimi ekran i pošalji</span></div>
+                  <div className="shortcut-row"><span className="shortcut-key">F8</span><span className="shortcut-desc">Uključi / isključi glasovni unos</span></div>
+                  <div className="shortcut-row"><span className="shortcut-key">Enter</span><span className="shortcut-desc">Pošalji poruku</span></div>
+                  <div className="shortcut-row"><span className="shortcut-key">Shift+Enter</span><span className="shortcut-desc">Novi red</span></div>
+                </div>
+              </div>
+              <button className={`btn-save${saved ? " saved" : ""}`} onClick={handleSave}>
+                {saved ? "✓ Spremljeno" : "Spremi"}
               </button>
+              <div className="version-info">MegaTischler Copilot v1.0.0</div>
             </>
           )}
-        </div>
 
-        {/* Knowledge base stats */}
-        <div className="settings-section">
-          <div className="settings-label">Baza znanja</div>
-          {stats ? (
-            <div className="settings-stats">
-              <div className="stat-card">
-                <div className="stat-value">{stats.stats?.formulaCount ?? stats.formula_count ?? stats.formulas?.length ?? "—"}</div>
-                <div className="stat-label">Formule</div>
+          {/* ── Tab: Live mod ── */}
+          {activeTab === "live" && (
+            <>
+              <div className="settings-section">
+                <div className="settings-label">Budžet i statistika</div>
+                <div className="live-cost-row">
+                  <div className="live-cost-stat"><span className="live-cost-num">${liveSpentUsd.toFixed(2)}</span><span className="live-cost-desc">potrošeno danas</span></div>
+                  <div className="live-cost-stat"><span className="live-cost-num">${liveBudgetUsd}</span><span className="live-cost-desc">dnevni budžet</span></div>
+                  <div className="live-cost-stat"><span className="live-cost-num">{liveCallCount}</span><span className="live-cost-desc">AI poziva</span></div>
+                </div>
+                {(() => {
+                  const pct = liveBudgetUsd > 0 ? liveSpentUsd / liveBudgetUsd : 0;
+                  return (
+                    <>
+                      <div className="live-budget-bar">
+                        <div className={`live-budget-fill${pct > 0.8 ? " warning" : ""}`} style={{ width: `${Math.min(100, pct * 100).toFixed(1)}%` }} />
+                      </div>
+                      {pct > 0.8 && <div className="live-cost-warning">⚠ Potrošeno {Math.round(pct * 100)}% dnevnog budžeta</div>}
+                    </>
+                  );
+                })()}
+                <div className="settings-label" style={{ marginTop: 8 }}>Dnevni budžet (USD)</div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
+                  <input className="settings-input" type="number" min="1" max="500"
+                    defaultValue={liveBudgetUsd} key={liveBudgetUsd}
+                    onBlur={(e) => { const n = parseFloat(e.target.value); if (n > 0) { setLiveBudgetUsd && setLiveBudgetUsd(n); window.electron.liveSetBudget(n).catch(() => {}); } }}
+                    style={{ width: 80 }} />
+                  <button className="btn-save"
+                    style={{ flex: 1, background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
+                    onClick={() => { setLiveSpentUsd && setLiveSpentUsd(0); setLiveCallCount && setLiveCallCount(0); window.electron.liveResetCount().catch(() => {}); }}>
+                    Resetiraj brojač
+                  </button>
+                </div>
               </div>
-              <div className="stat-card">
-                <div className="stat-value">{stats.stats?.parameterCount ?? stats.parameter_count ?? stats.parameters?.length ?? "—"}</div>
-                <div className="stat-label">Parametri</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{stats.stats?.fileCount ?? stats.file_count ?? stats._meta?.files_processed ?? "—"}</div>
-                <div className="stat-label">Datoteke</div>
-              </div>
-            </div>
-          ) : (
-            <div style={{ fontSize: 11, color: "var(--text3)" }}>Učitavanje...</div>
-          )}
-
-          {/* MAC file upload */}
-          <div className="settings-label" style={{ marginTop: 10 }}>Dodaj .mac datoteke u bazu</div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
-            <input
-              ref={macFileInputRef}
-              type="file"
-              accept=".mac,.zip"
-              multiple
-              style={{ display: "none" }}
-              onChange={(e) => { handleMacUpload(e.target.files); e.target.value = ""; }}
-            />
-            <button
-              className="btn-save"
-              style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
-              onClick={() => macFileInputRef.current?.click()}
-              disabled={macUploadStatus === "uploading"}
-            >
-              {macUploadStatus === "uploading" ? "⏳ Dodavanje..." : "📁 Odaberi .mac / .zip"}
-            </button>
-          </div>
-          {macUploadStatus && macUploadStatus !== "uploading" && (
-            <div style={{
-              marginTop: 6, fontSize: 11, padding: "4px 8px", borderRadius: 4,
-              background: macUploadStatus.ok ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.12)",
-              color: macUploadStatus.ok ? "var(--accent)" : "#f87171",
-              border: `1px solid ${macUploadStatus.ok ? "rgba(74,222,128,0.3)" : "rgba(248,113,113,0.3)"}`,
-            }}>
-              {macUploadStatus.ok
-                ? `✓ Dodano ${macUploadStatus.count} datoteka(e) u bazu znanja`
-                : `✗ Greška: ${macUploadStatus.error}`}
-            </div>
-          )}
-        </div>
-
-        {/* MegaTischler Bridge */}
-        <div className="settings-section">
-          <div className="settings-label">Baza datoteka — MegaTischler Bridge</div>
-          <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>
-            Odaberi mapu MegaTischler instalacije za skeniranje dostupnih datoteka.
-          </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <button
-              className="btn-save"
-              style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)", textAlign: "left" }}
-              onClick={async () => {
-                const res = await window.electron.mtBrowseFolder();
-                if (!res.canceled) {
-                  setMtInstallPath(res.path);
-                  await window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule, mtInstallPath: res.path });
-                  handleMtScanWith(res.path);
-                }
-              }}
-              disabled={mtScanning}
-            >
-              📁 {mtInstallPath ? mtInstallPath : "Odaberi mapu instalacije..."}
-            </button>
-            {mtInstallPath && (
-              <button
-                className="btn-save"
-                style={{ background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)", padding: "6px 10px" }}
-                onClick={() => { setMtInstallPath(""); setMtManifest(null); setMtScanError(null); }}
-                title="Obriši putanju"
-              >✕</button>
-            )}
-          </div>
-
-          {mtScanError && (
-            <div style={{ marginTop: 6, fontSize: 11, color: "#f87171", padding: "4px 8px", borderRadius: 4, background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)" }}>
-              ✗ {mtScanError}
-            </div>
-          )}
-
-          {mtManifest && (() => {
-            const macFiles = mtManifest.filter(f => f.folder === "Mac");
-            const rootFiles = mtManifest.filter(f => f.folder === "(korijen)");
-            const pendingMac = macFiles.filter(f => !f.alreadyLoaded && !mtDone.has(f.fullPath) && !mtSkipped.has(f.fullPath));
-            return (
-              <div style={{ marginTop: 10 }}>
-                {/* MAC modules */}
-                {macFiles.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 10, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span>Mac\ — parametarski moduli ({macFiles.length})</span>
-                      {pendingMac.length > 0 && (
-                        <button
-                          className="btn-save"
-                          style={{ fontSize: 10, padding: "2px 8px", background: "var(--accent)", color: "#000", border: "none" }}
-                          onClick={handleMtImportAll}
-                          disabled={mtImporting.size > 0}
-                        >
-                          {mtImporting.size > 0 ? `⏳ Uvoz...` : `↑ Uvezi sve nove (${pendingMac.length})`}
-                        </button>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 280, overflowY: "auto" }}>
-                      {macFiles.map(item => {
-                        const isLoaded = item.alreadyLoaded;
-                        const isDone = mtDone.has(item.fullPath);
-                        const isSkipped = mtSkipped.has(item.fullPath);
-                        const isImporting = mtImporting.has(item.fullPath);
-                        return (
-                          <div key={item.fullPath} style={{
-                            display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 4,
-                            background: "var(--bg3)", fontSize: 11,
-                            opacity: isSkipped ? 0.4 : 1,
-                          }}>
-                            <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text1)" }}>
-                              📄 {item.filename}
-                            </span>
-                            <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>{item.sizeKb} KB</span>
-                            {isLoaded || isDone ? (
-                              <span style={{ color: "var(--accent)", fontSize: 10, whiteSpace: "nowrap" }}>✓ {isDone ? "Uvezeno" : "U bazi"}</span>
-                            ) : isSkipped ? (
-                              <span style={{ color: "var(--text3)", fontSize: 10 }}>—</span>
-                            ) : isImporting ? (
-                              <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>⏳</span>
-                            ) : (
-                              <div style={{ display: "flex", gap: 3 }}>
-                                <button
-                                  className="btn-save"
-                                  style={{ fontSize: 10, padding: "2px 8px", background: "var(--accent)", color: "#000", border: "none" }}
-                                  onClick={() => handleMtImportFile(item)}
-                                >↑ Uvezi</button>
-                                <button
-                                  className="btn-save"
-                                  style={{ fontSize: 10, padding: "2px 6px", background: "transparent", color: "var(--text3)", border: "1px solid var(--border)" }}
-                                  onClick={() => setMtSkipped(s => new Set([...s, item.fullPath]))}
-                                >✕</button>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+              <div className="settings-section">
+                <div className="settings-label">Praćeno područje ekrana</div>
+                {liveRegion ? (
+                  <div className="live-region-info">
+                    <span className="live-region-coords">{liveRegion.x},{liveRegion.y} — {liveRegion.width}×{liveRegion.height}px</span>
+                    <button className="btn-save" style={{ fontSize: 11, padding: "3px 8px", background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+                      onClick={() => { onChangeRegion && onChangeRegion(); }}>Promijeni</button>
+                    <button className="btn-save" style={{ fontSize: 11, padding: "3px 8px", background: "var(--bg3)", color: "var(--text3)", border: "1px solid var(--border)" }}
+                      onClick={() => { window.electron.liveClearRegion().then((result) => { if (result?.liveDisabled && setLiveEnabled) setLiveEnabled(false); }).catch(() => {}); setLiveRegion && setLiveRegion(null); }}>
+                      Ukloni
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ color: "var(--text3)", fontSize: 12, marginTop: 4 }}>Nije odabrano — klik na Live gumb za odabir</div>
+                )}
+                {liveRegion && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                    <input type="checkbox" id="useRegionForF9" checked={useRegionForF9}
+                      onChange={(e) => { const c = e.target.checked; setUseRegionForF9(c); window.electron.saveSettings({ useRegionForF9: c }).catch(() => {}); }}
+                      style={{ cursor: "pointer" }} />
+                    <label htmlFor="useRegionForF9" style={{ fontSize: 12, color: "var(--text2)", cursor: "pointer" }}>Koristi isto područje i za F9 screenshot</label>
                   </div>
                 )}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                  <input type="checkbox" id="autoLoadModule" checked={autoLoadModule}
+                    onChange={(e) => { const c = e.target.checked; setAutoLoadModule(c); window.electron.saveSettings({ autoLoadModule: c }).catch(() => {}); }}
+                    style={{ cursor: "pointer" }} />
+                  <label htmlFor="autoLoadModule" style={{ fontSize: 12, color: "var(--text2)", cursor: "pointer" }}>Automatski učitaj modul kad Live ga prepozna</label>
+                </div>
+              </div>
+            </>
+          )}
 
-                {/* Root files (future) */}
-                {rootFiles.length > 0 && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ fontSize: 10, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
-                      Ostale datoteke — analiza u pripremi ({rootFiles.length})
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 150, overflowY: "auto" }}>
-                      {rootFiles.map(item => (
-                        <div key={item.fullPath} style={{
-                          display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 4,
-                          background: "var(--bg3)", fontSize: 11, opacity: 0.6,
-                        }}>
-                          <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text2)" }}>
-                            📄 {item.filename}
-                          </span>
-                          <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>{item.sizeKb} KB</span>
-                          <span style={{ color: "var(--text3)", fontSize: 10, whiteSpace: "nowrap" }}>{item.label}</span>
-                        </div>
-                      ))}
-                    </div>
+          {/* ── Tab: Baza znanja ── */}
+          {activeTab === "baza" && (
+            <>
+              <div className="settings-section">
+                <div className="settings-label">Statistike baze znanja</div>
+                {stats ? (
+                  <div className="settings-stats">
+                    <div className="stat-card"><div className="stat-value">{stats.stats?.formulaCount ?? stats.formula_count ?? stats.formulas?.length ?? "—"}</div><div className="stat-label">Formule</div></div>
+                    <div className="stat-card"><div className="stat-value">{stats.stats?.parameterCount ?? stats.parameter_count ?? stats.parameters?.length ?? "—"}</div><div className="stat-label">Parametri</div></div>
+                    <div className="stat-card"><div className="stat-value">{stats.stats?.fileCount ?? stats.file_count ?? stats._meta?.files_processed ?? "—"}</div><div className="stat-label">Datoteke</div></div>
                   </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: "var(--text3)" }}>Učitavanje...</div>
                 )}
-
-                {macFiles.length === 0 && rootFiles.length === 0 && (
-                  <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>
-                    Nije pronađena nijedna poznata datoteka u zadanoj putanji.
+              </div>
+              <div className="settings-section">
+                <div className="settings-label">Dodaj .mac datoteke u bazu</div>
+                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>Ručno dodavanje .mac ili .zip datoteka (alternativa Bridge agentu)</div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
+                  <input ref={macFileInputRef} type="file" accept=".mac,.zip" multiple style={{ display: "none" }}
+                    onChange={(e) => { handleMacUpload(e.target.files); e.target.value = ""; }} />
+                  <button className="btn-save"
+                    style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
+                    onClick={() => macFileInputRef.current?.click()}
+                    disabled={macUploadStatus === "uploading"}>
+                    {macUploadStatus === "uploading" ? "⏳ Dodavanje..." : "📁 Odaberi .mac / .zip"}
+                  </button>
+                </div>
+                {macUploadStatus && macUploadStatus !== "uploading" && (
+                  <div style={{ marginTop: 6, fontSize: 11, padding: "4px 8px", borderRadius: 4,
+                    background: macUploadStatus.ok ? "rgba(74,222,128,0.12)" : "rgba(248,113,113,0.12)",
+                    color: macUploadStatus.ok ? "var(--accent)" : "#f87171",
+                    border: `1px solid ${macUploadStatus.ok ? "rgba(74,222,128,0.3)" : "rgba(248,113,113,0.3)"}` }}>
+                    {macUploadStatus.ok ? `✓ Dodano ${macUploadStatus.count} datoteka(e) u bazu znanja` : `✗ Greška: ${macUploadStatus.error}`}
                   </div>
                 )}
               </div>
-            );
-          })()}
+              <div className="settings-section">
+                <div className="settings-label">Bridge Agent</div>
+                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>
+                  Poveži se na MegaTischler instalaciju i razgovaraj s AI agentom koji istražuje bazu datoteka.
+                </div>
+                <button className="bridge-open-btn" onClick={() => { onClose(); onOpenBridge && onOpenBridge(); }}>
+                  🗄 Otvori Bridge Agent →
+                </button>
+              </div>
+            </>
+          )}
+
         </div>
-
-        {/* Shortcuts */}
-        <div className="settings-section">
-          <div className="settings-label">Tipkovni prečaci</div>
-          <div className="shortcuts-list">
-            <div className="shortcut-row">
-              <span className="shortcut-key">F9</span>
-              <span className="shortcut-desc">Snimi ekran i pošalji</span>
-            </div>
-            <div className="shortcut-row">
-              <span className="shortcut-key">F8</span>
-              <span className="shortcut-desc">Uključi / isključi glasovni unos</span>
-            </div>
-            <div className="shortcut-row">
-              <span className="shortcut-key">Enter</span>
-              <span className="shortcut-desc">Pošalji poruku</span>
-            </div>
-            <div className="shortcut-row">
-              <span className="shortcut-key">Shift+Enter</span>
-              <span className="shortcut-desc">Novi red</span>
-            </div>
-          </div>
-        </div>
-
-        <button className={`btn-save${saved ? " saved" : ""}`} onClick={handleSave}>
-          {saved ? "✓ Spremljeno" : "Spremi"}
-        </button>
-
-        <div className="version-info">MegaTischler Copilot v1.0.0</div>
       </div>
     </div>
   );
@@ -1424,6 +1040,7 @@ function App() {
   const [mtWarning, setMtWarning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBridgeAgent, setShowBridgeAgent] = useState(false);
+  const bridgeQueryRef = React.useRef("");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSecs, setRecordingSecs] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -2073,114 +1690,6 @@ function App() {
   }, [messages]);
 
   // ── Send ──────────────────────────────────────────────────────────────────
-  async function handleBridgeResearch(query) {
-    const userMsg = { role: "user", content: `/istraži ${query}`, id: nextMsgId() };
-    const placeholderId = nextMsgId();
-    setMessages(prev => [...prev, userMsg, { role: "assistant", content: "📚 Istražujem...", id: placeholderId }]);
-    setIsStreaming(true);
-
-    const updatePlaceholder = (text) =>
-      setMessages(prev => prev.map(m => m.id === placeholderId ? { ...m, content: text } : m));
-
-    try {
-      const settings = await window.electron.getSettings();
-      const backendUrl = settings.backendUrl || "https://tischler1.replit.app";
-
-      // Ensure manifest is loaded
-      let manifest = mtManifest;
-      if (!manifest) {
-        const installPath = mtInstallPath || settings.mtInstallPath || "";
-        if (!installPath) {
-          updatePlaceholder("⚠️ Baza nije spojena. Otvori Postavke (⚙) → odaberi MegaTischler mapu.");
-          return;
-        }
-        updatePlaceholder("📂 Skeniram direktorij...");
-        const scanResult = await window.electron.mtBridgeScan(installPath);
-        if (!scanResult.ok) throw new Error(scanResult.error);
-        manifest = scanResult.manifest;
-        setMtManifest(manifest);
-      }
-
-      // Step 1: Find relevant files
-      updatePlaceholder("🔍 Tražim relevantne datoteke...");
-      const manifestRes = await fetch(`${backendUrl}/api/bridge/analyze-manifest`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task: query, manifest }),
-      });
-      const manifestData = await manifestRes.json();
-      const recs = (manifestData.recommendations || [])
-        .filter(r => r.priority !== "low")
-        .slice(0, 5);
-
-      if (recs.length === 0) {
-        updatePlaceholder("ℹ️ Nisam pronašao relevantne datoteke za ovaj upit.");
-        return;
-      }
-
-      // Step 2: Read and analyze each file
-      const findings = [];
-      for (const rec of recs) {
-        updatePlaceholder(`📖 Čitam ${rec.filename}...`);
-        try {
-          const fileData = await window.electron.mtBridgeReadFile({ fullPath: rec.fullPath });
-          if (fileData.error) continue;
-          const fileRes = await fetch(`${backendUrl}/api/bridge/analyze-file`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ filename: rec.filename, contentBase64: fileData.base64, action: rec.action }),
-          });
-          const fileResult = await fileRes.json();
-          if (fileResult.knowledge || fileResult.description) {
-            findings.push({ filename: rec.filename, action: rec.action, knowledge: fileResult.knowledge || fileResult.description });
-          }
-        } catch { /* preskoči grešku za ovaj fajl */ }
-      }
-
-      if (findings.length === 0) {
-        updatePlaceholder("⚠️ Nisam uspio pročitati niti jednu datoteku.");
-        return;
-      }
-
-      // Step 3: Stream summary
-      updatePlaceholder("");
-      const summaryRes = await fetch(`${backendUrl}/api/bridge/research-summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, findings }),
-      });
-
-      const reader = summaryRes.body.getReader();
-      const decoder = new TextDecoder();
-      let buf = "";
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split("\n");
-        buf = lines.pop() || "";
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const payload = line.slice(6).trim();
-          if (payload === "[DONE]") break;
-          try {
-            const parsed = JSON.parse(payload);
-            if (parsed.delta) {
-              accumulated += parsed.delta;
-              setMessages(prev => prev.map(m => m.id === placeholderId ? { ...m, content: accumulated } : m));
-            }
-          } catch { /* ignore */ }
-        }
-      }
-    } catch (err) {
-      updatePlaceholder(`⚠️ Greška: ${err.message}`);
-    } finally {
-      setIsStreaming(false);
-    }
-  }
-
   const handleSend = useCallback(async (overrideInput, overrideScreenshot) => {
     const msgText = overrideInput !== undefined ? overrideInput : input;
     // overrideScreenshot lets callers bypass the stale screenshotDataUrl closure
@@ -2195,11 +1704,12 @@ function App() {
       return;
     }
 
-    // Parse /istraži command
+    // Parse /istraži command — otvori Bridge stranicu s upitom
     if (msgText.trim().toLowerCase().startsWith("/istraži")) {
       const query = msgText.trim().slice("/istraži".length).trim();
       setInput("");
-      handleBridgeResearch(query || "pregledaj bazu i reci što pronalaziš");
+      bridgeQueryRef.current = query || "";
+      setShowBridgeAgent(true);
       return;
     }
 
@@ -2811,7 +2321,14 @@ function App() {
       </div>
 
       {showBridgeAgent && (
-        <BridgeAgentPanel onClose={() => setShowBridgeAgent(false)} />
+        <BridgePage
+          onClose={() => { setShowBridgeAgent(false); bridgeQueryRef.current = ""; }}
+          mtInstallPath={mtInstallPath}
+          setMtInstallPath={setMtInstallPath}
+          mtManifest={mtManifest}
+          setMtManifest={setMtManifest}
+          initialQuery={bridgeQueryRef.current}
+        />
       )}
 
       {showSettings && (
@@ -2829,10 +2346,7 @@ function App() {
           setLiveCallCount={setLiveCallCount}
           setLiveBudgetUsd={setLiveBudgetUsd}
           onChangeRegion={changeRegion}
-          mtInstallPath={mtInstallPath}
-          setMtInstallPath={setMtInstallPath}
-          mtManifest={mtManifest}
-          setMtManifest={setMtManifest}
+          onOpenBridge={() => setShowBridgeAgent(true)}
         />
       )}
 

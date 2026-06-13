@@ -284,6 +284,93 @@ router.post("/bridge/save-insight", (req, res): void => {
   }
 });
 
+// ── POST /api/bridge/agent-chat ───────────────────────────────────────────────
+// Streaming SSE: conversational Bridge agent with manifest + findings context.
+router.post("/bridge/agent-chat", async (req, res): Promise<void> => {
+  try {
+    const { messages, manifest, findings, isGreeting } = req.body as {
+      messages: Array<{ role: string; content: string }>;
+      manifest: Array<{ filename: string; folder: string; fullPath: string; sizeKb: number; label: string; action: string; alreadyLoaded: boolean }>;
+      findings: Record<string, { knowledge: string; action: string }>;
+      isGreeting?: boolean;
+    };
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const sendEvent = (data: string) => {
+      res.write(`data: ${JSON.stringify({ delta: data })}\n\n`);
+    };
+
+    const macFiles = (manifest || []).filter(f => f.folder === "Mac");
+    const rootFiles = (manifest || []).filter(f => f.folder !== "Mac");
+    const loadedCount = macFiles.filter(f => f.alreadyLoaded).length;
+
+    const manifestSummary = manifest?.length
+      ? `Dostupne datoteke u MegaTischler instalaciji:\n.mac moduli (${macFiles.length} ukupno, ${loadedCount} već u bazi znanja):\n${macFiles.map(f => `  - ${f.filename} (${f.sizeKb} KB)${f.alreadyLoaded ? " ✓ u bazi" : ""}`).join("\n")}${rootFiles.length > 0 ? `\n\nOstale datoteke (${rootFiles.length}):\n${rootFiles.slice(0, 15).map(f => `  - ${f.filename} (${f.sizeKb} KB, ${f.label})`).join("\n")}${rootFiles.length > 15 ? `\n  ... i još ${rootFiles.length - 15}` : ""}` : ""}`
+      : "(Baza nije skenirana — korisnik treba odabrati MegaTischler instalacijski direktorij)";
+
+    const findingsEntries = Object.entries(findings || {});
+    const findingsSummary = findingsEntries.length > 0
+      ? `\n\nVeć analizirane datoteke:\n${findingsEntries.map(([name, data]) => `### ${name}\n${data.knowledge}`).join("\n\n")}`
+      : "";
+
+    const systemPrompt = `Ti si Bridge Agent — AI asistent specijaliziran za istraživanje MegaTischler CAD baze datoteka.
+Odgovaraš na HRVATSKOM. Pomaži korisniku razumjeti koje datoteke postoje, što sadrže i kako ih iskoristiti.
+
+${manifestSummary}${findingsSummary}
+
+PRAVILA:
+- Kad preporučuješ datoteke za analizu, OBAVEZNO dodaj <suggest_files> tag s JSON nizom objekata { filename, fullPath, action }
+  Primjer: <suggest_files>[{"filename":"KUH_VISOKI.mac","fullPath":"C:\\\\MegaCAD\\\\Mac\\\\KUH_VISOKI.mac","action":"import-mac"}]</suggest_files>
+- .mac datoteke uvijek koriste action: "import-mac"
+- .ini/.cfg/.def datoteke koriste action: "read-text"
+- Binarni formati (.mdb, .bhr) koriste action: "hex-probe"
+- Navodi stvarne nazive i putanje datoteka iz manifesta
+- Decimalni separator u MegaTischler formulama je uvijek ZAREZ (0,5 — ne 0.5)
+- Ako već imaš odgovor iz analiziranih datoteka, odgovori direktno bez suggest_files${isGreeting ? `
+
+Ovo je AUTOMATSKA INICIJALNA PORUKA. Pozdravi kratko i izvijesti što si pronašao (koliko .mac modula, koliko u bazi). Pitaj s čim možeš pomoći.` : ""}`;
+
+    const apiMessages: Array<{ role: "user" | "assistant"; content: string }> = isGreeting
+      ? [{ role: "user", content: "Zdravo!" }]
+      : (messages || []).filter(m => m.content?.trim()).map(m => ({
+          role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
+          content: m.content,
+        }));
+
+    if (!apiMessages.length) {
+      apiMessages.push({ role: "user", content: "Zdravo!" });
+    }
+
+    const stream = anthropic.messages.stream({
+      model: "claude-opus-4-8",
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: apiMessages,
+    });
+
+    for await (const event of stream) {
+      if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+        sendEvent(event.delta.text);
+      }
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
+  } catch (err) {
+    logger.error({ err }, "bridge/agent-chat error");
+    if (!res.headersSent) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: "Greška pri generiranju odgovora" })}\n\n`);
+      res.end();
+    }
+  }
+});
+
 // ── POST /api/bridge/research-summary ─────────────────────────────────────────
 // Streaming SSE: takes research query + file findings, returns formatted answer.
 router.post("/bridge/research-summary", async (req, res): Promise<void> => {
