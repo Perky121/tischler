@@ -90,6 +90,7 @@ contextBridge.exposeInMainWorld("electron", {
   // MegaTischler Bridge — file system scanner
   mtBridgeScan: (installPath) => ipcRenderer.invoke("mt-bridge-scan", installPath),
   mtBridgeImportFile: (args) => ipcRenderer.invoke("mt-bridge-import-file", args),
+  mtBridgeReadFile: (args) => ipcRenderer.invoke("mt-bridge-read-file", args),
 
   // Conversations persistence
   getConversations: () => ipcRenderer.invoke("get-conversations"),

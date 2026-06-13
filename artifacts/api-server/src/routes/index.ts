@@ -6,6 +6,7 @@ import rulesRouter from "./rules";
 import transcribeRouter from "./transcribe";
 import ttsRouter from "./tts";
 import analyzeScreenRouter from "./analyze-screen";
+import bridgeRouter from "./bridge";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(rulesRouter);
 router.use(transcribeRouter);
 router.use(ttsRouter);
 router.use(analyzeScreenRouter);
+router.use(bridgeRouter);
 
 export default router;

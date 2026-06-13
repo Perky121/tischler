@@ -1124,6 +1124,20 @@ ipcMain.handle("mt-bridge-import-file", async (_, { fullPath, filename }) => {
   }
 });
 
+// Read a file from local filesystem → return base64 (for Bridge AI Agent analysis)
+ipcMain.handle("mt-bridge-read-file", async (_, { fullPath }) => {
+  try {
+    const stat = fs.statSync(fullPath);
+    if (stat.size > 20 * 1024 * 1024) {
+      return { error: "Datoteka je prevelika (> 20 MB)" };
+    }
+    const buf = fs.readFileSync(fullPath);
+    return { base64: buf.toString("base64"), sizeKb: Math.round(stat.size / 1024) };
+  } catch (err) {
+    return { error: String(err.message) };
+  }
+});
+
 // ── Conversations persistence ─────────────────────────────────────────────────
 const CONVERSATIONS_FILE = path.join(app.getPath("userData"), "conversations.json");
 
