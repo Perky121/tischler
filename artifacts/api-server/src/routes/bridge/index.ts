@@ -41,12 +41,17 @@ router.post("/bridge/analyze-manifest", async (req, res): Promise<void> => {
       return;
     }
 
-    // Filter out already-loaded and skip-action items for AI to review
-    const reviewable = manifest.filter(f => !f.alreadyLoaded && f.action !== "skip");
+    // Separate new (not yet loaded) from already-loaded files; include both but mark clearly
+    const newFiles = manifest.filter(f => !f.alreadyLoaded && f.action !== "skip");
+    const loadedFiles = manifest.filter(f => f.alreadyLoaded && f.action !== "skip");
 
-    const manifestText = reviewable
-      .map(f => `- ${f.filename} (${f.folder}, ${f.sizeKb} KB, tip: ${f.label})`)
-      .join("\n");
+    const newFilesText = newFiles.length > 0
+      ? newFiles.map(f => `- ${f.filename} (${f.folder}, ${f.sizeKb} KB, tip: ${f.label})`).join("\n")
+      : "(nema novih datoteka)";
+
+    const loadedFilesText = loadedFiles.length > 0
+      ? loadedFiles.slice(0, 20).map(f => `- ${f.filename} (${f.folder}, ${f.sizeKb} KB) ✓ već u bazi`).join("\n")
+      : "(nema)";
 
     const systemPrompt = `Ti si ekspert za MegaTischler CAD software. Analiziraš sadržaj MegaTischler instalacijskog direktorija.
 Tvoj zadatak je pregledati listu dostupnih datoteka i preporučiti koje od njih treba pročitati za konkretan korisnikov cilj.
@@ -59,16 +64,21 @@ PRAVILA:
 - .mdb datoteke su Access baze (npr. Gewinde = baza vijaka/navoja)
 - Binarni formati (.bhr, .mbt) — preporuči samo ako je zadatak vezan uz njihov sadržaj
 - NE preporučuj .dll, .exe, .bat i slične binarne sistemske datoteke
+- Datoteke označene "✓ već u bazi" su već uvezene — preporuči ih samo ako je zadatak direktno vezan uz njihov sadržaj
+- Prioritiziraj NOVE datoteke (bez ✓) — one donose novu vrijednost
 
 Vrati ISKLJUČIVO valjan JSON bez ikakvih markdown blokova, teksta ili objašnjenja izvan JSON-a.
 Format: { "recommendations": [ { "filename": "...", "folder": "...", "fullPath": "...", "action": "import-mac"|"read-text"|"hex-probe", "reason": "...", "priority": "high"|"medium"|"low" } ] }`;
 
     const userMessage = `Korisnikov zadatak: "${task}"
 
-Dostupne datoteke u MegaTischler instalaciji:
-${manifestText || "(nema datoteka za pregled)"}
+NOVE datoteke (još nisu u bazi znanja):
+${newFilesText}
 
-Koje datoteke preporučuješ pročitati za ovaj zadatak? Obrazloži kratko zašto svaku.`;
+Datoteke već u bazi znanja:
+${loadedFilesText}
+
+Koje datoteke preporučuješ pročitati za ovaj zadatak? Ako nema novih datoteka, možeš preporučiti već učitane ako su relevantne.`;
 
     const response = await anthropic.messages.create({
       model: "claude-opus-4-8",

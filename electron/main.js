@@ -1056,29 +1056,37 @@ ipcMain.handle("mt-bridge-scan", async (_, installPath) => {
 
     const manifest = [];
 
-    // 1. Scan Mac\ subfolder for .mac files
+    // 1. Scan Mac\ subfolder for .mac files — recursive (MegaTischler may nest modules in subdirs)
     const macDir = path.join(trimmed, "Mac");
-    if (fs.existsSync(macDir) && fs.statSync(macDir).isDirectory()) {
-      let macEntries;
-      try { macEntries = fs.readdirSync(macDir); } catch { macEntries = []; }
-      for (const filename of macEntries) {
-        const cls = classifyMtFile(filename);
+    function scanMacDir(dir, relFolder) {
+      let entries;
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          // Recurse into subdirectory (max 2 levels deep to avoid infinite loops)
+          if (relFolder.split("/").length < 3) scanMacDir(fullPath, relFolder + "/" + entry.name);
+          continue;
+        }
+        const cls = classifyMtFile(entry.name);
         if (!cls) continue;
-        const fullPath = path.join(macDir, filename);
         let sizeKb = 0;
         try { sizeKb = Math.round(fs.statSync(fullPath).size / 1024); } catch { /* ignore */ }
         manifest.push({
           id: fullPath,
-          filename,
+          filename: entry.name,
           fullPath,
-          folder: "Mac",
+          folder: relFolder,
           sizeKb,
           action: cls.action,
           label: cls.label,
           desc: cls.desc,
-          alreadyLoaded: loadedFiles.has(filename.toLowerCase()),
+          alreadyLoaded: loadedFiles.has(entry.name.toLowerCase()),
         });
       }
+    }
+    if (fs.existsSync(macDir) && fs.statSync(macDir).isDirectory()) {
+      scanMacDir(macDir, "Mac");
     }
 
     // 2. Scan root for interesting non-binary files (skip dirs, skip large files >5MB)
