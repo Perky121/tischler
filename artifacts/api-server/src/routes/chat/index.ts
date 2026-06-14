@@ -549,18 +549,25 @@ function buildSystemPrompt(
   const visibleParamNames = new Set(sessionCtx?.parametersSeen?.map(p => p.name) ?? []);
 
   // Category groups for parameter display — ordered by purpose
+  // KLJUČNI: top master params by formula frequency (always shown, confirmed by analysis)
   const PARAM_CATEGORIES: Record<string, string[]> = {
     "DIMENZIJSKI":  ["T", "W", "L", "D", "H"],
     "POZICIJSKI":   ["X", "Y", "Z"],
     "ROTACIJSKI":   ["Rx", "Ry", "Rz", "KZ", "KT"],
+    "KLJUČNI":      ["HPP1", "ODU", "Ks", "GLU", "NP", "KDT", "BDN", "HDTD1", "LEDOP", "ODSP", "KUT", "UDD", "LEDUS", "SUT", "ZRV"],
   };
   const categorised = new Set(Object.values(PARAM_CATEGORIES).flat());
 
+  // Params with at least one formula reference get a +30 bonus so they rank
+  // above pure input-only params (which score 0) even at low frequency.
+  // This ensures formula-referenced params fill MODULARNI before input-only ones.
   const sortedParams = ((kb.parameters ?? []) as Array<{ name: string; description: string; typical_values: string[]; observed_values?: string[] }>)
     .slice()
     .sort((a, b) => {
-      const aScore = (visibleParamNames.has(a.name) ? 500 : 0) + (formulaParamFreq.get(a.name) ?? 0);
-      const bScore = (visibleParamNames.has(b.name) ? 500 : 0) + (formulaParamFreq.get(b.name) ?? 0);
+      const aFreq = formulaParamFreq.get(a.name) ?? 0;
+      const bFreq = formulaParamFreq.get(b.name) ?? 0;
+      const aScore = (visibleParamNames.has(a.name) ? 500 : 0) + aFreq + (aFreq > 0 ? 30 : 0);
+      const bScore = (visibleParamNames.has(b.name) ? 500 : 0) + bFreq + (bFreq > 0 ? 30 : 0);
       return bScore - aScore;
     });
 
@@ -583,10 +590,11 @@ function buildSystemPrompt(
     if (rows.length) paramLines.push(`[${cat}] ${rows.map(p => formatParam(p!)).join(" | ")}`);
   }
 
-  // Remaining top params not in fixed categories (up to 80 total slots)
+  // MODULARNI: formula-referenced params first, then input-only; limit 100 total slots
+  const totalFixed = Object.values(PARAM_CATEGORIES).flat().length;
   const remaining = sortedParams
     .filter(p => !categorised.has(p.name))
-    .slice(0, 80 - Object.values(PARAM_CATEGORIES).flat().length);
+    .slice(0, 100 - totalFixed);
   if (remaining.length) {
     paramLines.push(`[MODULARNI]\n${remaining.map(formatParam).join("\n")}`);
   }

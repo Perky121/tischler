@@ -7449,6 +7449,9 @@
       "description": "Aktor Ne/Da",
       "typical_values": [
         "0"
+      ],
+      "observed_values": [
+        "1"
       ]
     },
     {
@@ -7566,12 +7569,18 @@
     {
       "name": "BSD",
       "description": "Poluu./utor. str.D",
-      "typical_values": []
+      "typical_values": [],
+      "observed_values": [
+        "1"
+      ]
     },
     {
       "name": "BSL",
       "description": "Poluu./utor. str.L",
-      "typical_values": []
+      "typical_values": [],
+      "observed_values": [
+        "1"
+      ]
     },
     {
       "name": "BST",
@@ -7586,6 +7595,9 @@
       "name": "BU",
       "description": "Poluutor/Utor — [opcije: Poluutor/Utor]",
       "typical_values": [
+        "1"
+      ],
+      "observed_values": [
         "1"
       ]
     },
@@ -8468,6 +8480,9 @@
       "typical_values": [
         "0",
         "1"
+      ],
+      "observed_values": [
+        "0"
       ]
     },
     {
@@ -8628,7 +8643,10 @@
     {
       "name": "IZR_2",
       "description": "koristi se u 16 formula",
-      "typical_values": []
+      "typical_values": [],
+      "observed_values": [
+        "1"
+      ]
     },
     {
       "name": "IZR_5",
@@ -8701,6 +8719,9 @@
       "description": "Kuhinjski donji - nogice visina — [opcije: 100/150]",
       "typical_values": [
         "1"
+      ],
+      "observed_values": [
+        "0"
       ]
     },
     {
@@ -9198,6 +9219,9 @@
       "typical_values": [
         "0",
         "1"
+      ],
+      "observed_values": [
+        "0"
       ]
     },
     {
@@ -9210,7 +9234,10 @@
     {
       "name": "KZ",
       "description": "Kut razlike pravokutnosti zidova — Iznos kuta odstupanja od pravokutnosti ugla zidova (razlika od 90 stupnjeva)",
-      "typical_values": []
+      "typical_values": [],
+      "observed_values": [
+        "0"
+      ]
     },
     {
       "name": "L",
@@ -9501,12 +9528,18 @@
       "description": "LED skraćenje desno",
       "typical_values": [
         "0"
+      ],
+      "observed_values": [
+        "0"
       ]
     },
     {
       "name": "LEDSKL",
       "description": "LED skraćenje lijevo",
       "typical_values": [
+        "0"
+      ],
+      "observed_values": [
         "0"
       ]
     },
@@ -9551,12 +9584,18 @@
     {
       "name": "LEDUD",
       "description": "LED utor dubina",
-      "typical_values": []
+      "typical_values": [],
+      "observed_values": [
+        "0"
+      ]
     },
     {
       "name": "LEDUS",
       "description": "LED utor širina",
-      "typical_values": []
+      "typical_values": [],
+      "observed_values": [
+        "0"
+      ]
     },
     {
       "name": "LETD",
@@ -9833,7 +9872,7 @@
     },
     {
       "name": "LPT",
-      "description": "Leđa puna/tanka — [opcije: Puna/Tanka]",
+      "description": "Leđa puna/tanka — [opcije: Puna/Tanka] [u formulama: 0=Puna, 1=Tanka]",
       "typical_values": [
         "Puna",
         "Tanka"
@@ -13028,6 +13067,9 @@
       "typical_values": [
         "719.5",
         "0"
+      ],
+      "observed_values": [
+        "0"
       ]
     },
     {
@@ -13957,7 +13999,7 @@
     },
     {
       "name": "VPST",
-      "description": "Vez prednji smjer - tip — Smjer prednjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala. — [opcije: Horizontalno/Vertikalno/Al profil]",
+      "description": "Vez prednji smjer - tip — Smjer prednjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala. — [opcije: Horizontalno/Vertikalno/Al profil] [u formulama: 0=Horizontalno, 2=Vertikalno]",
       "typical_values": [
         "Horizontalno",
         "Vertikalno",
@@ -13972,6 +14014,9 @@
       "name": "VPT",
       "description": "Veznik prednji sudopera - tip — Samo za prednji veznik sudopera — [opcije: Drvo/Al]",
       "typical_values": [
+        "0"
+      ],
+      "observed_values": [
         "0"
       ]
     },
@@ -14087,7 +14132,7 @@
     },
     {
       "name": "VSST",
-      "description": "Vez stražnji smjer - tip — Smjer stražnjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala. — [opcije: Horizontalno/Vertikalno/Al profil]",
+      "description": "Vez stražnji smjer - tip — Smjer stražnjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala. — [opcije: Horizontalno/Vertikalno/Al profil] [u formulama: 0=Horizontalno, 1=Vertikalno, 2=Al profil]",
       "typical_values": [
         "Horizontalno",
         "Vertikalno",
