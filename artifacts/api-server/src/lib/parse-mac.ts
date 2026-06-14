@@ -41,7 +41,14 @@ const ALL_TAGS = [...PARAM_TAGS, ...FORMULA_TAGS, "Value", "Condition"];
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export interface FormulaEntry { formula: string; source: string; }
+export interface FormulaEntry {
+  formula: string;
+  source: string;        // izvorni .mac filename (npr. "KUH_VISOKI.mac")
+  parameter?: string;    // ime parametra kojemu formula pripada (npr. "VIS_KORPUSA")
+  description?: string;  // opis parametra
+  module?: string;       // naziv modula bez ekstenzije (npr. "KUH_VISOKI")
+  type?: string;         // tip formule: pozicija|dimenzija|ukljucenje|uvjet|referenca|rotacija|konstanta
+}
 export interface ParamEntry { name: string; description: string; typical_values: string[]; }
 
 export interface KnowledgeBase {
@@ -97,11 +104,44 @@ function isFormula(value: string | null | undefined): boolean {
   return indicators.some(ind => v.includes(ind)) || hasRef || (hasOp && !v.includes("[") && v.length > 6);
 }
 
+// ── Formula type inference ────────────────────────────────────────────────────
+
+function inferFormulaType(formula: string): string | undefined {
+  const v = formula.trim();
+  if (!v) return undefined;
+  // Rotation: uses trig functions
+  if (/cos\s*\(|sin\s*\(|tan\s*\(/i.test(v)) return "rotacija";
+  // Simple numeric constant
+  if (/^-?\d+([.,]\d+)?$/.test(v)) return "konstanta";
+  // Simple direct reference [.?PARAM] with no operators
+  if (/^\[\.{0,4}[\w.]+\]$/.test(v)) {
+    const core = v.replace(/^\[\.{0,4}/, "").replace(/\]$/, "").split(".").pop()?.toUpperCase() ?? "";
+    if (["X", "Y", "Z"].includes(core)) return "pozicija";
+    if (["W", "D", "H", "T", "L"].includes(core)) return "dimenzija";
+    return "referenca";
+  }
+  // Multi-branch conditional
+  if (/^ifelse\s*\(/i.test(v)) return "uvjet";
+  if (/^if\s*\(/i.test(v)) {
+    // Binary 0/1 result → on/off toggle
+    if (/[;,](0|1)[;,](0|1)\)/.test(v) || /[;,](0|1)\)$/.test(v)) return "ukljucenje";
+    return "uvjet";
+  }
+  // Arithmetic with param refs → dimension/position
+  if (/[+\-*/]/.test(v) && /\[/.test(v)) {
+    if (/\[\.?[XYZ]\]|\[\.{0,4}(Pod|Pos)\./i.test(v)) return "pozicija";
+    return "dimenzija";
+  }
+  return undefined;
+}
+
 // ── Core parser ───────────────────────────────────────────────────────────────
 
 function parseMacContent(content: string, source: string): { formulas: FormulaEntry[]; params: ParamEntry[] } {
   const formulas: FormulaEntry[] = [];
   const paramsMap = new Map<string, ParamEntry>();
+
+  const module = source.replace(/\.mac$/i, "");
 
   // Extract XML blocks for all relevant tags
   for (const tag of ALL_TAGS) {
@@ -112,10 +152,20 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
       const value = getAttr(b, "Value") ?? getAttr(b, "value") ?? getInner(b, "Value");
       const formula = getAttr(b, "Formula") ?? getAttr(b, "formula") ?? getInner(b, "Formula");
       const desc = getAttr(b, "Description") ?? getAttr(b, "Desc") ?? getAttr(b, "description") ?? getInner(b, "Description") ?? "";
+      // Capture XML Type attribute (if present on tag) for formula classification
+      const xmlType = getAttr(b, "Type") ?? getAttr(b, "type");
 
       for (const candidate of [formula, value]) {
         if (candidate && isFormula(candidate)) {
-          formulas.push({ formula: candidate.trim(), source });
+          const trimmed = candidate.trim();
+          formulas.push({
+            formula: trimmed,
+            source,
+            module,
+            parameter: name?.trim() || undefined,
+            description: (desc && name) ? desc.trim() : undefined,
+            type: xmlType?.trim() || inferFormulaType(trimmed),
+          });
         }
       }
 
@@ -132,11 +182,11 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
     }
   }
 
-  // Raw sweep for formula attributes
+  // Raw sweep for formula attributes (no parameter context available here)
   const rawFormulaRe = /(?:Formula|Expression|Condition)="([^"]{4,})"/gi;
   for (const m of content.matchAll(rawFormulaRe)) {
     const f = unescapeXml(m[1]);
-    if (isFormula(f)) formulas.push({ formula: f.trim(), source });
+    if (isFormula(f)) formulas.push({ formula: f.trim(), source, module, type: inferFormulaType(f.trim()) });
   }
 
   // Attribute-pair sweeps
@@ -171,11 +221,13 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
     }
   }
 
-  // Deduplicate formulas
+  // Deduplicate formulas by formula + parameter + source
+  // (same formula string for different parameters should be kept separately)
   const seen = new Set<string>();
   const uniqueFormulas = formulas.filter(f => {
-    if (seen.has(f.formula)) return false;
-    seen.add(f.formula);
+    const key = `${f.formula}||${f.parameter ?? ""}||${f.source}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 
@@ -263,9 +315,11 @@ function deriveParamsFromFormulas(kb: KnowledgeBase): void {
 }
 
 export function mergeInto(existing: KnowledgeBase, newFormulas: FormulaEntry[], newParams: ParamEntry[]): void {
-  const knownF = new Set(existing.formulas.map(f => f.formula));
+  // Dedup key: formula + parameter + source (same formula for different params stays separate)
+  const knownF = new Set(existing.formulas.map(f => `${f.formula}||${f.parameter ?? ""}||${f.source}`));
   for (const f of newFormulas) {
-    if (!knownF.has(f.formula)) { existing.formulas.push(f); knownF.add(f.formula); }
+    const key = `${f.formula}||${f.parameter ?? ""}||${f.source}`;
+    if (!knownF.has(key)) { existing.formulas.push(f); knownF.add(key); }
   }
   const knownP = new Map(existing.parameters.map(p => [p.name, p]));
   for (const p of newParams) {

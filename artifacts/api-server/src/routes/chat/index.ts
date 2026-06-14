@@ -298,11 +298,11 @@ function detectQueryIntent(userMessage: string): string | null {
 }
 
 function selectRelevantFormulas(
-  allFormulas: Array<{ formula: string; source: string; type?: string }>,
+  allFormulas: Array<{ formula: string; source: string; type?: string; parameter?: string; module?: string; description?: string }>,
   sessionCtx: SessionContext | null | undefined,
   userMessage: string,
   limit = 250,
-): Array<{ formula: string; source: string; type?: string }> {
+): Array<{ formula: string; source: string; type?: string; parameter?: string; module?: string; description?: string }> {
   const liveModule = sessionCtx?.moduleHint ?? null;
 
   // Detect keyword-based module hint when Live mod is not active
@@ -337,15 +337,17 @@ function selectRelevantFormulas(
   const scored = allFormulas.map((f) => {
     let score = 0;
     // Module match: Live-detected gets +20, keyword-detected gets +15
-    if (liveModule && f.source === liveModule) score += 20;
-    else if (keywordModule && f.source === keywordModule) score += 15;
-    // Screen parameters
+    if (liveModule && (f.source === liveModule || f.module === liveModule.replace(/\.mac$/i, ""))) score += 20;
+    else if (keywordModule && (f.source === keywordModule || f.module === keywordModule.replace(/\.mac$/i, ""))) score += 15;
+    // Screen parameters: +8 if this formula's own parameter name matches, +5 if referenced
     for (const p of screenParams) {
-      if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 5;
+      if (f.parameter === p) score += 8;
+      else if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 5;
     }
-    // Question parameters
+    // Question parameters: +6 if param name match, +3 if referenced
     for (const p of questionParams) {
-      if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 3;
+      if (f.parameter === p) score += 6;
+      else if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 3;
     }
     // Formula type matches detected query intent
     if (queryIntent && f.type === queryIntent) score += 4;
@@ -591,10 +593,15 @@ function buildSystemPrompt(
 
   const topParams = paramLines.join("\n");
 
-  const allFormulas: Array<{ formula: string; source: string }> = kb.formulas ?? [];
+  const allFormulas: Array<{ formula: string; source: string; type?: string; parameter?: string; module?: string; description?: string }> = kb.formulas ?? [];
   const relevantFormulas = selectRelevantFormulas(allFormulas, sessionCtx, userMessage);
   const topFormulas = relevantFormulas
-    .map((f: { formula: string; source: string }) => `${f.formula}  [iz: ${f.source}]`)
+    .map((f) => {
+      const paramPart = f.parameter ? `${f.parameter} = ` : "";
+      const modulePart = f.module ?? f.source.replace(/\.mac$/i, "");
+      const typePart = f.type ? `, ${f.type}` : "";
+      return `${paramPart}${f.formula}  [${modulePart}${typePart}]`;
+    })
     .join("\n");
 
   // Faza D: include learned entries from knowledge base (new structure: confirmed_formulas/confirmed_patterns/observations)

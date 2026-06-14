@@ -82,7 +82,19 @@ type MacFile = { path: string; originalName: string };
 function loadKnowledgeBase(): KnowledgeBase {
   try {
     if (fs.existsSync(knowledgeBasePath)) {
-      return JSON.parse(fs.readFileSync(knowledgeBasePath, "utf-8")) as KnowledgeBase;
+      const kb = JSON.parse(fs.readFileSync(knowledgeBasePath, "utf-8")) as KnowledgeBase;
+      // Backfill `module` field on formulas that predate the schema update
+      let migrated = false;
+      for (const f of kb.formulas ?? []) {
+        if (!f.module && f.source) {
+          (f as { module?: string }).module = f.source.replace(/\.mac$/i, "");
+          migrated = true;
+        }
+      }
+      if (migrated) {
+        fs.writeFileSync(knowledgeBasePath, JSON.stringify(kb, null, 2));
+      }
+      return kb;
     }
   } catch { /* ignore */ }
   return { formulas: [], parameters: [], syntax_rules: SYNTAX_RULES, _meta: { files_processed: 0 } };
