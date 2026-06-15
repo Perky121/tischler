@@ -27,6 +27,8 @@ export interface SumirajStavka {
   pravilo: string;
   obrazloženje: string;
   moduli: string[];
+  pitanje?: string;   // optional follow-up clarification question
+  odgovor?: string;  // user's answer (set by frontend before save)
 }
 
 // POST /sumiraj/start — analyse conversation history, extract up to 6 rules
@@ -87,7 +89,8 @@ Format:
     "id": "kratki-slug",
     "pravilo": "Kratko, konkretno pravilo u 1 rečenici",
     "obrazloženje": "Kontekst — kada i zašto ovo vrijedi (max 2 rečenice)",
-    "moduli": ["MODUL1", "MODUL2"]
+    "moduli": ["MODUL1", "MODUL2"],
+    "pitanje": "Kratko pitanje za pojašnjenje ako je pravilo nejasno ili nepotpuno (null ako je pravilo jasno)"
   }
 ]`;
 
@@ -114,6 +117,7 @@ Format:
             pravilo: s.pravilo.trim(),
             obrazloženje: s.obrazloženje?.trim() ?? "",
             moduli: Array.isArray(s.moduli) ? s.moduli : [],
+            pitanje: s.pitanje?.trim() || undefined,
           }));
       } catch {
         stavke = [];
@@ -142,8 +146,9 @@ router.post("/sumiraj/save", async (req, res): Promise<void> => {
   const savedEntries: NauciEntry[] = [];
 
   for (const stavka of stavke) {
-    const sadržaj = stavka.korekcija?.trim() || stavka.pravilo.trim();
+    const sadržaj = (stavka as SumirajStavka & { korekcija?: string }).korekcija?.trim() || stavka.pravilo.trim();
     const dodatniKontekst = stavka.obrazloženje?.trim() ?? "";
+    const odgovorNaPitanje = stavka.odgovor?.trim() ?? "";
 
     const prompt = `Ti si ekspert za MegaTischler parametrizaciju kuhinjskog namještaja.
 
@@ -155,7 +160,7 @@ ${sadržaj}
 Kontekst / obrazloženje:
 ${dodatniKontekst || "(nije navedeno)"}
 
-Relevantni moduli: ${stavka.moduli?.join(", ") || "opće (nije vezano za modul)"}
+${odgovorNaPitanje ? `Dodatno pojašnjenje korisnika:\n${odgovorNaPitanje}\n` : ""}Relevantni moduli: ${stavka.moduli?.join(", ") || "opće (nije vezano za modul)"}
 
 Generiraj 3–6 konkretnih zaključaka koji opisuju ovo pravilo za MegaTischler parametrizaciju.
 Zaključci trebaju biti precizni, kratki (max 1-2 rečenice) i primjenjivi pri pisanju formula.

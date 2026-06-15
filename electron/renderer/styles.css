@@ -2587,3 +2587,17 @@ textarea.chat-input:disabled { opacity: 0.5; }
 }
 .sumiraj-cancel:not(:disabled):hover { color: var(--text); border-color: var(--text3); }
 .sumiraj-cancel:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.sumiraj-followup {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(var(--accent-rgb, 99, 102, 241), 0.06);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.sumiraj-followup-q {
+  font-size: 11px;
+  color: var(--text2);
+  font-style: italic;
+  margin-bottom: 5px;
+}

@@ -594,12 +594,14 @@ function NauciInlineForm({ onAsk, onSave, onCancel, loading, step, pitanja }) {
 function SumirajPanel({ stavke, onSave, onCancel, loading }) {
   const [statuses, setStatuses] = React.useState(() => (stavke ?? []).map(() => "pending"));
   const [korekcije, setKorekcije] = React.useState(() => (stavke ?? []).map(() => ""));
+  const [odgovori, setOdgovori] = React.useState(() => (stavke ?? []).map(() => ""));
   const [editingIdx, setEditingIdx] = React.useState(null);
 
   // Sync arrays whenever stavke prop changes (panel opens before async load completes)
   React.useEffect(() => {
     setStatuses((stavke ?? []).map(() => "pending"));
     setKorekcije((stavke ?? []).map(() => ""));
+    setOdgovori((stavke ?? []).map(() => ""));
     setEditingIdx(null);
   }, [stavke]);
 
@@ -607,7 +609,7 @@ function SumirajPanel({ stavke, onSave, onCancel, loading }) {
 
   function handleSave() {
     const potvrdjene = (stavke ?? [])
-      .map((s, i) => ({ ...s, korekcija: korekcije[i]?.trim() || null }))
+      .map((s, i) => ({ ...s, korekcija: korekcije[i]?.trim() || null, odgovor: odgovori[i]?.trim() || undefined }))
       .filter((_, i) => statuses[i] === "confirmed");
     onSave(potvrdjene);
   }
@@ -678,6 +680,19 @@ function SumirajPanel({ stavke, onSave, onCancel, loading }) {
                   disabled={loading}
                   rows={2}
                 />
+              )}
+              {s.pitanje && statuses[i] !== "skipped" && (
+                <div className="sumiraj-followup">
+                  <div className="sumiraj-followup-q">💬 {s.pitanje}</div>
+                  <textarea
+                    className="sumiraj-korekcija"
+                    placeholder="Tvoj odgovor (opcionalno)…"
+                    value={odgovori[i]}
+                    onChange={e => setOdgovori(prev => { const n = [...prev]; n[i] = e.target.value; return n; })}
+                    disabled={loading}
+                    rows={2}
+                  />
+                </div>
               )}
             </div>
           ))}
