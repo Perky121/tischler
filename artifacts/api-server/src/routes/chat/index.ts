@@ -976,16 +976,28 @@ router.post("/chat", async (req, res): Promise<void> => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  try {
+  // Helper: stream a response, emitting thinking and content SSE events.
+  // withThinking=true tries extended thinking first; on known unsupported errors
+  // it retries transparently without thinking params (graceful fallback).
+  async function runStream(withThinking: boolean): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const streamParams: any = {
-      model: "claude-opus-4-8",
-      max_tokens: 16000,
-      thinking: { type: "enabled", budget_tokens: 10000 },
-      system: systemPrompt,
-      messages: chatMessages,
-    };
-    const stream = anthropic.messages.stream(streamParams);
+    const params: any = withThinking
+      ? {
+          model: "claude-opus-4-8",
+          max_tokens: 16000,
+          thinking: { type: "enabled", budget_tokens: 10000 },
+          betas: ["interleaved-thinking-2025-05-14"],
+          system: systemPrompt,
+          messages: chatMessages,
+        }
+      : {
+          model: "claude-opus-4-8",
+          max_tokens: 8192,
+          system: systemPrompt,
+          messages: chatMessages,
+        };
+
+    const stream = anthropic.messages.stream(params);
 
     for await (const event of stream) {
       if (event.type === "content_block_delta") {
@@ -996,6 +1008,27 @@ router.post("/chat", async (req, res): Promise<void> => {
         } else if (delta.type === "text_delta" && delta.text) {
           res.write(`data: ${JSON.stringify({ content: delta.text })}\n\n`);
         }
+      }
+    }
+  }
+
+  try {
+    try {
+      await runStream(true);
+    } catch (thinkingErr) {
+      // If extended thinking is not supported (e.g. model or proxy rejects the beta/thinking
+      // params), fall back silently to a standard stream without thinking content.
+      const msg = thinkingErr instanceof Error ? thinkingErr.message : String(thinkingErr);
+      const isThinkingUnsupported =
+        /thinking|beta|budget_tokens|extended/i.test(msg) ||
+        (thinkingErr as any)?.status === 400 ||
+        (thinkingErr as any)?.status === 422;
+
+      if (isThinkingUnsupported) {
+        logger.warn({ err: thinkingErr }, "Extended thinking not supported — retrying without thinking params");
+        await runStream(false);
+      } else {
+        throw thinkingErr; // re-throw unrelated errors
       }
     }
 
