@@ -26,6 +26,11 @@ import type {
   KnowledgeBase,
   RulesContent,
   RulesInput,
+  StolarInferInput,
+  StolarInferResult,
+  StolarKnowledge,
+  StolarSaveInput,
+  StolarSaveResult,
   UploadResult
 } from './api.schemas';
 
@@ -338,6 +343,228 @@ export const useSendChat = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getSendChatMutationOptions(options));
+    }
+
+export const getGetStolarKnowledgeUrl = () => {
+
+
+
+
+  return `/api/stolar`
+}
+
+/**
+ * Returns all carpentry terms and their inferred conclusions from stolar_znanje.json
+ * @summary Get all carpentry knowledge entries
+ */
+export const getStolarKnowledge = async ( options?: RequestInit): Promise<StolarKnowledge> => {
+
+  return customFetch<StolarKnowledge>(getGetStolarKnowledgeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStolarKnowledgeQueryKey = () => {
+    return [
+    `/api/stolar`
+    ] as const;
+    }
+
+
+export const getGetStolarKnowledgeQueryOptions = <TData = Awaited<ReturnType<typeof getStolarKnowledge>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStolarKnowledge>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStolarKnowledgeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStolarKnowledge>>> = ({ signal }) => getStolarKnowledge({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStolarKnowledge>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStolarKnowledgeQueryResult = NonNullable<Awaited<ReturnType<typeof getStolarKnowledge>>>
+export type GetStolarKnowledgeQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get all carpentry knowledge entries
+ */
+
+export function useGetStolarKnowledge<TData = Awaited<ReturnType<typeof getStolarKnowledge>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStolarKnowledge>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStolarKnowledgeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getStolarInferUrl = () => {
+
+
+
+
+  return `/api/stolar/infer`
+}
+
+/**
+ * Given a carpentry term and its definition, asks Claude to generate up to 8 useful conclusions
+ * @summary Infer carpentry conclusions
+ */
+export const stolarInfer = async (stolarInferInput: StolarInferInput, options?: RequestInit): Promise<StolarInferResult> => {
+
+  return customFetch<StolarInferResult>(getStolarInferUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      stolarInferInput,)
+  }
+);}
+
+
+
+
+export const getStolarInferMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarInfer>>, TError,{data: BodyType<StolarInferInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof stolarInfer>>, TError,{data: BodyType<StolarInferInput>}, TContext> => {
+
+const mutationKey = ['stolarInfer'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof stolarInfer>>, {data: BodyType<StolarInferInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  stolarInfer(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StolarInferMutationResult = NonNullable<Awaited<ReturnType<typeof stolarInfer>>>
+    export type StolarInferMutationBody = BodyType<StolarInferInput>
+    export type StolarInferMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Infer carpentry conclusions
+ */
+export const useStolarInfer = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarInfer>>, TError,{data: BodyType<StolarInferInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof stolarInfer>>,
+        TError,
+        {data: BodyType<StolarInferInput>},
+        TContext
+      > => {
+      return useMutation(getStolarInferMutationOptions(options));
+    }
+
+export const getStolarSaveUrl = () => {
+
+
+
+
+  return `/api/stolar/save`
+}
+
+/**
+ * Saves a term with its definition and confirmed conclusions to stolar_znanje.json. Deduplicates by term name.
+ * @summary Save or update a carpentry knowledge entry
+ */
+export const stolarSave = async (stolarSaveInput: StolarSaveInput, options?: RequestInit): Promise<StolarSaveResult> => {
+
+  return customFetch<StolarSaveResult>(getStolarSaveUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      stolarSaveInput,)
+  }
+);}
+
+
+
+
+export const getStolarSaveMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarSave>>, TError,{data: BodyType<StolarSaveInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof stolarSave>>, TError,{data: BodyType<StolarSaveInput>}, TContext> => {
+
+const mutationKey = ['stolarSave'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof stolarSave>>, {data: BodyType<StolarSaveInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  stolarSave(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StolarSaveMutationResult = NonNullable<Awaited<ReturnType<typeof stolarSave>>>
+    export type StolarSaveMutationBody = BodyType<StolarSaveInput>
+    export type StolarSaveMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save or update a carpentry knowledge entry
+ */
+export const useStolarSave = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarSave>>, TError,{data: BodyType<StolarSaveInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof stolarSave>>,
+        TError,
+        {data: BodyType<StolarSaveInput>},
+        TContext
+      > => {
+      return useMutation(getStolarSaveMutationOptions(options));
     }
 
 export const getGetRulesUrl = () => {

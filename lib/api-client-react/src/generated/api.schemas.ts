@@ -67,6 +67,37 @@ export interface RulesInput {
   content: string;
 }
 
+export interface StolarEntry {
+  pojam: string;
+  definicija: string;
+  zaključci: string[];
+  timestamp: string;
+}
+
+export interface StolarKnowledge {
+  entries: StolarEntry[];
+}
+
+export interface StolarInferInput {
+  pojam: string;
+  definicija: string;
+}
+
+export interface StolarInferResult {
+  zaključci: string[];
+}
+
+export interface StolarSaveInput {
+  pojam: string;
+  definicija: string;
+  zaključci?: string[];
+}
+
+export interface StolarSaveResult {
+  ok: boolean;
+  entry: StolarEntry;
+}
+
 export interface ErrorResponse {
   error: string;
 }

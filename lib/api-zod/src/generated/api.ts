@@ -70,6 +70,55 @@ export const SendChatBody = zod.object({
 
 
 /**
+ * Returns all carpentry terms and their inferred conclusions from stolar_znanje.json
+ * @summary Get all carpentry knowledge entries
+ */
+export const GetStolarKnowledgeResponse = zod.object({
+  "entries": zod.array(zod.object({
+  "pojam": zod.string(),
+  "definicija": zod.string(),
+  "zaključci": zod.array(zod.string()),
+  "timestamp": zod.string()
+}))
+})
+
+
+/**
+ * Given a carpentry term and its definition, asks Claude to generate up to 8 useful conclusions
+ * @summary Infer carpentry conclusions
+ */
+export const StolarInferBody = zod.object({
+  "pojam": zod.string(),
+  "definicija": zod.string()
+})
+
+export const StolarInferResponse = zod.object({
+  "zaključci": zod.array(zod.string())
+})
+
+
+/**
+ * Saves a term with its definition and confirmed conclusions to stolar_znanje.json. Deduplicates by term name.
+ * @summary Save or update a carpentry knowledge entry
+ */
+export const StolarSaveBody = zod.object({
+  "pojam": zod.string(),
+  "definicija": zod.string(),
+  "zaključci": zod.array(zod.string()).optional()
+})
+
+export const StolarSaveResponse = zod.object({
+  "ok": zod.boolean(),
+  "entry": zod.object({
+  "pojam": zod.string(),
+  "definicija": zod.string(),
+  "zaključci": zod.array(zod.string()),
+  "timestamp": zod.string()
+})
+})
+
+
+/**
  * Get the current stipe_rules.txt content
  * @summary Get user rules
  */

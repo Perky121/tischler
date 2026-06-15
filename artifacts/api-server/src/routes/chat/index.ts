@@ -4,6 +4,7 @@ import fs from "fs";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { SendChatBody } from "@workspace/api-zod";
 import { logger } from "../../lib/logger";
+import { readStolarKnowledge, type StolarKnowledge } from "../stolar";
 // Type aliases matching @anthropic-ai/sdk shapes — avoids resolving the SDK subpath
 // across workspace package boundaries.
 type TextBlockParam = { type: "text"; text: string };
@@ -532,6 +533,7 @@ function buildSystemPrompt(
   sessionCtx?: SessionContext | null,
   conceptualGuide?: string,
   userMessage = "",
+  stolarKnowledge?: StolarKnowledge,
 ): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
@@ -650,7 +652,12 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
 - "hint": OBAVEZNO jedna kratka rečenica ZAŠTO (objašnjenje za početnika, ne tehnički žargon).
 - Maksimalno 4 koraka za preglednost.
 - Ne izmišljaj formule — koristi bazu znanja ili ekran.
-- Za screenshot-only: samo sljedeći koraci, bez ponavljanja cijelog plana.`,
+- Za screenshot-only: samo sljedeći koraci, bez ponavljanja cijelog plana.
+
+STOLARSKO ZNANJE — POJMOVI:
+Kada u razgovoru naiđeš na stolarski pojam koji ti nije jasan, a nije definiran u bazi stolarskog znanja ni u kontekstu razgovora, umetni marker \`[POJAM: naziv_pojma]\` odmah iza prve rečenice svog odgovora.
+Primjer: "Razumijem što pokušavaš postići. [POJAM: šulc] Za postavljanje police, formula je..."
+Koristi marker SAMO za pojmove koji su specifični za stolarski zanat i NISU ti poznati. Ne koristi ga za opće termine ili MegaTischler parametre koji su dokumentirani.`,
   ];
 
   if (conceptualGuide) {
@@ -777,6 +784,17 @@ Pravila za SVAKI korak (sva 4 polja su važna za preglednost):
     parts.push(`\nKORISNIKOVA PRAVILA ZA NAMJEŠTAJ:\n${userRules}`);
   }
 
+  // Stolarsko znanje — user-taught carpentry terms and conclusions
+  if (stolarKnowledge && stolarKnowledge.entries.length > 0) {
+    const stolarLines = stolarKnowledge.entries.map((e) => {
+      const zaklText = e.zaključci.length > 0
+        ? `\n  Zaključci: ${e.zaključci.join(" | ")}`
+        : "";
+      return `• ${e.pojam}: ${e.definicija}${zaklText}`;
+    }).join("\n");
+    parts.push(`\nSTOLARSKO ZNANJE (naučeno od korisnika):\n${stolarLines}`);
+  }
+
   return parts.join("\n");
 }
 
@@ -882,6 +900,7 @@ router.post("/chat", async (req, res): Promise<void> => {
   const kb = readKnowledgeBase();
   const userRules = readRules();
   const conceptualGuide = readConceptualGuide();
+  const stolarKnowledge = readStolarKnowledge();
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);
@@ -924,7 +943,7 @@ router.post("/chat", async (req, res): Promise<void> => {
         : "");
 
     const sessionCtx = rawBody.session_context as SessionContext | null ?? null;
-    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage);
+    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage, stolarKnowledge);
 
     if (screenshot_base64) {
       let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";

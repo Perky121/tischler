@@ -16,6 +16,8 @@ tags:
     description: Chat operations
   - name: rules
     description: User rules operations
+  - name: stolar
+    description: Carpentry knowledge learning operations
 paths:
   /healthz:
     get:
@@ -90,6 +92,84 @@ paths:
             text/event-stream:
               schema:
                 type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stolar:
+    get:
+      operationId: getStolarKnowledge
+      tags: [stolar]
+      summary: Get all carpentry knowledge entries
+      description: Returns all carpentry terms and their inferred conclusions from stolar_znanje.json
+      responses:
+        "200":
+          description: Carpentry knowledge base
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StolarKnowledge"
+
+  /stolar/infer:
+    post:
+      operationId: stolarInfer
+      tags: [stolar]
+      summary: Infer carpentry conclusions
+      description: Given a carpentry term and its definition, asks Claude to generate up to 8 useful conclusions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StolarInferInput"
+      responses:
+        "200":
+          description: Generated conclusions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StolarInferResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stolar/save:
+    post:
+      operationId: stolarSave
+      tags: [stolar]
+      summary: Save or update a carpentry knowledge entry
+      description: Saves a term with its definition and confirmed conclusions to stolar_znanje.json. Deduplicates by term name.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StolarSaveInput"
+      responses:
+        "200":
+          description: Entry saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StolarSaveResult"
         "400":
           description: Bad request
           content:
@@ -270,6 +350,82 @@ components:
           type: string
       required:
         - content
+
+    StolarEntry:
+      type: object
+      properties:
+        pojam:
+          type: string
+        definicija:
+          type: string
+        zaključci:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: string
+      required:
+        - pojam
+        - definicija
+        - zaključci
+        - timestamp
+
+    StolarKnowledge:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/StolarEntry"
+      required:
+        - entries
+
+    StolarInferInput:
+      type: object
+      properties:
+        pojam:
+          type: string
+        definicija:
+          type: string
+      required:
+        - pojam
+        - definicija
+
+    StolarInferResult:
+      type: object
+      properties:
+        zaključci:
+          type: array
+          items:
+            type: string
+      required:
+        - zaključci
+
+    StolarSaveInput:
+      type: object
+      properties:
+        pojam:
+          type: string
+        definicija:
+          type: string
+        zaključci:
+          type: array
+          items:
+            type: string
+      required:
+        - pojam
+        - definicija
+
+    StolarSaveResult:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        entry:
+          $ref: "#/components/schemas/StolarEntry"
+      required:
+        - ok
+        - entry
 
     ErrorResponse:
       type: object
