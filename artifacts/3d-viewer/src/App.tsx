@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from "react";
+import { useState, useMemo, lazy, Suspense, useEffect } from "react";
 import { calculate, MODULE_DEFAULTS } from "./lib/formula-engine";
 import type { ModuleName } from "./lib/formula-engine";
 import { isWebGLAvailable } from "./lib/webgl-detect";
@@ -42,6 +42,26 @@ export default function App() {
   const [W, setW] = useState(URL_PARAMS.W);
   const [H, setH] = useState(URL_PARAMS.H);
   const [D, setD] = useState(URL_PARAMS.D);
+
+  useEffect(() => {
+    function handleMessage(e: MessageEvent) {
+      if (!e.data || e.data.type !== "MEGATISCHLER_DIMS") return;
+      const { module: m, W: w, H: h, D: d } = e.data as {
+        type: string; module?: string; W?: number; H?: number; D?: number;
+      };
+      const clamp = (v: number, mn: number, mx: number) => Math.max(mn, Math.min(mx, v));
+      const newMod: ModuleName =
+        m && VALID_MODULES.includes(m as ModuleName) ? (m as ModuleName) : module;
+      const def = MODULE_DEFAULTS[newMod];
+      setModule(newMod);
+      if (typeof w === "number" && !isNaN(w)) setW(clamp(w, def.minW, def.maxW));
+      if (typeof h === "number" && !isNaN(h)) setH(clamp(h, def.minH, def.maxH));
+      if (typeof d === "number" && !isNaN(d)) setD(clamp(d, def.minD, def.maxD));
+    }
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [module]);
+
   const [selected, setSelected] = useState<string | null>(null);
   const [mainTab, setMainTab] = useState<"viewer" | "tablica">("viewer");
   const [viewMode, setViewMode] = useState<"3d" | "2d">(HAS_WEBGL ? "3d" : "2d");

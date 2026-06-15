@@ -173,6 +173,23 @@ type WorklistStep = { title?: string; where?: string; formula?: string | null; h
 
 const VIEWER_MODULES = ["KUH_VISOKI", "VISECI", "OTVORENI", "PECNICA", "PERILICA", "MIKROVALNA", "NAPA", "KUTNI_VANJSKI"];
 
+function parseDimsFromText(text: string): { module: string; W?: number; H?: number; D?: number } | null {
+  let mod = "";
+  for (const m of VIEWER_MODULES) {
+    if (text.includes(m)) { mod = m; break; }
+  }
+  const wm = text.match(/(?:^|[^A-Za-z_])W=(\d+)/);
+  const hm = text.match(/(?:^|[^A-Za-z_])H=(\d+)/);
+  const dm = text.match(/(?:^|[^A-Za-z_])D=(\d+)/);
+  if (!mod && !wm && !hm && !dm) return null;
+  return {
+    module: mod,
+    ...(wm ? { W: parseInt(wm[1], 10) } : {}),
+    ...(hm ? { H: parseInt(hm[1], 10) } : {}),
+    ...(dm ? { D: parseInt(dm[1], 10) } : {}),
+  };
+}
+
 function buildViewer3DUrl(steps: WorklistStep[]): string | null {
   let mod = "";
   let W: number | undefined;
@@ -709,6 +726,10 @@ export function ChatPanel() {
   const docInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const show3DRef = useRef(false);
+  const lastDimsRef = useRef<{ module: string; W?: number; H?: number; D?: number }>({ module: "" });
+  const [show3D, setShow3D] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -1049,6 +1070,30 @@ export function ChatPanel() {
               thinkingContent += data.thinking;
             } else if (data.content) {
               assistantContent += data.content;
+              const parsed = parseDimsFromText(assistantContent);
+              if (parsed) {
+                const merged = { ...lastDimsRef.current };
+                if (parsed.module) merged.module = parsed.module;
+                if (parsed.W) merged.W = parsed.W;
+                if (parsed.H) merged.H = parsed.H;
+                if (parsed.D) merged.D = parsed.D;
+                lastDimsRef.current = merged;
+                if (merged.W && merged.H && merged.D) {
+                  if (!show3DRef.current) {
+                    show3DRef.current = true;
+                    setShow3D(true);
+                  }
+                  if (iframeRef.current?.contentWindow) {
+                    iframeRef.current.contentWindow.postMessage({
+                      type: "MEGATISCHLER_DIMS",
+                      module: merged.module || "KUH_VISOKI",
+                      W: merged.W,
+                      H: merged.H,
+                      D: merged.D,
+                    }, "*");
+                  }
+                }
+              }
             }
             setMessages(prev => {
               const updated = [...prev];
@@ -1087,7 +1132,8 @@ export function ChatPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-background" data-testid="chat-panel">
+    <div className="flex h-full w-full overflow-hidden">
+    <div className="flex flex-col flex-1 min-w-0 bg-background" data-testid="chat-panel">
       {/* Message list */}
       <div className="flex-1 overflow-y-auto p-6" ref={scrollRef}>
         {messages.length === 0 ? (
@@ -1358,6 +1404,18 @@ export function ChatPanel() {
               <Paperclip className="w-5 h-5" />
             </Button>
 
+            {/* 3D panel toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`shrink-0 rounded-lg transition-colors ${show3D ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              onClick={() => { setShow3D(s => { show3DRef.current = !s; return !s; }); }}
+              title={show3D ? "Zatvori 3D pregled" : "Otvori 3D pregled"}
+              data-testid="toggle-3d-button"
+            >
+              <Box className="w-5 h-5" />
+            </Button>
+
             <Textarea
               ref={textareaRef}
               value={input}
@@ -1402,6 +1460,45 @@ export function ChatPanel() {
           </div>
         </div>
       </div>
+    </div>
+
+    {/* Live 3D panel */}
+    <div
+      className="flex-shrink-0 border-l border-border flex flex-col overflow-hidden transition-all duration-200"
+      style={{ width: show3D ? 420 : 0, opacity: show3D ? 1 : 0, pointerEvents: show3D ? undefined : "none" }}
+    >
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/80 flex-shrink-0">
+        <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+          <Box className="w-3.5 h-3.5" />
+          Pregled u 3D
+        </span>
+        <button
+          onClick={() => { setShow3D(false); show3DRef.current = false; }}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          title="Zatvori 3D panel"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <iframe
+        ref={iframeRef}
+        src="/3d-viewer/"
+        className="flex-1 border-0 bg-slate-100"
+        title="MegaTischler 3D preglednik"
+        onLoad={() => {
+          const dims = lastDimsRef.current;
+          if (dims.W && dims.H && dims.D && iframeRef.current?.contentWindow) {
+            iframeRef.current.contentWindow.postMessage({
+              type: "MEGATISCHLER_DIMS",
+              module: dims.module || "KUH_VISOKI",
+              W: dims.W,
+              H: dims.H,
+              D: dims.D,
+            }, "*");
+          }
+        }}
+      />
+    </div>
     </div>
   );
 }
