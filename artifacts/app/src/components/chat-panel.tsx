@@ -4,8 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap } from "lucide-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
-// Message type extended with screenshot thumbnail and optional attached file name
-type ChatMessageExt = ChatMessage & { screenshotThumb?: string; attachedFileName?: string };
+// Message type extended with screenshot thumbnail, optional attached file name, and system hint type
+type ChatMessageExt = ChatMessage & { screenshotThumb?: string; attachedFileName?: string; type?: "system" };
 
 // Attached document state
 type AttachedFile = {
@@ -771,7 +771,43 @@ export function ChatPanel() {
 
   // ─────────────────────────────────────────────────────────────────────────
 
+  const addSystemHint = (content: string) => {
+    setMessages(prev => [...prev, { role: "assistant", content, type: "system" } as ChatMessageExt]);
+    setInput("");
+  };
+
   const handleSend = async () => {
+    // Slash command router — intercept before sending to AI
+    const trimmed = input.trimStart();
+    if (trimmed.startsWith("/")) {
+      const lower = trimmed.toLowerCase();
+
+      // /stolar with no argument → show usage hint
+      if (lower === "/stolar" || lower.startsWith("/stolar ") && trimmed.slice(8).trim() === "") {
+        addSystemHint("💡 Koristi: `/stolar [pojam] [definicija]` — npr. `/stolar radijus Polumjer luka u formuli`");
+        return;
+      }
+
+      // /istraži — Electron only
+      if (lower.startsWith("/istraži")) {
+        addSystemHint("ℹ️ Naredba `/istraži` dostupna je samo u desktop (Electron) aplikaciji.");
+        return;
+      }
+
+      // /debug — Electron only
+      if (lower.startsWith("/debug")) {
+        addSystemHint("ℹ️ Naredba `/debug` dostupna je samo u desktop (Electron) aplikaciji.");
+        return;
+      }
+
+      // /stolar with argument — falls through to existing handler below
+      if (!lower.startsWith("/stolar ")) {
+        // Unknown slash command catch-all
+        addSystemHint("❓ Nepoznata naredba. Dostupna naredba u web chatu: `/stolar [pojam]`");
+        return;
+      }
+    }
+
     // /stolar command: teach the AI a carpentry term
     if (input.trimStart().toLowerCase().startsWith("/stolar ")) {
       const rest = input.trimStart().slice(8).trim();
@@ -933,7 +969,19 @@ export function ChatPanel() {
           <div className="space-y-6 max-w-3xl mx-auto pb-4">
             {messages.map((msg, i) => {
               const isUser = msg.role === "user";
+              const isSystem = (msg as ChatMessageExt).type === "system";
               const hasScreenshot = !!msg.screenshotThumb;
+
+              // System hint messages — compact, dim, no AI header
+              if (isSystem) {
+                return (
+                  <div key={i} className="flex justify-center" data-testid={`message-${i}`}>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted/50 border border-border/40 text-[12px] text-muted-foreground max-w-[90%]">
+                      <span className="whitespace-pre-wrap">{msg.content}</span>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start"}`} data-testid={`message-${i}`}>
