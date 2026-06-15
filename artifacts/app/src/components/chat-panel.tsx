@@ -735,7 +735,15 @@ export function ChatPanel() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const show3DRef = useRef(false);
-  const lastDimsRef = useRef<{ module: string; W?: number; H?: number; D?: number }>({ module: "" });
+  const lastDimsRef = useRef<{ module: string; W?: number; H?: number; D?: number }>(
+    (() => {
+      try {
+        const raw = typeof window !== "undefined" ? localStorage.getItem("mt_last_3d_dims") : null;
+        if (raw) return JSON.parse(raw) as { module: string; W?: number; H?: number; D?: number };
+      } catch { /* ignore */ }
+      return { module: "" };
+    })()
+  );
   const [show3D, setShow3D] = useState(false);
 
   useEffect(() => {
@@ -1085,6 +1093,7 @@ export function ChatPanel() {
                 if (parsed.H !== undefined) merged.H = parsed.H;
                 if (parsed.D !== undefined) merged.D = parsed.D;
                 lastDimsRef.current = merged;
+                try { localStorage.setItem("mt_last_3d_dims", JSON.stringify(merged)); } catch { /* ignore */ }
                 if (merged.W && merged.H && merged.D) {
                   if (!show3DRef.current) {
                     show3DRef.current = true;
