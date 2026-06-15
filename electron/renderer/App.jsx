@@ -394,6 +394,83 @@ function PlanResponseCard({ plan, onAnswer }) {
   );
 }
 
+// ── Slash command palette ───────────────────────────────────────────────────
+const SLASH_COMMANDS = [
+  { cmd: "/stolar", desc: "Nauči AI stolarski pojam i definiciju", icon: "📚" },
+  { cmd: "/debug",  desc: "Otvori debug panel — snimi ekrane za analizu", icon: "🛠" },
+  { cmd: "/istraži", desc: "Pretraži Bridge bazu datoteka", icon: "🗄" },
+];
+
+function SlashCommandPalette({ input, onSelect }) {
+  const lower = input.toLowerCase();
+  const filtered = SLASH_COMMANDS.filter(c => c.cmd.startsWith(lower));
+  if (filtered.length === 0) return null;
+  return (
+    <div className="slash-palette">
+      {filtered.map(c => (
+        <button
+          key={c.cmd}
+          className="slash-palette-item"
+          onMouseDown={e => { e.preventDefault(); onSelect(c.cmd); }}
+        >
+          <span className="slash-palette-icon">{c.icon}</span>
+          <span className="slash-palette-cmd">{c.cmd}</span>
+          <span className="slash-palette-desc">{c.desc}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Stolar inline form ──────────────────────────────────────────────────────
+function StolarInlineForm({ onSubmit, onCancel, loading }) {
+  const [pojam, setPojam] = React.useState("");
+  const [definicija, setDefinicija] = React.useState("");
+  const pojamRef = React.useRef(null);
+
+  React.useEffect(() => { pojamRef.current?.focus(); }, []);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!pojam.trim()) return;
+    onSubmit(pojam.trim(), definicija.trim());
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Escape") { e.preventDefault(); onCancel(); }
+  }
+
+  return (
+    <form className="stolar-inline-form" onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+      <div className="stolar-inline-header">📚 Nauči novi pojam</div>
+      <input
+        ref={pojamRef}
+        className="stolar-inline-input"
+        placeholder="Pojam (npr. radijus, reglet, štoklajsna…)"
+        value={pojam}
+        onChange={e => setPojam(e.target.value)}
+        disabled={loading}
+      />
+      <textarea
+        className="stolar-inline-textarea"
+        placeholder="Definicija — što taj pojam znači u stolariji (nije obavezno)"
+        value={definicija}
+        onChange={e => setDefinicija(e.target.value)}
+        disabled={loading}
+        rows={2}
+      />
+      <div className="stolar-inline-actions">
+        <button type="submit" className="stolar-inline-save" disabled={!pojam.trim() || loading}>
+          {loading ? "Učim…" : "💾 Spremi"}
+        </button>
+        <button type="button" className="stolar-inline-cancel" onClick={onCancel} disabled={loading}>
+          Odustani
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // ── Suggestion buttons ─────────────────────────────────────────────────────
 const SUGGESTIONS = [
   { id: "explain", label: "Objasni sintaksu", msg: "Možeš li detaljnije objasniti sintaksu ove formule?" },
@@ -1272,6 +1349,10 @@ function App() {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugProblem, setDebugProblem] = useState("");
 
+  // Stolar inline form
+  const [stolarFormVisible, setStolarFormVisible] = useState(false);
+  const [stolarFormLoading, setStolarFormLoading] = useState(false);
+
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
   const inputHeightRef = useRef(INPUT_HEIGHT_DEFAULT);
@@ -1655,6 +1736,42 @@ function App() {
     setDebugState("off");
   }
 
+  async function handleStolarSaveElectron(pojam, definicija) {
+    setStolarFormLoading(true);
+    try {
+      const settings = await window.electron.getSettings();
+      const url = settings.backendUrl;
+      const inferRes = await fetch(`${url}/api/stolar/infer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pojam, definicija }),
+      });
+      if (!inferRes.ok) throw new Error(`HTTP ${inferRes.status}`);
+      const inferData = await inferRes.json();
+      const zaključci = inferData.zaključci ?? [];
+      await fetch(`${url}/api/stolar/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pojam, definicija, zaključci }),
+      });
+      const n = zaključci.length;
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `✓ Naučio sam **${n}** zaključak${n === 1 ? "" : "a"} o pojmu **${pojam}**. Koristit ću ovo znanje u budućim odgovorima.`,
+        type: "proactive",
+      }]);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `⚠️ Greška pri zapisivanju stolarskog znanja: ${err.message}`,
+        type: "proactive",
+      }]);
+    } finally {
+      setStolarFormLoading(false);
+      setStolarFormVisible(false);
+    }
+  }
+
   async function startDebugRecording() {
     const result = await window.electron.debugStartRecording();
     if (!result.ok) {
@@ -1937,10 +2054,38 @@ function App() {
     if (!msgText.trim() && !currentScreenshot) return;
     if (isStreaming) return;
 
+    // Parse /stolar command — otvori inline formu
+    if (msgText.trim().toLowerCase() === "/stolar" ||
+        (msgText.trim().toLowerCase().startsWith("/stolar ") && msgText.trim().slice("/stolar ".length).trim() === "")) {
+      setInput("");
+      setStolarFormVisible(true);
+      return;
+    }
+
+    // /stolar pojam definicija — direktno spremi
+    if (msgText.trim().toLowerCase().startsWith("/stolar ")) {
+      const rest = msgText.trim().slice("/stolar ".length).trim();
+      const spaceIdx = rest.indexOf(" ");
+      const pojam = spaceIdx > 0 ? rest.slice(0, spaceIdx) : rest;
+      const definicija = spaceIdx > 0 ? rest.slice(spaceIdx + 1).trim() : "";
+      setInput("");
+      if (definicija) {
+        await handleStolarSaveElectron(pojam, definicija);
+      } else {
+        setStolarFormVisible(true);
+      }
+      return;
+    }
+
     // Parse /debug command
     if (msgText.trim().toLowerCase() === "/debug") {
       setInput("");
       openDebugPanel();
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "🛠 **Debug panel otvoren** — snimi ekrane kojima opisuješ problem, zatim upiši opis i pošalji na analizu.",
+        type: "proactive",
+      }]);
       return;
     }
 
@@ -1950,6 +2095,13 @@ function App() {
       setInput("");
       bridgeQueryRef.current = query || "";
       setShowBridgeAgent(true);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: query
+          ? `🗄 **Bridge agent otvoren** — pretraži: "${query}"`
+          : "🗄 **Bridge agent otvoren** — pretraži bazu datoteka MegaTischlera.",
+        type: "proactive",
+      }]);
       return;
     }
 
@@ -2584,57 +2736,85 @@ function App() {
           </div>
         )}
 
-        <div className="input-row">
-          <div className="input-inner">
-            <textarea
-              ref={textareaRef}
-              className="chat-input"
-              style={{ height: inputHeight }}
-              value={input}
-              onChange={handleTextareaChange}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                liveState === "running"
-                  ? "Upiši pitanje živom agentu... (Enter za slanje)"
-                  : "Upiši pitanje... (Enter za slanje)"
+        {/* Slash command palette — shown when input starts with / */}
+        {input.trim().startsWith("/") && !stolarFormVisible && !isStreaming && (
+          <SlashCommandPalette
+            input={input.trim()}
+            onSelect={(cmd) => {
+              if (cmd === "/stolar") {
+                setInput("");
+                setStolarFormVisible(true);
+              } else if (cmd === "/debug") {
+                setInput("");
+                handleSend("/debug");
+              } else {
+                setInput(cmd + " ");
+                textareaRef.current?.focus();
               }
-              disabled={isStreaming}
-            />
-            <div className="input-actions-row">
-              <button
-                className={`input-btn-screenshot${screenshotDataUrl ? " active" : ""}`}
-                onClick={handleScreenshotCapture}
+            }}
+          />
+        )}
+
+        {/* Stolar inline form replaces the input row */}
+        {stolarFormVisible ? (
+          <StolarInlineForm
+            onSubmit={handleStolarSaveElectron}
+            onCancel={() => setStolarFormVisible(false)}
+            loading={stolarFormLoading}
+          />
+        ) : (
+          <div className="input-row">
+            <div className="input-inner">
+              <textarea
+                ref={textareaRef}
+                className="chat-input"
+                style={{ height: inputHeight }}
+                value={input}
+                onChange={handleTextareaChange}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  liveState === "running"
+                    ? "Upiši pitanje živom agentu... (Enter za slanje)"
+                    : "Upiši pitanje... (Enter za slanje)"
+                }
                 disabled={isStreaming}
-                title="Snimi ekran (F9)"
-              >
-                📷
-              </button>
-              <button
-                className={`plan-mode-btn${planMode ? " active" : ""}`}
-                onClick={() => setPlanMode(p => !p)}
-                disabled={isStreaming}
-                title={planMode ? "Plan mode ON — Claude planira prije izvršavanja" : "Plan mode — Claude planira i pita"}
-              >
-                {planMode ? "📋 Plan ON" : "📋 Plan"}
-              </button>
+              />
+              <div className="input-actions-row">
+                <button
+                  className={`input-btn-screenshot${screenshotDataUrl ? " active" : ""}`}
+                  onClick={handleScreenshotCapture}
+                  disabled={isStreaming}
+                  title="Snimi ekran (F9)"
+                >
+                  📷
+                </button>
+                <button
+                  className={`plan-mode-btn${planMode ? " active" : ""}`}
+                  onClick={() => setPlanMode(p => !p)}
+                  disabled={isStreaming}
+                  title={planMode ? "Plan mode ON — Claude planira prije izvršavanja" : "Plan mode — Claude planira i pita"}
+                >
+                  {planMode ? "📋 Plan ON" : "📋 Plan"}
+                </button>
+              </div>
             </div>
+
+            <button
+              className="send-btn"
+              onClick={() => handleSend()}
+              disabled={(!input.trim() && !screenshotDataUrl) || isStreaming}
+              title="Pošalji"
+            >
+              {isStreaming ? (
+                <><div className="spinner" style={{ width: 12, height: 12, borderWidth: 2 }} /> Šalje...</>
+              ) : (
+                <>▶ Pošalji</>
+              )}
+            </button>
           </div>
+        )}
 
-          <button
-            className="send-btn"
-            onClick={() => handleSend()}
-            disabled={(!input.trim() && !screenshotDataUrl) || isStreaming}
-            title="Pošalji"
-          >
-            {isStreaming ? (
-              <><div className="spinner" style={{ width: 12, height: 12, borderWidth: 2 }} /> Šalje...</>
-            ) : (
-              <>▶ Pošalji</>
-            )}
-          </button>
-        </div>
-
-        <div className="input-hint">F9 ekran · /istraži [upit] za Bridge · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos</div>
+        <div className="input-hint">F9 ekran · /stolar stolarski rječnik · /istraži za Bridge · Enter šalje · Shift+Enter novi red</div>
       </div>
 
       {/* Single hidden file input for live .mac/.zip upload — shared by wizard and banner */}
