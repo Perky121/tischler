@@ -174,19 +174,26 @@ type WorklistStep = { title?: string; where?: string; formula?: string | null; h
 const VIEWER_MODULES = ["KUH_VISOKI", "VISECI", "OTVORENI", "PECNICA", "PERILICA", "MIKROVALNA", "NAPA", "KUTNI_VANJSKI"];
 
 function parseDimsFromText(text: string): { module: string; W?: number; H?: number; D?: number } | null {
+  // Find the LAST module name mentioned — later corrections win
   let mod = "";
+  let modIdx = -1;
   for (const m of VIEWER_MODULES) {
-    if (text.includes(m)) { mod = m; break; }
+    const idx = text.lastIndexOf(m);
+    if (idx > modIdx) { modIdx = idx; mod = m; }
   }
-  const wm = text.match(/(?:^|[^A-Za-z_])W=(\d+)/);
-  const hm = text.match(/(?:^|[^A-Za-z_])H=(\d+)/);
-  const dm = text.match(/(?:^|[^A-Za-z_])D=(\d+)/);
-  if (!mod && !wm && !hm && !dm) return null;
+  // Find the LAST occurrence of each dimension — later corrections override earlier ones
+  const allW = [...text.matchAll(/(?:^|[^A-Za-z_])W=(\d+)/g)];
+  const allH = [...text.matchAll(/(?:^|[^A-Za-z_])H=(\d+)/g)];
+  const allD = [...text.matchAll(/(?:^|[^A-Za-z_])D=(\d+)/g)];
+  const lastW = allW.length > 0 ? allW[allW.length - 1] : null;
+  const lastH = allH.length > 0 ? allH[allH.length - 1] : null;
+  const lastD = allD.length > 0 ? allD[allD.length - 1] : null;
+  if (!mod && !lastW && !lastH && !lastD) return null;
   return {
     module: mod,
-    ...(wm ? { W: parseInt(wm[1], 10) } : {}),
-    ...(hm ? { H: parseInt(hm[1], 10) } : {}),
-    ...(dm ? { D: parseInt(dm[1], 10) } : {}),
+    ...(lastW !== null ? { W: parseInt(lastW[1], 10) } : {}),
+    ...(lastH !== null ? { H: parseInt(lastH[1], 10) } : {}),
+    ...(lastD !== null ? { D: parseInt(lastD[1], 10) } : {}),
   };
 }
 
@@ -1074,9 +1081,9 @@ export function ChatPanel() {
               if (parsed) {
                 const merged = { ...lastDimsRef.current };
                 if (parsed.module) merged.module = parsed.module;
-                if (parsed.W) merged.W = parsed.W;
-                if (parsed.H) merged.H = parsed.H;
-                if (parsed.D) merged.D = parsed.D;
+                if (parsed.W !== undefined) merged.W = parsed.W;
+                if (parsed.H !== undefined) merged.H = parsed.H;
+                if (parsed.D !== undefined) merged.D = parsed.D;
                 lastDimsRef.current = merged;
                 if (merged.W && merged.H && merged.D) {
                   if (!show3DRef.current) {
