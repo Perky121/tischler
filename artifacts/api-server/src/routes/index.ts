@@ -9,6 +9,7 @@ import analyzeScreenRouter from "./analyze-screen";
 import bridgeRouter from "./bridge";
 import stolarRouter from "./stolar";
 import nauciRouter from "./nauci";
+import sumirajRouter from "./sumiraj";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(analyzeScreenRouter);
 router.use(bridgeRouter);
 router.use(stolarRouter);
 router.use(nauciRouter);
+router.use(sumirajRouter);
 
 export default router;

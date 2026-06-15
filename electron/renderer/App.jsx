@@ -425,6 +425,7 @@ function PlanResponseCard({ plan, onAnswer }) {
 
 // ── Slash command palette ───────────────────────────────────────────────────
 const SLASH_COMMANDS = [
+  { cmd: "/sumiraj-znanje", desc: "Analiziraj razgovor i izvuci naučena pravila parametrizacije", icon: "🧾" },
   { cmd: "/nauči",  desc: "Nauči AI pravilo parametrizacije MegaTischlera", icon: "🧠" },
   { cmd: "/stolar", desc: "Nauči AI stolarski pojam i definiciju", icon: "📚" },
   { cmd: "/debug",  desc: "Otvori debug panel — snimi ekrane za analizu", icon: "🛠" },
@@ -588,6 +589,98 @@ function NauciInlineForm({ onAsk, onSave, onCancel, loading, step, pitanja }) {
   );
 }
 
+
+// ── Sumiraj panel — konsolidacija znanja iz razgovora ──────────────────────
+function SumirajPanel({ stavke, onSave, onCancel, loading }) {
+  const [statuses, setStatuses] = React.useState(() => stavke.map(() => "pending"));
+  const [korekcije, setKorekcije] = React.useState(() => stavke.map(() => ""));
+  const [showKorekcija, setShowKorekcija] = React.useState(() => stavke.map(() => false));
+
+  const confirmedCount = statuses.filter(s => s === "confirmed").length;
+
+  function handleSave() {
+    const potvrdjene = stavke.reduce((acc, s, i) => {
+      if (statuses[i] === "confirmed") {
+        acc.push({ ...s, korekcija: korekcije[i]?.trim() || "" });
+      }
+      return acc;
+    }, []);
+    onSave(potvrdjene);
+  }
+
+  return (
+    <div className="sumiraj-panel">
+      <div className="sumiraj-header">🧾 Konsolidacija znanja iz razgovora</div>
+      <div className="sumiraj-subheader">Potvrdi pravila koja su točna, preskoči ili ispravi netočna.</div>
+      {stavke.length === 0 ? (
+        <div className="sumiraj-empty">Nisam pronašao konkretna pravila parametrizacije u ovom razgovoru.</div>
+      ) : (
+        <div className="sumiraj-stavke">
+          {stavke.map((s, i) => (
+            <div key={s.id || i} className={`sumiraj-stavka${statuses[i] === "confirmed" ? " confirmed" : statuses[i] === "skipped" ? " skipped" : ""}`}>
+              <div className="sumiraj-stavka-pravilo">{s.pravilo}</div>
+              {s.obrazloženje && <div className="sumiraj-stavka-obrazlozenje">{s.obrazloženje}</div>}
+              {s.moduli?.length > 0 && (
+                <div className="sumiraj-stavka-moduli">{s.moduli.join(", ")}</div>
+              )}
+              {statuses[i] === "pending" && (
+                <div className="sumiraj-stavka-actions">
+                  <button
+                    className="sumiraj-potvrdi"
+                    disabled={loading}
+                    onClick={() => setStatuses(prev => { const n = [...prev]; n[i] = "confirmed"; return n; })}
+                  >✓ Potvrdi</button>
+                  <button
+                    className="sumiraj-preskoči"
+                    disabled={loading}
+                    onClick={() => setStatuses(prev => { const n = [...prev]; n[i] = "skipped"; return n; })}
+                  >✗ Preskoči</button>
+                  <button
+                    className="sumiraj-ispravi"
+                    disabled={loading}
+                    onClick={() => setShowKorekcija(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}
+                  >{showKorekcija[i] ? "▲ Sakrij" : "✏ Ispravi"}</button>
+                </div>
+              )}
+              {statuses[i] === "confirmed" && (
+                <div className="sumiraj-stavka-status confirmed">✓ Potvrđeno
+                  <button className="sumiraj-undo" onClick={() => setStatuses(prev => { const n=[...prev]; n[i]="pending"; return n; })}>poništi</button>
+                </div>
+              )}
+              {statuses[i] === "skipped" && (
+                <div className="sumiraj-stavka-status skipped">✗ Preskočeno
+                  <button className="sumiraj-undo" onClick={() => setStatuses(prev => { const n=[...prev]; n[i]="pending"; return n; })}>poništi</button>
+                </div>
+              )}
+              {showKorekcija[i] && statuses[i] === "pending" && (
+                <textarea
+                  className="sumiraj-korekcija"
+                  placeholder="Ispravi ili dopuni pravilo (opcionalno — ako ostaviš prazno, koristi se original)…"
+                  value={korekcije[i]}
+                  onChange={e => setKorekcije(prev => { const n = [...prev]; n[i] = e.target.value; return n; })}
+                  disabled={loading}
+                  rows={2}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="sumiraj-footer">
+        <button
+          className="sumiraj-spremi"
+          disabled={loading || confirmedCount === 0}
+          onClick={handleSave}
+        >
+          {loading
+            ? <><div className="spinner" style={{ width: 10, height: 10, borderWidth: 2 }} /> Sprema…</>
+            : `💾 Spremi ${confirmedCount > 0 ? `${confirmedCount} pravila` : "zaključke"}`}
+        </button>
+        <button className="sumiraj-cancel" onClick={onCancel} disabled={loading}>Odustani</button>
+      </div>
+    </div>
+  );
+}
 
 const TTS_VOICES = [
   { id: "onyx",    label: "Onyx (duboki, muški)" },
@@ -1543,6 +1636,11 @@ function App() {
   const [nauciPitanja, setNauciPitanja] = useState([]);
   const [nauciSadržaj, setNauciSadržaj] = useState("");
 
+  // Sumiraj panel — konsolidacija znanja iz razgovora
+  const [sumirajVisible, setSumirajVisible] = useState(false);
+  const [sumirajLoading, setSumirajLoading] = useState(false);
+  const [sumirajStavke, setSumirajStavke] = useState([]);
+
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
   const inputHeightRef = useRef(INPUT_HEIGHT_DEFAULT);
@@ -2025,6 +2123,67 @@ function App() {
     }
   }
 
+  async function handleSumirajStart(historySnapshot) {
+    setSumirajLoading(true);
+    setSumirajVisible(true);
+    setSumirajStavke([]);
+    try {
+      const settings = await window.electron.getSettings();
+      const url = settings.backendUrl;
+      const history = historySnapshot
+        .filter(m => m.content?.trim())
+        .map(m => ({ role: m.role, content: m.content.slice(0, 1000) }));
+      const res = await fetch(`${url}/api/sumiraj/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ history }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setSumirajStavke(data.stavke ?? []);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `⚠️ Greška pri analizi razgovora: ${err.message}`,
+        type: "proactive",
+      }]);
+      setSumirajVisible(false);
+    } finally {
+      setSumirajLoading(false);
+    }
+  }
+
+  async function handleSumirajSave(potvrdjeneStavke) {
+    setSumirajLoading(true);
+    try {
+      const settings = await window.electron.getSettings();
+      const url = settings.backendUrl;
+      const res = await fetch(`${url}/api/sumiraj/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stavke: potvrdjeneStavke }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const n = data.saved ?? 0;
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `🧾 Konsolidacija završena — zapamtio sam **${n}** novih pravila parametrizacije. Koristit ću ih u budućim odgovorima.`,
+        type: "proactive",
+      }]);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `⚠️ Greška pri spremanju znanja: ${err.message}`,
+        type: "proactive",
+      }]);
+    } finally {
+      setSumirajLoading(false);
+      setSumirajVisible(false);
+      setSumirajStavke([]);
+    }
+  }
+
   async function startDebugRecording() {
     const result = await window.electron.debugStartRecording();
     if (!result.ok) {
@@ -2306,6 +2465,13 @@ function App() {
     const currentScreenshot = overrideScreenshot !== undefined ? overrideScreenshot : screenshotDataUrl;
     if (!msgText.trim() && !currentScreenshot) return;
     if (isStreaming) return;
+
+    // Parse /sumiraj-znanje command — analiziraj razgovor
+    if (msgText.trim().toLowerCase() === "/sumiraj-znanje") {
+      setInput("");
+      handleSumirajStart([...messages]);
+      return;
+    }
 
     // Parse /nauči command — otvori inline formu
     if (msgText.trim().toLowerCase() === "/nauči" ||
@@ -2993,11 +3159,14 @@ function App() {
         )}
 
         {/* Slash command palette — shown when input starts with / */}
-        {input.trim().startsWith("/") && !stolarFormVisible && !nauciFormVisible && !isStreaming && (
+        {input.trim().startsWith("/") && !stolarFormVisible && !nauciFormVisible && !sumirajVisible && !isStreaming && (
           <SlashCommandPalette
             input={input.trim()}
             onSelect={(cmd) => {
-              if (cmd === "/nauči") {
+              if (cmd === "/sumiraj-znanje") {
+                setInput("");
+                handleSumirajStart([...messages]);
+              } else if (cmd === "/nauči") {
                 setInput("");
                 setNauciFormVisible(true);
                 setNauciStep(1);
@@ -3016,8 +3185,15 @@ function App() {
           />
         )}
 
-        {/* Nauči inline form — 2-step parametrization rule entry */}
-        {nauciFormVisible ? (
+        {/* Sumiraj panel — konsolidacija znanja iz razgovora */}
+        {sumirajVisible ? (
+          <SumirajPanel
+            stavke={sumirajStavke}
+            onSave={handleSumirajSave}
+            onCancel={() => { setSumirajVisible(false); setSumirajStavke([]); setSumirajLoading(false); }}
+            loading={sumirajLoading}
+          />
+        ) : nauciFormVisible ? (
           <NauciInlineForm
             onAsk={handleNauciStart}
             onSave={handleNauciSave}
@@ -3084,7 +3260,7 @@ function App() {
           </div>
         )}
 
-        <div className="input-hint">F9 ekran · /nauči pravila parametrizacije · /stolar stolarski rječnik · /istraži za Bridge · Enter šalje</div>
+        <div className="input-hint">F9 ekran · /sumiraj-znanje · /nauči pravila · /stolar rječnik · /istraži Bridge · Enter šalje</div>
       </div>
 
       {/* Single hidden file input for live .mac/.zip upload — shared by wizard and banner */}

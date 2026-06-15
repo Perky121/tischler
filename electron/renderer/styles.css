@@ -2383,3 +2383,207 @@ textarea.chat-input:disabled { opacity: 0.5; }
   color: var(--text3);
   padding: 4px 0;
 }
+
+/* ── Sumiraj panel ───────────────────────────────────────────────────────── */
+.sumiraj-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.sumiraj-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+.sumiraj-subheader {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: -6px;
+}
+
+.sumiraj-empty {
+  font-size: 12px;
+  color: var(--text3);
+  padding: 8px 0;
+}
+
+.sumiraj-stavke {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sumiraj-stavka {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.sumiraj-stavka.confirmed {
+  border-color: var(--success);
+  background: rgba(61, 153, 112, 0.07);
+}
+
+.sumiraj-stavka.skipped {
+  opacity: 0.45;
+}
+
+.sumiraj-stavka-pravilo {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.sumiraj-stavka-obrazlozenje {
+  font-size: 11.5px;
+  color: var(--text2);
+  line-height: 1.45;
+}
+
+.sumiraj-stavka-moduli {
+  font-size: 10.5px;
+  color: var(--accent-light);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.sumiraj-stavka-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.sumiraj-potvrdi {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--success);
+  background: rgba(61, 153, 112, 0.15);
+  color: var(--success);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.sumiraj-potvrdi:hover:not(:disabled) { opacity: 0.8; }
+.sumiraj-potvrdi:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.sumiraj-preskoči {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.sumiraj-preskoči:hover:not(:disabled) { color: var(--error); border-color: var(--error); }
+.sumiraj-preskoči:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.sumiraj-ispravi {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.sumiraj-ispravi:hover:not(:disabled) { color: var(--text); }
+.sumiraj-ispravi:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.sumiraj-stavka-status {
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.sumiraj-stavka-status.confirmed { color: var(--success); }
+.sumiraj-stavka-status.skipped   { color: var(--text3); }
+
+.sumiraj-undo {
+  background: none;
+  border: none;
+  font-size: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  font-weight: 400;
+}
+.sumiraj-undo:hover { color: var(--text); }
+
+.sumiraj-korekcija {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font);
+  resize: vertical;
+  min-height: 54px;
+  outline: none;
+  margin-top: 2px;
+  transition: border-color 0.15s;
+}
+.sumiraj-korekcija:disabled { opacity: 0.5; }
+
+.sumiraj-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+  align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.sumiraj-spremi {
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--success);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s;
+}
+.sumiraj-spremi:disabled { opacity: 0.35; cursor: not-allowed; }
+.sumiraj-spremi:not(:disabled):hover { opacity: 0.85; }
+
+.sumiraj-cancel {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.sumiraj-cancel:not(:disabled):hover { color: var(--text); border-color: var(--text3); }
+.sumiraj-cancel:disabled { opacity: 0.4; cursor: not-allowed; }
