@@ -1133,6 +1133,8 @@ function SettingsPanel({
   setLiveBudgetUsd,
   onChangeRegion,
   onOpenBridge,
+  sumirajThreshold = 20,
+  onSumirajThresholdChange,
 }) {
   const [activeTab, setActiveTab] = React.useState("opce");
   const [backendUrl, setBackendUrl] = useState("");
@@ -1317,6 +1319,29 @@ function SettingsPanel({
                     </button>
                   </>
                 )}
+              </div>
+              <div className="settings-section">
+                <div className="settings-label">Konsolidacija znanja — prag poruka</div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
+                  <input
+                    className="settings-input"
+                    type="number"
+                    min="5"
+                    max="200"
+                    value={sumirajThreshold}
+                    style={{ width: 72 }}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value, 10);
+                      if (v >= 5 && v <= 200) {
+                        onSumirajThresholdChange && onSumirajThresholdChange(v);
+                      }
+                    }}
+                  />
+                  <span style={{ fontSize: 11, color: "var(--text3)" }}>poruka (zadano: 20)</span>
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 4 }}>
+                  Nakon toliko poruka Copilot predlaže /sumiraj-znanje bannером
+                </div>
               </div>
               <div className="settings-section">
                 <div className="settings-label">Tipkovni prečaci</div>
@@ -1673,6 +1698,10 @@ function App() {
   const [sumirajLoading, setSumirajLoading] = useState(false);
   const [sumirajStavke, setSumirajStavke] = useState([]);
 
+  // Proactive sumiraj banner — predloži konsolidaciju znanja nakon N poruka
+  const [sumirajBannerAt, setSumirajBannerAt] = useState(null);
+  const [sumirajThreshold, setSumirajThreshold] = useState(20);
+
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
   const inputHeightRef = useRef(INPUT_HEIGHT_DEFAULT);
@@ -1834,6 +1863,8 @@ function App() {
         inputHeightRef.current = h;
       }
       if (s.mtInstallPath) setMtInstallPath(s.mtInstallPath);
+      const t = Number(s.sumirajThreshold);
+      if (t >= 5) setSumirajThreshold(t);
     }).catch(() => {});
 
     return () => {
@@ -3007,6 +3038,33 @@ function App() {
         )}
       </div>
 
+      {/* Proactive sumiraj banner — predloži konsolidaciju znanja nakon N poruka */}
+      {messages.length > 0 && !sumirajVisible && messages.length >= sumirajThreshold &&
+        (sumirajBannerAt === null || messages.length - sumirajBannerAt >= sumirajThreshold) && (
+        <div className="sumiraj-banner">
+          <span className="sumiraj-banner-icon">🧾</span>
+          <span className="sumiraj-banner-text">
+            Razgovor je dug — konsolidiraj naučena pravila parametrizacije?
+          </span>
+          <button
+            className="sumiraj-banner-btn"
+            onClick={() => {
+              setSumirajBannerAt(messages.length);
+              handleSumirajStart([...messages]);
+            }}
+          >
+            Konsolidiraj znanje
+          </button>
+          <button
+            className="sumiraj-banner-dismiss"
+            title="Odbaci"
+            onClick={() => setSumirajBannerAt(messages.length)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Faza 5C: Module bar — always visible when Live detects a module */}
       {sessionContext?.moduleHint && (
         <div className="module-hint-banner">
@@ -3332,6 +3390,11 @@ function App() {
           setLiveBudgetUsd={setLiveBudgetUsd}
           onChangeRegion={changeRegion}
           onOpenBridge={() => setShowBridgeAgent(true)}
+          sumirajThreshold={sumirajThreshold}
+          onSumirajThresholdChange={(v) => {
+            setSumirajThreshold(v);
+            window.electron.saveSettings({ sumirajThreshold: v }).catch(() => {});
+          }}
         />
       )}
 
