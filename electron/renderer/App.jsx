@@ -1185,6 +1185,8 @@ function App() {
   const [awaitingRegion, setAwaitingRegion] = useState(false);
   const [showTaskInput, setShowTaskInput] = useState(false);
   const [taskInput, setTaskInput] = useState("");
+  const [liveUploadStatus, setLiveUploadStatus] = useState(null);
+  const liveFileInputRef = React.useRef(null);
   // Module bar: track last loaded hint + loading state
   const [moduleLoadedHint, setModuleLoadedHint] = useState(null); // hint that was last successfully loaded
   const [moduleLoading, setModuleLoading] = useState(false);
@@ -1535,7 +1537,36 @@ function App() {
     };
   }, []);
 
+  async function handleLiveUpload(files) {
+    if (!files || files.length === 0) return;
+    setLiveUploadStatus("uploading");
+    try {
+      const filesData = await Promise.all(Array.from(files).map((file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => { const base64 = reader.result.split(",")[1]; resolve({ name: file.name, base64 }); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      })));
+      const result = await window.electron.uploadMacFiles({ files: filesData });
+      if (result.error) throw new Error(result.error);
+      setLiveUploadStatus({ ok: true, count: filesData.length });
+      setTimeout(() => setLiveUploadStatus(null), 3000);
+    } catch (err) {
+      setLiveUploadStatus({ ok: false, error: err.message });
+      setTimeout(() => setLiveUploadStatus(null), 4000);
+    }
+  }
+
   async function stopLiveMode() {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `live-end-${Date.now()}`,
+        role: "assistant",
+        content: "⏹ Live sesija završena.",
+        type: "live-boundary",
+      },
+    ]);
     setLiveState("off");
     setLiveTask("");
     setShowTaskInput(false);
@@ -1695,7 +1726,7 @@ function App() {
       ...prev,
       {
         role: "assistant",
-        content: "⏸ Live mod pauziran. Postavi pitanje ili klikni **▶ Nastavi**.",
+        content: "⏸ Live mod pauziran — praćenje ekrana zaustavljeno. Klikni **▶ Nastavi** za nastavak.",
         type: "proactive",
         id: `live-paused-${Date.now()}`,
       },
@@ -1715,6 +1746,15 @@ function App() {
       setLiveState("running");
       setLiveTask(task);
       setShowTaskInput(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `live-start-${Date.now()}`,
+          role: "assistant",
+          content: `🎯 Live sesija pokrenuta — pratim: **${task}**`,
+          type: "live-boundary",
+        },
+      ]);
     }
   }
 
@@ -2036,7 +2076,7 @@ function App() {
             className={`btn-live${liveState === "running" ? " active pulse" : ""}${liveState === "paused" ? " paused" : ""}${awaitingRegion ? " awaiting" : ""}`}
             title={
               awaitingRegion ? "Odaberi područje za Live..." :
-              liveState === "running" ? `Live aktivan (${liveSpentUsd.toFixed(2)}$/${liveBudgetUsd}$) — pauziraj za chat` :
+              liveState === "running" ? `Live aktivan (${liveSpentUsd.toFixed(2)}$/${liveBudgetUsd}$) — klikni za pauzu` :
               liveState === "paused" ? "Nastavi Live mod" :
               "Uključi Live mod — odabir područja i zadatka"
             }
@@ -2117,6 +2157,14 @@ function App() {
             const isLast = i === lastIdx;
             // Use stable ID when available (proactive/kb-suggest), fall back to index
             const msgKey = msg.id ?? i;
+
+            if (msg.type === "live-boundary") {
+              return (
+                <div key={msgKey} className="live-boundary-row">
+                  <span className="live-boundary-text">{msg.content}</span>
+                </div>
+              );
+            }
 
             if (isProactive || isKbSuggest) {
               const proactiveLabel = isKbSuggest
@@ -2332,6 +2380,22 @@ function App() {
             placeholder="ili opiši vlastiti zadatak..."
             rows={2}
           />
+          <div className="live-upload-row">
+            <button
+              type="button"
+              className="live-upload-btn"
+              disabled={liveUploadStatus === "uploading"}
+              onClick={() => liveFileInputRef.current?.click()}
+            >
+              {liveUploadStatus === "uploading" ? "⏳ Učitavam..." : "📁 Učitaj .mac / .zip (opcionalno)"}
+            </button>
+            {liveUploadStatus && liveUploadStatus !== "uploading" && (
+              <span className={`live-upload-status ${liveUploadStatus.ok ? "ok" : "err"}`}>
+                {liveUploadStatus.ok ? `✓ ${liveUploadStatus.count} datoteka(e) dodano` : `✗ ${liveUploadStatus.error}`}
+              </span>
+            )}
+          </div>
+
           <div className="live-task-actions">
             {liveState === "paused" ? (
               <button
@@ -2364,16 +2428,27 @@ function App() {
         <div className="live-task-banner">
           <span className="live-task-banner-text">🎯 Cilj: <strong>{liveTask}</strong></span>
           {liveState === "paused" && (
-            <button
-              type="button"
-              className="live-task-edit"
-              onClick={() => {
-                setTaskInput(liveTask);
-                setShowTaskInput(true);
-              }}
-            >
-              Promijeni
-            </button>
+            <>
+              <button
+                type="button"
+                className="live-task-edit"
+                disabled={liveUploadStatus === "uploading"}
+                onClick={() => liveFileInputRef.current?.click()}
+                title="Učitaj .mac/.zip datoteku u bazu znanja"
+              >
+                {liveUploadStatus === "uploading" ? "⏳" : liveUploadStatus?.ok ? `✓ ${liveUploadStatus.count} dod.` : liveUploadStatus?.error ? "✗" : "📁 .mac/.zip"}
+              </button>
+              <button
+                type="button"
+                className="live-task-edit"
+                onClick={() => {
+                  setTaskInput(liveTask);
+                  setShowTaskInput(true);
+                }}
+              >
+                Promijeni zadatak
+              </button>
+            </>
           )}
         </div>
       )}
@@ -2416,16 +2491,16 @@ function App() {
               onKeyDown={handleKeyDown}
               placeholder={
                 liveState === "running"
-                  ? "Chat je pauziran — klikni ⏸ Pauziraj za postavljanje pitanja"
+                  ? "Upiši pitanje živom agentu... (Enter za slanje)"
                   : "Upiši pitanje... (Enter za slanje)"
               }
-              disabled={isStreaming || liveState === "running"}
+              disabled={isStreaming}
             />
             <div className="input-actions-row">
               <button
                 className={`input-btn-screenshot${screenshotDataUrl ? " active" : ""}`}
                 onClick={handleScreenshotCapture}
-                disabled={isStreaming || liveState === "running"}
+                disabled={isStreaming}
                 title="Snimi ekran (F9)"
               >
                 📷
@@ -2436,7 +2511,7 @@ function App() {
           <button
             className="send-btn"
             onClick={() => handleSend()}
-            disabled={liveState === "running" || (!input.trim() && !screenshotDataUrl) || isStreaming}
+            disabled={(!input.trim() && !screenshotDataUrl) || isStreaming}
             title="Pošalji"
           >
             {isStreaming ? (
@@ -2449,6 +2524,16 @@ function App() {
 
         <div className="input-hint">F9 ekran · /istraži [upit] za Bridge · Enter šalje · Shift+Enter novi red · povuci gornji rub za veći unos</div>
       </div>
+
+      {/* Single hidden file input for live .mac/.zip upload — shared by wizard and banner */}
+      <input
+        ref={liveFileInputRef}
+        type="file"
+        accept=".mac,.zip"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => handleLiveUpload(e.target.files)}
+      />
 
       {showBridgeAgent && (
         <BridgePage

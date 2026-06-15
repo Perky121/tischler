@@ -338,6 +338,61 @@ html, body, #root {
   flex-shrink: 0;
 }
 
+/* Live upload row (inside wizard panel) */
+.live-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.live-upload-btn {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.live-upload-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.live-upload-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.live-upload-status {
+  font-size: 10px;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.live-upload-status.ok { color: var(--success); }
+.live-upload-status.err { color: #f87171; }
+.live-task-edit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Live session boundary messages */
+.live-boundary-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+.live-boundary-row::before,
+.live-boundary-row::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(61, 153, 112, 0.25);
+}
+.live-boundary-text {
+  font-size: 10px;
+  color: var(--success);
+  opacity: 0.8;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
 /* ── Messages ────────────────────────────────────────────────────────────── */
 .messages-area {
   flex: 1;
