@@ -40,43 +40,36 @@ interface BoardProps {
 function Board({ part, scale, selected, onSelect }: BoardProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const isSelected = selected === part.id;
-  const color = isSelected ? "#1565C0" : KIND_COLORS[part.kind];
+  const baseColor = KIND_COLORS[part.kind];
   const opacity = KIND_OPACITY[part.kind];
   const transparent = opacity < 1;
 
   const w = part.w * scale;
   const h = part.h * scale;
   const d = part.d * scale;
-  const px = (part.x - part.w / 2 + part.w / 2) * scale;
-  const py = part.y * scale;
-  const pz = part.z * scale;
 
   const posX = part.x * scale;
   const posY = part.y * scale;
   const posZ = part.z * scale;
 
   return (
-    <group>
-      <mesh
-        ref={meshRef}
-        position={[posX, posY, posZ]}
-        onClick={(e) => { e.stopPropagation(); onSelect(part.id); }}
-      >
-        <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial
-          color={color}
-          opacity={opacity}
-          transparent={transparent}
-          roughness={0.7}
-          metalness={0.0}
-          side={part.kind === "zona" ? THREE.DoubleSide : THREE.FrontSide}
-        />
-      </mesh>
-      <mesh position={[posX, posY, posZ]}>
-        <boxGeometry args={[w + 0.3, h + 0.3, d + 0.3]} />
-        <meshBasicMaterial color="#546E7A" wireframe opacity={0.15} transparent />
-      </mesh>
-    </group>
+    <mesh
+      ref={meshRef}
+      position={[posX, posY, posZ]}
+      onClick={(e) => { e.stopPropagation(); onSelect(part.id); }}
+    >
+      <boxGeometry args={[w, h, d]} />
+      <meshStandardMaterial
+        color={baseColor}
+        emissive={isSelected ? "#1E88E5" : "#000000"}
+        emissiveIntensity={isSelected ? 0.4 : 0}
+        opacity={opacity}
+        transparent={transparent}
+        roughness={0.75}
+        metalness={0.0}
+        side={part.kind === "zona" ? THREE.DoubleSide : THREE.FrontSide}
+      />
+    </mesh>
   );
 }
 
