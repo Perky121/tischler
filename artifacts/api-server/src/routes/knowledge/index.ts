@@ -64,13 +64,20 @@ function readKnowledgeBase() {
 
 router.get("/knowledge", (req, res): void => {
   const kb = readKnowledgeBase();
+  const { module: moduleFilter } = req.query;
+
+  let formulas = kb.formulas ?? [];
+  if (typeof moduleFilter === "string" && moduleFilter) {
+    formulas = formulas.filter((f: { module?: string }) => f.module === moduleFilter);
+  }
+
   const stats = {
     formulaCount: kb.formulas?.length ?? 0,
     parameterCount: kb.parameters?.length ?? 0,
     fileCount: kb._meta?.files_processed ?? 0,
   };
   res.json({
-    formulas: kb.formulas ?? [],
+    formulas,
     parameters: kb.parameters ?? [],
     syntax_rules: kb.syntax_rules ?? [],
     stats,
