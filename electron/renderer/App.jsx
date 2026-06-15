@@ -325,6 +325,75 @@ function MarkdownMessage({ content }) {
   );
 }
 
+// ── Plan mode: parse and render structured plan + A/B/C/D questions ─────────
+function parsePlanContent(content) {
+  if (!content.includes("**PLAN:**")) return null;
+  const planIdx = content.indexOf("**PLAN:**");
+  const qIdx = content.indexOf("**PITANJA:**");
+  const preText = content.slice(0, planIdx).trim();
+  const planText = (qIdx > -1
+    ? content.slice(planIdx + 8, qIdx)
+    : content.slice(planIdx + 8)
+  ).trim();
+  const questionText = qIdx > -1 ? content.slice(qIdx + 12).trim() : "";
+  const questionBlocks = [];
+  if (questionText) {
+    let curQ = "";
+    let curOpts = [];
+    for (const line of questionText.split("\n")) {
+      const qm = line.match(/^\d+[.)]\s+(.+)$/);
+      const om = line.match(/^\s*([A-D])\)\s+(.+)$/);
+      if (qm) {
+        if (curQ) questionBlocks.push({ question: curQ, options: curOpts });
+        curQ = qm[1]; curOpts = [];
+      } else if (om && curQ) {
+        curOpts.push({ letter: om[1], text: om[2] });
+      }
+    }
+    if (curQ) questionBlocks.push({ question: curQ, options: curOpts });
+  }
+  return { preText, planText, questionBlocks };
+}
+
+function PlanResponseCard({ plan, onAnswer }) {
+  const [selected, setSelected] = React.useState({});
+  return (
+    <div>
+      {plan.preText ? <MarkdownMessage content={plan.preText} /> : null}
+      <div className="plan-section">
+        <div className="plan-section-label">📋 Plan</div>
+        <MarkdownMessage content={plan.planText} />
+      </div>
+      {plan.questionBlocks.length > 0 && (
+        <div className="plan-questions">
+          <div className="plan-questions-label">❓ Pitanja</div>
+          {plan.questionBlocks.map((block, qi) => (
+            <div key={qi} className="plan-question-block">
+              <div className="plan-question-text">{qi + 1}. {block.question}</div>
+              <div className="plan-choices">
+                {block.options.map((opt) => (
+                  <button
+                    key={opt.letter}
+                    className={`plan-choice-btn${selected[qi] === opt.letter ? " selected" : selected[qi] ? " dimmed" : ""}`}
+                    disabled={!!selected[qi]}
+                    onClick={() => {
+                      if (selected[qi]) return;
+                      setSelected(prev => ({ ...prev, [qi]: opt.letter }));
+                      onAnswer(`${block.question}\n→ ${opt.letter}) ${opt.text}`);
+                    }}
+                  >
+                    <span className="plan-choice-letter">{opt.letter})</span> {opt.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Suggestion buttons ─────────────────────────────────────────────────────
 const SUGGESTIONS = [
   { id: "explain", label: "Objasni sintaksu", msg: "Možeš li detaljnije objasniti sintaksu ove formule?" },
@@ -1166,6 +1235,7 @@ function App() {
   const [input, setInput] = useState("");
   const [screenshotDataUrl, setScreenshotDataUrl] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [planMode, setPlanMode] = useState(false);
   const [mtActive, setMtActive] = useState(false);
   const [mtWarning, setMtWarning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -1938,6 +2008,10 @@ function App() {
       if ((liveStateRef.current === "running" || liveStateRef.current === "paused") && sessionContextRef.current) {
         body.session_context = sessionContextRef.current;
       }
+      if (planMode) {
+        body.plan_mode = true;
+        setPlanMode(false);
+      }
 
       const res = await fetch(`${url}/api/chat`, {
         method: "POST",
@@ -2282,6 +2356,18 @@ function App() {
                         </details>
                       )}
                       {msg.content ? (() => {
+                        const planContent = !isStreaming ? parsePlanContent(msg.content) : null;
+                        if (planContent) {
+                          return (
+                            <PlanResponseCard
+                              plan={planContent}
+                              onAnswer={(answer) => {
+                                setInput(answer);
+                                setTimeout(() => handleSend(answer), 0);
+                              }}
+                            />
+                          );
+                        }
                         const wlSteps = !isStreaming ? extractWorklist(msg.content) : null;
                         if (wlSteps) {
                           const intro = stripWorklist(msg.content);
@@ -2522,6 +2608,14 @@ function App() {
                 title="Snimi ekran (F9)"
               >
                 📷
+              </button>
+              <button
+                className={`plan-mode-btn${planMode ? " active" : ""}`}
+                onClick={() => setPlanMode(p => !p)}
+                disabled={isStreaming}
+                title={planMode ? "Plan mode ON — Claude planira prije izvršavanja" : "Plan mode — Claude planira i pita"}
+              >
+                📋
               </button>
             </div>
           </div>

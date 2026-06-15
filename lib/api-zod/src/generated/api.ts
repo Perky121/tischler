@@ -65,7 +65,8 @@ export const SendChatBody = zod.object({
   "history": zod.array(zod.object({
   "role": zod.enum(['user', 'assistant']),
   "content": zod.string()
-})).optional()
+})).optional(),
+  "plan_mode": zod.boolean().optional().describe('When true, Claude writes a plan and asks A\/B\/C\/D questions before executing')
 })
 
 

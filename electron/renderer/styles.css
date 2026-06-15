@@ -655,6 +655,101 @@ details[open] .thinking-arrow { transform: rotate(90deg); }
   overflow-y: auto;
 }
 
+/* Plan mode toggle button */
+.plan-mode-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text3);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  padding: 0;
+}
+.plan-mode-btn:hover:not(:disabled) {
+  color: var(--text1);
+  background: rgba(255,255,255,0.07);
+}
+.plan-mode-btn.active {
+  color: var(--accent);
+  background: rgba(99,179,237,0.12);
+  border-color: rgba(99,179,237,0.35);
+}
+.plan-mode-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Plan response card */
+.plan-section {
+  border-left: 3px solid var(--accent);
+  background: rgba(99,179,237,0.07);
+  border-radius: 0 6px 6px 0;
+  padding: 10px 14px;
+  margin: 8px 0;
+}
+.plan-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.plan-questions {
+  margin-top: 10px;
+}
+.plan-questions-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.plan-question-block {
+  margin-bottom: 10px;
+}
+.plan-question-text {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.plan-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.plan-choice-btn {
+  font-size: 12px;
+  color: var(--text2);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.plan-choice-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(99,179,237,0.5);
+}
+.plan-choice-btn.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+.plan-choice-btn.dimmed {
+  opacity: 0.35;
+  cursor: default;
+}
+.plan-choice-letter {
+  font-weight: 700;
+  margin-right: 2px;
+}
+
 /* Loading indicator */
 .thinking {
   display: flex;

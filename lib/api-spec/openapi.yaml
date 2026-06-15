@@ -406,6 +406,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ChatMessage"
+        plan_mode:
+          type: boolean
+          description: When true, Claude writes a plan and asks A/B/C/D questions before executing
       required:
         - message
 

@@ -57,6 +57,8 @@ export interface ChatInput {
   /** @nullable */
   screenshot_base64?: string | null;
   history?: ChatMessage[];
+  /** When true, Claude writes a plan and asks A/B/C/D questions before executing */
+  plan_mode?: boolean;
 }
 
 export interface RulesContent {

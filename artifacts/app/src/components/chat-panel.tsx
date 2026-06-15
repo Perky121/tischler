@@ -512,6 +512,87 @@ function StolarInferCard({
   );
 }
 
+// ── Plan mode: parse and render structured plan + A/B/C/D questions ────────
+interface PlanContent {
+  preText: string;
+  planText: string;
+  questionBlocks: { question: string; options: { letter: string; text: string }[] }[];
+}
+
+function parsePlanContent(content: string): PlanContent | null {
+  if (!content.includes("**PLAN:**")) return null;
+  const planIdx = content.indexOf("**PLAN:**");
+  const qIdx = content.indexOf("**PITANJA:**");
+  const preText = content.slice(0, planIdx).trim();
+  const planText = (qIdx > -1
+    ? content.slice(planIdx + 8, qIdx)
+    : content.slice(planIdx + 8)
+  ).trim();
+  const questionText = qIdx > -1 ? content.slice(qIdx + 12).trim() : "";
+  const questionBlocks: { question: string; options: { letter: string; text: string }[] }[] = [];
+  if (questionText) {
+    let curQ = "";
+    let curOpts: { letter: string; text: string }[] = [];
+    for (const line of questionText.split("\n")) {
+      const qm = line.match(/^\d+[.)]\s+(.+)$/);
+      const om = line.match(/^\s*([A-D])\)\s+(.+)$/);
+      if (qm) {
+        if (curQ) questionBlocks.push({ question: curQ, options: curOpts });
+        curQ = qm[1]; curOpts = [];
+      } else if (om && curQ) {
+        curOpts.push({ letter: om[1], text: om[2] });
+      }
+    }
+    if (curQ) questionBlocks.push({ question: curQ, options: curOpts });
+  }
+  return { preText, planText, questionBlocks };
+}
+
+function PlanResponseCard({ plan, onAnswer }: { plan: PlanContent; onAnswer: (msg: string) => void }) {
+  const [selected, setSelected] = useState<Record<number, string>>({});
+  return (
+    <div className="space-y-3">
+      {plan.preText && <MarkdownMessage content={plan.preText} />}
+      <div className="border-l-4 border-primary bg-primary/5 rounded-r-lg p-4">
+        <div className="text-xs font-semibold text-primary mb-2 uppercase tracking-wider">📋 Plan</div>
+        <MarkdownMessage content={plan.planText} />
+      </div>
+      {plan.questionBlocks.length > 0 && (
+        <div className="space-y-3">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1">❓ Pitanja</div>
+          {plan.questionBlocks.map((block, qi) => (
+            <div key={qi} className="space-y-2">
+              <div className="text-sm text-foreground">{qi + 1}. {block.question}</div>
+              <div className="flex flex-wrap gap-2">
+                {block.options.map((opt) => (
+                  <button
+                    key={opt.letter}
+                    onClick={() => {
+                      if (selected[qi]) return;
+                      setSelected(prev => ({ ...prev, [qi]: opt.letter }));
+                      onAnswer(`${block.question}\n→ ${opt.letter}) ${opt.text}`);
+                    }}
+                    disabled={!!selected[qi]}
+                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                      selected[qi] === opt.letter
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : selected[qi]
+                        ? "opacity-40 border-border text-muted-foreground cursor-default"
+                        : "border-border text-foreground hover:bg-accent hover:border-primary/50 cursor-pointer"
+                    }`}
+                  >
+                    <span className="font-semibold mr-1">{opt.letter})</span>{opt.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Stolar: inline popup when AI asks about an unknown term ────────────────
 function PojamPitanje({
   pojam,
@@ -572,6 +653,7 @@ export function ChatPanel() {
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [planMode, setPlanMode] = useState(false);
   const [stolarFlow, setStolarFlow] = useState<StolarFlowState | null>(null);
   const [stolarLoading, setStolarLoading] = useState(false);
   const [answeredPojmovi, setAnsweredPojmovi] = useState<Set<number>>(new Set());
@@ -854,6 +936,7 @@ export function ChatPanel() {
         history: { role: string; content: string }[];
         screenshot_base64?: string;
         file_content?: { name: string; text?: string; note?: string };
+        plan_mode?: boolean;
       } = {
         message: userMsg.content,
         history: historyForApi,
@@ -867,6 +950,11 @@ export function ChatPanel() {
         body.file_content = currentFile.isText
           ? { name: currentFile.name, text: currentFile.text }
           : { name: currentFile.name, note: currentFile.note };
+      }
+
+      if (planMode) {
+        body.plan_mode = true;
+        setPlanMode(false);
       }
 
       const res = await fetch("/api/chat", {
@@ -1055,8 +1143,15 @@ export function ChatPanel() {
                             ? msg.content.replace(/\[POJAM:\s*[^\]]+\]/g, "").trim()
                             : msg.content;
 
-                          const wlSteps = !isStreaming ? extractWorklist(cleanContent) : null;
-                          const mainNode = wlSteps
+                          // Plan response takes priority over worklist
+                          const planContent = !isStreaming ? parsePlanContent(cleanContent) : null;
+                          const wlSteps = !isStreaming && !planContent ? extractWorklist(cleanContent) : null;
+                          const mainNode = planContent
+                            ? <PlanResponseCard plan={planContent} onAnswer={(msg) => {
+                                setInput(msg);
+                                setTimeout(() => handleSend(), 0);
+                              }} />
+                            : wlSteps
                             ? (() => {
                                 const intro = stripWorklist(cleanContent);
                                 return (
@@ -1225,6 +1320,19 @@ export function ChatPanel() {
               disabled={isStreaming}
               data-testid="chat-input"
             />
+
+            {/* Plan mode toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setPlanMode(p => !p)}
+              disabled={isStreaming}
+              title={planMode ? "Plan mode uključen — Claude će planirati prije izvršavanja" : "Uključi Plan mode"}
+              className={`shrink-0 rounded-lg text-xs px-2.5 h-9 transition-colors ${planMode ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-muted-foreground hover:text-foreground"}`}
+              data-testid="plan-mode-button"
+            >
+              📋 Plan
+            </Button>
 
             <Button
               onClick={handleSend}

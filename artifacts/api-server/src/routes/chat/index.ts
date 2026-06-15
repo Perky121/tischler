@@ -890,6 +890,7 @@ router.post("/chat", async (req, res): Promise<void> => {
 
   // Optional file attachment (not in Zod schema — read from rawBody)
   const fileContent = rawBody.file_content as { name: string; text?: string; note?: string } | undefined;
+  const planMode = rawBody.plan_mode === true;
 
   // Reject if there is nothing to send (normal mode)
   if (mode !== "debug" && !message.trim() && !screenshot_base64 && !fileContent) {
@@ -967,6 +968,25 @@ router.post("/chat", async (req, res): Promise<void> => {
     if (effectiveMessage) {
       userContent.push({ type: "text", text: effectiveMessage });
     }
+  }
+
+  // Plan mode: append special instructions to system prompt
+  if (planMode) {
+    systemPrompt +=
+      "\n\n=== PLAN MODE ===\n" +
+      "Ne odgovaraj odmah na zahtjev. Umjesto toga, napiši strukturirani odgovor TOČNO u ovom formatu:\n\n" +
+      "**PLAN:**\n" +
+      "- korak 1\n" +
+      "- korak 2\n" +
+      "- korak 3\n\n" +
+      "**PITANJA:**\n" +
+      "1. [Ako imaš nejasnoću, postavi pitanje]\n" +
+      "   A) prva opcija\n" +
+      "   B) druga opcija\n" +
+      "   C) treća opcija\n\n" +
+      "Važno: Ako nemaš pitanja, izostavi cijeli **PITANJA:** dio.\n" +
+      "Napiši do 5 bullet točaka u PLAN sekciji i do 3 pitanja.\n" +
+      "Nakon što korisnik odgovori, TADA izvrši zadatak precizno.";
   }
 
   chatMessages.push({ role: "user", content: userContent });
