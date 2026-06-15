@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap } from "lucide-react";
+import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap, Box } from "lucide-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
 // Message type extended with screenshot thumbnail, optional attached file name, system hint type, and thinking content
@@ -171,6 +171,39 @@ const TextBlock = ({ text }: { text: string }) => {
 // ── Worklist (structured steps from AI) ───────────────────────────────────
 type WorklistStep = { title?: string; where?: string; formula?: string | null; hint?: string | null };
 
+const VIEWER_MODULES = ["KUH_VISOKI", "VISECI", "OTVORENI", "PECNICA", "PERILICA", "MIKROVALNA", "NAPA", "KUTNI_VANJSKI"];
+
+function buildViewer3DUrl(steps: WorklistStep[]): string | null {
+  let mod = "";
+  let W: number | undefined;
+  let H: number | undefined;
+  let D: number | undefined;
+
+  for (const step of steps) {
+    const text = [step.formula, step.title, step.hint, step.where].filter(Boolean).join(" ");
+    if (!mod && step.where) {
+      for (const m of VIEWER_MODULES) {
+        if (step.where.includes(m)) { mod = m; break; }
+      }
+    }
+    const wm = text.match(/(?:^|[^A-Za-z_])W=(\d+)/);
+    const hm = text.match(/(?:^|[^A-Za-z_])H=(\d+)/);
+    const dm = text.match(/(?:^|[^A-Za-z_])D=(\d+)/);
+    if (wm && !W) W = parseInt(wm[1], 10);
+    if (hm && !H) H = parseInt(hm[1], 10);
+    if (dm && !D) D = parseInt(dm[1], 10);
+  }
+
+  if (!W && !H && !D && !mod) return null;
+
+  const params = new URLSearchParams();
+  if (mod) params.set("module", mod);
+  if (W) params.set("W", String(W));
+  if (H) params.set("H", String(H));
+  if (D) params.set("D", String(D));
+  return `/3d-viewer/?${params.toString()}`;
+}
+
 function extractWorklist(content: string): WorklistStep[] | null {
   const m = content.match(/```worklist\s*([\s\S]*?)```/);
   if (!m) return null;
@@ -262,12 +295,27 @@ function WorklistFormulaInline({ formula }: { formula: string }) {
 
 function WorklistCard({ steps }: { steps: WorklistStep[] }) {
   const [done, setDone] = useState(() => new Array(steps.length).fill(false));
+  const viewer3DUrl = buildViewer3DUrl(steps);
 
   return (
     <div className="mt-2 rounded-md border border-border overflow-hidden text-xs">
       <div className="flex items-center justify-between px-2.5 py-1.5 bg-muted/40 border-b border-border">
         <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Radni list</span>
-        <span className="text-[10px] text-muted-foreground">{steps.length} korak{steps.length === 1 ? "" : "a"}</span>
+        <div className="flex items-center gap-2">
+          {viewer3DUrl && (
+            <a
+              href={viewer3DUrl}
+              target="_blank"
+              rel="noreferrer"
+              title="Otvori 3D pregled s dimenzijama iz radnog lista"
+              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-blue-500 hover:text-blue-400 transition-colors"
+            >
+              <Box className="w-3 h-3" />
+              Provjeri u 3D
+            </a>
+          )}
+          <span className="text-[10px] text-muted-foreground">{steps.length} korak{steps.length === 1 ? "" : "a"}</span>
+        </div>
       </div>
       {steps.map((step, i) => {
         const formula = step.formula?.trim();

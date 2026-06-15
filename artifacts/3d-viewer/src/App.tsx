@@ -13,11 +13,35 @@ const HAS_WEBGL = isWebGLAvailable();
 const DEFAULT_MODULE: ModuleName = "KUH_VISOKI";
 const DEF = MODULE_DEFAULTS[DEFAULT_MODULE];
 
+const VALID_MODULES = Object.keys(MODULE_DEFAULTS) as ModuleName[];
+
+function parseUrlParams(): { module: ModuleName; W: number; H: number; D: number } {
+  const p = new URLSearchParams(window.location.search);
+  const rawModule = p.get("module");
+  const mod: ModuleName =
+    rawModule && VALID_MODULES.includes(rawModule as ModuleName)
+      ? (rawModule as ModuleName)
+      : DEFAULT_MODULE;
+  const def = MODULE_DEFAULTS[mod];
+  const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+  const rawW = p.get("W") ? parseInt(p.get("W")!, 10) : NaN;
+  const rawH = p.get("H") ? parseInt(p.get("H")!, 10) : NaN;
+  const rawD = p.get("D") ? parseInt(p.get("D")!, 10) : NaN;
+  return {
+    module: mod,
+    W: isNaN(rawW) ? def.W : clamp(rawW, def.minW, def.maxW),
+    H: isNaN(rawH) ? def.H : clamp(rawH, def.minH, def.maxH),
+    D: isNaN(rawD) ? def.D : clamp(rawD, def.minD, def.maxD),
+  };
+}
+
+const URL_PARAMS = parseUrlParams();
+
 export default function App() {
-  const [module, setModule] = useState<ModuleName>(DEFAULT_MODULE);
-  const [W, setW] = useState(DEF.W);
-  const [H, setH] = useState(DEF.H);
-  const [D, setD] = useState(DEF.D);
+  const [module, setModule] = useState<ModuleName>(URL_PARAMS.module);
+  const [W, setW] = useState(URL_PARAMS.W);
+  const [H, setH] = useState(URL_PARAMS.H);
+  const [D, setD] = useState(URL_PARAMS.D);
   const [selected, setSelected] = useState<string | null>(null);
   const [mainTab, setMainTab] = useState<"viewer" | "tablica">("viewer");
   const [viewMode, setViewMode] = useState<"3d" | "2d">(HAS_WEBGL ? "3d" : "2d");
