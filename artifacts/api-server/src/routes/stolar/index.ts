@@ -45,6 +45,12 @@ router.get("/stolar", (req, res): void => {
   res.json(data);
 });
 
+// GET /stolar/list — alias for listing all entries (used by Settings UI)
+router.get("/stolar/list", (req, res): void => {
+  const data = readStolarKnowledge();
+  res.json(data);
+});
+
 // POST /stolar/infer — call Claude to generate carpentry conclusions from a definition
 router.post("/stolar/infer", async (req, res): Promise<void> => {
   const body = req.body as Record<string, unknown> ?? {};

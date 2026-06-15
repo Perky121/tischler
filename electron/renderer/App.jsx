@@ -1017,6 +1017,9 @@ function SettingsPanel({
   const [autoLoadModule, setAutoLoadModule] = useState(true);
   const [macUploadStatus, setMacUploadStatus] = useState(null);
   const macFileInputRef = React.useRef(null);
+  const [stolarEntries, setStolarEntries] = useState([]);
+  const [stolarLoading, setStolarLoading] = useState(false);
+  const [stolarDeleting, setStolarDeleting] = useState(null);
 
   useEffect(() => {
     window.electron.getSettings().then((s) => {
@@ -1035,6 +1038,44 @@ function SettingsPanel({
       setMics(devices.filter((d) => d.kind === "audioinput"));
     }).catch(() => {});
   }, []);
+
+  async function loadStolarEntries(url) {
+    const base = url || backendUrl;
+    if (!base) return;
+    setStolarLoading(true);
+    try {
+      const res = await fetch(`${base}/api/stolar/list`);
+      if (res.ok) {
+        const data = await res.json();
+        setStolarEntries(data.entries || []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setStolarLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === "baza" && backendUrl) {
+      loadStolarEntries(backendUrl);
+    }
+  }, [activeTab, backendUrl]);
+
+  async function handleDeleteStolar(pojam) {
+    if (!window.confirm(`Jesi li siguran da želiš obrisati pojam "${pojam}"?`)) return;
+    setStolarDeleting(pojam);
+    try {
+      const res = await fetch(`${backendUrl}/api/stolar/${encodeURIComponent(pojam)}`, { method: "DELETE" });
+      if (res.ok) {
+        setStolarEntries((prev) => prev.filter((e) => e.pojam !== pojam));
+      }
+    } catch {
+      // ignore
+    } finally {
+      setStolarDeleting(null);
+    }
+  }
 
   function handleSave() {
     window.electron.saveSettings({ backendUrl, openaiKey, micDeviceId, ttsEnabled, ttsVoice, autoLoadModule }).then(() => {
@@ -1262,6 +1303,53 @@ function SettingsPanel({
                     color: macUploadStatus.ok ? "var(--accent)" : "#f87171",
                     border: `1px solid ${macUploadStatus.ok ? "rgba(74,222,128,0.3)" : "rgba(248,113,113,0.3)"}` }}>
                     {macUploadStatus.ok ? `✓ Dodano ${macUploadStatus.count} datoteka(e) u bazu znanja` : `✗ Greška: ${macUploadStatus.error}`}
+                  </div>
+                )}
+              </div>
+              <div className="settings-section">
+                <div className="settings-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span>Naučeni stolarski pojmovi</span>
+                  <button onClick={() => loadStolarEntries(backendUrl)}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "var(--text3)", padding: "2px 6px" }}
+                    title="Osvježi">↺ Osvježi</button>
+                </div>
+                {stolarLoading ? (
+                  <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 4 }}>Učitavanje...</div>
+                ) : stolarEntries.length === 0 ? (
+                  <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 4 }}>
+                    Nema naučenih pojmova. Koristi <code style={{ background: "var(--bg3)", padding: "1px 4px", borderRadius: 3 }}>/stolar</code> za dodavanje.
+                  </div>
+                ) : (
+                  <div style={{ marginTop: 6, overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                          <th style={{ textAlign: "left", padding: "4px 6px", color: "var(--text3)", fontWeight: 600 }}>Pojam</th>
+                          <th style={{ textAlign: "left", padding: "4px 6px", color: "var(--text3)", fontWeight: 600 }}>Definicija</th>
+                          <th style={{ textAlign: "center", padding: "4px 6px", color: "var(--text3)", fontWeight: 600 }}>Zaključci</th>
+                          <th style={{ padding: "4px 6px" }}></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stolarEntries.map((entry) => (
+                          <tr key={entry.pojam} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                            <td style={{ padding: "5px 6px", color: "var(--text1)", fontWeight: 500, whiteSpace: "nowrap" }}>{entry.pojam}</td>
+                            <td style={{ padding: "5px 6px", color: "var(--text2)", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                              title={entry.definicija}>{entry.definicija || <span style={{ color: "var(--text3)" }}>—</span>}</td>
+                            <td style={{ padding: "5px 6px", textAlign: "center", color: "var(--text3)" }}>{entry.zaključci?.length ?? 0}</td>
+                            <td style={{ padding: "5px 6px", textAlign: "right" }}>
+                              <button
+                                onClick={() => handleDeleteStolar(entry.pojam)}
+                                disabled={stolarDeleting === entry.pojam}
+                                style={{ fontSize: 10, padding: "2px 8px", background: "rgba(248,113,113,0.12)", color: "#f87171",
+                                  border: "1px solid rgba(248,113,113,0.3)", borderRadius: 4, cursor: "pointer" }}>
+                                {stolarDeleting === entry.pojam ? "..." : "Obriši"}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
