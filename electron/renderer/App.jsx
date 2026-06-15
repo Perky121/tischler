@@ -2087,7 +2087,7 @@ function App() {
     } finally {
       setIsStreaming(false);
     }
-  }, [input, screenshotDataUrl, messages, isStreaming, mtActive]);
+  }, [input, screenshotDataUrl, messages, isStreaming, mtActive, planMode]);
 
   function handleKeyDown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -2615,7 +2615,7 @@ function App() {
                 disabled={isStreaming}
                 title={planMode ? "Plan mode ON — Claude planira prije izvršavanja" : "Plan mode — Claude planira i pita"}
               >
-                {planMode ? "📋 ON" : "📋"}
+                {planMode ? "📋 Plan ON" : "📋 Plan"}
               </button>
             </div>
           </div>
