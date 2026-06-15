@@ -390,8 +390,44 @@ function StolarInferCard({
           <GraduationCap className="w-4 h-4 text-primary shrink-0" />
           <span className="text-xs font-semibold text-primary truncate">Učim od tebe: {flow.pojam}</span>
         </div>
-        <div className="text-xs text-muted-foreground mb-3">
-          Prihvaćeno <strong>{prihvaćeniCount}</strong> od {zaključci.length} zaključaka.
+        <div className="text-xs text-muted-foreground mb-2">
+          Pregled prije pohrane — prihvaćeno <strong>{prihvaćeniCount}</strong> od {zaključci.length} zaključaka:
+        </div>
+        <div className="mb-3 space-y-1">
+          {zaključci.map((zakl, idx) => {
+            const decision = decisions[idx];
+            const edited = edits[idx];
+            const isOk = decision === "ok";
+            const isWrong = decision === "wrong";
+            const wasEdited = isOk && edited !== undefined && edited !== zakl;
+            return (
+              <div
+                key={idx}
+                className={`flex items-start gap-2 rounded px-2 py-1.5 text-[11px] leading-snug ${
+                  isWrong
+                    ? "bg-red-500/8 border border-red-500/20"
+                    : "bg-green-600/8 border border-green-600/20"
+                }`}
+              >
+                <span className={`mt-0.5 shrink-0 font-bold ${isWrong ? "text-red-400" : "text-green-400"}`}>
+                  {isWrong ? "✗" : "✓"}
+                </span>
+                <div className="flex-1 min-w-0">
+                  {wasEdited ? (
+                    <>
+                      <span className="line-through text-muted-foreground/60 break-words">{zakl}</span>
+                      <span className="mx-1.5 text-muted-foreground/50">→</span>
+                      <span className="text-foreground break-words">{edited}</span>
+                    </>
+                  ) : (
+                    <span className={isWrong ? "line-through text-muted-foreground/50 break-words" : "text-foreground/90 break-words"}>
+                      {edited ?? zakl}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
         <div className="flex gap-2">
           <Button size="sm" className="text-xs h-7" onClick={onSave} disabled={saving}>
