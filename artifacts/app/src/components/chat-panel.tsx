@@ -1331,7 +1331,7 @@ export function ChatPanel() {
               className={`shrink-0 rounded-lg text-xs px-2.5 h-9 transition-colors ${planMode ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-muted-foreground hover:text-foreground"}`}
               data-testid="plan-mode-button"
             >
-              📋 Plan
+              {planMode ? "📋 Plan ON" : "📋 Plan"}
             </Button>
 
             <Button

@@ -2615,7 +2615,7 @@ function App() {
                 disabled={isStreaming}
                 title={planMode ? "Plan mode ON — Claude planira prije izvršavanja" : "Plan mode — Claude planira i pita"}
               >
-                📋
+                {planMode ? "📋 ON" : "📋"}
               </button>
             </div>
           </div>
