@@ -98,6 +98,44 @@ export const StolarInferResponse = zod.object({
 
 
 /**
+ * Deletes a term by name from stolar_znanje.json
+ * @summary Delete a carpentry knowledge entry
+ */
+export const StolarDeleteParams = zod.object({
+  "pojam": zod.coerce.string()
+})
+
+export const StolarDeleteResponse = zod.object({
+  "ok": zod.boolean(),
+  "pojam": zod.string()
+})
+
+
+/**
+ * Updates the definition and conclusions of an existing entry in stolar_znanje.json
+ * @summary Update a carpentry knowledge entry
+ */
+export const StolarUpdateParams = zod.object({
+  "pojam": zod.coerce.string()
+})
+
+export const StolarUpdateBody = zod.object({
+  "definicija": zod.string(),
+  "zaključci": zod.array(zod.string())
+})
+
+export const StolarUpdateResponse = zod.object({
+  "ok": zod.boolean(),
+  "entry": zod.object({
+  "pojam": zod.string(),
+  "definicija": zod.string(),
+  "zaključci": zod.array(zod.string()),
+  "timestamp": zod.string()
+})
+})
+
+
+/**
  * Saves a term with its definition and confirmed conclusions to stolar_znanje.json. Deduplicates by term name.
  * @summary Save or update a carpentry knowledge entry
  */

@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ChatPanel } from "@/components/chat-panel";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { StolarBazaPanel } from "@/components/stolar-baza-panel";
+import { PanelLeftClose, PanelLeftOpen, Database, BookOpen } from "lucide-react";
+
+type LeftTab = "znanje" | "stolar";
 
 export default function Home() {
   const [collapsed, setCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<LeftTab>("znanje");
 
   return (
     <main className="flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
       {/* Left panel — collapsible */}
       <div
-        className="relative flex-shrink-0 border-r border-border bg-card/50 overflow-hidden"
+        className="relative flex-shrink-0 border-r border-border bg-card/50 overflow-hidden flex flex-col"
         style={{
           width: collapsed ? 0 : "40%",
           minWidth: collapsed ? 0 : 320,
@@ -20,14 +24,43 @@ export default function Home() {
       >
         {/* Content wrapper — fade out when collapsing */}
         <div
-          className="h-full"
+          className="h-full flex flex-col"
           style={{
             opacity: collapsed ? 0 : 1,
             pointerEvents: collapsed ? "none" : undefined,
             transition: "opacity 0.15s ease",
           }}
         >
-          <KnowledgePanel />
+          {/* Tab bar */}
+          <div className="flex items-center border-b border-border bg-card/80 flex-shrink-0">
+            <button
+              onClick={() => setActiveTab("znanje")}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px
+                ${activeTab === "znanje"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                }`}
+            >
+              <Database className="w-3.5 h-3.5" />
+              Baza znanja
+            </button>
+            <button
+              onClick={() => setActiveTab("stolar")}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px
+                ${activeTab === "stolar"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Naučeni pojmovi
+            </button>
+          </div>
+
+          {/* Tab content */}
+          <div className="flex-1 overflow-hidden">
+            {activeTab === "znanje" ? <KnowledgePanel /> : <StolarBazaPanel />}
+          </div>
         </div>
       </div>
 

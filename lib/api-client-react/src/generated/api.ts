@@ -26,11 +26,13 @@ import type {
   KnowledgeBase,
   RulesContent,
   RulesInput,
+  StolarDeleteResult,
   StolarInferInput,
   StolarInferResult,
   StolarKnowledge,
   StolarSaveInput,
   StolarSaveResult,
+  StolarUpdateInput,
   UploadResult
 } from './api.schemas';
 
@@ -493,6 +495,150 @@ export const useStolarInfer = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getStolarInferMutationOptions(options));
+    }
+
+export const getStolarDeleteUrl = (pojam: string,) => {
+
+
+
+
+  return `/api/stolar/${pojam}`
+}
+
+/**
+ * Deletes a term by name from stolar_znanje.json
+ * @summary Delete a carpentry knowledge entry
+ */
+export const stolarDelete = async (pojam: string, options?: RequestInit): Promise<StolarDeleteResult> => {
+
+  return customFetch<StolarDeleteResult>(getStolarDeleteUrl(pojam),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getStolarDeleteMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarDelete>>, TError,{pojam: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof stolarDelete>>, TError,{pojam: string}, TContext> => {
+
+const mutationKey = ['stolarDelete'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof stolarDelete>>, {pojam: string}> = (props) => {
+          const {pojam} = props ?? {};
+
+          return  stolarDelete(pojam,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StolarDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof stolarDelete>>>
+
+    export type StolarDeleteMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a carpentry knowledge entry
+ */
+export const useStolarDelete = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarDelete>>, TError,{pojam: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof stolarDelete>>,
+        TError,
+        {pojam: string},
+        TContext
+      > => {
+      return useMutation(getStolarDeleteMutationOptions(options));
+    }
+
+export const getStolarUpdateUrl = (pojam: string,) => {
+
+
+
+
+  return `/api/stolar/${pojam}`
+}
+
+/**
+ * Updates the definition and conclusions of an existing entry in stolar_znanje.json
+ * @summary Update a carpentry knowledge entry
+ */
+export const stolarUpdate = async (pojam: string,
+    stolarUpdateInput: StolarUpdateInput, options?: RequestInit): Promise<StolarSaveResult> => {
+
+  return customFetch<StolarSaveResult>(getStolarUpdateUrl(pojam),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      stolarUpdateInput,)
+  }
+);}
+
+
+
+
+export const getStolarUpdateMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarUpdate>>, TError,{pojam: string;data: BodyType<StolarUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof stolarUpdate>>, TError,{pojam: string;data: BodyType<StolarUpdateInput>}, TContext> => {
+
+const mutationKey = ['stolarUpdate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof stolarUpdate>>, {pojam: string;data: BodyType<StolarUpdateInput>}> = (props) => {
+          const {pojam,data} = props ?? {};
+
+          return  stolarUpdate(pojam,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StolarUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof stolarUpdate>>>
+    export type StolarUpdateMutationBody = BodyType<StolarUpdateInput>
+    export type StolarUpdateMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update a carpentry knowledge entry
+ */
+export const useStolarUpdate = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof stolarUpdate>>, TError,{pojam: string;data: BodyType<StolarUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof stolarUpdate>>,
+        TError,
+        {pojam: string;data: BodyType<StolarUpdateInput>},
+        TContext
+      > => {
+      return useMutation(getStolarUpdateMutationOptions(options));
     }
 
 export const getStolarSaveUrl = () => {

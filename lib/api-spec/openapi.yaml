@@ -151,6 +151,80 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /stolar/{pojam}:
+    delete:
+      operationId: stolarDelete
+      tags: [stolar]
+      summary: Delete a carpentry knowledge entry
+      description: Deletes a term by name from stolar_znanje.json
+      parameters:
+        - name: pojam
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Entry deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StolarDeleteResult"
+        "404":
+          description: Entry not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: stolarUpdate
+      tags: [stolar]
+      summary: Update a carpentry knowledge entry
+      description: Updates the definition and conclusions of an existing entry in stolar_znanje.json
+      parameters:
+        - name: pojam
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StolarUpdateInput"
+      responses:
+        "200":
+          description: Entry updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StolarSaveResult"
+        "404":
+          description: Entry not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /stolar/save:
     post:
       operationId: stolarSave
@@ -426,6 +500,30 @@ components:
       required:
         - ok
         - entry
+
+    StolarDeleteResult:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        pojam:
+          type: string
+      required:
+        - ok
+        - pojam
+
+    StolarUpdateInput:
+      type: object
+      properties:
+        definicija:
+          type: string
+        zaključci:
+          type: array
+          items:
+            type: string
+      required:
+        - definicija
+        - zaključci
 
     ErrorResponse:
       type: object

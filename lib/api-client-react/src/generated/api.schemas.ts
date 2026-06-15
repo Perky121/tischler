@@ -98,6 +98,16 @@ export interface StolarSaveResult {
   entry: StolarEntry;
 }
 
+export interface StolarDeleteResult {
+  ok: boolean;
+  pojam: string;
+}
+
+export interface StolarUpdateInput {
+  definicija: string;
+  zaključci: string[];
+}
+
 export interface ErrorResponse {
   error: string;
 }

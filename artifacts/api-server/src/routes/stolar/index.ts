@@ -148,4 +148,77 @@ router.post("/stolar/save", (req, res): void => {
   }
 });
 
+// DELETE /stolar/:pojam — remove a carpentry knowledge entry by name
+router.delete("/stolar/:pojam", (req, res): void => {
+  const pojam = decodeURIComponent(req.params.pojam ?? "").trim();
+  if (!pojam) {
+    res.status(400).json({ error: "Pojam je obavezan." });
+    return;
+  }
+
+  const data = readStolarKnowledge();
+  const idx = data.entries.findIndex(
+    (e) => e.pojam.toLowerCase() === pojam.toLowerCase(),
+  );
+
+  if (idx < 0) {
+    res.status(404).json({ error: `Pojam '${pojam}' nije pronađen.` });
+    return;
+  }
+
+  data.entries.splice(idx, 1);
+
+  try {
+    writeStolarKnowledge(data);
+    res.json({ ok: true, pojam });
+  } catch (err) {
+    logger.error({ err }, "stolar/delete failed");
+    res.status(500).json({ error: "Greška pri brisanju pojma." });
+  }
+});
+
+// PUT /stolar/:pojam — update definition and conclusions of an existing entry
+router.put("/stolar/:pojam", (req, res): void => {
+  const pojam = decodeURIComponent(req.params.pojam ?? "").trim();
+  if (!pojam) {
+    res.status(400).json({ error: "Pojam je obavezan." });
+    return;
+  }
+
+  const body = req.body as Record<string, unknown> ?? {};
+  const { definicija, zaključci } = body as { definicija?: string; zaključci?: string[] };
+
+  if (!definicija) {
+    res.status(400).json({ error: "Polje 'definicija' je obavezno." });
+    return;
+  }
+
+  const data = readStolarKnowledge();
+  const idx = data.entries.findIndex(
+    (e) => e.pojam.toLowerCase() === pojam.toLowerCase(),
+  );
+
+  if (idx < 0) {
+    res.status(404).json({ error: `Pojam '${pojam}' nije pronađen.` });
+    return;
+  }
+
+  const updated: StolarEntry = {
+    pojam: data.entries[idx].pojam,
+    definicija: definicija.trim(),
+    zaključci: Array.isArray(zaključci) ? zaključci : data.entries[idx].zaključci,
+    timestamp: new Date().toISOString(),
+  };
+
+  data.entries[idx] = updated;
+
+  try {
+    writeStolarKnowledge(data);
+    res.json({ ok: true, entry: updated });
+  } catch (err) {
+    logger.error({ err }, "stolar/update failed");
+    res.status(500).json({ error: "Greška pri ažuriranju pojma." });
+  }
+});
+
 export default router;
