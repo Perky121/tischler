@@ -868,6 +868,46 @@ details[open] .thinking-arrow { transform: rotate(90deg); }
   margin-right: 2px;
 }
 
+.plan-free-text-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+}
+.plan-free-text-row.dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.plan-free-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.plan-free-input:focus { border-color: var(--accent); }
+.plan-free-input:disabled { opacity: 0.5; }
+.plan-free-input::placeholder { color: var(--text3); }
+.plan-free-send {
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 13px;
+  padding: 4px 9px;
+  cursor: pointer;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+.plan-free-send:disabled { opacity: 0.3; cursor: default; }
+.plan-free-send:not(:disabled):hover { opacity: 0.8; }
+
 /* Loading indicator */
 .thinking {
   display: flex;

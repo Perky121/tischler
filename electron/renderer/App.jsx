@@ -357,6 +357,7 @@ function parsePlanContent(content) {
 
 function PlanResponseCard({ plan, onAnswer }) {
   const [selected, setSelected] = React.useState({});
+  const [freeText, setFreeText] = React.useState({});
   return (
     <div>
       {plan.preText ? <MarkdownMessage content={plan.preText} /> : null}
@@ -385,6 +386,34 @@ function PlanResponseCard({ plan, onAnswer }) {
                     <span className="plan-choice-letter">{opt.letter})</span> {opt.text}
                   </button>
                 ))}
+                <div className={`plan-free-text-row${selected[qi] ? " dimmed" : ""}`}>
+                  <span className="plan-choice-letter">D)</span>
+                  <input
+                    className="plan-free-input"
+                    placeholder="Slobodan odgovor…"
+                    value={freeText[qi] ?? ""}
+                    disabled={!!selected[qi]}
+                    onChange={e => setFreeText(prev => ({ ...prev, [qi]: e.target.value }))}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && (freeText[qi] ?? "").trim() && !selected[qi]) {
+                        e.preventDefault();
+                        const txt = freeText[qi].trim();
+                        setSelected(prev => ({ ...prev, [qi]: "D" }));
+                        onAnswer(`${block.question}\n→ D) ${txt}`);
+                      }
+                    }}
+                  />
+                  <button
+                    className="plan-free-send"
+                    disabled={!!selected[qi] || !(freeText[qi] ?? "").trim()}
+                    onClick={() => {
+                      const txt = (freeText[qi] ?? "").trim();
+                      if (!txt || selected[qi]) return;
+                      setSelected(prev => ({ ...prev, [qi]: "D" }));
+                      onAnswer(`${block.question}\n→ D) ${txt}`);
+                    }}
+                  >↵</button>
+                </div>
               </div>
             </div>
           ))}
@@ -559,28 +588,6 @@ function NauciInlineForm({ onAsk, onSave, onCancel, loading, step, pitanja }) {
   );
 }
 
-// ── Suggestion buttons ─────────────────────────────────────────────────────
-const SUGGESTIONS = [
-  { id: "explain", label: "Objasni sintaksu", msg: "Možeš li detaljnije objasniti sintaksu ove formule?" },
-  { id: "check",   label: "📷 Provjeri ekran", action: "screenshot" },
-  { id: "alt",     label: "Alternativa",       msg: "Postoji li alternativni način ili formula?" },
-];
-
-function SuggestionButtons({ onSelect, onScreenshotCheck }) {
-  return (
-    <div className="suggestion-row">
-      {SUGGESTIONS.map((s) => (
-        <button
-          key={s.id}
-          className="suggestion-btn"
-          onClick={() => s.action === "screenshot" ? onScreenshotCheck() : onSelect(s.msg)}
-        >
-          {s.label}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 const TTS_VOICES = [
   { id: "onyx",    label: "Onyx (duboki, muški)" },
@@ -2796,13 +2803,6 @@ function App() {
                     </>
                   )}
                 </div>
-                {/* Suggestion buttons after last AI message */}
-                {!isUser && isLast && showSuggestions && (
-                  <SuggestionButtons
-                    onSelect={handleSuggestion}
-                    onScreenshotCheck={handleScreenshotCheck}
-                  />
-                )}
               </div>
             );
           })
