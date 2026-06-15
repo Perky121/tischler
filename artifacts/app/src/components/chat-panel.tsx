@@ -745,12 +745,24 @@ export function ChatPanel() {
     })()
   );
   const [show3D, setShow3D] = useState(false);
+  const [pendingDimsUpdate, setPendingDimsUpdate] = useState<{ module: string; W: number; H: number; D: number } | null>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    function handleDimsUpdate(e: MessageEvent) {
+      if (!e.data || e.data.type !== "MEGATISCHLER_DIMS_UPDATE") return;
+      const { module: m, W: w, H: h, D: d } = e.data as { type: string; module?: string; W?: number; H?: number; D?: number };
+      if (typeof w !== "number" || typeof h !== "number" || typeof d !== "number") return;
+      setPendingDimsUpdate({ module: m ?? "", W: w, H: h, D: d });
+    }
+    window.addEventListener("message", handleDimsUpdate);
+    return () => window.removeEventListener("message", handleDimsUpdate);
+  }, []);
 
   const handleScreenshotSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1348,6 +1360,41 @@ export function ChatPanel() {
                 title="Ukloni screenshot"
               >
                 <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* 3D dims update chip */}
+          {pendingDimsUpdate && (
+            <div className="mb-2 flex items-center gap-2 bg-blue-950/40 border border-blue-500/30 rounded-lg px-3 py-2 text-xs">
+              <Box className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span className="text-blue-200 flex-1 min-w-0 truncate">
+                Dimenzije promijenjene u 3D:{" "}
+                {pendingDimsUpdate.module && <strong>{pendingDimsUpdate.module} · </strong>}
+                <strong>W={pendingDimsUpdate.W}</strong>{" "}
+                <strong>H={pendingDimsUpdate.H}</strong>{" "}
+                <strong>D={pendingDimsUpdate.D}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const { module: m, W, H, D } = pendingDimsUpdate;
+                  const modPart = m ? `${m}, ` : "";
+                  setInput(`Kopiraj formule za ${modPart}W=${W} H=${H} D=${D} mm`);
+                  setPendingDimsUpdate(null);
+                  textareaRef.current?.focus();
+                }}
+                className="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded border border-blue-500/40 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
+              >
+                Pošalji Copilotu
+              </button>
+              <button
+                type="button"
+                onClick={() => setPendingDimsUpdate(null)}
+                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                title="Odbaci"
+              >
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           )}

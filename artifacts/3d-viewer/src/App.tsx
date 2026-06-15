@@ -75,6 +75,14 @@ export default function App() {
     setH(h);
     setD(d);
     setSelected(null);
+    try {
+      window.parent.postMessage(
+        { type: "MEGATISCHLER_DIMS_UPDATE", module: m, W: w, H: h, D: d },
+        "*"
+      );
+    } catch {
+      // ignore if cross-origin or no parent
+    }
   };
 
   const selectedPart = parts.find((p) => p.id === selected);
