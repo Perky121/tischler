@@ -41,10 +41,10 @@ const upload = multer({
   storage,
   fileFilter: (_req, file, cb) => {
     const name = file.originalname.toLowerCase();
-    if (name.endsWith(".mac") || name.endsWith(".zip")) {
+    if (name.endsWith(".mac") || name.endsWith(".zip") || name.endsWith(".prt")) {
       cb(null, true);
     } else {
-      cb(new Error("Only .mac and .zip files are allowed"));
+      cb(new Error("Podržane su samo .mac, .prt i .zip datoteke"));
     }
   },
   limits: { fileSize: 200 * 1024 * 1024 },
@@ -138,7 +138,7 @@ function extractMacFilesFromZip(zipPath: string): MacFile[] {
   for (const entry of entries) {
     if (entry.isDirectory) continue;
     const entryName = entry.entryName.toLowerCase();
-    if (!entryName.endsWith(".mac")) continue;
+    if (!entryName.endsWith(".mac") && !entryName.endsWith(".prt")) continue;
 
     // Use only the filename (strip directory path from inside zip)
     const baseName = path.basename(entry.entryName);
@@ -151,26 +151,38 @@ function extractMacFilesFromZip(zipPath: string): MacFile[] {
   return extracted;
 }
 
-router.post("/upload-mac", upload.array("files"), async (req, res): Promise<void> => {
+router.post("/upload-mac", (req, res, next) => {
+  upload.array("files")(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      res.status(400).json({ error: `Upload greška: ${err.message}` });
+      return;
+    } else if (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : String(err) });
+      return;
+    }
+    next();
+  });
+}, async (req, res): Promise<void> => {
   const files = req.files as Express.Multer.File[] | undefined;
 
   if (!files || files.length === 0) {
-    res.status(400).json({ error: "No files uploaded" });
+    res.status(400).json({ error: "Nema uploadanih datoteka" });
     return;
   }
 
   req.log.info({ count: files.length }, "Processing uploaded files");
 
   try {
-    // Collect all .mac files to process (directly uploaded + extracted from zips)
+    // Collect all .mac / .prt files to process (directly uploaded + extracted from zips)
     const macFiles: MacFile[] = [];
     const zipPaths: string[] = [];
 
     for (const file of files) {
-      if (file.originalname.toLowerCase().endsWith(".zip")) {
+      const nameLower = file.originalname.toLowerCase();
+      if (nameLower.endsWith(".zip")) {
         zipPaths.push(file.path);
         const extracted = extractMacFilesFromZip(file.path);
-        req.log.info({ zip: file.originalname, count: extracted.length }, "Extracted .mac files from zip");
+        req.log.info({ zip: file.originalname, count: extracted.length }, "Extracted .mac/.prt files from zip");
         macFiles.push(...extracted);
       } else {
         macFiles.push({ path: file.path, originalName: file.originalname });
@@ -183,7 +195,7 @@ router.post("/upload-mac", upload.array("files"), async (req, res): Promise<void
     }
 
     if (macFiles.length === 0) {
-      res.status(400).json({ error: "No .mac files found (check that your .zip contains .mac files)" });
+      res.status(400).json({ error: "Nema .mac / .prt datoteka (provjeri da .zip sadrži .mac ili .prt datoteke)" });
       return;
     }
 
@@ -198,13 +210,13 @@ router.post("/upload-mac", upload.array("files"), async (req, res): Promise<void
     const succeeded = results.length - failed.length;
 
     if (failed.length > 0) {
-      req.log.error({ errors: failed }, "Some .mac files failed to parse");
+      req.log.error({ errors: failed }, "Some files failed to parse");
     }
 
     if (succeeded === 0) {
       const firstError = failed[0]?.error ?? "Nepoznata greška parsera";
       res.status(500).json({
-        error: `Nije uspjelo parsirati nijednu .mac datoteku. Greška: ${firstError}`,
+        error: `Nije uspjelo parsirati nijednu datoteku. Greška: ${firstError}`,
       });
       return;
     }
@@ -218,12 +230,12 @@ router.post("/upload-mac", upload.array("files"), async (req, res): Promise<void
 
     res.json({
       success: true,
-      message: `Obrađeno ${succeeded} od ${macFiles.length} .mac datoteka`,
+      message: `Obrađeno ${succeeded} od ${macFiles.length} datoteka`,
       stats,
     });
   } catch (err) {
     req.log.error({ err }, "Error processing uploaded files");
-    res.status(500).json({ error: "Failed to process uploaded files" });
+    res.status(500).json({ error: "Greška pri obradi datoteka" });
   }
 });
 

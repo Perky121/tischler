@@ -3155,7 +3155,7 @@ function App() {
               disabled={liveUploadStatus === "uploading"}
               onClick={() => liveFileInputRef.current?.click()}
             >
-              {liveUploadStatus === "uploading" ? "⏳ Učitavam..." : "📁 Učitaj .mac / .zip (opcionalno)"}
+              {liveUploadStatus === "uploading" ? "⏳ Učitavam..." : "📁 Učitaj .mac / .zip / .prt (opcionalno)"}
             </button>
             {liveUploadStatus && liveUploadStatus !== "uploading" && (
               <span className={`live-upload-status ${liveUploadStatus.ok ? "ok" : "err"}`}>
@@ -3202,9 +3202,9 @@ function App() {
                 className="live-task-edit"
                 disabled={liveUploadStatus === "uploading"}
                 onClick={() => liveFileInputRef.current?.click()}
-                title="Učitaj .mac/.zip datoteku u bazu znanja"
+                title="Učitaj .mac/.zip/.prt datoteku u bazu znanja"
               >
-                {liveUploadStatus === "uploading" ? "⏳" : liveUploadStatus?.ok ? `✓ ${liveUploadStatus.count} dod.` : liveUploadStatus?.error ? "✗" : "📁 .mac/.zip"}
+                {liveUploadStatus === "uploading" ? "⏳" : liveUploadStatus?.ok ? `✓ ${liveUploadStatus.count} dod.` : liveUploadStatus?.error ? "✗" : "📁 .mac/.zip/.prt"}
               </button>
               <button
                 type="button"
@@ -3357,7 +3357,7 @@ function App() {
       <input
         ref={liveFileInputRef}
         type="file"
-        accept=".mac,.zip"
+        accept=".mac,.zip,.prt"
         multiple
         style={{ display: "none" }}
         onChange={(e) => handleLiveUpload(e.target.files)}
