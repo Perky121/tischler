@@ -298,11 +298,13 @@ router.post("/bridge/save-insight", (req, res): void => {
 // Streaming SSE: conversational Bridge agent with manifest + findings context.
 router.post("/bridge/agent-chat", async (req, res): Promise<void> => {
   try {
-    const { messages, manifest, findings, isGreeting } = req.body as {
+    const { messages, manifest, findings, isGreeting, imageBase64, imageMediaType } = req.body as {
       messages: Array<{ role: string; content: string }>;
       manifest: Array<{ filename: string; folder: string; fullPath: string; sizeKb: number; label: string; action: string; alreadyLoaded: boolean }>;
       findings: Record<string, { knowledge: string; action: string }>;
       isGreeting?: boolean;
+      imageBase64?: string;
+      imageMediaType?: string;
     };
 
     res.setHeader("Content-Type", "text/event-stream");
@@ -393,22 +395,41 @@ Ovo je AUTOMATSKA INICIJALNA PORUKA. Pozdravi kratko i izvijesti:
 3. Koji ti se čine najzanimljiviji za analizu (top 3-5 prijedloga s razlogom)
 Budi konkretan — navedi stvarna imena datoteka iz manifesta.` : ""}`;
 
-    const apiMessages: Array<{ role: "user" | "assistant"; content: string }> = isGreeting
+    const textMessages: Array<{ role: "user" | "assistant"; content: string }> = isGreeting
       ? [{ role: "user", content: "Zdravo!" }]
       : (messages || []).filter(m => m.content?.trim()).map(m => ({
           role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
           content: m.content,
         }));
 
-    if (!apiMessages.length) {
-      apiMessages.push({ role: "user", content: "Zdravo!" });
+    if (!textMessages.length) {
+      textMessages.push({ role: "user", content: "Zdravo!" });
+    }
+
+    // Build final messages array, attaching vision block to last user msg if image provided
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let streamMessages: any[] = textMessages;
+    if (imageBase64 && imageMediaType && !isGreeting && textMessages.length > 0) {
+      const validMt = (["image/jpeg", "image/png", "image/gif", "image/webp"] as const)
+        .find(t => t === imageMediaType) ?? "image/jpeg";
+      const lastMsg = textMessages[textMessages.length - 1];
+      streamMessages = [
+        ...textMessages.slice(0, -1),
+        {
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: validMt, data: imageBase64 } },
+            ...(lastMsg.content ? [{ type: "text", text: lastMsg.content }] : []),
+          ],
+        },
+      ];
     }
 
     const stream = anthropic.messages.stream({
       model: "claude-opus-4-8",
       max_tokens: 2048,
       system: systemPrompt,
-      messages: apiMessages,
+      messages: streamMessages,
     });
 
     for await (const event of stream) {

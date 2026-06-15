@@ -194,6 +194,7 @@ function TextBlock({ text }) {
   let ulItems = [];
   let olItems = [];
   let paraLines = [];
+  let tableRows = [];
 
   const flushUL = () => {
     if (!ulItems.length) return;
@@ -235,7 +236,31 @@ function TextBlock({ text }) {
     paraLines = [];
   };
 
-  const flushAll = () => { flushUL(); flushOL(); flushPara(); };
+  const flushTable = () => {
+    if (!tableRows.length) return;
+    const isSep = r => /^\|[\s\-:|]+\|$/.test(r);
+    const parseRow = r => r.slice(1, -1).split("|").map(c => c.trim());
+    const hasHeader = tableRows.length >= 2 && isSep(tableRows[1]);
+    const headerRow = hasHeader ? tableRows[0] : null;
+    const dataRows = (hasHeader ? tableRows.slice(2) : tableRows).filter(r => !isSep(r));
+    elements.push(
+      <table key={`tbl-${elements.length}`} className="md-table">
+        {headerRow && (
+          <thead>
+            <tr>{parseRow(headerRow).map((cell, ci) => <th key={ci}>{renderInline(cell)}</th>)}</tr>
+          </thead>
+        )}
+        <tbody>
+          {dataRows.map((row, ri) => (
+            <tr key={ri}>{parseRow(row).map((cell, ci) => <td key={ci}>{renderInline(cell)}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    );
+    tableRows = [];
+  };
+
+  const flushAll = () => { flushUL(); flushOL(); flushPara(); flushTable(); };
 
   for (const line of lines) {
     const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
@@ -251,6 +276,13 @@ function TextBlock({ text }) {
       elements.push(<hr key={`hr-${elements.length}`} className="md-hr" />);
       continue;
     }
+    // Markdown table row: starts and ends with |
+    if (line.trim().startsWith("|") && line.trim().endsWith("|")) {
+      flushUL(); flushOL(); flushPara();
+      tableRows.push(line.trim());
+      continue;
+    }
+    if (tableRows.length) { flushTable(); }
     const ulMatch = line.match(/^[\-\*•]\s+(.+)$/);
     if (ulMatch) {
       flushOL(); flushPara();
@@ -334,12 +366,31 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
   const [findings, setFindings] = React.useState({});
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [isScanning, setIsScanning] = React.useState(false);
+  const [bridgeImage, setBridgeImage] = React.useState(null); // {dataUrl, base64, mediaType, name}
+  const imgInputRef = React.useRef(null);
+  const textQueueRef = React.useRef(""); // typewriter: pending chars not yet rendered
+  const displayedRef = React.useRef(""); // typewriter: chars already rendered
+  const rafIdRef = React.useRef(null);   // typewriter: requestAnimationFrame id
   const scrollRef = React.useRef(null);
   const msgCounter = React.useRef(0);
   const findingsRef = React.useRef({});
   const manifestRef = React.useRef(mtManifest);
 
   function nextId() { return ++msgCounter.current; }
+
+  function handleImageSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result;
+      const base64 = dataUrl.split(",")[1];
+      const mediaType = file.type || "image/jpeg";
+      setBridgeImage({ dataUrl, base64, mediaType, name: file.name });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
 
   React.useEffect(() => { manifestRef.current = mtManifest; }, [mtManifest]);
   React.useEffect(() => { findingsRef.current = findings; }, [findings]);
@@ -366,13 +417,41 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [bridgeMsgs]);
 
-  async function streamAgentMsg(userMsg, url, manifest, currentFindings) {
+  async function streamAgentMsg(userMsg, url, manifest, currentFindings, imageData = null) {
     const placeholderId = nextId();
     setIsStreaming(true);
-    if (userMsg) {
-      setBridgeMsgs(prev => [...prev, { id: nextId(), role: "user", content: userMsg }]);
+
+    // Reset typewriter state
+    if (rafIdRef.current) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = null; }
+    textQueueRef.current = "";
+    displayedRef.current = "";
+
+    if (userMsg || imageData) {
+      setBridgeMsgs(prev => [...prev, {
+        id: nextId(),
+        role: "user",
+        content: userMsg || "",
+        imageDataUrl: imageData?.dataUrl || null,
+      }]);
     }
     setBridgeMsgs(prev => [...prev, { id: placeholderId, role: "assistant", content: "", isLoading: true }]);
+
+    // Typewriter RAF loop: drain ~45 chars per animation frame
+    function startTypewriter() {
+      if (rafIdRef.current) return;
+      function tick() {
+        const queue = textQueueRef.current;
+        if (!queue) { rafIdRef.current = null; return; }
+        const chunk = queue.slice(0, 45);
+        textQueueRef.current = queue.slice(45);
+        displayedRef.current += chunk;
+        const displayed = displayedRef.current;
+        setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
+          ? { ...m, content: displayed, isLoading: false } : m));
+        rafIdRef.current = requestAnimationFrame(tick);
+      }
+      rafIdRef.current = requestAnimationFrame(tick);
+    }
 
     try {
       const convHistory = bridgeMsgs
@@ -380,15 +459,21 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
         .map(m => ({ role: m.role, content: m.content }));
       if (userMsg) convHistory.push({ role: "user", content: userMsg });
 
+      const fetchBody = {
+        messages: convHistory,
+        manifest: manifest || [],
+        findings: currentFindings || {},
+        isGreeting: !userMsg && !imageData,
+      };
+      if (imageData) {
+        fetchBody.imageBase64 = imageData.base64;
+        fetchBody.imageMediaType = imageData.mediaType;
+      }
+
       const res = await fetch(`${url}/api/bridge/agent-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: convHistory,
-          manifest: manifest || [],
-          findings: currentFindings || {},
-          isGreeting: !userMsg,
-        }),
+        body: JSON.stringify(fetchBody),
       });
 
       const reader = res.body.getReader();
@@ -410,12 +495,17 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
             const parsed = JSON.parse(payload);
             if (parsed.delta) {
               accumulated += parsed.delta;
-              setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
-                ? { ...m, content: accumulated, isLoading: false } : m));
+              textQueueRef.current += parsed.delta;
+              startTypewriter();
             }
           } catch { /* ignore */ }
         }
       }
+
+      // Flush: cancel RAF and show final content immediately
+      if (rafIdRef.current) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = null; }
+      textQueueRef.current = "";
+      displayedRef.current = "";
 
       const suggestMatch = accumulated.match(/<suggest_files>([\s\S]*?)<\/suggest_files>/);
       if (suggestMatch) {
@@ -424,21 +514,32 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
           const cleanContent = accumulated.replace(/<suggest_files>[\s\S]*?<\/suggest_files>/, "").trim();
           setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
             ? { ...m, content: cleanContent, suggestedFiles, isLoading: false } : m));
-        } catch { /* keep as is */ }
+        } catch {
+          setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
+            ? { ...m, content: accumulated, isLoading: false } : m));
+        }
+      } else {
+        setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
+          ? { ...m, content: accumulated, isLoading: false } : m));
       }
     } catch (err) {
+      if (rafIdRef.current) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = null; }
+      textQueueRef.current = "";
+      displayedRef.current = "";
       setBridgeMsgs(prev => prev.map(m => m.id === placeholderId
-        ? { ...m, content: `⚠️ Greška: ${err.message}`, isLoading: false } : m));
+        ? { ...m, content: `Greška: ${err.message}`, isLoading: false } : m));
     } finally {
       setIsStreaming(false);
     }
   }
 
   async function handleSend() {
-    if (!bridgeInput.trim() || isStreaming || isAnalyzing) return;
+    if ((!bridgeInput.trim() && !bridgeImage) || isStreaming || isAnalyzing) return;
     const msg = bridgeInput.trim();
+    const imgData = bridgeImage;
     setBridgeInput("");
-    await streamAgentMsg(msg, backendUrl, manifestRef.current || [], findingsRef.current);
+    setBridgeImage(null);
+    await streamAgentMsg(msg, backendUrl, manifestRef.current || [], findingsRef.current, imgData);
   }
 
   async function handleAnalyze(files) {
@@ -448,11 +549,11 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
     const analyzedNames = [];
     const progressId = nextId();
 
-    setBridgeMsgs(prev => [...prev, { id: progressId, role: "assistant", content: `📖 Pripremam analizu...`, isProgress: true }]);
+    setBridgeMsgs(prev => [...prev, { id: progressId, role: "assistant", content: `Pripremam analizu...`, isProgress: true }]);
 
     for (const file of files) {
       setBridgeMsgs(prev => prev.map(m => m.id === progressId
-        ? { ...m, content: `📖 Čitam ${file.filename}...` } : m));
+        ? { ...m, content: `Čitam ${file.filename}...` } : m));
       try {
         const fileData = await window.electron.mtBridgeReadFile({ fullPath: file.fullPath });
         if (fileData.error) continue;
@@ -504,7 +605,7 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
     setBridgeMsgs(prev => [...prev, {
       id: saveId,
       role: "assistant",
-      content: `✅ Znanje iz ${saved} datoteke(a) uspješno je dodano u bazu. Svaki put kad pitaš Copilota nešto o formulama, koristit će i ove podatke.`,
+      content: `Znanje iz ${saved} datoteke(a) uspješno je dodano u bazu. Svaki put kad pitaš Copilota nešto o formulama, koristit će i ove podatke.`,
     }]);
     setFindings({});
     findingsRef.current = {};
@@ -532,30 +633,30 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
 
         {/* Header */}
         <div className="bridge-header">
-          <span className="bridge-title">🗄 Bridge — Istraživanje baze</span>
+          <span className="bridge-title">Bridge — Istraživanje baze</span>
           <div style={{ flex: 1 }} />
           {mtInstallPath ? (
             <div className="bridge-conn-badge connected">
-              🔌 {(mtInstallPath.split("\\").pop() || mtInstallPath.split("/").pop() || mtInstallPath) || mtInstallPath}
+              {(mtInstallPath.split("\\").pop() || mtInstallPath.split("/").pop() || mtInstallPath) || mtInstallPath}
               <button className="bridge-conn-change" onClick={handleBrowse} title="Promijeni mapu">📁</button>
             </div>
           ) : (
             <button className="bridge-conn-badge disconnected" onClick={handleBrowse}>
-              🔌 Spoji MegaTischler instalaciju
+              Spoji MegaTischler instalaciju
             </button>
           )}
           <button className="bridge-close" onClick={onClose}>✕</button>
         </div>
 
         {/* Stat bar */}
-        {isScanning && <div className="bridge-stat-bar">⏳ Skeniram instalacijski direktorij...</div>}
+        {isScanning && <div className="bridge-stat-bar">Skeniram instalacijski direktorij...</div>}
         {mtManifest && !isScanning && (
           <div className="bridge-stat-bar">
             {macCount} .mac modula ({loadedCount} u bazi znanja) · {(mtManifest || []).filter(f => f.folder !== "Mac").length} ostalih datoteka
           </div>
         )}
         {!mtManifest && !isScanning && !mtInstallPath && (
-          <div className="bridge-stat-bar" style={{ color: "#f59e0b" }}>⚠ Odaberi mapu MegaTischler instalacije da počnemo</div>
+          <div className="bridge-stat-bar" style={{ color: "#f59e0b" }}>Odaberi mapu MegaTischler instalacije da počnemo</div>
         )}
 
         {/* Chat */}
@@ -569,14 +670,19 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
                 {msg.isLoading ? (
                   <span className="bridge-loading-dots"><span>●</span><span>●</span><span>●</span></span>
                 ) : (
-                  <MarkdownMessage content={msg.content} />
+                  <>
+                    {msg.imageDataUrl && (
+                      <img src={msg.imageDataUrl} alt="priložena slika" className="bridge-msg-image" />
+                    )}
+                    {(msg.content || !msg.imageDataUrl) && <MarkdownMessage content={msg.content || ""} />}
+                  </>
                 )}
               </div>
               {msg.suggestedFiles && msg.suggestedFiles.length > 0 && (
                 <div className="bridge-suggest-action">
                   <div className="bridge-suggest-files">
                     {msg.suggestedFiles.map(f => (
-                      <span key={f.fullPath || f.filename} className="bridge-file-chip">📄 {f.filename}</span>
+                      <span key={f.fullPath || f.filename} className="bridge-file-chip">{f.filename}</span>
                     ))}
                   </div>
                   <button
@@ -584,7 +690,7 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
                     disabled={isAnalyzing || isStreaming}
                     onClick={() => handleAnalyze(msg.suggestedFiles)}
                   >
-                    {isAnalyzing ? "⏳ Analiziram..." : `🔍 Analiziraj ove datoteke (${msg.suggestedFiles.length})`}
+                    {isAnalyzing ? "Analiziram..." : `Analiziraj ove datoteke (${msg.suggestedFiles.length})`}
                   </button>
                 </div>
               )}
@@ -592,14 +698,38 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
           ))}
           {hasPendingFindings && (
             <div className="bridge-save-bar">
-              <span>💾 Analiza završena — spremi znanje u bazu?</span>
+              <span>Analiza završena — spremi znanje u bazu?</span>
               <button className="bridge-save-btn" onClick={handleSaveFindings}>Spremi u bazu</button>
             </div>
           )}
         </div>
 
+        {/* Image preview strip (shows when an image is attached) */}
+        {bridgeImage && (
+          <div className="bridge-img-preview">
+            <img src={bridgeImage.dataUrl} alt="privitak" className="bridge-img-thumb" />
+            <span className="bridge-img-name">{bridgeImage.name}</span>
+            <button className="bridge-img-remove" onClick={() => setBridgeImage(null)} title="Ukloni sliku">×</button>
+          </div>
+        )}
+
         {/* Input */}
+        <input
+          ref={imgInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleImageSelect}
+        />
         <div className="bridge-input-row">
+          <button
+            className={`bridge-attach-btn${bridgeImage ? " has-image" : ""}`}
+            onClick={() => imgInputRef.current?.click()}
+            title="Priloži sliku"
+            disabled={isStreaming || isAnalyzing}
+          >
+            📎
+          </button>
           <textarea
             className="bridge-input"
             placeholder="Pitaj Bridge agenta... (npr. Koje datoteke opisuju ladice?)"
@@ -612,7 +742,7 @@ function BridgePage({ onClose, mtInstallPath, setMtInstallPath, mtManifest, setM
           <button
             className="bridge-send-btn"
             onClick={handleSend}
-            disabled={!bridgeInput.trim() || isStreaming || isAnalyzing}
+            disabled={(!bridgeInput.trim() && !bridgeImage) || isStreaming || isAnalyzing}
           >
             {isStreaming ? <><div className="spinner" style={{ width: 10, height: 10, borderWidth: 2 }} /> Šalje...</> : "▶ Pošalji"}
           </button>
