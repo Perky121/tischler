@@ -592,27 +592,44 @@ function NauciInlineForm({ onAsk, onSave, onCancel, loading, step, pitanja }) {
 
 // ── Sumiraj panel — konsolidacija znanja iz razgovora ──────────────────────
 function SumirajPanel({ stavke, onSave, onCancel, loading }) {
-  const [statuses, setStatuses] = React.useState(() => stavke.map(() => "pending"));
-  const [korekcije, setKorekcije] = React.useState(() => stavke.map(() => ""));
-  const [showKorekcija, setShowKorekcija] = React.useState(() => stavke.map(() => false));
+  const [statuses, setStatuses] = React.useState(() => (stavke ?? []).map(() => "pending"));
+  const [korekcije, setKorekcije] = React.useState(() => (stavke ?? []).map(() => ""));
+  const [editingIdx, setEditingIdx] = React.useState(null);
+
+  // Sync arrays whenever stavke prop changes (panel opens before async load completes)
+  React.useEffect(() => {
+    setStatuses((stavke ?? []).map(() => "pending"));
+    setKorekcije((stavke ?? []).map(() => ""));
+    setEditingIdx(null);
+  }, [stavke]);
 
   const confirmedCount = statuses.filter(s => s === "confirmed").length;
 
   function handleSave() {
-    const potvrdjene = stavke.reduce((acc, s, i) => {
-      if (statuses[i] === "confirmed") {
-        acc.push({ ...s, korekcija: korekcije[i]?.trim() || "" });
-      }
-      return acc;
-    }, []);
+    const potvrdjene = (stavke ?? [])
+      .map((s, i) => ({ ...s, korekcija: korekcije[i]?.trim() || null }))
+      .filter((_, i) => statuses[i] === "confirmed");
     onSave(potvrdjene);
+  }
+
+  // Show spinner while loading and no items yet
+  if (loading && (!stavke || stavke.length === 0)) {
+    return (
+      <div className="sumiraj-panel">
+        <div className="sumiraj-header">🧾 Konsolidacija znanja iz razgovora</div>
+        <div className="nauci-loading-row">
+          <div className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+          {" "}Analiziram razgovor…
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="sumiraj-panel">
       <div className="sumiraj-header">🧾 Konsolidacija znanja iz razgovora</div>
       <div className="sumiraj-subheader">Potvrdi pravila koja su točna, preskoči ili ispravi netočna.</div>
-      {stavke.length === 0 ? (
+      {!stavke || stavke.length === 0 ? (
         <div className="sumiraj-empty">Nisam pronašao konkretna pravila parametrizacije u ovom razgovoru.</div>
       ) : (
         <div className="sumiraj-stavke">
@@ -638,8 +655,8 @@ function SumirajPanel({ stavke, onSave, onCancel, loading }) {
                   <button
                     className="sumiraj-ispravi"
                     disabled={loading}
-                    onClick={() => setShowKorekcija(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}
-                  >{showKorekcija[i] ? "▲ Sakrij" : "✏ Ispravi"}</button>
+                    onClick={() => setEditingIdx(editingIdx === i ? null : i)}
+                  >{editingIdx === i ? "▲ Sakrij" : "✏ Ispravi"}</button>
                 </div>
               )}
               {statuses[i] === "confirmed" && (
@@ -652,7 +669,7 @@ function SumirajPanel({ stavke, onSave, onCancel, loading }) {
                   <button className="sumiraj-undo" onClick={() => setStatuses(prev => { const n=[...prev]; n[i]="pending"; return n; })}>poništi</button>
                 </div>
               )}
-              {showKorekcija[i] && statuses[i] === "pending" && (
+              {editingIdx === i && statuses[i] === "pending" && (
                 <textarea
                   className="sumiraj-korekcija"
                   placeholder="Ispravi ili dopuni pravilo (opcionalno — ako ostaviš prazno, koristi se original)…"
@@ -674,7 +691,7 @@ function SumirajPanel({ stavke, onSave, onCancel, loading }) {
         >
           {loading
             ? <><div className="spinner" style={{ width: 10, height: 10, borderWidth: 2 }} /> Sprema…</>
-            : `💾 Spremi ${confirmedCount > 0 ? `${confirmedCount} pravila` : "zaključke"}`}
+            : `💾 Spremi ${confirmedCount} potvrđen${confirmedCount === 1 ? "o" : "ih"} pravil${confirmedCount === 1 ? "o" : "a"}`}
         </button>
         <button className="sumiraj-cancel" onClick={onCancel} disabled={loading}>Odustani</button>
       </div>
