@@ -977,19 +977,25 @@ router.post("/chat", async (req, res): Promise<void> => {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const stream = anthropic.messages.stream({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const streamParams: any = {
       model: "claude-opus-4-8",
-      max_tokens: 8192,
+      max_tokens: 16000,
+      thinking: { type: "enabled", budget_tokens: 10000 },
       system: systemPrompt,
       messages: chatMessages,
-    });
+    };
+    const stream = anthropic.messages.stream(streamParams);
 
     for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+      if (event.type === "content_block_delta") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const delta = event.delta as any;
+        if (delta.type === "thinking_delta" && delta.thinking) {
+          res.write(`data: ${JSON.stringify({ thinking: delta.thinking })}\n\n`);
+        } else if (delta.type === "text_delta" && delta.text) {
+          res.write(`data: ${JSON.stringify({ content: delta.text })}\n\n`);
+        }
       }
     }
 

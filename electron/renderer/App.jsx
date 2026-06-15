@@ -1951,6 +1951,7 @@ function App() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantContent = "";
+      let thinkingContent = "";
       let lineBuffer = ""; // accumulate partial SSE lines across TCP chunks
       let streamDone = false;
 
@@ -1974,10 +1975,15 @@ function App() {
             const data = JSON.parse(dataStr);
             if (data.done) { streamDone = true; break; }
             if (data.error) assistantContent += `\n\n⚠️ ${data.error}`;
+            else if (data.thinking) thinkingContent += data.thinking;
             else if (data.content) assistantContent += data.content;
             setMessages((prev) => {
               const updated = [...prev];
-              updated[updated.length - 1] = { role: "assistant", content: assistantContent };
+              updated[updated.length - 1] = {
+                role: "assistant",
+                content: assistantContent,
+                ...(thinkingContent ? { thinkingContent } : {}),
+              };
               return updated;
             });
           } catch { /* ignore malformed */ }
@@ -2264,24 +2270,36 @@ function App() {
                         ? <div style={{ color: "var(--text3)", fontSize: 12, fontStyle: "italic" }}>nastavi zadatak</div>
                         : null
                   ) : (
-                    msg.content ? (() => {
-                      const wlSteps = !isStreaming ? extractWorklist(msg.content) : null;
-                      if (wlSteps) {
-                        const intro = stripWorklist(msg.content);
-                        return (
-                          <>
-                            {intro && <MarkdownMessage content={intro} />}
-                            <WorklistCard steps={wlSteps} />
-                          </>
-                        );
-                      }
-                      return <MarkdownMessage content={msg.content} />;
-                    })() : (
-                      <div className="thinking">
-                        <div className="spinner" />
-                        Razmišlja...
-                      </div>
-                    )
+                    <>
+                      {/* Thinking collapsible — shown only when thinkingContent exists */}
+                      {msg.thinkingContent && (
+                        <details className="thinking-collapsible">
+                          <summary className="thinking-summary">
+                            <span className="thinking-arrow">▶</span>
+                            <span>💭 Razmišljanje Claude-a</span>
+                          </summary>
+                          <div className="thinking-body">{msg.thinkingContent}</div>
+                        </details>
+                      )}
+                      {msg.content ? (() => {
+                        const wlSteps = !isStreaming ? extractWorklist(msg.content) : null;
+                        if (wlSteps) {
+                          const intro = stripWorklist(msg.content);
+                          return (
+                            <>
+                              {intro && <MarkdownMessage content={intro} />}
+                              <WorklistCard steps={wlSteps} />
+                            </>
+                          );
+                        }
+                        return <MarkdownMessage content={msg.content} />;
+                      })() : (
+                        <div className="thinking">
+                          <div className="spinner" />
+                          Razmišlja...
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 {/* Suggestion buttons after last AI message */}

@@ -4,8 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap } from "lucide-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
-// Message type extended with screenshot thumbnail, optional attached file name, and system hint type
-type ChatMessageExt = ChatMessage & { screenshotThumb?: string; attachedFileName?: string; type?: "system" };
+// Message type extended with screenshot thumbnail, optional attached file name, system hint type, and thinking content
+type ChatMessageExt = ChatMessage & { screenshotThumb?: string; attachedFileName?: string; type?: "system"; thinkingContent?: string };
 
 // Attached document state
 type AttachedFile = {
@@ -881,6 +881,7 @@ export function ChatPanel() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantContent = "";
+      let thinkingContent = "";
       let lineBuffer = ""; // accumulate partial SSE lines across TCP chunks
       let streamDone = false;
 
@@ -907,12 +908,18 @@ export function ChatPanel() {
             if (data.done) { streamDone = true; break; }
             if (data.error) {
               assistantContent += `\n\n⚠️ ${data.error}`;
+            } else if (data.thinking) {
+              thinkingContent += data.thinking;
             } else if (data.content) {
               assistantContent += data.content;
             }
             setMessages(prev => {
               const updated = [...prev];
-              updated[updated.length - 1] = { role: "assistant", content: assistantContent };
+              updated[updated.length - 1] = {
+                role: "assistant",
+                content: assistantContent,
+                ...(thinkingContent ? { thinkingContent } : {}),
+              } as ChatMessageExt;
               return updated;
             });
           } catch {
@@ -1027,6 +1034,18 @@ export function ChatPanel() {
                     {/* Assistant message */}
                     {!isUser && (
                       <div className="text-foreground">
+                        {/* Thinking collapsible — shown only when thinkingContent exists */}
+                        {(msg as ChatMessageExt).thinkingContent && (
+                          <details className="mb-3 group">
+                            <summary className="cursor-pointer select-none list-none flex items-center gap-1.5 text-[11px] text-muted-foreground/70 hover:text-muted-foreground transition-colors w-fit">
+                              <span className="group-open:rotate-90 transition-transform inline-block text-[10px]">▶</span>
+                              <span>💭 Razmišljanje Claude-a</span>
+                            </summary>
+                            <div className="mt-2 p-3 rounded-lg bg-muted/30 border border-border/30 text-[11px] font-mono text-muted-foreground/80 whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">
+                              {(msg as ChatMessageExt).thinkingContent}
+                            </div>
+                          </details>
+                        )}
                         {msg.content ? (() => {
                           // Detect [POJAM: naziv] marker — only first occurrence
                           const pojamMatch = !isStreaming

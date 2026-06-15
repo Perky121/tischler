@@ -616,6 +616,45 @@ html, body, #root {
   white-space: pre;
 }
 
+/* Thinking collapsible block (Claude extended thinking) */
+.thinking-collapsible {
+  margin-bottom: 8px;
+}
+.thinking-summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text3);
+  user-select: none;
+  width: fit-content;
+  transition: color 0.15s;
+}
+.thinking-summary::-webkit-details-marker { display: none; }
+.thinking-summary:hover { color: var(--text2); }
+.thinking-arrow {
+  font-size: 9px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] .thinking-arrow { transform: rotate(90deg); }
+.thinking-body {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text3);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
 /* Loading indicator */
 .thinking {
   display: flex;
