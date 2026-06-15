@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText } from "lucide-react";
+import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap } from "lucide-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
 // Message type extended with screenshot thumbnail and optional attached file name
@@ -12,8 +12,19 @@ type AttachedFile = {
   name: string;
   sizeKb: number;
   isText: boolean;
-  text?: string;       // text content for text files
-  note?: string;       // fallback note for binary files
+  text?: string;
+  note?: string;
+};
+
+// Stolar learning flow state
+type StolarFlowState = {
+  pojam: string;
+  definicija: string;
+  zaključci: string[];
+  currentIdx: number;
+  edits: Record<number, string>;
+  decisions: Record<number, "ok" | "wrong">;
+  saving: boolean;
 };
 
 // ── Inline markdown: **bold**, *italic*, `code` ───────────────────────────
@@ -352,12 +363,182 @@ const CodeBlock = ({ code, lang }: { code: string; lang: string }) => {
   );
 };
 
+// ── Stolar: zaključak review card ─────────────────────────────────────────
+function StolarInferCard({
+  flow,
+  onDecide,
+  onEdit,
+  onSave,
+  onCancel,
+}: {
+  flow: StolarFlowState;
+  onDecide: (idx: number, decision: "ok" | "wrong") => void;
+  onEdit: (idx: number, text: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const [editText, setEditText] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const { zaključci, currentIdx, decisions, edits, saving } = flow;
+  const allDecided = currentIdx >= zaključci.length;
+  const prihvaćeniCount = Object.values(decisions).filter((d) => d === "ok").length;
+
+  if (allDecided) {
+    return (
+      <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <GraduationCap className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-xs font-semibold text-primary truncate">Učim od tebe: {flow.pojam}</span>
+        </div>
+        <div className="text-xs text-muted-foreground mb-3">
+          Prihvaćeno <strong>{prihvaćeniCount}</strong> od {zaključci.length} zaključaka.
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" className="text-xs h-7" onClick={onSave} disabled={saving}>
+            {saving && <Loader2 className="w-3 h-3 animate-spin mr-1" />}
+            Spremi
+          </Button>
+          <Button size="sm" variant="ghost" className="text-xs h-7" onClick={onCancel} disabled={saving}>
+            Odustani
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentZakl = zaključci[currentIdx];
+
+  return (
+    <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="flex items-center gap-2">
+          <GraduationCap className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-xs font-semibold text-primary">Učim od tebe: {flow.pojam}</span>
+        </div>
+        <span className="text-[10px] text-muted-foreground shrink-0">{currentIdx + 1}/{zaključci.length}</span>
+      </div>
+      <div className="text-[11px] text-muted-foreground/70 italic mb-2 leading-relaxed truncate">
+        „{flow.definicija}"
+      </div>
+      <div className="text-xs leading-snug bg-muted/30 rounded p-2 mb-2.5">
+        {edits[currentIdx] ?? currentZakl}
+      </div>
+      {isEditing ? (
+        <div className="space-y-1.5">
+          <Textarea
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="text-xs min-h-[56px] resize-none"
+            autoFocus
+          />
+          <div className="flex gap-1.5">
+            <Button
+              size="sm"
+              className="text-[10px] h-6 px-2"
+              onClick={() => { onEdit(currentIdx, editText); setIsEditing(false); setEditText(""); }}
+              disabled={!editText.trim()}
+            >
+              Potvrdi ispravak
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-[10px] h-6 px-2"
+              onClick={() => { setIsEditing(false); setEditText(""); }}
+            >
+              Odustani
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-1.5 flex-wrap">
+          <button
+            onClick={() => onDecide(currentIdx, "ok")}
+            className="text-[11px] px-2.5 py-1 rounded-md border border-green-600/40 bg-green-600/10 text-green-400 hover:bg-green-600/20 font-medium transition-colors"
+          >
+            ✓ Točno
+          </button>
+          <button
+            onClick={() => onDecide(currentIdx, "wrong")}
+            className="text-[11px] px-2.5 py-1 rounded-md border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 font-medium transition-colors"
+          >
+            ✗ Netočno
+          </button>
+          <button
+            onClick={() => { setIsEditing(true); setEditText(edits[currentIdx] ?? currentZakl); }}
+            className="text-[11px] px-2.5 py-1 rounded-md border border-border bg-muted/30 text-muted-foreground hover:text-foreground hover:border-primary/40 font-medium transition-colors"
+          >
+            ✏ Ispravi
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Stolar: inline popup when AI asks about an unknown term ────────────────
+function PojamPitanje({
+  pojam,
+  onAnswer,
+  onDismiss,
+}: {
+  pojam: string;
+  onAnswer: (definicija: string) => Promise<void>;
+  onDismiss: () => void;
+}) {
+  const [val, setVal] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!val.trim() || loading) return;
+    setLoading(true);
+    await onAnswer(val.trim());
+    setLoading(false);
+  };
+
+  return (
+    <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-950/20 p-3">
+      <div className="text-[11px] font-semibold text-amber-400/90 mb-2 flex items-center gap-1.5">
+        🤔 Što je „{pojam}" u stolariji?
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+          className="flex-1 min-w-0 text-xs bg-background border border-border rounded px-2 py-1 outline-none focus:border-primary/50 transition-colors"
+          placeholder="Upiši definiciju..."
+          disabled={loading}
+          autoFocus
+        />
+        <button
+          onClick={handleSubmit}
+          disabled={!val.trim() || loading}
+          className="text-[11px] font-medium px-3 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 disabled:opacity-50 shrink-0 transition-colors"
+        >
+          {loading ? "..." : "Objasni"}
+        </button>
+        <button
+          onClick={onDismiss}
+          className="text-[11px] px-2 py-1 rounded hover:bg-muted/50 text-muted-foreground shrink-0 transition-colors"
+        >
+          Preskači
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessageExt[]>([]);
   const [input, setInput] = useState("");
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [stolarFlow, setStolarFlow] = useState<StolarFlowState | null>(null);
+  const [stolarLoading, setStolarLoading] = useState(false);
+  const [answeredPojmovi, setAnsweredPojmovi] = useState<Set<number>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -431,7 +612,143 @@ export function ChatPanel() {
     return match ? match[1] : dataUrl;
   };
 
+  // ── Stolar handlers ───────────────────────────────────────────────────────
+
+  const handleStolarCommand = async (pojam: string, definicija: string) => {
+    setStolarLoading(true);
+    try {
+      const res = await fetch("/api/stolar/infer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pojam, definicija }),
+      });
+      if (!res.ok) throw new Error("infer failed");
+      const data = await res.json() as { zaključci?: string[] };
+      setStolarFlow({
+        pojam,
+        definicija,
+        zaključci: data.zaključci ?? [],
+        currentIdx: 0,
+        edits: {},
+        decisions: {},
+        saving: false,
+      });
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "⚠️ Greška pri generiranju zaključaka. Pokušaj ponovo." },
+      ]);
+    } finally {
+      setStolarLoading(false);
+    }
+  };
+
+  const handleStolarDecide = (idx: number, decision: "ok" | "wrong") => {
+    setStolarFlow(prev =>
+      prev ? { ...prev, decisions: { ...prev.decisions, [idx]: decision }, currentIdx: idx + 1 } : null
+    );
+  };
+
+  const handleStolarEdit = (idx: number, text: string) => {
+    setStolarFlow(prev =>
+      prev
+        ? {
+            ...prev,
+            edits: { ...prev.edits, [idx]: text },
+            decisions: { ...prev.decisions, [idx]: "ok" },
+            currentIdx: idx + 1,
+          }
+        : null
+    );
+  };
+
+  const handleStolarSave = async () => {
+    if (!stolarFlow) return;
+    setStolarFlow(prev => (prev ? { ...prev, saving: true } : null));
+    const prihvaćeni: string[] = [];
+    for (let i = 0; i < stolarFlow.zaključci.length; i++) {
+      if (stolarFlow.decisions[i] === "ok") {
+        prihvaćeni.push(stolarFlow.edits[i] ?? stolarFlow.zaključci[i]);
+      }
+    }
+    try {
+      await fetch("/api/stolar/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pojam: stolarFlow.pojam,
+          definicija: stolarFlow.definicija,
+          zaključci: prihvaćeni,
+        }),
+      });
+      const n = prihvaćeni.length;
+      setMessages(prev => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `Naučio sam **${n}** zaključak${n === 1 ? "" : "a"} o pojmu **${stolarFlow.pojam}**. Koristit ću ovo znanje u budućim odgovorima.`,
+        },
+      ]);
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "⚠️ Greška pri zapisivanju stolarskog znanja." },
+      ]);
+    } finally {
+      setStolarFlow(null);
+    }
+  };
+
+  const handlePojamAnswer = async (msgIdx: number, pojam: string, definicija: string) => {
+    try {
+      const inferRes = await fetch("/api/stolar/infer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pojam, definicija }),
+      });
+      const inferData = await inferRes.json() as { zaključci?: string[] };
+      const zaključci = inferData.zaključci ?? [];
+
+      await fetch("/api/stolar/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pojam, definicija, zaključci }),
+      });
+
+      setAnsweredPojmovi(prev => new Set([...prev, msgIdx]));
+      const n = zaključci.length;
+      setMessages(prev => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `Hvala! Zapamtio sam **${n}** zaključak${n === 1 ? "" : "a"} o pojmu **${pojam}**. Koristit ću ovo znanje u svim budućim odgovorima.`,
+        },
+      ]);
+    } catch {
+      setAnsweredPojmovi(prev => new Set([...prev, msgIdx]));
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "⚠️ Greška pri zapisivanju pojma." },
+      ]);
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+
   const handleSend = async () => {
+    // /stolar command: teach the AI a carpentry term
+    if (input.trimStart().toLowerCase().startsWith("/stolar ")) {
+      const rest = input.trimStart().slice(8).trim();
+      if (!rest) return;
+      const firstSpace = rest.indexOf(" ");
+      const pojam = firstSpace > 0 ? rest.slice(0, firstSpace) : rest;
+      const definicija = rest;
+      setMessages(prev => [...prev, { role: "user", content: `/stolar ${rest}` }]);
+      setInput("");
+      await handleStolarCommand(pojam, definicija);
+      return;
+    }
+
     if (!input.trim() && !screenshotDataUrl && !attachedFile) return;
 
     const currentScreenshot = screenshotDataUrl;
@@ -627,17 +944,43 @@ export function ChatPanel() {
                     {!isUser && (
                       <div className="text-foreground">
                         {msg.content ? (() => {
-                          const wlSteps = !isStreaming ? extractWorklist(msg.content) : null;
-                          if (wlSteps) {
-                            const intro = stripWorklist(msg.content);
-                            return (
-                              <>
-                                {intro ? <MarkdownMessage content={intro} /> : null}
-                                <WorklistCard steps={wlSteps} />
-                              </>
-                            );
-                          }
-                          return <MarkdownMessage content={msg.content} />;
+                          // Detect [POJAM: naziv] marker — only first occurrence
+                          const pojamMatch = !isStreaming
+                            ? msg.content.match(/\[POJAM:\s*([^\]]+)\]/)
+                            : null;
+                          const cleanContent = pojamMatch
+                            ? msg.content.replace(/\[POJAM:\s*[^\]]+\]/g, "").trim()
+                            : msg.content;
+
+                          const wlSteps = !isStreaming ? extractWorklist(cleanContent) : null;
+                          const mainNode = wlSteps
+                            ? (() => {
+                                const intro = stripWorklist(cleanContent);
+                                return (
+                                  <>
+                                    {intro ? <MarkdownMessage content={intro} /> : null}
+                                    <WorklistCard steps={wlSteps} />
+                                  </>
+                                );
+                              })()
+                            : <MarkdownMessage content={cleanContent} />;
+
+                          return (
+                            <>
+                              {mainNode}
+                              {pojamMatch && !answeredPojmovi.has(i) && (
+                                <PojamPitanje
+                                  pojam={pojamMatch[1].trim()}
+                                  onAnswer={(def) =>
+                                    handlePojamAnswer(i, pojamMatch[1].trim(), def)
+                                  }
+                                  onDismiss={() =>
+                                    setAnsweredPojmovi(prev => new Set([...prev, i]))
+                                  }
+                                />
+                              )}
+                            </>
+                          );
                         })() : (
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -701,6 +1044,28 @@ export function ChatPanel() {
             </div>
           )}
 
+          {/* Stolar learning flow panel */}
+          {(stolarLoading || stolarFlow) && (
+            <div className="mb-3">
+              {stolarLoading && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 flex items-center gap-2 text-xs text-muted-foreground">
+                  <GraduationCap className="w-4 h-4 text-primary" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                  Generiram zaključke o pojmu...
+                </div>
+              )}
+              {stolarFlow && !stolarLoading && (
+                <StolarInferCard
+                  flow={stolarFlow}
+                  onDecide={handleStolarDecide}
+                  onEdit={handleStolarEdit}
+                  onSave={handleStolarSave}
+                  onCancel={() => setStolarFlow(null)}
+                />
+              )}
+            </div>
+          )}
+
           <div className="flex items-end gap-2 bg-card border border-border rounded-xl p-2 focus-within:ring-1 focus-within:ring-primary shadow-sm">
             {/* Hidden screenshot input */}
             <input
@@ -760,7 +1125,7 @@ export function ChatPanel() {
 
             <Button
               onClick={handleSend}
-              disabled={(!input.trim() && !screenshotDataUrl && !attachedFile) || isStreaming}
+              disabled={(!input.trim() && !screenshotDataUrl && !attachedFile) || isStreaming || stolarLoading || !!stolarFlow}
               className="shrink-0 rounded-lg mb-0.5"
               data-testid="send-button"
             >
