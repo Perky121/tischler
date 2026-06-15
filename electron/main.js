@@ -1,6 +1,7 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell, dialog } = require("electron");
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell, dialog, clipboard } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const { exec } = require("child_process");
 
 // ── Live mode 2.0 ─────────────────────────────────────────────────────────────
@@ -1208,6 +1209,86 @@ ipcMain.handle("kb-learn", async (_, { formulas, parameters, observations }) => 
   } catch (err) {
     return { error: err.message };
   }
+});
+
+// ── Formula injection — upiši formulu u aktivno polje MegaTischlera ──────────
+ipcMain.handle("inject-formula", async (_, { formula }) => {
+  if (!formula) return { ok: false, error: "Prazna formula" };
+
+  // 1. Postavi formulu u clipboard
+  clipboard.writeText(formula);
+
+  // 2. PowerShell: pronađi MT prozor, aktiviraj ga, pošalji Ctrl+A + Ctrl+V
+  const psLines = [
+    "$shell = New-Object -ComObject WScript.Shell",
+    // MegaTischler može imati razne nazive prozora — pokušaj sve varijante
+    "$titles = @('MegaTischler', 'MegaCAD', 'Mega Tischler', 'MegaTisch')",
+    "$found = $false",
+    "foreach ($t in $titles) {",
+    "  try {",
+    "    if ($shell.AppActivate($t)) { $found = $true; break }",
+    "  } catch {}",
+    "}",
+    "if (-not $found) {",
+    // Fallback: traži po parcijalnom naslovu prozora kroz sve prozore
+    "  Add-Type @\"",
+    "  using System; using System.Text; using System.Runtime.InteropServices;",
+    "  public class W32 {",
+    "    [DllImport(\"user32.dll\")] public static extern bool EnumWindows(Delegate e, IntPtr l);",
+    "    [DllImport(\"user32.dll\")] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);",
+    "    [DllImport(\"user32.dll\")] public static extern bool IsWindowVisible(IntPtr h);",
+    "    public delegate bool EnumProc(IntPtr h, IntPtr l);",
+    "  }",
+    "\"@ -PassThru | Out-Null",
+    "  $hwnd = [IntPtr]::Zero",
+    "  $cb = [W32+EnumProc] {",
+    "    param($h, $l)",
+    "    if (-not [W32]::IsWindowVisible($h)) { return $true }",
+    "    $sb = New-Object System.Text.StringBuilder 256",
+    "    [W32]::GetWindowText($h, $sb, 256) | Out-Null",
+    "    $title = $sb.ToString().ToLower()",
+    "    if ($title -match 'megatischler|megatisch|megacad') {",
+    "      $script:hwnd = $h; return $false",
+    "    }",
+    "    return $true",
+    "  }",
+    "  [W32]::EnumWindows($cb, [IntPtr]::Zero) | Out-Null",
+    "  if ($script:hwnd -ne [IntPtr]::Zero) {",
+    "    $found = $shell.AppActivate([int]$script:hwnd)",
+    "  }",
+    "}",
+    "if ($found) {",
+    "  Start-Sleep -Milliseconds 250",
+    "  $shell.SendKeys('^a')",
+    "  Start-Sleep -Milliseconds 80",
+    "  $shell.SendKeys('^v')",
+    "  Write-Output 'ok'",
+    "} else {",
+    "  Write-Output 'not_found'",
+    "}",
+  ];
+
+  const tmpPath = path.join(os.tmpdir(), `mt-inject-${Date.now()}.ps1`);
+
+  return new Promise((resolve) => {
+    try {
+      fs.writeFileSync(tmpPath, psLines.join("\r\n"), "utf-8");
+    } catch (e) {
+      return resolve({ ok: false, error: String(e) });
+    }
+
+    exec(
+      `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${tmpPath}"`,
+      { timeout: 6000 },
+      (err, stdout) => {
+        try { fs.unlinkSync(tmpPath); } catch { /* ignore */ }
+        if (err) return resolve({ ok: false, error: err.message.slice(0, 120) });
+        const result = stdout.trim();
+        if (result === "ok") return resolve({ ok: true });
+        resolve({ ok: false, error: result === "not_found" ? "MegaTischler nije pronađen" : result.slice(0, 120) });
+      }
+    );
+  });
 });
 
 // ── Debug mode IPC ────────────────────────────────────────────────────────────

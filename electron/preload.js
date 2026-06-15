@@ -93,6 +93,9 @@ contextBridge.exposeInMainWorld("electron", {
   mtBridgeImportFile: (args) => ipcRenderer.invoke("mt-bridge-import-file", args),
   mtBridgeReadFile: (args) => ipcRenderer.invoke("mt-bridge-read-file", args),
 
+  // Formula injection — upiši formulu direktno u aktivno polje MegaTischlera
+  injectFormula: (formula) => ipcRenderer.invoke("inject-formula", { formula }),
+
   // Conversations persistence
   getConversations: () => ipcRenderer.invoke("get-conversations"),
   saveConversations: (data) => ipcRenderer.invoke("save-conversations", data),

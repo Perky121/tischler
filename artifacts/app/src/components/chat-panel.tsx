@@ -165,23 +165,77 @@ function stripWorklist(content: string): string {
   return content.replace(/```worklist[\s\S]*?```/g, "").trim();
 }
 
+// Detect Electron context
+const isElectron = typeof window !== "undefined" && !!(window as Window & { electron?: unknown }).electron;
+
+type InjectState = "idle" | "loading" | "ok" | "err";
+
 function WorklistFormulaInline({ formula }: { formula: string }) {
   const [copied, setCopied] = useState(false);
+  const [injectState, setInjectState] = useState<InjectState>("idle");
+  const [injectErr, setInjectErr] = useState("");
+
+  const handleInject = async () => {
+    if (injectState === "loading") return;
+    setInjectState("loading");
+    setInjectErr("");
+    try {
+      const el = (window as Window & { electron?: { injectFormula?: (f: string) => Promise<{ ok: boolean; error?: string }> } }).electron;
+      const result = await el?.injectFormula?.(formula);
+      if (result?.ok) {
+        setInjectState("ok");
+        setTimeout(() => setInjectState("idle"), 2500);
+      } else {
+        setInjectErr(result?.error ?? "Greška");
+        setInjectState("err");
+        setTimeout(() => { setInjectState("idle"); setInjectErr(""); }, 3500);
+      }
+    } catch (e) {
+      setInjectErr(String(e));
+      setInjectState("err");
+      setTimeout(() => { setInjectState("idle"); setInjectErr(""); }, 3500);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2 mt-1 px-2 py-1 rounded border border-border bg-zinc-950/80 flex-wrap">
       <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0">Formula</span>
       <code className="flex-1 min-w-0 font-mono text-[12px] text-amber-200/90 break-all">{formula}</code>
-      <button
-        type="button"
-        onClick={() => {
-          navigator.clipboard.writeText(formula);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        }}
-        className="text-[10px] font-semibold px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary shrink-0"
-      >
-        {copied ? "✓ Kopirano" : "Kopiraj"}
-      </button>
+      <div className="flex gap-1.5 shrink-0">
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText(formula);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          className="text-[10px] font-semibold px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary"
+        >
+          {copied ? "✓ Kopirano" : "Kopiraj"}
+        </button>
+        {isElectron && (
+          <button
+            type="button"
+            onClick={handleInject}
+            disabled={injectState === "loading"}
+            title={injectErr || "Upiši formulu direktno u aktivno polje MegaTischlera"}
+            className={`text-[10px] font-semibold px-2 py-0.5 rounded border transition-colors ${
+              injectState === "ok"
+                ? "border-green-600 bg-green-600/20 text-green-400"
+                : injectState === "err"
+                  ? "border-red-500 bg-red-500/20 text-red-400"
+                  : injectState === "loading"
+                    ? "border-border bg-muted/30 text-muted-foreground cursor-wait"
+                    : "border-border bg-muted/50 hover:border-amber-500 hover:text-amber-300"
+            }`}
+          >
+            {injectState === "loading" ? "⏳" : injectState === "ok" ? "✓ Upisano" : injectState === "err" ? "✗ Greška" : "🖊 Upiši"}
+          </button>
+        )}
+      </div>
+      {injectState === "err" && injectErr && (
+        <span className="w-full text-[10px] text-red-400 mt-0.5">{injectErr}</span>
+      )}
     </div>
   );
 }
