@@ -314,35 +314,84 @@ router.post("/bridge/agent-chat", async (req, res): Promise<void> => {
       res.write(`data: ${JSON.stringify({ delta: data })}\n\n`);
     };
 
-    const macFiles = (manifest || []).filter(f => f.folder === "Mac");
-    const rootFiles = (manifest || []).filter(f => f.folder !== "Mac");
-    const loadedCount = macFiles.filter(f => f.alreadyLoaded).length;
+    const allFiles = manifest || [];
 
-    const manifestSummary = manifest?.length
-      ? `Dostupne datoteke u MegaTischler instalaciji:\n.mac moduli (${macFiles.length} ukupno, ${loadedCount} već u bazi znanja):\n${macFiles.map(f => `  - ${f.filename} (${f.sizeKb} KB)${f.alreadyLoaded ? " ✓ u bazi" : ""}`).join("\n")}${rootFiles.length > 0 ? `\n\nOstale datoteke (${rootFiles.length}):\n${rootFiles.slice(0, 15).map(f => `  - ${f.filename} (${f.sizeKb} KB, ${f.label})`).join("\n")}${rootFiles.length > 15 ? `\n  ... i još ${rootFiles.length - 15}` : ""}` : ""}`
-      : "(Baza nije skenirana — korisnik treba odabrati MegaTischler instalacijski direktorij)";
+    // Group ALL files by lowercase extension so AI sees every file
+    const byExt: Record<string, typeof allFiles> = {};
+    for (const f of allFiles) {
+      const dotIdx = f.filename.lastIndexOf(".");
+      const ext = dotIdx >= 0 ? f.filename.slice(dotIdx + 1).toLowerCase() : "bez_ext";
+      if (!byExt[ext]) byExt[ext] = [];
+      byExt[ext].push(f);
+    }
+
+    // Sort extensions: mac first, then alphabetically
+    const extOrder = ["mac", ...Object.keys(byExt).filter(e => e !== "mac").sort()];
+
+    const macLoadedCount = (byExt["mac"] || []).filter(f => f.alreadyLoaded).length;
+
+    let manifestSummary: string;
+    if (allFiles.length === 0) {
+      manifestSummary = "(Baza nije skenirana — korisnik treba odabrati MegaTischler instalacijski direktorij)";
+    } else {
+      const lines: string[] = [
+        `Dostupne datoteke u MegaTischler instalaciji (${allFiles.length} ukupno, ${macLoadedCount} .mac modula u bazi znanja):`,
+      ];
+      for (const ext of extOrder) {
+        const group = byExt[ext];
+        if (!group?.length) continue;
+        const loadedInGroup = group.filter(f => f.alreadyLoaded).length;
+        lines.push(`\n[.${ext}] — ${group.length} datoteka${loadedInGroup ? ` (${loadedInGroup} u bazi)` : ""}:`);
+        for (const f of group) {
+          lines.push(`  ${f.filename} (${f.sizeKb} KB, ${f.fullPath})${f.alreadyLoaded ? " ✓ u bazi" : ""}`);
+        }
+      }
+      manifestSummary = lines.join("\n");
+    }
 
     const findingsEntries = Object.entries(findings || {});
     const findingsSummary = findingsEntries.length > 0
       ? `\n\nVeć analizirane datoteke:\n${findingsEntries.map(([name, data]) => `### ${name}\n${data.knowledge}`).join("\n\n")}`
       : "";
 
-    const systemPrompt = `Ti si Bridge Agent — AI asistent specijaliziran za istraživanje MegaTischler CAD baze datoteka.
-Odgovaraš na HRVATSKOM. Pomaži korisniku razumjeti koje datoteke postoje, što sadrže i kako ih iskoristiti.
+    const systemPrompt = `Ti si Bridge Agent — AI asistent specijaliziran za istraživanje MegaTischler CAD instalacije.
+Odgovaraš na HRVATSKOM. Tvoj posao je pregledati popis datoteka, procijeniti njihovu važnost i pomoći korisniku razumjeti što koja datoteka radi.
 
 ${manifestSummary}${findingsSummary}
 
-PRAVILA:
-- Kad preporučuješ datoteke za analizu, OBAVEZNO dodaj <suggest_files> tag s JSON nizom objekata { filename, fullPath, action }
-  Primjer: <suggest_files>[{"filename":"KUH_VISOKI.mac","fullPath":"C:\\\\MegaCAD\\\\Mac\\\\KUH_VISOKI.mac","action":"import-mac"}]</suggest_files>
-- .mac datoteke uvijek koriste action: "import-mac"
-- .ini/.cfg/.def datoteke koriste action: "read-text"
-- Binarni formati (.mdb, .bhr) koriste action: "hex-probe"
-- Navodi stvarne nazive i putanje datoteka iz manifesta
-- Decimalni separator u MegaTischler formulama je uvijek ZAREZ (0,5 — ne 0.5)
-- Ako već imaš odgovor iz analiziranih datoteka, odgovori direktno bez suggest_files${isGreeting ? `
+SPOSOBNOSTI:
+- Vidiš KOMPLETAN popis svih datoteka grupiranih po ekstenziji (prikazan gore)
+- Možeš pregledavati datoteke po imenu, ekstenziji, veličini ili putanji
+- Možeš procijeniti važnost svake datoteke za razumijevanje MegaTischler-a
+- Možeš predložiti čitanje/analizu bilo koje datoteke iz popisa
 
-Ovo je AUTOMATSKA INICIJALNA PORUKA. Pozdravi kratko i izvijesti što si pronašao (koliko .mac modula, koliko u bazi). Pitaj s čim možeš pomoći.` : ""}`;
+KAKO PREPORUČITI DATOTEKE ZA ČITANJE:
+Dodaj <suggest_files> tag s JSON nizom: { filename, fullPath, action }
+Primjer: <suggest_files>[{"filename":"KUH_VISOKI.mac","fullPath":"C:\\\\MegaCAD\\\\Mac\\\\KUH_VISOKI.mac","action":"import-mac"}]</suggest_files>
+
+AKCIJE po tipu:
+- .mac → "import-mac" (parsira parametarske formule)
+- .def, .cfg, .ini, .txt i datoteke bez ekstenzije → "read-text" (čita kao tekst)
+- .mdb, .bhr i drugi binarni → "hex-probe" (identificira format)
+
+PROCJENA VAŽNOSTI — tipično u MegaTischler instalaciji:
+- .mac moduli = srce sustava (parametri i formule za pozicioniranje dijelova)
+- Datoteke bez ekstenzije (CMDPAR, DIMVAL, LAYGRP...) = konfiguracijske varijable
+- .def = definicije elemenata ili materijala
+- .cfg/.ini = postavke programa
+- .mdb = Access baze (materijali, vijci, okovi)
+
+PRAVILA:
+- Navodi TOČNE nazive i putanje datoteka iz manifesta iznad
+- Decimalni separator u MegaTischler formulama je uvijek ZAREZ (0,5 — ne 0.5)
+- Datoteke označene ✓ su već u bazi — ne treba ih ponovo uvoziti osim za dodatne uvide
+- Ako korisnik pita o specifičnom tipu datoteke, pronađi sve datoteke tog tipa iz popisa${isGreeting ? `
+
+Ovo je AUTOMATSKA INICIJALNA PORUKA. Pozdravi kratko i izvijesti:
+1. Koliko datoteka ukupno vidiš i kojim ekstenzijama (samo kratki pregled)
+2. Koliko .mac modula je već u bazi
+3. Koji ti se čine najzanimljiviji za analizu (top 3-5 prijedloga s razlogom)
+Budi konkretan — navedi stvarna imena datoteka iz manifesta.` : ""}`;
 
     const apiMessages: Array<{ role: "user" | "assistant"; content: string }> = isGreeting
       ? [{ role: "user", content: "Zdravo!" }]
