@@ -396,6 +396,7 @@ function PlanResponseCard({ plan, onAnswer }) {
 
 // ── Slash command palette ───────────────────────────────────────────────────
 const SLASH_COMMANDS = [
+  { cmd: "/nauči",  desc: "Nauči AI pravilo parametrizacije MegaTischlera", icon: "🧠" },
   { cmd: "/stolar", desc: "Nauči AI stolarski pojam i definiciju", icon: "📚" },
   { cmd: "/debug",  desc: "Otvori debug panel — snimi ekrane za analizu", icon: "🛠" },
   { cmd: "/istraži", desc: "Pretraži Bridge bazu datoteka", icon: "🗄" },
@@ -467,6 +468,93 @@ function StolarInlineForm({ onSubmit, onCancel, loading }) {
           Odustani
         </button>
       </div>
+    </form>
+  );
+}
+
+// ── Nauči inline form (2-step: enter rule → AI asks → save) ────────────────
+function NauciInlineForm({ onAsk, onSave, onCancel, loading, step, pitanja }) {
+  const [sadržaj, setSadržaj] = React.useState("");
+  const [odgovori, setOdgovori] = React.useState([]);
+  const textareaRef = React.useRef(null);
+
+  React.useEffect(() => { textareaRef.current?.focus(); }, []);
+  React.useEffect(() => {
+    if (step === 2 && pitanja?.length > 0) {
+      setOdgovori(pitanja.map(() => ""));
+    }
+  }, [step, pitanja]);
+
+  function handleKeyDown(e) {
+    if (e.key === "Escape") { e.preventDefault(); onCancel(); }
+  }
+
+  function handleAsk(e) {
+    e.preventDefault();
+    if (!sadržaj.trim() || loading) return;
+    onAsk(sadržaj.trim());
+  }
+
+  function handleSave(e) {
+    e.preventDefault();
+    if (loading) return;
+    const pitanjaData = (pitanja ?? []).map((p, i) => ({
+      pitanje: p,
+      odgovor: odgovori[i] ?? "",
+    }));
+    onSave(sadržaj, pitanjaData);
+  }
+
+  return (
+    <form className="nauci-inline-form" onKeyDown={handleKeyDown} onSubmit={e => e.preventDefault()}>
+      <div className="nauci-inline-header">🧠 Nauči pravilo parametrizacije</div>
+
+      {step === 1 && (
+        <>
+          <div className="nauci-inline-step">Korak 1/2 — Unesi pravilo ili obrazac koji znaš</div>
+          <textarea
+            ref={textareaRef}
+            className="nauci-inline-textarea"
+            placeholder={"Npr. 'U kutnom modulu uvijek oduzmi 3mm od P_SIRINA zbog šarke na strani' ili 'Parametar POSV u VISECI dijalogu je uvijek vanjska mjera, ne unutarnja'"}
+            value={sadržaj}
+            onChange={e => setSadržaj(e.target.value)}
+            disabled={loading}
+            rows={3}
+          />
+          <div className="nauci-inline-actions">
+            <button type="button" className="nauci-inline-ask" onClick={handleAsk} disabled={!sadržaj.trim() || loading}>
+              {loading ? <><div className="spinner" style={{width:10,height:10,borderWidth:2}} /> Pitam AI…</> : "Pitaj AI →"}
+            </button>
+            <button type="button" className="nauci-inline-cancel" onClick={onCancel} disabled={loading}>Odustani</button>
+          </div>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          <div className="nauci-inline-step">Korak 2/2 — Odgovori na pitanja (možeš preskočiti)</div>
+          <div className="nauci-questions-list">
+            {(pitanja ?? []).map((p, i) => (
+              <div key={i} className="nauci-question-item">
+                <label className="nauci-question-label">{i + 1}. {p}</label>
+                <input
+                  className="nauci-question-input"
+                  placeholder="Odgovor (nije obavezno)…"
+                  value={odgovori[i] ?? ""}
+                  onChange={e => setOdgovori(prev => { const n = [...prev]; n[i] = e.target.value; return n; })}
+                  disabled={loading}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="nauci-inline-actions">
+            <button type="button" className="nauci-inline-save" onClick={handleSave} disabled={loading}>
+              {loading ? <><div className="spinner" style={{width:10,height:10,borderWidth:2}} /> Zaključujem…</> : "💾 Zaključi i spremi"}
+            </button>
+            <button type="button" className="nauci-inline-cancel" onClick={onCancel} disabled={loading}>Odustani</button>
+          </div>
+        </>
+      )}
     </form>
   );
 }
@@ -1353,6 +1441,13 @@ function App() {
   const [stolarFormVisible, setStolarFormVisible] = useState(false);
   const [stolarFormLoading, setStolarFormLoading] = useState(false);
 
+  // Nauči inline form (2-step)
+  const [nauciFormVisible, setNauciFormVisible] = useState(false);
+  const [nauciStep, setNauciStep] = useState(1);
+  const [nauciLoading, setNauciLoading] = useState(false);
+  const [nauciPitanja, setNauciPitanja] = useState([]);
+  const [nauciSadržaj, setNauciSadržaj] = useState("");
+
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
   const inputHeightRef = useRef(INPUT_HEIGHT_DEFAULT);
@@ -1772,6 +1867,69 @@ function App() {
     }
   }
 
+  async function handleNauciStart(sadržaj) {
+    setNauciLoading(true);
+    setNauciSadržaj(sadržaj);
+    try {
+      const settings = await window.electron.getSettings();
+      const url = settings.backendUrl;
+      const res = await fetch(`${url}/api/nauci/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sadržaj }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setNauciPitanja(data.pitanja ?? []);
+      setNauciStep(2);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `⚠️ Greška pri dohvatu pitanja: ${err.message}`,
+        type: "proactive",
+      }]);
+      setNauciFormVisible(false);
+      setNauciStep(1);
+    } finally {
+      setNauciLoading(false);
+    }
+  }
+
+  async function handleNauciSave(sadržaj, pitanja) {
+    setNauciLoading(true);
+    try {
+      const settings = await window.electron.getSettings();
+      const url = settings.backendUrl;
+      const res = await fetch(`${url}/api/nauci/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sadržaj, pitanja }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const entry = data.entry;
+      const n = entry?.zaključci?.length ?? 0;
+      const moduli = entry?.moduli?.length > 0 ? `, primjenjuje se na: ${entry.moduli.join(", ")}` : "";
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `🧠 Zapamtio sam novo pravilo s **${n}** zaključka${n === 1 ? "" : "ka"}${moduli}. Koristit ću ovo znanje pri pisanju formula.`,
+        type: "proactive",
+      }]);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `⚠️ Greška pri zapisivanju pravila: ${err.message}`,
+        type: "proactive",
+      }]);
+    } finally {
+      setNauciLoading(false);
+      setNauciFormVisible(false);
+      setNauciStep(1);
+      setNauciPitanja([]);
+      setNauciSadržaj("");
+    }
+  }
+
   async function startDebugRecording() {
     const result = await window.electron.debugStartRecording();
     if (!result.ok) {
@@ -2053,6 +2211,16 @@ function App() {
     const currentScreenshot = overrideScreenshot !== undefined ? overrideScreenshot : screenshotDataUrl;
     if (!msgText.trim() && !currentScreenshot) return;
     if (isStreaming) return;
+
+    // Parse /nauči command — otvori inline formu
+    if (msgText.trim().toLowerCase() === "/nauči" ||
+        msgText.trim().toLowerCase() === "/nau\u010Di") {
+      setInput("");
+      setNauciFormVisible(true);
+      setNauciStep(1);
+      setNauciPitanja([]);
+      return;
+    }
 
     // Parse /stolar command — otvori inline formu
     if (msgText.trim().toLowerCase() === "/stolar" ||
@@ -2737,11 +2905,16 @@ function App() {
         )}
 
         {/* Slash command palette — shown when input starts with / */}
-        {input.trim().startsWith("/") && !stolarFormVisible && !isStreaming && (
+        {input.trim().startsWith("/") && !stolarFormVisible && !nauciFormVisible && !isStreaming && (
           <SlashCommandPalette
             input={input.trim()}
             onSelect={(cmd) => {
-              if (cmd === "/stolar") {
+              if (cmd === "/nauči") {
+                setInput("");
+                setNauciFormVisible(true);
+                setNauciStep(1);
+                setNauciPitanja([]);
+              } else if (cmd === "/stolar") {
                 setInput("");
                 setStolarFormVisible(true);
               } else if (cmd === "/debug") {
@@ -2755,8 +2928,17 @@ function App() {
           />
         )}
 
-        {/* Stolar inline form replaces the input row */}
-        {stolarFormVisible ? (
+        {/* Nauči inline form — 2-step parametrization rule entry */}
+        {nauciFormVisible ? (
+          <NauciInlineForm
+            onAsk={handleNauciStart}
+            onSave={handleNauciSave}
+            onCancel={() => { setNauciFormVisible(false); setNauciStep(1); setNauciPitanja([]); }}
+            loading={nauciLoading}
+            step={nauciStep}
+            pitanja={nauciPitanja}
+          />
+        ) : stolarFormVisible ? (
           <StolarInlineForm
             onSubmit={handleStolarSaveElectron}
             onCancel={() => setStolarFormVisible(false)}
@@ -2814,7 +2996,7 @@ function App() {
           </div>
         )}
 
-        <div className="input-hint">F9 ekran · /stolar stolarski rječnik · /istraži za Bridge · Enter šalje · Shift+Enter novi red</div>
+        <div className="input-hint">F9 ekran · /nauči pravila parametrizacije · /stolar stolarski rječnik · /istraži za Bridge · Enter šalje</div>
       </div>
 
       {/* Single hidden file input for live .mac/.zip upload — shared by wizard and banner */}

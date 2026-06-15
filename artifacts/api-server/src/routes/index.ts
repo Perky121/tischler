@@ -8,6 +8,7 @@ import ttsRouter from "./tts";
 import analyzeScreenRouter from "./analyze-screen";
 import bridgeRouter from "./bridge";
 import stolarRouter from "./stolar";
+import nauciRouter from "./nauci";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(ttsRouter);
 router.use(analyzeScreenRouter);
 router.use(bridgeRouter);
 router.use(stolarRouter);
+router.use(nauciRouter);
 
 export default router;

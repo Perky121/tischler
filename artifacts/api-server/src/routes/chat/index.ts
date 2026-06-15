@@ -5,6 +5,7 @@ import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { SendChatBody } from "@workspace/api-zod";
 import { logger } from "../../lib/logger";
 import { readStolarKnowledge, type StolarKnowledge } from "../stolar";
+import { readNauciKnowledge, type NauciKnowledge } from "../nauci";
 // Type aliases matching @anthropic-ai/sdk shapes — avoids resolving the SDK subpath
 // across workspace package boundaries.
 type TextBlockParam = { type: "text"; text: string };
@@ -534,6 +535,7 @@ function buildSystemPrompt(
   conceptualGuide?: string,
   userMessage = "",
   stolarKnowledge?: StolarKnowledge,
+  nauciKnowledge?: NauciKnowledge,
 ): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
@@ -795,6 +797,20 @@ Koristi marker SAMO za pojmove koji su specifični za stolarski zanat i NISU ti 
     parts.push(`\nSTOLARSKO ZNANJE (naučeno od korisnika):\n${stolarLines}`);
   }
 
+  // Naučena pravila — user-taught MegaTischler parametrization rules
+  if (nauciKnowledge && nauciKnowledge.entries.length > 0) {
+    const nauciLines = nauciKnowledge.entries.map((e) => {
+      const moduliText = e.moduli && e.moduli.length > 0
+        ? ` [moduli: ${e.moduli.join(", ")}]`
+        : "";
+      const zaklText = e.zaključci && e.zaključci.length > 0
+        ? `\n  Pravila: ${e.zaključci.join(" | ")}`
+        : "";
+      return `• ${e.sadržaj.slice(0, 120)}${moduliText}${zaklText}`;
+    }).join("\n");
+    parts.push(`\nNAUČENA PRAVILA PARAMETRIZACIJE (naučeno od korisnika):\n${nauciLines}\nKoristiti ova pravila pri pisanju formula i davanju savjeta.`);
+  }
+
   return parts.join("\n");
 }
 
@@ -902,6 +918,7 @@ router.post("/chat", async (req, res): Promise<void> => {
   const userRules = readRules();
   const conceptualGuide = readConceptualGuide();
   const stolarKnowledge = readStolarKnowledge();
+  const nauciKnowledge = readNauciKnowledge();
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);
@@ -944,7 +961,7 @@ router.post("/chat", async (req, res): Promise<void> => {
         : "");
 
     const sessionCtx = rawBody.session_context as SessionContext | null ?? null;
-    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage, stolarKnowledge);
+    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage, stolarKnowledge, nauciKnowledge);
 
     if (screenshot_base64) {
       let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
