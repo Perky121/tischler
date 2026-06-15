@@ -809,6 +809,12 @@ export function ChatPanel() {
       const { module: m, W: w, H: h, D: d } = e.data as { type: string; module?: string; W?: number; H?: number; D?: number };
       if (typeof w !== "number" || typeof h !== "number" || typeof d !== "number") return;
       setPendingDimsUpdate({ module: m ?? "", W: w, H: h, D: d });
+      // Sync module state so formula tree auto-switches
+      if (m) {
+        setActiveFormulaModule(m);
+        lastDimsRef.current = { ...lastDimsRef.current, module: m, W: w, H: h, D: d };
+        try { localStorage.setItem("mt_last_3d_dims", JSON.stringify(lastDimsRef.current)); } catch { /* ignore */ }
+      }
     }
     window.addEventListener("message", handleDimsUpdate);
     return () => window.removeEventListener("message", handleDimsUpdate);
