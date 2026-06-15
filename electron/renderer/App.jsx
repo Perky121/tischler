@@ -1442,16 +1442,16 @@ function SettingsPanel({
                 )}
               </div>
               <div className="settings-section">
-                <div className="settings-label">Dodaj .mac datoteke u bazu</div>
-                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>Ručno dodavanje .mac ili .zip datoteka (alternativa Bridge agentu)</div>
+                <div className="settings-label">Dodaj .mac / .prt datoteke u bazu</div>
+                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 6 }}>Ručno dodavanje .mac, .prt ili .zip datoteka (alternativa Bridge agentu)</div>
                 <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
-                  <input ref={macFileInputRef} type="file" accept=".mac,.zip" multiple style={{ display: "none" }}
+                  <input ref={macFileInputRef} type="file" accept=".mac,.zip,.prt" multiple style={{ display: "none" }}
                     onChange={(e) => { handleMacUpload(e.target.files); e.target.value = ""; }} />
                   <button className="btn-save"
                     style={{ flex: 1, background: "var(--bg3)", color: "var(--text2)", border: "1px solid var(--border)" }}
                     onClick={() => macFileInputRef.current?.click()}
                     disabled={macUploadStatus === "uploading"}>
-                    {macUploadStatus === "uploading" ? "⏳ Dodavanje..." : "📁 Odaberi .mac / .zip"}
+                    {macUploadStatus === "uploading" ? "⏳ Dodavanje..." : "📁 Odaberi .mac / .zip / .prt"}
                   </button>
                 </div>
                 {macUploadStatus && macUploadStatus !== "uploading" && (
