@@ -1489,7 +1489,7 @@ export function ChatPanel() {
       </div>
       <iframe
         ref={iframeRef}
-        src="/3d-viewer/"
+        src="/3d-viewer/?embed=1"
         className="flex-1 border-0 bg-slate-100"
         title="MegaTischler 3D preglednik"
         onLoad={() => {

@@ -36,6 +36,7 @@ function parseUrlParams(): { module: ModuleName; W: number; H: number; D: number
 }
 
 const URL_PARAMS = parseUrlParams();
+const IS_EMBED = new URLSearchParams(window.location.search).get("embed") === "1";
 
 export default function App() {
   const [module, setModule] = useState<ModuleName>(URL_PARAMS.module);
@@ -80,7 +81,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-100 text-slate-800">
-      <aside className="w-72 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
+      {!IS_EMBED && <aside className="w-72 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
         <div className="px-4 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <span className="text-lg">🪵</span>
@@ -104,7 +105,7 @@ export default function App() {
             </div>
           </div>
         )}
-      </aside>
+      </aside>}
 
       <main className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200 flex-shrink-0 gap-3">
