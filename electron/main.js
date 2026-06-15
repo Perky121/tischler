@@ -893,6 +893,9 @@ ipcMain.handle("live-resume", async () => {
   if (mainWindow) {
     startLiveLoop(mainWindow, { skipTestPing: true });
     await triggerLiveAnalyze(mainWindow, true);
+    // Reset cooldown after the resume trigger so the diff loop can
+    // immediately detect the next screen change without waiting 4s.
+    liveLastApiCallTs = 0;
   }
   emitLiveStateChanged();
   return { ok: true, state: liveState };
