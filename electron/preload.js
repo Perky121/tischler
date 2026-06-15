@@ -96,6 +96,9 @@ contextBridge.exposeInMainWorld("electron", {
   // Formula injection — upiši formulu direktno u aktivno polje MegaTischlera
   injectFormula: (formula) => ipcRenderer.invoke("inject-formula", { formula }),
 
+  // Attachment reader — čita lokalnu datoteku s diska (text ili hex probe)
+  readAttachment: (args) => ipcRenderer.invoke("read-attachment", args),
+
   // Conversations persistence
   getConversations: () => ipcRenderer.invoke("get-conversations"),
   saveConversations: (data) => ipcRenderer.invoke("save-conversations", data),

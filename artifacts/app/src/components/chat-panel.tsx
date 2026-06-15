@@ -1,11 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, Send, Copy, Check, Loader2, X } from "lucide-react";
+import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText } from "lucide-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
-// Message type extended with screenshot thumbnail
-type ChatMessageExt = ChatMessage & { screenshotThumb?: string };
+// Message type extended with screenshot thumbnail and optional attached file name
+type ChatMessageExt = ChatMessage & { screenshotThumb?: string; attachedFileName?: string };
+
+// Attached document state
+type AttachedFile = {
+  name: string;
+  sizeKb: number;
+  isText: boolean;
+  text?: string;       // text content for text files
+  note?: string;       // fallback note for binary files
+};
 
 // ── Inline markdown: **bold**, *italic*, `code` ───────────────────────────
 function renderInline(text: string): React.ReactNode[] {
@@ -347,8 +356,10 @@ export function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessageExt[]>([]);
   const [input, setInput] = useState("");
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
+  const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const docInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -370,6 +381,50 @@ export function ChatPanel() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleDocSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (docInputRef.current) docInputRef.current.value = "";
+
+    const name = file.name;
+    const sizeKb = Math.round((file.size / 1024) * 10) / 10;
+    const TEXT_EXTS = new Set(['.txt', '.mac', '.prt', '.def', '.cfg', '.ini', '.md', '.log', '.csv']);
+    const ext = name.slice(name.lastIndexOf('.')).toLowerCase();
+    const isText = TEXT_EXTS.has(ext);
+
+    // Electron env: IPC handler reads file from local path
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const elec = (window as any).electron;
+    if (elec?.readAttachment) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const filePath = (file as any).path as string | undefined;
+      if (filePath) {
+        const result = await elec.readAttachment({ fullPath: filePath, filename: name });
+        if (result.ok) {
+          setAttachedFile({
+            name,
+            sizeKb: Math.round((result.sizeBytes / 1024) * 10) / 10,
+            isText: result.isText as boolean,
+            text: result.text as string | undefined,
+            note: result.isText ? undefined : "Binarna datoteka — sadržaj nije dostupan kao tekst",
+          });
+        }
+        return;
+      }
+    }
+
+    // Web / fallback: FileReader
+    if (isText) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setAttachedFile({ name, sizeKb, isText: true, text: ev.target?.result as string });
+      };
+      reader.readAsText(file, "utf-8");
+    } else {
+      setAttachedFile({ name, sizeKb, isText: false, note: "Binarna datoteka — sadržaj nije dostupan kao tekst" });
+    }
+  };
+
   // Strip data URL prefix to get raw base64 for the API
   const extractBase64 = (dataUrl: string): string => {
     const match = dataUrl.match(/^data:[^;]+;base64,(.+)$/);
@@ -377,19 +432,22 @@ export function ChatPanel() {
   };
 
   const handleSend = async () => {
-    if (!input.trim() && !screenshotDataUrl) return;
+    if (!input.trim() && !screenshotDataUrl && !attachedFile) return;
 
     const currentScreenshot = screenshotDataUrl;
+    const currentFile = attachedFile;
     const userMsg: ChatMessageExt = {
       role: "user",
       content: input.trim(),
       ...(currentScreenshot ? { screenshotThumb: currentScreenshot } : {}),
+      ...(currentFile ? { attachedFileName: currentFile.name } : {}),
     };
 
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
     setInput("");
     setScreenshotDataUrl(null);
+    setAttachedFile(null);
     setIsStreaming(true);
 
     // Add placeholder assistant message
@@ -406,6 +464,7 @@ export function ChatPanel() {
         message: string;
         history: { role: string; content: string }[];
         screenshot_base64?: string;
+        file_content?: { name: string; text?: string; note?: string };
       } = {
         message: userMsg.content,
         history: historyForApi,
@@ -413,6 +472,12 @@ export function ChatPanel() {
 
       if (currentScreenshot) {
         body.screenshot_base64 = extractBase64(currentScreenshot);
+      }
+
+      if (currentFile) {
+        body.file_content = currentFile.isText
+          ? { name: currentFile.name, text: currentFile.text }
+          : { name: currentFile.name, note: currentFile.note };
       }
 
       const res = await fetch("/api/chat", {
@@ -545,6 +610,13 @@ export function ChatPanel() {
                             </div>
                           </div>
                         )}
+                        {/* Attached file chip inside bubble */}
+                        {msg.attachedFileName && (
+                          <div className="mb-2 flex items-center gap-1.5 text-[11px] bg-black/10 rounded-md px-2 py-1 w-fit max-w-full">
+                            <FileText className="w-3 h-3 shrink-0 opacity-70" />
+                            <span className="truncate opacity-80">{msg.attachedFileName}</span>
+                          </div>
+                        )}
                         {msg.content && (
                           <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
                         )}
@@ -585,6 +657,28 @@ export function ChatPanel() {
       {/* Input area */}
       <div className="p-4 border-t border-border bg-background/95 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto">
+          {/* File attachment preview chip */}
+          {attachedFile && (
+            <div className="mb-2 flex items-center gap-3 bg-muted/30 rounded-lg p-2 border border-border">
+              <div className="w-8 h-8 rounded border border-border bg-muted/50 flex items-center justify-center shrink-0">
+                <FileText className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium truncate">{attachedFile.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {attachedFile.sizeKb} KB · {attachedFile.isText ? "tekst" : "binarna datoteka"}
+                </div>
+              </div>
+              <button
+                onClick={() => setAttachedFile(null)}
+                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                title="Ukloni datoteku"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* Screenshot preview above input */}
           {screenshotDataUrl && (
             <div className="mb-3 flex items-start gap-3 bg-muted/30 rounded-lg p-2 border border-border">
@@ -608,6 +702,7 @@ export function ChatPanel() {
           )}
 
           <div className="flex items-end gap-2 bg-card border border-border rounded-xl p-2 focus-within:ring-1 focus-within:ring-primary shadow-sm">
+            {/* Hidden screenshot input */}
             <input
               type="file"
               accept="image/*"
@@ -616,6 +711,17 @@ export function ChatPanel() {
               onChange={handleScreenshotSelect}
               data-testid="screenshot-file-input"
             />
+            {/* Hidden document input */}
+            <input
+              type="file"
+              accept=".txt,.mac,.prt,.def,.cfg,.ini,.pdf,.zip,.mdb,.bhr,.md,.log,.csv"
+              className="hidden"
+              ref={docInputRef}
+              onChange={handleDocSelect}
+              data-testid="doc-file-input"
+            />
+
+            {/* Screenshot button */}
             <Button
               variant="ghost"
               size="icon"
@@ -626,6 +732,19 @@ export function ChatPanel() {
               data-testid="screenshot-button"
             >
               <ImageIcon className="w-5 h-5" />
+            </Button>
+
+            {/* Document attach button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`shrink-0 rounded-lg transition-colors ${attachedFile ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              onClick={() => docInputRef.current?.click()}
+              disabled={isStreaming}
+              title="Priloži datoteku (.mac, .txt, .pdf, ...)"
+              data-testid="attach-button"
+            >
+              <Paperclip className="w-5 h-5" />
             </Button>
 
             <Textarea
@@ -641,7 +760,7 @@ export function ChatPanel() {
 
             <Button
               onClick={handleSend}
-              disabled={(!input.trim() && !screenshotDataUrl) || isStreaming}
+              disabled={(!input.trim() && !screenshotDataUrl && !attachedFile) || isStreaming}
               className="shrink-0 rounded-lg mb-0.5"
               data-testid="send-button"
             >

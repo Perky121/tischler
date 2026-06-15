@@ -870,8 +870,11 @@ router.post("/chat", async (req, res): Promise<void> => {
     }
   }
 
+  // Optional file attachment (not in Zod schema — read from rawBody)
+  const fileContent = rawBody.file_content as { name: string; text?: string; note?: string } | undefined;
+
   // Reject if there is nothing to send (normal mode)
-  if (mode !== "debug" && !message.trim() && !screenshot_base64) {
+  if (mode !== "debug" && !message.trim() && !screenshot_base64 && !fileContent) {
     res.status(400).json({ error: "Poruka ili screenshot su obavezni." });
     return;
   }
@@ -916,7 +919,9 @@ router.post("/chat", async (req, res): Promise<void> => {
     // ── Normal / screenshot-single mode ───────────────────────────────────────
     const effectiveMessage = message.trim() || (screenshot_base64
       ? "Korisnik je poslao screenshot bez dodatnog teksta. Nastavi logično rješavati zadatak na kojem radimo na temelju povijesti razgovora i screenshota. Ako ti nedostaje kontekst za nastavak, postavi jasna pitanja za pojašnjenje."
-      : "");
+      : fileContent
+        ? "Korisnik je poslao datoteku bez dodatnog teksta. Analiziraj priloženu datoteku i odgovori na hrvatskom."
+        : "");
 
     const sessionCtx = rawBody.session_context as SessionContext | null ?? null;
     systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage);
@@ -930,6 +935,14 @@ router.post("/chat", async (req, res): Promise<void> => {
         type: "image",
         source: { type: "base64", media_type: mediaType, data: screenshot_base64 },
       });
+    }
+
+    // Inject file attachment content before the user message text
+    if (fileContent) {
+      const fileBlock = fileContent.text
+        ? `[Priložena datoteka: ${fileContent.name}]\n${fileContent.text}`
+        : `[Priložena datoteka: ${fileContent.name}]\n${fileContent.note ?? "Binarna datoteka — sadržaj nije dostupan kao tekst"}`;
+      userContent.push({ type: "text", text: fileBlock });
     }
 
     if (effectiveMessage) {

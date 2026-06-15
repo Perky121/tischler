@@ -1291,6 +1291,45 @@ ipcMain.handle("inject-formula", async (_, { formula }) => {
   });
 });
 
+// ── Attachment reader IPC ─────────────────────────────────────────────────────
+// Reads a local file and returns text content (for text formats) or a hex-probe
+// preview (for binary formats). Keeps text <= 64 KB, hex probe <= 4 KB.
+ipcMain.handle("read-attachment", async (_, { fullPath, filename }) => {
+  const TEXT_EXTS = new Set(['.txt', '.mac', '.prt', '.def', '.cfg', '.ini', '.md', '.log', '.csv']);
+  const MAX_TEXT_BYTES = 65536; // 64 KB
+  const MAX_BIN_BYTES = 4096;   // first 4 KB for hex probe
+
+  try {
+    const ext = path.extname((filename || fullPath || '')).toLowerCase();
+    const stat = fs.statSync(fullPath);
+    const sizeBytes = stat.size;
+    const isText = TEXT_EXTS.has(ext);
+
+    if (isText) {
+      let text;
+      try {
+        text = fs.readFileSync(fullPath, 'utf-8');
+      } catch {
+        text = fs.readFileSync(fullPath, 'latin1');
+      }
+      if (Buffer.byteLength(text, 'utf-8') > MAX_TEXT_BYTES) {
+        text = text.slice(0, MAX_TEXT_BYTES) + '\n... [sadržaj je skraćen zbog veličine]';
+      }
+      return { ok: true, text, isText: true, sizeBytes };
+    } else {
+      const fd = fs.openSync(fullPath, 'r');
+      const bytes = Math.min(sizeBytes, MAX_BIN_BYTES);
+      const buf = Buffer.alloc(bytes);
+      fs.readSync(fd, buf, 0, bytes, 0);
+      fs.closeSync(fd);
+      const hexLines = buf.toString('hex').match(/.{1,32}/g) || [];
+      return { ok: true, hexPreview: hexLines.join('\n'), isText: false, sizeBytes };
+    }
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+});
+
 // ── Debug mode IPC ────────────────────────────────────────────────────────────
 
 ipcMain.handle("debug-start-recording", () => {
