@@ -406,23 +406,30 @@ Budi konkretan — navedi stvarna imena datoteka iz manifesta.` : ""}`;
       textMessages.push({ role: "user", content: "Zdravo!" });
     }
 
-    // Build final messages array, attaching vision block to last user msg if image provided
+    // Build final messages array, attaching vision block to current user turn only.
+    // The frontend includes userMsg as the last entry in messages[] if non-empty.
+    // If the user sent image-only (no text), there is no new user entry — we append one.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let streamMessages: any[] = textMessages;
-    if (imageBase64 && imageMediaType && !isGreeting && textMessages.length > 0) {
+    let streamMessages: any[] = [...textMessages];
+    if (imageBase64 && imageMediaType && !isGreeting) {
       const validMt = (["image/jpeg", "image/png", "image/gif", "image/webp"] as const)
         .find(t => t === imageMediaType) ?? "image/jpeg";
-      const lastMsg = textMessages[textMessages.length - 1];
-      streamMessages = [
-        ...textMessages.slice(0, -1),
-        {
+      const imageBlock = { type: "image", source: { type: "base64", media_type: validMt, data: imageBase64 } };
+      const lastMsg = streamMessages[streamMessages.length - 1];
+      if (lastMsg && lastMsg.role === "user") {
+        // Current turn has text — prepend image to that user message
+        const textContent = typeof lastMsg.content === "string" ? lastMsg.content : "";
+        streamMessages[streamMessages.length - 1] = {
           role: "user",
           content: [
-            { type: "image", source: { type: "base64", media_type: validMt, data: imageBase64 } },
-            ...(lastMsg.content ? [{ type: "text", text: lastMsg.content }] : []),
+            imageBlock,
+            ...(textContent ? [{ type: "text", text: textContent }] : []),
           ],
-        },
-      ];
+        };
+      } else {
+        // Image-only turn (no text) — append a fresh user message with just the image
+        streamMessages.push({ role: "user", content: [imageBlock] });
+      }
     }
 
     const stream = anthropic.messages.stream({

@@ -1,4 +1,4 @@
-modules = ["nodejs-24", "python3"]
+modules = ["nodejs-24", "python3", "python-3.11"]
 
 [deployment]
 router = "application"
