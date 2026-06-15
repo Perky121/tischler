@@ -858,9 +858,10 @@ export function ChatPanel() {
     setInput("");
   };
 
-  const handleSend = async () => {
+  const handleSend = async (overrideMessage?: string) => {
     // Slash command router — intercept before sending to AI
-    const trimmed = input.trimStart();
+    const effectiveInput = overrideMessage !== undefined ? overrideMessage : input;
+    const trimmed = effectiveInput.trimStart();
     if (trimmed.startsWith("/")) {
       const lower = trimmed.toLowerCase();
 
@@ -891,8 +892,8 @@ export function ChatPanel() {
     }
 
     // /stolar command: teach the AI a carpentry term
-    if (input.trimStart().toLowerCase().startsWith("/stolar ")) {
-      const rest = input.trimStart().slice(8).trim();
+    if (effectiveInput.trimStart().toLowerCase().startsWith("/stolar ")) {
+      const rest = effectiveInput.trimStart().slice(8).trim();
       if (!rest) return;
       const firstSpace = rest.indexOf(" ");
       const pojam = firstSpace > 0 ? rest.slice(0, firstSpace) : rest;
@@ -903,13 +904,13 @@ export function ChatPanel() {
       return;
     }
 
-    if (!input.trim() && !screenshotDataUrl && !attachedFile) return;
+    if (!effectiveInput.trim() && !screenshotDataUrl && !attachedFile) return;
 
     const currentScreenshot = screenshotDataUrl;
     const currentFile = attachedFile;
     const userMsg: ChatMessageExt = {
       role: "user",
-      content: input.trim(),
+      content: effectiveInput.trim(),
       ...(currentScreenshot ? { screenshotThumb: currentScreenshot } : {}),
       ...(currentFile ? { attachedFileName: currentFile.name } : {}),
     };
@@ -1148,8 +1149,7 @@ export function ChatPanel() {
                           const wlSteps = !isStreaming && !planContent ? extractWorklist(cleanContent) : null;
                           const mainNode = planContent
                             ? <PlanResponseCard plan={planContent} onAnswer={(msg) => {
-                                setInput(msg);
-                                setTimeout(() => handleSend(), 0);
+                                handleSend(msg);
                               }} />
                             : wlSteps
                             ? (() => {
@@ -1335,7 +1335,7 @@ export function ChatPanel() {
             </Button>
 
             <Button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={(!input.trim() && !screenshotDataUrl && !attachedFile) || isStreaming || stolarLoading || !!stolarFlow}
               className="shrink-0 rounded-lg mb-0.5"
               data-testid="send-button"

@@ -661,15 +661,16 @@ details[open] .thinking-arrow { transform: rotate(90deg); }
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   color: var(--text3);
-  font-size: 14px;
-  width: 28px;
+  font-size: 12px;
+  width: auto;
   height: 28px;
+  padding: 0 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
   cursor: pointer;
   transition: color 0.15s, background 0.15s, border-color 0.15s;
-  padding: 0;
 }
 .plan-mode-btn:hover:not(:disabled) {
   color: var(--text1);
