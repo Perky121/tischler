@@ -11,6 +11,7 @@
 import {
   ANTI_PATTERNS,
   COMPARISON_OPERATORS,
+  DIMENSION_SUFFIXES,
   FORMULA_PATTERNS,
   FUNCTIONS,
   HIERARCHY,
@@ -77,6 +78,18 @@ export function findRuleInconsistencies(): string[] {
   for (const code of MATERIAL_CODES) {
     if (!FUNCTIONS_AND_OPERATORS.includes(code)) {
       problems.push(`Materijalni kod "${code}" prikazan u aplikaciji nije naveden u promptu.`);
+    }
+  }
+
+  // ── Dimension suffixes: each suffix + its count must appear in the prompt ─────
+  for (const suf of DIMENSION_SUFFIXES) {
+    if (!FUNCTIONS_AND_OPERATORS.includes(suf.suffix)) {
+      problems.push(`Sufiks "${suf.suffix}" prikazan u aplikaciji nije naveden u FUNCTIONS_AND_OPERATORS promptu.`);
+    }
+    if (!FUNCTIONS_AND_OPERATORS.includes(String(suf.count))) {
+      problems.push(
+        `Sufiks "${suf.suffix}": prikaz navodi ${suf.count} pojava, ali "${suf.count}" nije u FUNCTIONS_AND_OPERATORS promptu.`,
+      );
     }
   }
 

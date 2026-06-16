@@ -50,6 +50,19 @@ Tip 1 — SUSTAVNE VARIJABLE (MegaTischler automatski pruža): POSW, POSD, POSH
 Tip 2 — MATERIJALNI KODOVI (konstante/šifre iz kataloga, vraća getmatdata ili ifelse grana):
   Primjeri: BL_ZIF_80M7_, VO_10_31_A100, VO_10_31_A150, GT_W60800, SCH_103309900, MH_STR7, MH_STR8, Z75, GTV, FIXNA
   Ovi identifikatori su KONSTANTE — nisu varijable, ne možeš ih postavljati ni mijenjati.
+  U GetMatData kôd može imati #N sufiks (indeks polja podatka): GetMatData([.MatV];MH_STR7#4) — svih 10 GetMatData poziva u bazi koristi MH_STR7#4 ili MH_STR8#4.
+
+SUFIKSI DIMENZIJA/POZICIJA (iza imena elementa — kažu KOJU veličinu čitaš):
+  .T (3288 formula) — debljina elementa (thickness), najčešći sufiks
+  .X (2058 formula) — pozicija po X osi
+  .Z (2038 formula) — pozicija po Z osi (visinska)
+  .Y (1877 formula) — pozicija po Y osi (dubinska)
+  .W (979 formula)  — širina (width)
+  .L (695 formula)  — duljina (length)
+  .H (613 formula)  — visina (height)
+  .D (605 formula)  — dubina (depth)
+  .Rx/.Ry/.Rz (78/72/79 formula) — rotacije oko X/Y/Z osi (ulaze u euler())
+Primjer: [.Pod.T] = debljina elementa Pod; [.StranicaL.X] = X pozicija StranicaL. Pozicijske osi (.X/.Y/.Z) i dimenzije (.W/.H/.L/.D/.T) prate isti element kroz hijerarhiju.
 
 FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 10 641 formula):
   if(uvjet;istina;laž)                       — 2-granični uvjet            (3857 formula)
@@ -63,7 +76,7 @@ FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 10 641 formula):
   MIN(a;b;...)                               — minimum                       (4 formula)
   MAX(a;b;...)                               — maksimum                      (95 formula)
   euler(...)                                 — 3D rotacijska matrica          (18 formula)
-  ADD(x)                                     — akumulacija vrijednosti        (21 formula)
+  ADD(x)                                     — dodaje korektivni iznos (često zazor/kerf ±18, ±5, ±4); može se nizati ADD(18)+ADD(18)  (21 formula)
   getmatdata(mat;ključ)                      — čita podatak o materijalu     (10 formula)
   STRCAT(s1;s2;...)                          — spaja tekst — uvijek UPPERCASE (100%) (5 formula)
   VAL(x)                                     — konverzija u broj — uvijek UPPERCASE (100%) (19 formula)
@@ -116,6 +129,16 @@ export const FORMULA_PATTERNS_PROMPT = `OBRASCI ZA PISANJE FORMULA (potvrđeno b
 
 5) KUT IZ DVIJE STRANICE —  atan([IS]/[ID])   (10×)
    Obrazac za računanje nagiba iz dvije veličine (npr. dijagonalni rez).
+
+6) ČISTI PRIJENOS VRIJEDNOSTI —  [.X]   (2055× — 19,3% cijele baze, NAJČEŠĆI oblik formule!)
+   Cijela formula je SAMO jedna [referenca], bez ijedne operacije. Parametar nasljeđuje vrijednost roditelja/globala 1:1.
+   Kad vrijednost dolazi izravno odnekud, NE piši aritmetiku — samo referenciraj. Primjer: [.W] ili [...KZ].
+
+7) EKSPLICITNI (0) SLOT ZA ZAZOR —  pozA + debljinaA + (0)   (402 formula, 400× kao +/- offset slot)
+   Konstanta u zagradama (0) je NAMJERNI prazni slot za zazor/razmak koji je trenutno nula, ali ga korisnik može urediti bez prepisivanja strukture.
+   Drži ga u zagradama na kraju zbroja ili kao oduzeti član; često unutar ABS() razlike pozicija.
+   Primjer iz baze: ABS([.Strop.Z]-(0)-([.Pod.Z]+[.Pod.T]+(0)))
+   Najčešće konstante u bazi: 0 (7670×), 1 (5326×), 2 (1887×), 3 (597×), 5 (546×).
 
 OPSEG LOGIKE (baza 10 641 formula): 7445 nema nijedan if (70% — čista aritmetika), 2750 ima točno 1 if (26%), 326 ima 2 if (3%), a samo 120 ima 3+ if (1%).
 → Drži formule plitkima: preferiraj jedan if() ili ifelse() umjesto dubokog ugnježđivanja.`;

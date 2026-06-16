@@ -26,3 +26,13 @@ podataka ne pokriva; ručno zrcaljenje se prije razilazilo (npr. `…` vs `...`)
 brojevi/kodovi/reference iz `display.ts` pojavljuju u proznim blokovima. CLI
 `consistency.check.ts` pukne (exit 1) na razilaženje; registriran kao validacijski
 korak `rules-consistency` (`pnpm --filter @workspace/formula-rules run check`).
+
+**Gotcha — guard NE pokriva sve:** dodaš li novu strukturu u `display.ts` koja
+treba biti u promptu (npr. `DIMENSION_SUFFIXES`), MORAŠ ručno dodati i petlju u
+`findRuleInconsistencies()` — guard provjerava samo ono što je eksplicitno kodirano.
+Guard provjerava prisutnost tokena/broja, NE semantiku (opis funkcije može se
+razići između display i prompt, a check prolazi).
+
+**Gotcha — ukupni broj baze živi na više mjesta:** `formula-rules-panel.tsx` intro
+ima HARDKODIRAN broj formula ("baze od N formula") odvojen od `display.ts`/`prompt.ts`.
+Kad se baza poveća (nova tura .mac), ažuriraj i taj tekst — guard ga ne hvata.

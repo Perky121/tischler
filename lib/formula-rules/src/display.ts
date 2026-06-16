@@ -48,6 +48,12 @@ export type ModuleTypeRow = {
   type: string;
 };
 
+export type SuffixRow = {
+  suffix: string;
+  meaning: string;
+  count: number;
+};
+
 export const COMPARISON_OPERATORS: OperatorRow[] = [
   { symbol: "==", meaning: "usporedba jednakosti", count: 5792, example: "if([KDT]==3;0;1)" },
   { symbol: "=", meaning: "usporedba jednakosti (oba oblika valjana)", count: 494, example: "if([.VPST]=1;2;1)" },
@@ -78,8 +84,8 @@ export const FUNCTIONS: FunctionRow[] = [
   { name: "MIN(a;b;…)", meaning: "minimum", count: 4 },
   { name: "MAX(a;b;…)", meaning: "maksimum", count: 95 },
   { name: "euler(…)", meaning: "3D rotacijska matrica", count: 18 },
-  { name: "ADD(x)", meaning: "akumulacija vrijednosti", count: 21 },
-  { name: "getmatdata(mat;ključ)", meaning: "čita podatak o materijalu", count: 10 },
+  { name: "ADD(x)", meaning: "dodaje korektivni iznos (često zazor/kerf ±18, ±5, ±4); može se nizati ADD(18)+ADD(18)", count: 21 },
+  { name: "getmatdata(mat;ključ)", meaning: "čita podatak o materijalu; ključ može imati #N indeks polja (GetMatData([.MatV];MH_STR7#4))", count: 10 },
   { name: "STRCAT(s1;s2;…)", meaning: "spaja tekst — uvijek UPPERCASE (100%)", count: 5 },
   { name: "VAL(x)", meaning: "konverzija u broj — uvijek UPPERCASE (100%)", count: 19 },
 ];
@@ -110,7 +116,7 @@ export const MATERIAL_CODES: string[] = [
 ];
 
 export const MATERIAL_CODES_NOTE =
-  "Materijalni kodovi su KONSTANTE/šifre iz kataloga (vraća getmatdata ili ifelse grana) — nisu varijable, ne mogu se postavljati ni mijenjati. Pišu se bez uglatih zagrada.";
+  "Materijalni kodovi su KONSTANTE/šifre iz kataloga (vraća getmatdata ili ifelse grana) — nisu varijable, ne mogu se postavljati ni mijenjati. Pišu se bez uglatih zagrada. U GetMatData kôd može imati #N sufiks (indeks polja podatka), npr. MH_STR7#4 — svih 10 GetMatData poziva u bazi koristi MH_STR7#4 ili MH_STR8#4.";
 
 export const ANTI_PATTERNS: AntiPatternRow[] = [
   { wrong: "if(A!=B;...)", correct: "if(A<>B;...)", note: '"nije jednako" je <>, ne !=' },
@@ -154,7 +160,40 @@ export const FORMULA_PATTERNS: FormulaPattern[] = [
     count: "10×",
     description: "Računanje nagiba iz dvije veličine (npr. dijagonalni rez).",
   },
+  {
+    title: "Čisti prijenos vrijednosti (passthrough)",
+    template: "[.X]",
+    count: "2055× (19,3% cijele baze)",
+    description:
+      "Najčešći oblik formule uopće: cijela formula je SAMO jedna [referenca], bez ijedne operacije. Parametar nasljeđuje vrijednost roditelja/globala 1:1. Kad vrijednost dolazi izravno odnekud, ne piši aritmetiku — samo referenciraj. Najčešći sufiksi u prijenosu: .Z(302), .X(205), .L(190), .Y(177), .W(129).",
+    example: "[.W]   ili   [...KZ]",
+  },
+  {
+    title: "Eksplicitni (0) slot za zazor/offset",
+    template: "pozA + debljinaA + (0)",
+    count: "402 formula (400× kao +/- offset slot)",
+    description:
+      "Konstanta u zagradama (0) je NAMJERNI prazni slot za zazor/razmak koji je trenutno nula, ali ga korisnik može urediti bez prepisivanja strukture. Drži ga u zagradama na kraju zbroja ili kao oduzeti član. Često unutar ABS() razlike pozicija. Konstanta 0 je najčešća u bazi (7670×), zatim 1 (5326×), 2 (1887×), 3 (597×), 5 (546×).",
+    example: "ABS([.Strop.Z]-(0)-([.Pod.Z]+[.Pod.T]+(0)))",
+  },
 ];
+
+export const DIMENSION_SUFFIXES: SuffixRow[] = [
+  { suffix: ".T", meaning: "debljina elementa (thickness) — najčešći sufiks", count: 3288 },
+  { suffix: ".X", meaning: "pozicija po X osi", count: 2058 },
+  { suffix: ".Z", meaning: "pozicija po Z osi (visinska)", count: 2038 },
+  { suffix: ".Y", meaning: "pozicija po Y osi (dubinska)", count: 1877 },
+  { suffix: ".W", meaning: "širina (width)", count: 979 },
+  { suffix: ".L", meaning: "duljina (length)", count: 695 },
+  { suffix: ".H", meaning: "visina (height)", count: 613 },
+  { suffix: ".D", meaning: "dubina (depth)", count: 605 },
+  { suffix: ".Rx", meaning: "rotacija oko X osi (ulaz u euler())", count: 78 },
+  { suffix: ".Ry", meaning: "rotacija oko Y osi (ulaz u euler())", count: 72 },
+  { suffix: ".Rz", meaning: "rotacija oko Z osi (ulaz u euler())", count: 79 },
+];
+
+export const DIMENSION_SUFFIXES_NOTE =
+  "Sufiks iza imena elementa kaže KOJU veličinu čitaš: [.Pod.T] = debljina elementa Pod, [.StranicaL.X] = X pozicija StranicaL. Pozicijske osi (.X/.Y/.Z) i dimenzije (.W/.H/.L/.D/.T) prate isti element kroz hijerarhiju. Rotacijski sufiksi (.Rx/.Ry/.Rz) ulaze u euler().";
 
 export const LOGIC_SCOPE_NOTE =
   "Opseg logike (baza 10 641 formula): 7445 formula nema nijedan if (70% — čista aritmetika), 2750 ima točno 1 if (26%), 326 ima 2 if (3%), a samo 120 ima 3+ if (1%). → Drži formule plitkima: preferiraj jedan if() ili ifelse() umjesto dubokog ugnježđivanja.";
@@ -255,6 +294,7 @@ export const RULE_SECTIONS: RuleSection[] = [
   { id: "operatori", label: "Operatori" },
   { id: "funkcije", label: "Funkcije" },
   { id: "varijable", label: "Varijable i kodovi" },
+  { id: "sufiksi", label: "Sufiksi" },
   { id: "greske", label: "Česte greške" },
   { id: "obrasci", label: "Obrasci" },
   { id: "hijerarhija", label: "Hijerarhija" },

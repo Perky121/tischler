@@ -9,6 +9,8 @@ import {
   SYSTEM_VARIABLES_NOTE,
   MATERIAL_CODES,
   MATERIAL_CODES_NOTE,
+  DIMENSION_SUFFIXES,
+  DIMENSION_SUFFIXES_NOTE,
   ANTI_PATTERNS,
   FORMULA_PATTERNS,
   LOGIC_SCOPE_NOTE,
@@ -39,6 +41,7 @@ import {
   Move3d,
   Equal,
   Settings,
+  Ruler,
 } from "lucide-react";
 
 function SectionHeader({
@@ -148,7 +151,7 @@ export function FormulaRulesPanel() {
         <div>
           <h2 className="text-xl font-bold tracking-tight mb-1">Parametrizacija — pravila</h2>
           <p className="text-xs text-muted-foreground">
-            Pravila izvučena analizom baze od 3438 formula, ugrađena u AI asistenta.
+            Pravila izvučena analizom baze od 10 641 formule, ugrađena u AI asistenta.
           </p>
         </div>
 
@@ -223,6 +226,39 @@ export function FormulaRulesPanel() {
             </div>
             <NoteBox>{MATERIAL_CODES_NOTE}</NoteBox>
           </div>
+        </section>
+
+        {/* Sufiksi dimenzija/pozicija */}
+        <section className="space-y-3">
+          <SectionHeader
+            id="sufiksi"
+            icon={Ruler}
+            title="Sufiksi dimenzija i pozicija"
+            subtitle="Sufiks iza imena elementa kaže koju veličinu čitaš (npr. [.Pod.T] = debljina elementa Pod)."
+          />
+          <div className="overflow-hidden rounded-md border border-border">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="text-left font-medium px-2.5 py-1.5 w-[80px]">Sufiks</th>
+                  <th className="text-left font-medium px-2.5 py-1.5">Značenje</th>
+                  <th className="text-right font-medium px-2.5 py-1.5 w-[56px]">Pojava</th>
+                </tr>
+              </thead>
+              <tbody>
+                {DIMENSION_SUFFIXES.map((s) => (
+                  <tr key={s.suffix} className="border-t border-border/60 align-top">
+                    <td className="px-2.5 py-1.5">
+                      <code className="font-mono text-primary font-semibold">{s.suffix}</code>
+                    </td>
+                    <td className="px-2.5 py-1.5 text-foreground/85 leading-snug">{s.meaning}</td>
+                    <td className="px-2.5 py-1.5 text-right tabular-nums text-muted-foreground">{s.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <NoteBox>{DIMENSION_SUFFIXES_NOTE}</NoteBox>
         </section>
 
         {/* Česte greške */}
