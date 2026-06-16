@@ -314,62 +314,66 @@ export default function App() {
               </button>
             </div>
 
-            {/* Body */}
-            <div className="bg-white px-6 py-5 space-y-5">
+            {/* Body — unified table grid */}
+            <div className="bg-white">
+              {/* Table grid: label col (112px) + control col (auto) */}
+              <div className="divide-y divide-slate-100">
 
-              {/* Dimensions — 3-column card grid */}
-              <div>
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Dimenzije</div>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    { key: "W", label: "Širina", value: editW, set: setEditW, min: MODULE_DEFAULTS[module].minW, max: MODULE_DEFAULTS[module].maxW },
-                    { key: "H", label: "Visina", value: editH, set: setEditH, min: MODULE_DEFAULTS[module].minH, max: MODULE_DEFAULTS[module].maxH },
-                    { key: "D", label: "Dubina", value: editD, set: setEditD, min: MODULE_DEFAULTS[module].minD, max: MODULE_DEFAULTS[module].maxD },
-                  ] as Array<{ key: string; label: string; value: number; set: (v: number) => void; min: number; max: number }>).map(({ key, label, value, set, min, max }) => (
-                    <div
-                      key={key}
-                      className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 flex flex-col items-center gap-1.5"
-                    >
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{key}</div>
+                {/* ── Section header: Dimenzije ── */}
+                <div className="px-6 pt-4 pb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Dimenzije</span>
+                </div>
+
+                {([
+                  { key: "W", label: "Širina", value: editW, set: setEditW, min: MODULE_DEFAULTS[module].minW, max: MODULE_DEFAULTS[module].maxW },
+                  { key: "H", label: "Visina", value: editH, set: setEditH, min: MODULE_DEFAULTS[module].minH, max: MODULE_DEFAULTS[module].maxH },
+                  { key: "D", label: "Dubina", value: editD, set: setEditD, min: MODULE_DEFAULTS[module].minD, max: MODULE_DEFAULTS[module].maxD },
+                ] as Array<{ key: string; label: string; value: number; set: (v: number) => void; min: number; max: number }>).map(({ key, label, value, set, min, max }) => (
+                  <div key={key} className="flex items-center px-6 py-2.5 gap-3">
+                    <span className="w-28 flex-shrink-0 text-sm text-slate-500">
+                      <span className="font-mono font-bold text-slate-700">{key}</span>
+                      <span className="text-slate-400"> · {label}</span>
+                    </span>
+                    <div className="flex items-center gap-2 flex-1">
                       <input
                         type="number"
                         value={value}
                         min={min}
                         max={max}
                         onChange={(e) => set(parseInt(e.target.value, 10))}
-                        className="w-full text-center text-lg font-mono font-bold text-slate-800 bg-transparent border-none outline-none focus:bg-white focus:rounded-lg p-0"
-                        style={{ appearance: "textfield" }}
+                        className="w-24 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold text-slate-800 text-center focus:outline-none focus:ring-2 focus:ring-blue-400 bg-slate-50 hover:bg-white transition-colors"
                       />
-                      <div className="text-[10px] text-slate-400">{label} · mm</div>
+                      <span className="text-xs text-slate-400">mm</span>
+                      <span className="text-[10px] text-slate-300 ml-auto">{min}–{max}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                ))}
 
-              {/* Module params */}
-              {MODULE_PARAM_META[module] && MODULE_PARAM_META[module]!.length > 0 && (
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Parametri</div>
-                  <div className="space-y-3.5">
+                {/* ── Section header: Parametri ── */}
+                {MODULE_PARAM_META[module] && MODULE_PARAM_META[module]!.length > 0 && (
+                  <>
+                    <div className="px-6 pt-4 pb-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Parametri</span>
+                    </div>
+
                     {MODULE_PARAM_META[module]!
                       .filter((meta) => !meta.visibleWhen || meta.visibleWhen(editParams))
                       .map((meta) => (
-                        <div key={meta.key}>
-                          <div className="text-xs font-medium text-slate-500 mb-1.5">{meta.label}</div>
-                          {meta.type === "select" && meta.options ? (
-                            /* Chip selector */
-                            <div className="flex flex-wrap gap-1.5">
-                              {meta.options.map((opt) => {
+                        <div key={meta.key} className="flex items-center px-6 py-2.5 gap-3 min-h-[44px]">
+                          <span className="w-28 flex-shrink-0 text-sm text-slate-500 leading-tight">{meta.label}</span>
+                          <div className="flex-1 flex items-center flex-wrap gap-1.5">
+                            {meta.type === "select" && meta.options ? (
+                              meta.options.map((opt) => {
                                 const isActive = (editParams[meta.key] ?? MODULE_PARAM_DEFAULTS[module][meta.key] ?? 0) === opt.value;
                                 return (
                                   <button
                                     key={opt.value}
                                     onClick={() => setEditParams(p => ({ ...p, [meta.key]: opt.value }))}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                    className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap"
                                     style={isActive ? {
                                       background: "#1e40af",
                                       color: "#fff",
-                                      boxShadow: "0 2px 8px rgba(30,64,175,0.35)",
+                                      boxShadow: "0 2px 6px rgba(30,64,175,0.3)",
                                     } : {
                                       background: "#f1f5f9",
                                       color: "#475569",
@@ -378,29 +382,30 @@ export default function App() {
                                     {opt.label}
                                   </button>
                                 );
-                              })}
-                            </div>
-                          ) : (
-                            /* Stepper */
-                            <div className="flex items-center gap-0">
-                              <button
-                                onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.max(meta.min ?? 1, ((p[meta.key] ?? meta.min ?? 1) as number) - 1) }))}
-                                className="w-9 h-9 flex items-center justify-center rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors font-bold text-base"
-                              >−</button>
-                              <div className="h-9 px-5 flex items-center justify-center border-y border-slate-200 bg-white text-slate-800 font-mono font-bold text-base min-w-[3rem] text-center">
-                                {editParams[meta.key] ?? meta.min ?? 1}
+                              })
+                            ) : (
+                              <div className="flex items-center">
+                                <button
+                                  onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.max(meta.min ?? 1, ((p[meta.key] ?? meta.min ?? 1) as number) - 1) }))}
+                                  className="w-8 h-8 flex items-center justify-center rounded-l-lg border border-r-0 border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors font-bold"
+                                >−</button>
+                                <div className="h-8 w-10 flex items-center justify-center border-y border-slate-200 bg-white text-slate-800 font-mono font-bold text-sm">
+                                  {editParams[meta.key] ?? meta.min ?? 1}
+                                </div>
+                                <button
+                                  onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.min(meta.max ?? 99, ((p[meta.key] ?? meta.min ?? 1) as number) + 1) }))}
+                                  className="w-8 h-8 flex items-center justify-center rounded-r-lg border border-l-0 border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors font-bold"
+                                >+</button>
                               </div>
-                              <button
-                                onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.min(meta.max ?? 99, ((p[meta.key] ?? meta.min ?? 1) as number) + 1) }))}
-                                className="w-9 h-9 flex items-center justify-center rounded-r-xl border border-l-0 border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors font-bold text-base"
-                              >+</button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       ))}
-                  </div>
-                </div>
-              )}
+                  </>
+                )}
+
+              </div>
+              <div className="h-2" />
             </div>
 
             {/* Footer */}
