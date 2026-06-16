@@ -1174,8 +1174,8 @@ export function ChatPanel() {
     try {
       // Build history (exclude the just-added user msg and empty assistant placeholder)
       const historyForApi = nextMessages
-        .slice(0, -0) // all messages up to current
-        .slice(-11, -1) // last 10 before current user msg
+        .slice(0, -1) // all messages except current user msg
+        .slice(-10) // last 10
         .map(m => ({ role: m.role, content: m.content }));
 
       const body: {
