@@ -1668,6 +1668,7 @@ function App() {
   const [taskInput, setTaskInput] = useState("");
   const [liveUploadStatus, setLiveUploadStatus] = useState(null);
   const liveFileInputRef = React.useRef(null);
+  const [liveLastStep, setLiveLastStep] = useState(null);
   // Module bar: track last loaded hint + loading state
   const [moduleLoadedHint, setModuleLoadedHint] = useState(null); // hint that was last successfully loaded
   const [moduleLoading, setModuleLoading] = useState(false);
@@ -1920,6 +1921,7 @@ function App() {
     window.electron.onLiveMessage((data) => {
       setLiveCallCount(data.callCount ?? 0);
       setLiveSpentUsd(data.spentUsd ?? 0);
+      if (data.step) setLiveLastStep(data.step);
       setMessages((prev) => [
         ...prev,
         {
@@ -1936,6 +1938,7 @@ function App() {
     window.electron.onLiveBudgetReached((data) => {
       setLiveState("off");
       setLiveTask("");
+      setLiveLastStep(null);
       setShowTaskInput(false);
       setLiveSpentUsd(data.spent ?? 0);
       setMessages((prev) => [
@@ -2080,6 +2083,7 @@ function App() {
     ]);
     setLiveState("off");
     setLiveTask("");
+    setLiveLastStep(null);
     setShowTaskInput(false);
     await window.electron.liveSetEnabled(false).catch(console.error);
   }
@@ -3204,6 +3208,11 @@ function App() {
       {(liveState === "running" || liveState === "paused") && liveTask && (
         <div className="live-task-banner">
           <span className="live-task-banner-text">🎯 Cilj: <strong>{liveTask}</strong></span>
+          {liveState === "running" && liveLastStep && (
+            <span className="live-step-badge" title="Zadnji predloženi korak">
+              {liveLastStep}
+            </span>
+          )}
           {liveState === "paused" && (
             <>
               <button

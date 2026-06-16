@@ -327,6 +327,22 @@ html, body, #root {
   flex: 1;
   line-height: 1.35;
 }
+.live-step-badge {
+  flex-shrink: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(61, 153, 112, 0.18);
+  border: 1px solid rgba(61, 153, 112, 0.35);
+  color: var(--success);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: default;
+}
 .live-task-edit {
   padding: 4px 10px;
   border-radius: 4px;
