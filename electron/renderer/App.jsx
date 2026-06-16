@@ -1656,6 +1656,7 @@ function App() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [liveState, setLiveState] = useState("off"); // off | running | paused
+  const [liveScanning, setLiveScanning] = useState(false); // brief flash when screenshot sent to API
   const [liveTask, setLiveTask] = useState("");
   const [liveCallCount, setLiveCallCount] = useState(0);
   const [liveSpentUsd, setLiveSpentUsd] = useState(0);
@@ -2016,6 +2017,14 @@ function App() {
           if (existing) return prev;
           return [...prev, { index: data.index, thumb: data.thumb }];
         });
+      });
+    }
+
+    // Visual flash when a screenshot is being sent for live analysis
+    if (window.electron.onLiveScanning) {
+      window.electron.onLiveScanning(() => {
+        setLiveScanning(true);
+        setTimeout(() => setLiveScanning(false), 1200);
       });
     }
 
@@ -2797,7 +2806,7 @@ function App() {
             </button>
           )}
           <button
-            className={`btn-live${liveState === "running" ? " active pulse" : ""}${liveState === "paused" ? " paused" : ""}${awaitingRegion ? " awaiting" : ""}`}
+            className={`btn-live${liveState === "running" ? " active pulse" : ""}${liveState === "paused" ? " paused" : ""}${awaitingRegion ? " awaiting" : ""}${liveScanning ? " scanning" : ""}`}
             title={
               awaitingRegion ? "Odaberi područje za Live..." :
               liveState === "running" ? `Live aktivan (${liveSpentUsd.toFixed(2)}$/${liveBudgetUsd}$) — klikni za pauzu` :
@@ -2807,7 +2816,7 @@ function App() {
             onClick={toggleLiveMode}
           >
             {awaitingRegion ? "↔ Odaberi..." :
-              liveState === "running" ? "⏸ Pauziraj" :
+              liveState === "running" ? (liveScanning ? "📷 Skenira..." : "⏸ Pauziraj") :
               liveState === "paused" ? "▶ Nastavi" : "○ Live"}
           </button>
           {mtManifest && (

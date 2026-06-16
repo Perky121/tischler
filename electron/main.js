@@ -12,7 +12,7 @@ try {
   PNG = require("pngjs").PNG;
 } catch {
   diffLibsMissing = true;
-  console.warn("[live] pixelmatch/pngjs not installed — diff detection disabled, Live will not trigger API calls");
+  console.warn("[live] pixelmatch/pngjs not installed — diff detection disabled, using time-based fallback (every 12s)");
 }
 
 let liveLoopTimer = null;
@@ -30,8 +30,9 @@ let regionConfirmedThisSession = false;
 
 // Faza A — faster, more targeted
 const LIVE_INTERVAL_MS = 800;
-const LIVE_DIFF_THRESHOLD = 0.10; // 10% — small crop reacts to fine changes
+const LIVE_DIFF_THRESHOLD = 0.04; // 4% — catches small dialog changes (number input, dropdown)
 const LIVE_API_COOLDOWN_MS = 4000; // 4s between analyze calls
+const LIVE_FALLBACK_INTERVAL_MS = 12000; // 12s fallback interval when pixelmatch/pngjs unavailable
 
 // Faza B — budget tracker (in-memory, persisted in settings)
 let dailySpentUsd = 0;
@@ -251,6 +252,10 @@ async function triggerLiveAnalyze(win, resumeMode = false) {
       .jpeg({ quality: 85 })
       .toBuffer();
     const settings = loadSettings();
+    // Notify renderer that a screenshot is being sent for analysis
+    if (liveMainWindow && !liveMainWindow.isDestroyed()) {
+      liveMainWindow.webContents.send("live-scanning", { ts: Date.now() });
+    }
     let res;
     try {
       res = await fetch(`${settings.backendUrl}/api/analyze-screen`, {
@@ -321,16 +326,30 @@ async function liveLoop() {
     const { full, small } = await captureForLive();
 
     if (prevScreenshotBuf) {
-      const diffRatio = diffImages(prevScreenshotBuf, small);
       const now = Date.now();
       const cooldownOk = (now - liveLastApiCallTs) >= LIVE_API_COOLDOWN_MS;
 
-      if (diffRatio > LIVE_DIFF_THRESHOLD && cooldownOk) {
+      // When pixelmatch/pngjs are unavailable, use time-based fallback instead of diff gating.
+      // Without this, diffImages() always returns 0 and the API is never called after the test ping.
+      let shouldAnalyze = false;
+      if (diffLibsMissing) {
+        shouldAnalyze = cooldownOk && (now - liveLastApiCallTs) >= LIVE_FALLBACK_INTERVAL_MS;
+      } else {
+        const diffRatio = diffImages(prevScreenshotBuf, small);
+        shouldAnalyze = diffRatio > LIVE_DIFF_THRESHOLD && cooldownOk;
+      }
+
+      if (shouldAnalyze) {
         const sharp = require("sharp");
         const apiPayload = await sharp(full)
           .resize({ width: 1280, withoutEnlargement: true })
           .jpeg({ quality: 85 })
           .toBuffer();
+
+        // Notify renderer that a screenshot is being sent
+        if (liveMainWindow && !liveMainWindow.isDestroyed()) {
+          liveMainWindow.webContents.send("live-scanning", { ts: Date.now() });
+        }
 
         let res;
         try {

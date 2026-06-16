@@ -76,6 +76,8 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("live-state-changed", (_, data) => cb(data)),
   onLiveModuleLoaded: (cb) =>
     ipcRenderer.on("live-module-loaded", (_, data) => cb(data)),
+  onLiveScanning: (cb) =>
+    ipcRenderer.on("live-scanning", (_, data) => cb(data)),
 
   // Event listeners: main → renderer
   onScreenshotCaptured: (cb) =>
@@ -125,6 +127,7 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.removeAllListeners("live-deps-missing");
     ipcRenderer.removeAllListeners("live-state-changed");
     ipcRenderer.removeAllListeners("live-module-loaded");
+    ipcRenderer.removeAllListeners("live-scanning");
     ipcRenderer.removeAllListeners("debug-frame-captured");
   },
 });
