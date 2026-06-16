@@ -3,9 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { 
   useGetKnowledge, 
   getGetKnowledgeQueryKey,
+  getGetKnowledgeFilesQueryKey,
   useGetKnowledgeFiles,
   useSummarizeKnowledgeFile,
 } from "@workspace/api-client-react";
+import { MODULE_TYPES } from "@workspace/formula-rules";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +50,7 @@ export function KnowledgePanel() {
           description: `${data.stats.formulaCount} formula, ${data.stats.parameterCount} parametara.`,
         });
         queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetKnowledgeFilesQueryKey() });
       } else {
         toast({ title: "Ponovno parsiranje nije uspjelo", description: data.error || "Nepoznata greška", variant: "destructive" });
       }
@@ -84,6 +87,7 @@ export function KnowledgePanel() {
           description: `Pronađeno ${data.stats.formulaCount} formula, ${data.stats.parameterCount} parametara.`,
         });
         queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetKnowledgeFilesQueryKey() });
       } else {
         toast({ title: "Upload nije uspio", description: data.error || data.message || "Nepoznata greška", variant: "destructive" });
       }
@@ -247,20 +251,26 @@ export function KnowledgePanel() {
                   const isStudied = !!file.summary;
                   const isSummarizing = summarizeMutation.isPending &&
                     (summarizeMutation.variables as { data: { filename: string } } | undefined)?.data?.filename === file.name;
+                  const moduleTypeEntry = MODULE_TYPES.find((m) => m.module === file.module);
                   return (
                     <>
                       <tr
                         key={file.name}
                         className={`border-b border-border last:border-b-0 hover:bg-accent/30 transition-colors ${isExpanded ? "bg-accent/20" : ""}`}
                       >
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground/90">
+                        <td className="px-3 py-2">
                           <button
                             type="button"
                             onClick={() => setExpandedFile(isExpanded ? null : file.name)}
-                            className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                            className="flex items-start gap-1.5 hover:text-primary transition-colors text-left"
                           >
-                            {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                            {file.name}
+                            {isExpanded ? <ChevronDown className="w-3 h-3 mt-0.5 shrink-0" /> : <ChevronRight className="w-3 h-3 mt-0.5 shrink-0" />}
+                            <span>
+                              <span className="font-mono text-[11px] text-foreground/90 block">{file.name}</span>
+                              {moduleTypeEntry && (
+                                <span className="text-[9px] text-muted-foreground/60 leading-tight block">{moduleTypeEntry.type}</span>
+                              )}
+                            </span>
                           </button>
                         </td>
                         <td className="px-3 py-2 text-right font-mono font-bold text-primary">{file.formulaCount}</td>
