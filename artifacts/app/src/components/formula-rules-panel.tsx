@@ -16,6 +16,7 @@ import {
   HIERARCHY_NAMED,
   HIERARCHY_NOTE,
   MODULE_TYPES,
+  CONDITION_RULES,
   IFELSE_EXAMPLES,
   IFELSE_NOTE,
   DECIMAL_SEPARATOR_NOTE,
@@ -36,6 +37,7 @@ import {
   GitBranch,
   Hash,
   Move3d,
+  Equal,
 } from "lucide-react";
 
 function SectionHeader({
@@ -367,6 +369,27 @@ export function FormulaRulesPanel() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </section>
+
+        {/* Uvjeti */}
+        <section className="space-y-3">
+          <SectionHeader
+            id="uvjeti"
+            icon={Equal}
+            title="Uvjeti — pravila vrijednosti"
+            subtitle="Potvrđeno brojanjem cijele baze (≥99% sigurnost)."
+          />
+          <div className="space-y-2">
+            {CONDITION_RULES.map((r) => (
+              <div key={r.rule} className="rounded-md border border-border bg-muted/20 p-2.5">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-xs font-medium text-foreground">{r.rule}</p>
+                  <code className="shrink-0 font-mono text-[10px] text-primary whitespace-nowrap">{r.count}</code>
+                </div>
+                <p className="mt-1 text-xs text-foreground/80 leading-snug">{r.detail}</p>
+              </div>
+            ))}
           </div>
         </section>
 

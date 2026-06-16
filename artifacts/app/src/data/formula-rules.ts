@@ -116,7 +116,7 @@ export const ANTI_PATTERNS: AntiPatternRow[] = [
   { wrong: "if(A!=B;…)", correct: "if(A<>B;…)", note: '"nije jednako" je <>, ne !=' },
   { wrong: "if(A,B,C)", correct: "if(A;B;C)", note: "separator argumenata je ; ne ," },
   { wrong: "[X]", correct: "[.X]", note: "[X] bez točke = GLOBALNI param; za roditelja uvijek [.X]" },
-  { wrong: "if(A and B)", correct: "if((A) and (B))", note: "svaki uvjet u if-u mora biti u zagradama" },
+  { wrong: "if(A and B)", correct: "if((A) and (B))", note: "preporuka: grupiraj zagradama; obavezno kad miješaš and i or. Lanac istih usporedbi (A==1 and B==1) smije bez unutarnjih zagrada — ~26% baze to radi" },
 ];
 
 export const FORMULA_PATTERNS: FormulaPattern[] = [
@@ -206,10 +206,43 @@ export const IFELSE_NOTE =
   "Koristiti kada ima 3+ grana — čišće od ugniježđenih if(). Format: ifelse(uvjet1;vrijednost1;uvjet2;vrijednost2;zadanaVrijednost). Pravilo strukture (potvrđeno brojanjem): ifelse uvijek ima PARAN broj ; (svaki uvjet ima svoju vrijednost) + jednu zadanu vrijednost na kraju.";
 
 export const DECIMAL_SEPARATOR_NOTE =
-  "Za NOVI UNOS u MegaTischler dijalogu koristi ZAREZ (0,5) — preporučeni format. U bazi postoji 76 formula s decimalnom TOČKOM (npr. 26.7, (0.5), 53.5) — to su VALJANE formule iz izvornih .mac datoteka; ne proglašavaj ih pogrešnima. Iznimka: u EULER koordinatnim nizovima decimalna točka je standardna.";
+  "Za NOVI UNOS u MegaTischler dijalogu koristi ZAREZ (0,5) — preporučeni format. U bazi postoji 76 formula s decimalnom TOČKOM (npr. 26.7, (0.5), 53.5) — to su VALJANE formule iz izvornih .mac datoteka; ne proglašavaj ih pogrešnima. Iznimka: u koordinatnim nizovima (x;y;z@…) decimalna točka je standardna.";
 
 export const EULER_NOTE =
-  "EULER poligoni (29 formula u bazi). Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;. Koristi se za definiciju profila/puta u euler() formulama za složene geometrijske oblike i izreze. U koordinatnim nizovima decimalni separator je TOČKA (standardno).";
+  "SAMOSTALNI KOORDINATNI POLIGONI (29 formula u bazi). Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;. Potvrđeno 29/29: ovo je SAMOSTALNA sirova vrijednost polja, NIJE argument euler() funkcije (nijedna od 18 euler() formula ne sadrži @). Definira profil/put/izrez. U nizovima je decimalni separator TOČKA. euler() (18 formula) uzima fiksni numerički niz rotacijske matrice (1;0;0;0;0;1;0;-1;0;…) i završava oznakom osi X:/Y:/Z:.";
+
+export type ConditionRule = {
+  rule: string;
+  detail: string;
+  count: string;
+};
+
+export const CONDITION_RULES: ConditionRule[] = [
+  {
+    rule: "Jednakost testira KATEGORIJU, ne mjeru",
+    detail:
+      "Desna strana usporedbe == ili = je UVIJEK cijeli broj ili [referenca] — nikad decimala. Vrijednost je mali kod/način, gotovo uvijek 0–9. Primjer: [KDT]==1, [KOAP]==0.",
+    count: "1791/1791 (decimala 0); kod 0–9: 1789/1791",
+  },
+  {
+    rule: "Uvjeti praktički ne koriste decimalne pragove",
+    detail:
+      "U cijeloj bazi od 2420 usporedbi (==, =, <, >, <=, >=) samo JEDNA ima decimalni prag (POSH<738,1). Pragovi su cijeli brojevi ili [reference].",
+    count: "2419/2420 cijeli broj ili [ref]",
+  },
+  {
+    rule: "if() ima točno 3 argumenta",
+    detail:
+      "Uvijek if(uvjet;istina;laž). Jedina iznimka u bazi je oštećena formula. Za 3+ grane koristi ifelse() umjesto dubokog ugnježđivanja. (Brojimo POZIVE if(), ne formule — jedna formula može imati više if().)",
+    count: "1170/1171 poziva",
+  },
+  {
+    rule: "ifelse() ima neparan broj argumenata",
+    detail:
+      "Parovi uvjet;vrijednost + jedna zadana vrijednost na kraju: ifelse(u1;v1;u2;v2;zadano).",
+    count: "199/199 poziva",
+  },
+];
 
 export const EULER_EXAMPLE = "0;0;0@0;12.9;0@-7;12.9;0@-7;16.9;0@0;18;0@-18;18;0@-18;0;0@0;0;0";
 
@@ -226,6 +259,7 @@ export const RULE_SECTIONS: RuleSection[] = [
   { id: "obrasci", label: "Obrasci" },
   { id: "hijerarhija", label: "Hijerarhija" },
   { id: "moduli", label: "Moduli" },
+  { id: "uvjeti", label: "Uvjeti" },
   { id: "ifelse", label: "ifelse" },
   { id: "decimale", label: "Decimale" },
   { id: "euler", label: "EULER" },

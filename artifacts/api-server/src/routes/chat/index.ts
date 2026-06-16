@@ -454,7 +454,7 @@ const ANTI_PATTERNS = `ČESTE GREŠKE — NIKAD OVAKO:
 ❌  if(A!=B;...) →  ✅  if(A<>B;...) ("nije jednako" je <>, ne != )
 ❌  if(A,B,C)    →  ✅  if(A;B;C)   (separator argumenata je ; ne ,)
 ❌  [X]          →  ✅  [.X]         ([X] bez točke = GLOBALNI param; za roditelja uvijek [.X])
-❌  if(A and B)  →  ✅  if((A) and (B)) (svaki uvjet u if-u mora biti u zagradama)
+❌  if(A and B)  →  ✅  if((A) and (B)) (preporuka: grupiraj zagradama; OBAVEZNO kad miješaš and i or)
 
 DECIMALNI SEPARATOR — važna nijansa (potvrđeno analizom baze):
 ✅  Za NOVI UNOS u MegaTischler dijalogu: koristi ZAREZ (0,5) — to je preporučeni format.
@@ -509,11 +509,12 @@ FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 3438 formula):
 PAŽNJA — dokumentirane ali NE KORISTE SE u bazi (0 pojava): sqrt(), round(), int().
 Trig funkcije su ISKLJUČIVO mala slova: sin(), cos(), tan(), atan() — nikad SIN(), COS(), TAN().
 
-KOORDINATNA NOTACIJA — EULER poligoni (29 formula u bazi):
+KOORDINATNA NOTACIJA — SAMOSTALNI POLIGONI (29 formula u bazi):
 Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;
-Koristi se za definiciju profila/puta u euler() formulama za složene geometrijske oblike i izreze.
+VAŽNO (potvrđeno 29/29): ovi koordinatni nizovi su SAMOSTALNA sirova vrijednost polja — NISU argument euler() funkcije (nijedna od 18 euler() formula ne sadrži @). Definiraju profil/put/izrez kao zasebnu geometrijsku vrijednost.
 U koordinatnim nizovima decimalni separator je TOČKA (standardno): primjer 0;12.9;0@-7;16.9;0
 Primjer: 0;0;0@0;12.9;0@-7;12.9;0@-7;16.9;0@0;18;0@-18;18;0@-18;0;0@0;0;0
+euler() (18 formula) NE koristi @-niz — uzima fiksni numerički niz rotacijske matrice (npr. 1;0;0;0;0;1;0;-1;0;…) i završava oznakom osi X:/Y:/Z:.
 
 IFELSE — VIŠESTRUKI UVJET (switch/case sintaksa):
 Koristiti kada ima 3+ grana — čišće od ugniježđenih if().
@@ -523,7 +524,12 @@ Primjeri iz .mac datoteka:
   ifelse([KDOS]==0;0,5;[KDOS]==1;2;45)
   ifelse([KUT]<90;1;[KUT]>90;0;2)
   ifelse([.KODS]==0;0;[.KODS]==4;[.MaskaGoreHor.T];[.MSS]+[.MSZRG])
-PRAVILO STRUKTURE (potvrđeno brojanjem): ifelse uvijek ima PARAN broj ; (svaki uvjet ima svoju vrijednost) + jednu zadanu vrijednost na kraju.`;
+PRAVILO STRUKTURE (potvrđeno brojanjem): ifelse uvijek ima PARAN broj ; (svaki uvjet ima svoju vrijednost) + jednu zadanu vrijednost na kraju. Provjereno: 199/199 poziva ifelse() ima neparan broj argumenata (parovi uvjet;vrijednost + zadana).
+
+USPOREDBE — VRIJEDNOSTI (potvrđeno brojanjem cijele baze):
+• Jednakost (== ili =): desna strana je UVIJEK cijeli broj ILI [referenca] — NIKAD decimala (1791/1791). Vrijednost je mali kod/način, gotovo uvijek 0–9 (1789/1791). Dakle == testira KATEGORIJU (npr. [KDT]==1), ne mjeru.
+• Uvjeti praktički nikad ne koriste decimalne pragove: u svih 2420 usporedbi samo JEDNA ima decimalu (POSH<738,1). Pragovi su cijeli brojevi ili [reference].
+• if() ima TOČNO 3 argumenta — if(uvjet;istina;laž) (1170/1171 poziva if(); brojimo POZIVE, ne formule — jedna formula može imati više if()).`;
 
 /**
  * Recurring formula-writing templates extracted 100% from actual .mac formulas.
