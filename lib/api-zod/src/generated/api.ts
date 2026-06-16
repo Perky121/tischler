@@ -158,6 +158,35 @@ export const StolarSaveResponse = zod.object({
 
 
 /**
+ * Returns list of .mac files in source_macs/ with upload date, formula count, and optional AI summary
+ * @summary Get list of uploaded MAC files
+ */
+export const GetKnowledgeFilesResponse = zod.object({
+  "files": zod.array(zod.object({
+  "name": zod.string().describe('Filename including .mac extension'),
+  "module": zod.string().describe('Module name (filename without extension)'),
+  "uploadedAt": zod.coerce.date(),
+  "formulaCount": zod.number(),
+  "summary": zod.string().nullish()
+}))
+})
+
+
+/**
+ * Sends file formulas to Claude and stores the summary in file_summaries.json
+ * @summary Generate AI summary for a MAC file
+ */
+export const SummarizeKnowledgeFileBody = zod.object({
+  "filename": zod.string()
+})
+
+export const SummarizeKnowledgeFileResponse = zod.object({
+  "ok": zod.boolean(),
+  "summary": zod.string()
+})
+
+
+/**
  * Get the current stipe_rules.txt content
  * @summary Get user rules
  */

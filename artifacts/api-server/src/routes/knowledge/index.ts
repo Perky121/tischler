@@ -5,6 +5,7 @@ import multer from "multer";
 import AdmZip from "adm-zip";
 import { logger } from "../../lib/logger";
 import { mergeFileIntoKb, buildKbFromFiles, SYNTAX_RULES, type KnowledgeBase } from "../../lib/parse-mac";
+import { anthropic } from "@workspace/integrations-anthropic-ai";
 
 const router: IRouter = Router();
 
@@ -16,6 +17,7 @@ const dataDir = path.resolve(workspaceRoot, "artifacts/api-server/data");
 const uploadsDir = path.resolve(workspaceRoot, "artifacts/api-server/uploads");
 const sourceMacsDir = path.join(dataDir, "source_macs");
 const knowledgeBasePath = path.join(dataDir, "knowledge_base.json");
+const fileSummariesPath = path.join(dataDir, "file_summaries.json");
 
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadsDir, { recursive: true });
@@ -417,6 +419,116 @@ router.post("/knowledge/learn", (req, res): void => {
   } catch (err) {
     logger.error({ err }, "kb/learn error");
     res.status(500).json({ error: "Failed to save learned entries" });
+  }
+});
+
+// ── File summaries helpers ────────────────────────────────────────────────
+
+type FileSummaries = Record<string, { summary: string; generatedAt: string }>;
+
+function readFileSummaries(): FileSummaries {
+  try {
+    if (fs.existsSync(fileSummariesPath)) {
+      return JSON.parse(fs.readFileSync(fileSummariesPath, "utf-8")) as FileSummaries;
+    }
+  } catch { /* ignore */ }
+  return {};
+}
+
+function writeFileSummaries(summaries: FileSummaries): void {
+  fs.writeFileSync(fileSummariesPath, JSON.stringify(summaries, null, 2));
+}
+
+// ── GET /knowledge/files ──────────────────────────────────────────────────
+
+router.get("/knowledge/files", (req, res): void => {
+  try {
+    const kb = readKnowledgeBase();
+    const summaries = readFileSummaries();
+
+    const sourceFiles = fs.existsSync(sourceMacsDir)
+      ? fs.readdirSync(sourceMacsDir).filter((f) => f.toLowerCase().endsWith(".mac"))
+      : [];
+
+    const formulaCountBySource = new Map<string, number>();
+    for (const f of kb.formulas ?? []) {
+      if (f.source) {
+        formulaCountBySource.set(f.source, (formulaCountBySource.get(f.source) ?? 0) + 1);
+      }
+    }
+
+    const files = sourceFiles
+      .map((name) => {
+        const formulaCount = formulaCountBySource.get(name) ?? 0;
+        let uploadedAt = new Date().toISOString();
+        try {
+          const stat = fs.statSync(path.join(sourceMacsDir, name));
+          uploadedAt = stat.mtime.toISOString();
+        } catch { /* ignore */ }
+        const summaryEntry = summaries[name];
+        return {
+          name,
+          module: name.replace(/\.mac$/i, ""),
+          uploadedAt,
+          formulaCount,
+          summary: summaryEntry?.summary ?? null,
+        };
+      })
+      .filter((f) => f.formulaCount > 0)
+      .sort((a, b) => b.formulaCount - a.formulaCount);
+
+    res.json({ files });
+  } catch (err) {
+    logger.error({ err }, "knowledge/files error");
+    res.status(500).json({ error: "Greška pri čitanju popisa datoteka" });
+  }
+});
+
+// ── POST /knowledge/summarize-file ───────────────────────────────────────
+
+router.post("/knowledge/summarize-file", async (req, res): Promise<void> => {
+  const { filename } = req.body as { filename?: string };
+  if (!filename) {
+    res.status(400).json({ error: "filename je obavezan" });
+    return;
+  }
+
+  const safe = path.basename(filename);
+  const module = safe.replace(/\.mac$/i, "");
+  const kb = readKnowledgeBase();
+  const formulas = (kb.formulas ?? []).filter((f: { source?: string }) => f.source === safe);
+
+  if (formulas.length === 0) {
+    res.status(404).json({ error: `Nema formula za '${safe}'` });
+    return;
+  }
+
+  const sampleFormulas = formulas.slice(0, 60).map((f: { formula: string; type?: string }) => `[${f.type ?? "?"}] ${f.formula}`).join("\n");
+
+  const prompt = `Ti si ekspert za MegaTischler CAD softver. Analiziraj ${formulas.length} formula iz modula ${module} i napiši sažeto sumirano znanje.
+
+Primjer formula (prvih ${Math.min(60, formulas.length)}/${formulas.length}):
+${sampleFormulas}
+
+Napiši: što ovaj modul opisuje, koje su dominantne vrste formula (dimenzije/pozicije/uvjeti/uključenja), koji su ključni parametri i obrasci. Max 120 riječi. Odgovori na hrvatskom.`;
+
+  try {
+    const response = await anthropic.messages.create({
+      model: "claude-opus-4-8",
+      max_tokens: 400,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const summary = response.content[0]?.type === "text" ? response.content[0].text.trim() : "";
+    const summaries = readFileSummaries();
+    summaries[safe] = { summary, generatedAt: new Date().toISOString() };
+    writeFileSummaries(summaries);
+
+    req.log.info({ filename: safe, chars: summary.length }, "File summary generated");
+    res.json({ ok: true, summary });
+  } catch (err) {
+    logger.error({ err }, "summarize-file failed");
+    res.status(500).json({ error: "Greška pri generiranju sažetka" });
   }
 });
 

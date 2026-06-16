@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap, Box, PanelRightClose, PanelRightOpen, Trash2, ChevronRight, ChevronDown } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap, Box, PanelRightClose, PanelRightOpen, Trash2, ChevronRight, ChevronDown, Save, CheckCircle2, SlidersHorizontal } from "lucide-react";
+import { useGetRules, useSaveRules } from "@workspace/api-client-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
 // Message type extended with screenshot thumbnail, optional attached file name, system hint type, and thinking content
@@ -797,6 +799,28 @@ export function ChatPanel() {
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(["dimenzija"]));
   const [pendingDimsUpdate, setPendingDimsUpdate] = useState<{ module: string; W: number; H: number; D: number } | null>(null);
 
+  // ── Prompt panel state ────────────────────────────────────────────────────
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [rulesContent, setRulesContent] = useState("");
+  const [rulesSaved, setRulesSaved] = useState(false);
+
+  const { data: rulesData, isLoading: isLoadingRules } = useGetRules();
+  const saveRulesMutation = useSaveRules({
+    mutation: {
+      onSuccess: () => {
+        setRulesSaved(true);
+        setTimeout(() => setRulesSaved(false), 3000);
+      },
+      onError: () => { /* ignore */ }
+    }
+  });
+
+  useEffect(() => {
+    if (rulesData?.content !== undefined) {
+      setRulesContent(rulesData.content);
+    }
+  }, [rulesData]);
+
   // ── 3D viewer parametrization state ──────────────────────────────────────
   // Params are keyed by variable name (VPT, KDT, PO, UDD); -1 means "auto"
   const [viewer3DModule, setViewer3DModule] = useState<string>("KUH_VISOKI");
@@ -1325,7 +1349,7 @@ export function ChatPanel() {
 
   return (
     <div className="flex h-full w-full overflow-hidden">
-    <div className="flex flex-col flex-1 min-w-0 bg-background" data-testid="chat-panel">
+    <div className="flex flex-col flex-1 min-w-0 bg-background relative overflow-hidden" data-testid="chat-panel">
       {/* Message list */}
       <div className="flex-1 overflow-y-auto p-6" ref={scrollRef}>
         {messages.length === 0 ? (
@@ -1685,6 +1709,78 @@ export function ChatPanel() {
           <div className="text-center mt-2 text-[10px] text-muted-foreground/50">
             Shift+Enter za novi red · Enter za slanje · Claude claude-opus-4-8
           </div>
+        </div>
+      </div>
+
+      {/* ── Prompt tab toggle button ─────────────────────────────────────── */}
+      <div className="absolute right-0 top-0 h-full z-30 flex items-center pointer-events-none">
+        <button
+          onClick={() => setShowPrompt(p => !p)}
+          title={showPrompt ? "Zatvori Prompt panel" : "Otvori Prompt (pravila)"}
+          className="pointer-events-auto flex flex-col items-center justify-center gap-0.5 w-6 py-5 bg-card/90 border border-border border-r-0 rounded-l-md shadow-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors select-none"
+        >
+          <SlidersHorizontal className="w-3 h-3" />
+          <span
+            className="text-[7px] font-bold uppercase tracking-wider mt-0.5"
+            style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
+          >
+            Prompt
+          </span>
+        </button>
+      </div>
+
+      {/* ── Prompt slide-out panel ──────────────────────────────────────── */}
+      <div
+        className="absolute top-0 h-full z-20 flex flex-col bg-card border-l border-border shadow-xl"
+        style={{
+          right: "1.5rem",
+          width: showPrompt ? 320 : 0,
+          opacity: showPrompt ? 1 : 0,
+          pointerEvents: showPrompt ? undefined : "none",
+          transition: "width 0.25s ease, opacity 0.15s ease",
+          overflow: "hidden",
+        }}
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0 bg-card">
+          <span className="text-sm font-semibold">Prompt</span>
+          <button
+            onClick={() => setShowPrompt(false)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col gap-3 p-4 min-h-0" style={{ minHeight: 0 }}>
+          <p className="text-xs text-muted-foreground flex-shrink-0">
+            Pravila i kontekst koji se šalju uz svaki upit Claude-u.
+          </p>
+          {isLoadingRules ? (
+            <Skeleton className="flex-1 w-full rounded-md" />
+          ) : (
+            <Textarea
+              value={rulesContent}
+              onChange={(e) => { setRulesContent(e.target.value); setRulesSaved(false); }}
+              className="flex-1 font-mono text-xs resize-none bg-muted/20 focus-visible:ring-1 leading-relaxed"
+              style={{ minHeight: 0 }}
+              placeholder={"Upiši svoja pravila za MegaTischler...\n\nPrimjer:\n- Uvijek koristi decimalni zarez (0,5 ne 0.5)\n- Polica uvijek prati dubinu: [.D]-20\n- ..."}
+              data-testid="prompt-panel-textarea"
+            />
+          )}
+          <Button
+            size="sm"
+            className="shrink-0 w-full"
+            onClick={() => saveRulesMutation.mutate({ data: { content: rulesContent } })}
+            disabled={saveRulesMutation.isPending}
+          >
+            {saveRulesMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : rulesSaved ? (
+              <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            {rulesSaved ? "Spremljeno" : "Spremi"}
+          </Button>
         </div>
       </div>
     </div>

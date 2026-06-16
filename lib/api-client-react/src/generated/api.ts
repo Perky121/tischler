@@ -24,6 +24,7 @@ import type {
   ErrorResponse,
   HealthStatus,
   KnowledgeBase,
+  KnowledgeFileList,
   RulesContent,
   RulesInput,
   StolarDeleteResult,
@@ -33,6 +34,8 @@ import type {
   StolarSaveInput,
   StolarSaveResult,
   StolarUpdateInput,
+  SummarizeFileInput,
+  SummarizeFileResult,
   UploadResult
 } from './api.schemas';
 
@@ -711,6 +714,156 @@ export const useStolarSave = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getStolarSaveMutationOptions(options));
+    }
+
+export const getGetKnowledgeFilesUrl = () => {
+
+
+
+
+  return `/api/knowledge/files`
+}
+
+/**
+ * Returns list of .mac files in source_macs/ with upload date, formula count, and optional AI summary
+ * @summary Get list of uploaded MAC files
+ */
+export const getKnowledgeFiles = async ( options?: RequestInit): Promise<KnowledgeFileList> => {
+
+  return customFetch<KnowledgeFileList>(getGetKnowledgeFilesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetKnowledgeFilesQueryKey = () => {
+    return [
+    `/api/knowledge/files`
+    ] as const;
+    }
+
+
+export const getGetKnowledgeFilesQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeFiles>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeFiles>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetKnowledgeFilesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getKnowledgeFiles>>> = ({ signal }) => getKnowledgeFiles({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeFiles>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetKnowledgeFilesQueryResult = NonNullable<Awaited<ReturnType<typeof getKnowledgeFiles>>>
+export type GetKnowledgeFilesQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get list of uploaded MAC files
+ */
+
+export function useGetKnowledgeFiles<TData = Awaited<ReturnType<typeof getKnowledgeFiles>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeFiles>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetKnowledgeFilesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSummarizeKnowledgeFileUrl = () => {
+
+
+
+
+  return `/api/knowledge/summarize-file`
+}
+
+/**
+ * Sends file formulas to Claude and stores the summary in file_summaries.json
+ * @summary Generate AI summary for a MAC file
+ */
+export const summarizeKnowledgeFile = async (summarizeFileInput: SummarizeFileInput, options?: RequestInit): Promise<SummarizeFileResult> => {
+
+  return customFetch<SummarizeFileResult>(getSummarizeKnowledgeFileUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      summarizeFileInput,)
+  }
+);}
+
+
+
+
+export const getSummarizeKnowledgeFileMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof summarizeKnowledgeFile>>, TError,{data: BodyType<SummarizeFileInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof summarizeKnowledgeFile>>, TError,{data: BodyType<SummarizeFileInput>}, TContext> => {
+
+const mutationKey = ['summarizeKnowledgeFile'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof summarizeKnowledgeFile>>, {data: BodyType<SummarizeFileInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  summarizeKnowledgeFile(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SummarizeKnowledgeFileMutationResult = NonNullable<Awaited<ReturnType<typeof summarizeKnowledgeFile>>>
+    export type SummarizeKnowledgeFileMutationBody = BodyType<SummarizeFileInput>
+    export type SummarizeKnowledgeFileMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Generate AI summary for a MAC file
+ */
+export const useSummarizeKnowledgeFile = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof summarizeKnowledgeFile>>, TError,{data: BodyType<SummarizeFileInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof summarizeKnowledgeFile>>,
+        TError,
+        {data: BodyType<SummarizeFileInput>},
+        TContext
+      > => {
+      return useMutation(getSummarizeKnowledgeFileMutationOptions(options));
     }
 
 export const getGetRulesUrl = () => {

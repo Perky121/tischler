@@ -110,6 +110,29 @@ export interface StolarUpdateInput {
   zaključci: string[];
 }
 
+export interface KnowledgeFileEntry {
+  /** Filename including .mac extension */
+  name: string;
+  /** Module name (filename without extension) */
+  module: string;
+  uploadedAt: string;
+  formulaCount: number;
+  summary?: string | null;
+}
+
+export interface KnowledgeFileList {
+  files: KnowledgeFileEntry[];
+}
+
+export interface SummarizeFileInput {
+  filename: string;
+}
+
+export interface SummarizeFileResult {
+  ok: boolean;
+  summary: string;
+}
+
 export interface ErrorResponse {
   error: string;
 }

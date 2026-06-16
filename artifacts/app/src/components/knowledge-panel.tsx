@@ -1,37 +1,34 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { 
   useGetKnowledge, 
   getGetKnowledgeQueryKey,
-  useGetRules,
-  useSaveRules,
+  useGetKnowledgeFiles,
+  useSummarizeKnowledgeFile,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Database, FileText, Loader2, Save, CheckCircle2, RefreshCw } from "lucide-react";
+import { Upload, Database, FileText, Loader2, RefreshCw, ChevronDown, ChevronRight, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function KnowledgePanel() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDragging, setIsDragging] = useState(false);
-  const [rulesContent, setRulesContent] = useState("");
-  const [rulesSaved, setRulesSaved] = useState(false);
+  const [expandedFile, setExpandedFile] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: knowledge, isLoading: isLoadingKnowledge } = useGetKnowledge();
-  const { data: rules, isLoading: isLoadingRules } = useGetRules();
+  const { data: filesData, isLoading: isLoadingFiles, refetch: refetchFiles } = useGetKnowledgeFiles();
 
-  const saveRulesMutation = useSaveRules({
+  const summarizeMutation = useSummarizeKnowledgeFile({
     mutation: {
       onSuccess: () => {
-        setRulesSaved(true);
-        setTimeout(() => setRulesSaved(false), 3000);
-        queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
+        void refetchFiles();
+        toast({ title: "Sažetak generiran!" });
       },
       onError: () => {
-        toast({ title: "Greška pri spremanju pravila", variant: "destructive" });
+        toast({ title: "Greška pri generiranju sažetka", variant: "destructive" });
       }
     }
   });
@@ -61,11 +58,6 @@ export function KnowledgePanel() {
     }
   };
 
-  useEffect(() => {
-    if (rules?.content !== undefined) {
-      setRulesContent(rules.content);
-    }
-  }, [rules]);
 
   const uploadFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
@@ -127,10 +119,6 @@ export function KnowledgePanel() {
     if (isUploading) return;
     const files = e.dataTransfer.files;
     if (files.length > 0) uploadFiles(files);
-  };
-
-  const handleSaveRules = () => {
-    saveRulesMutation.mutate({ data: { content: rulesContent } });
   };
 
   return (
@@ -226,37 +214,104 @@ export function KnowledgePanel() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col min-h-[220px]">
-        <h3 className="font-medium mb-3 text-xs text-muted-foreground uppercase tracking-widest flex items-center justify-between">
-          <span>Stipina pravila</span>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleSaveRules}
-            disabled={saveRulesMutation.isPending}
-            data-testid="save-rules-button"
-            className="h-7 text-xs"
-          >
-            {saveRulesMutation.isPending ? (
-              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-            ) : rulesSaved ? (
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-green-500" />
-            ) : (
-              <Save className="w-3.5 h-3.5 mr-1.5" />
-            )}
-            {rulesSaved ? "Spremljeno" : "Spremi"}
-          </Button>
+      <div>
+        <h3 className="font-medium mb-3 text-xs text-muted-foreground uppercase tracking-widest flex items-center">
+          <FileText className="w-3.5 h-3.5 mr-2" />
+          .mac datoteke
         </h3>
-        {isLoadingRules ? (
-          <Skeleton className="flex-1 w-full rounded-md" />
+        {isLoadingFiles ? (
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+        ) : !filesData?.files.length ? (
+          <div className="text-xs text-muted-foreground/60 py-6 text-center border border-dashed border-border rounded-md">
+            Nema uploadanih .mac datoteka s formulama
+          </div>
         ) : (
-          <Textarea
-            value={rulesContent}
-            onChange={(e) => { setRulesContent(e.target.value); setRulesSaved(false); }}
-            className="flex-1 font-mono text-xs resize-none bg-muted/20 focus-visible:ring-1 leading-relaxed"
-            placeholder={"Upiši svoja pravila za MegaTischler...\n\nPrimjer:\n- Uvijek koristi decimalni zarez (0,5 ne 0.5)\n- Polica uvijek prati dubinu: [.D]-20\n- ..."}
-            data-testid="rules-textarea"
-          />
+          <div className="rounded-md border border-border overflow-hidden">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-muted/40 border-b border-border">
+                  <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Datoteka</th>
+                  <th className="text-right px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Formule</th>
+                  <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Dodano</th>
+                  <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Stanje</th>
+                  <th className="px-3 py-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filesData.files.map((file) => {
+                  const isExpanded = expandedFile === file.name;
+                  const isStudied = !!file.summary;
+                  const isSummarizing = summarizeMutation.isPending &&
+                    (summarizeMutation.variables as { data: { filename: string } } | undefined)?.data?.filename === file.name;
+                  return (
+                    <>
+                      <tr
+                        key={file.name}
+                        className={`border-b border-border last:border-b-0 hover:bg-accent/30 transition-colors ${isExpanded ? "bg-accent/20" : ""}`}
+                      >
+                        <td className="px-3 py-2 font-mono text-[11px] text-foreground/90">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedFile(isExpanded ? null : file.name)}
+                            className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                          >
+                            {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            {file.name}
+                          </button>
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono font-bold text-primary">{file.formulaCount}</td>
+                        <td className="px-3 py-2 text-muted-foreground text-[10px]">
+                          {new Date(file.uploadedAt).toLocaleDateString("hr-HR")}
+                        </td>
+                        <td className="px-3 py-2">
+                          {isStudied ? (
+                            <span className="flex items-center gap-1 text-green-500 text-[10px] font-medium">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Proučena
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground/50 text-[10px]">Nije</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2">
+                          <button
+                            type="button"
+                            onClick={() => summarizeMutation.mutate({ data: { filename: file.name } })}
+                            disabled={isSummarizing}
+                            className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+                          >
+                            {isSummarizing ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-2.5 h-2.5" />
+                            )}
+                            Sumiraj
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr key={`${file.name}-exp`} className="border-b border-border last:border-b-0 bg-muted/10">
+                          <td colSpan={5} className="px-4 py-3">
+                            {isStudied ? (
+                              <p className="text-[11px] text-foreground/80 leading-relaxed">{file.summary}</p>
+                            ) : (
+                              <p className="text-[11px] text-muted-foreground/60 italic">
+                                Klikni "Sumiraj" kako bi AI analizirao formule ove datoteke.
+                              </p>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
