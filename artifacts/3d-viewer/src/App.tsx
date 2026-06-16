@@ -1,6 +1,6 @@
 import { useState, useMemo, lazy, Suspense, useEffect } from "react";
-import { calculate, MODULE_DEFAULTS } from "./lib/formula-engine";
-import type { ModuleName } from "./lib/formula-engine";
+import { calculate, MODULE_DEFAULTS, MODULE_PARAM_DEFAULTS } from "./lib/formula-engine";
+import type { ModuleName, ModuleSpecificParams } from "./lib/formula-engine";
 import { isWebGLAvailable } from "./lib/webgl-detect";
 import InputPanel from "./components/InputPanel";
 import DimensionTable from "./components/DimensionTable";
@@ -43,6 +43,9 @@ export default function App() {
   const [W, setW] = useState(URL_PARAMS.W);
   const [H, setH] = useState(URL_PARAMS.H);
   const [D, setD] = useState(URL_PARAMS.D);
+  const [params, setParams] = useState<ModuleSpecificParams>(
+    () => ({ ...MODULE_PARAM_DEFAULTS[URL_PARAMS.module] })
+  );
 
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
@@ -54,7 +57,10 @@ export default function App() {
       const newMod: ModuleName =
         m && VALID_MODULES.includes(m as ModuleName) ? (m as ModuleName) : module;
       const def = MODULE_DEFAULTS[newMod];
-      setModule(newMod);
+      if (newMod !== module) {
+        setModule(newMod);
+        setParams({ ...MODULE_PARAM_DEFAULTS[newMod] });
+      }
       if (typeof w === "number" && !isNaN(w)) setW(clamp(w, def.minW, def.maxW));
       if (typeof h === "number" && !isNaN(h)) setH(clamp(h, def.minH, def.maxH));
       if (typeof d === "number" && !isNaN(d)) setD(clamp(d, def.minD, def.maxD));
@@ -67,9 +73,15 @@ export default function App() {
   const [mainTab, setMainTab] = useState<"viewer" | "tablica">("viewer");
   const [viewMode, setViewMode] = useState<"3d" | "2d">(HAS_WEBGL ? "3d" : "2d");
 
-  const { parts, warnings } = useMemo(() => calculate(module, W, H, D), [module, W, H, D]);
+  const { parts, warnings } = useMemo(
+    () => calculate(module, W, H, D, params),
+    [module, W, H, D, params]
+  );
 
   const handleChange = (m: ModuleName, w: number, h: number, d: number) => {
+    if (m !== module) {
+      setParams({ ...MODULE_PARAM_DEFAULTS[m] });
+    }
     setModule(m);
     setW(w);
     setH(h);
@@ -83,6 +95,11 @@ export default function App() {
     } catch {
       // ignore if cross-origin or no parent
     }
+  };
+
+  const handleParamsChange = (newParams: ModuleSpecificParams) => {
+    setParams(newParams);
+    setSelected(null);
   };
 
   const selectedPart = parts.find((p) => p.id === selected);
@@ -101,7 +118,15 @@ export default function App() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
-          <InputPanel module={module} W={W} H={H} D={D} onChange={handleChange} />
+          <InputPanel
+            module={module}
+            W={W}
+            H={H}
+            D={D}
+            params={params}
+            onChange={handleChange}
+            onParamsChange={handleParamsChange}
+          />
         </div>
 
         {selectedPart && (

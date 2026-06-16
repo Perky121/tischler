@@ -1,13 +1,15 @@
 import { useState } from "react";
-import type { ModuleName } from "../lib/formula-engine";
-import { MODULE_DEFAULTS, MODULE_LABELS } from "../lib/formula-engine";
+import type { ModuleName, ModuleSpecificParams } from "../lib/formula-engine";
+import { MODULE_DEFAULTS, MODULE_LABELS, MODULE_PARAM_META, MODULE_PARAM_DEFAULTS } from "../lib/formula-engine";
 
 interface Props {
   module: ModuleName;
   W: number;
   H: number;
   D: number;
+  params: ModuleSpecificParams;
   onChange: (module: ModuleName, W: number, H: number, D: number) => void;
+  onParamsChange: (params: ModuleSpecificParams) => void;
 }
 
 const MODULES: ModuleName[] = [
@@ -95,8 +97,46 @@ function SliderInput({
   );
 }
 
-export default function InputPanel({ module, W, H, D, onChange }: Props) {
+function NumberStepper({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <label className="text-xs font-medium text-slate-600">{label}</label>
+      <div className="flex items-center gap-1.5">
+        <button
+          className="w-6 h-6 rounded border border-slate-200 bg-white text-slate-600 text-sm font-bold flex items-center justify-center hover:bg-slate-50 disabled:opacity-30"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+        >
+          −
+        </button>
+        <span className="w-6 text-center text-xs font-semibold text-slate-800">{value}</span>
+        <button
+          className="w-6 h-6 rounded border border-slate-200 bg-white text-slate-600 text-sm font-bold flex items-center justify-center hover:bg-slate-50 disabled:opacity-30"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function InputPanel({ module, W, H, D, params, onChange, onParamsChange }: Props) {
   const def = MODULE_DEFAULTS[module];
+  const paramMeta = MODULE_PARAM_META[module] ?? [];
 
   const handleModule = (m: ModuleName) => {
     const d = MODULE_DEFAULTS[m];
@@ -107,10 +147,18 @@ export default function InputPanel({ module, W, H, D, onChange }: Props) {
   const handleH = (v: number) => onChange(module, W, v, D);
   const handleD = (v: number) => onChange(module, W, H, v);
 
-  const reset = () => onChange(module, def.W, def.H, def.D);
+  const reset = () => {
+    onChange(module, def.W, def.H, def.D);
+    onParamsChange({ ...MODULE_PARAM_DEFAULTS[module] });
+  };
+
+  const setParam = (key: keyof ModuleSpecificParams, value: number) => {
+    onParamsChange({ ...params, [key]: value });
+  };
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Module selector */}
       <div>
         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
           Modul
@@ -128,6 +176,7 @@ export default function InputPanel({ module, W, H, D, onChange }: Props) {
         </select>
       </div>
 
+      {/* Dimensions */}
       <div className="space-y-4">
         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
           Dimenzije
@@ -161,6 +210,56 @@ export default function InputPanel({ module, W, H, D, onChange }: Props) {
         />
       </div>
 
+      {/* Module-specific params */}
+      {paramMeta.length > 0 && (
+        <div className="space-y-3">
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+            Parametrizacija
+          </label>
+          <div className="space-y-3 bg-slate-50 rounded-lg p-3">
+            {paramMeta.map((meta) => {
+              if (meta.visibleWhen && !meta.visibleWhen(params)) return null;
+
+              const currentVal = params[meta.key] ?? MODULE_PARAM_DEFAULTS[module][meta.key] ?? 0;
+
+              if (meta.type === "select" && meta.options) {
+                return (
+                  <div key={meta.key} className="flex items-center justify-between gap-2">
+                    <label className="text-xs font-medium text-slate-600 shrink-0">{meta.label}</label>
+                    <select
+                      className="text-xs border border-slate-200 rounded px-1.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 max-w-[140px] w-full"
+                      value={currentVal as number}
+                      onChange={(e) => setParam(meta.key, parseInt(e.target.value, 10))}
+                    >
+                      {meta.options.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              }
+
+              if (meta.type === "number" && meta.min !== undefined && meta.max !== undefined) {
+                return (
+                  <NumberStepper
+                    key={meta.key}
+                    label={meta.label}
+                    value={currentVal as number}
+                    min={meta.min}
+                    max={meta.max}
+                    onChange={(v) => setParam(meta.key, v)}
+                  />
+                );
+              }
+
+              return null;
+            })}
+          </div>
+        </div>
+      )}
+
       <button
         className="w-full text-sm border border-slate-200 rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-50 transition-colors"
         onClick={reset}
@@ -168,6 +267,7 @@ export default function InputPanel({ module, W, H, D, onChange }: Props) {
         ↺ Standardne mjere
       </button>
 
+      {/* Legend */}
       <div className="bg-slate-50 rounded-lg p-3 space-y-1 text-xs text-slate-500">
         <div className="font-semibold text-slate-600 text-[11px] uppercase tracking-wider mb-1.5">Legende boja</div>
         {(

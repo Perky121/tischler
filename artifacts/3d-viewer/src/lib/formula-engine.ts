@@ -57,6 +57,149 @@ export interface FormulaResult {
   warnings: string[];
 }
 
+// ── Module-specific parametrization ────────────────────────────────────────
+// -1 for numeric params means "auto" (formula-computed)
+
+export interface ModuleSpecificParams {
+  PO?: number;    // broj polica (-1 = auto)
+  KDT?: number;   // tip vrata: 0=bez, 1=jednodijelna, 2=dvodijelna (-1=auto by W)
+  VPT?: number;   // vrsta prednjeg takta: 0=fronta, 1=ladice, 2=prazno
+  UDD?: number;   // broj ladica (1–6, kad VPT=1)
+  STRAN?: number; // šarka: 0=lijevo, 1=desno (utječe na prikaz vrata)
+}
+
+export type AllModuleParams = Record<ModuleName, ModuleSpecificParams>;
+
+export const MODULE_PARAM_DEFAULTS: AllModuleParams = {
+  KUH_VISOKI:    { PO: -1, KDT: -1, VPT: 1, UDD: 3 },
+  VISECI:        { PO: -1, KDT: -1 },
+  OTVORENI:      { PO: -1 },
+  PECNICA:       {},
+  PERILICA:      {},
+  MIKROVALNA:    {},
+  NAPA:          {},
+  KUTNI_VANJSKI: { PO: -1 },
+};
+
+// Describes which params are relevant for each module (for UI rendering)
+export interface ParamMeta {
+  key: keyof ModuleSpecificParams;
+  label: string;
+  type: "select" | "number";
+  options?: { value: number; label: string }[];
+  min?: number;
+  max?: number;
+  visibleWhen?: (p: ModuleSpecificParams) => boolean;
+}
+
+export const MODULE_PARAM_META: Partial<Record<ModuleName, ParamMeta[]>> = {
+  KUH_VISOKI: [
+    {
+      key: "VPT",
+      label: "Donji dio",
+      type: "select",
+      options: [
+        { value: 0, label: "Fronta (bez ladica)" },
+        { value: 1, label: "Ladice" },
+        { value: 2, label: "Prazno (bez fronte)" },
+      ],
+    },
+    {
+      key: "UDD",
+      label: "Broj ladica",
+      type: "number",
+      min: 1,
+      max: 6,
+      visibleWhen: (p) => p.VPT === 1,
+    },
+    {
+      key: "KDT",
+      label: "Tip vrata",
+      type: "select",
+      options: [
+        { value: -1, label: "Auto (po širini)" },
+        { value: 0, label: "Bez vrata" },
+        { value: 1, label: "Jednodijelna" },
+        { value: 2, label: "Dvodijelna" },
+      ],
+    },
+    {
+      key: "PO",
+      label: "Broj polica",
+      type: "select",
+      options: [
+        { value: -1, label: "Auto" },
+        { value: 0, label: "0" },
+        { value: 1, label: "1" },
+        { value: 2, label: "2" },
+        { value: 3, label: "3" },
+        { value: 4, label: "4" },
+        { value: 5, label: "5" },
+      ],
+    },
+  ],
+  VISECI: [
+    {
+      key: "KDT",
+      label: "Tip vrata",
+      type: "select",
+      options: [
+        { value: -1, label: "Auto (po širini)" },
+        { value: 0, label: "Bez vrata" },
+        { value: 1, label: "Jednodijelna" },
+        { value: 2, label: "Dvodijelna" },
+      ],
+    },
+    {
+      key: "PO",
+      label: "Broj polica",
+      type: "select",
+      options: [
+        { value: -1, label: "Auto" },
+        { value: 0, label: "0" },
+        { value: 1, label: "1" },
+        { value: 2, label: "2" },
+        { value: 3, label: "3" },
+        { value: 4, label: "4" },
+      ],
+    },
+  ],
+  OTVORENI: [
+    {
+      key: "PO",
+      label: "Broj polica",
+      type: "select",
+      options: [
+        { value: -1, label: "Auto" },
+        { value: 0, label: "0" },
+        { value: 1, label: "1" },
+        { value: 2, label: "2" },
+        { value: 3, label: "3" },
+        { value: 4, label: "4" },
+        { value: 5, label: "5" },
+        { value: 6, label: "6" },
+        { value: 7, label: "7" },
+        { value: 8, label: "8" },
+      ],
+    },
+  ],
+  KUTNI_VANJSKI: [
+    {
+      key: "PO",
+      label: "Broj polica (po strani)",
+      type: "select",
+      options: [
+        { value: -1, label: "Auto" },
+        { value: 0, label: "0" },
+        { value: 1, label: "1" },
+        { value: 2, label: "2" },
+        { value: 3, label: "3" },
+        { value: 4, label: "4" },
+      ],
+    },
+  ],
+};
+
 export const MODULE_DEFAULTS: Record<ModuleName, ModuleDefaults> = {
   KUH_VISOKI: { W: 600, H: 2160, D: 580, minW: 300, maxW: 900, minH: 1800, maxH: 2400, minD: 500, maxD: 620 },
   VISECI:     { W: 600, H: 720,  D: 350, minW: 300, maxW: 1200, minH: 500, maxH: 1000, minD: 290, maxD: 400 },
@@ -188,7 +331,13 @@ function drawerFront(W: number, h: number, x: number, y: number, index: number):
 
 let D_placeholder = 580;
 
-export function calculate(module: ModuleName, W: number, H: number, D: number): FormulaResult {
+export function calculate(
+  module: ModuleName,
+  W: number,
+  H: number,
+  D: number,
+  params: ModuleSpecificParams = {}
+): FormulaResult {
   D_placeholder = D;
   _idSeq = 0;
   const warnings: string[] = [];
@@ -196,35 +345,76 @@ export function calculate(module: ModuleName, W: number, H: number, D: number): 
 
   const frontZ = D + T_FRONT / 2;
 
+  // Merge with module defaults so unset keys get their default value
+  const p: ModuleSpecificParams = { ...MODULE_PARAM_DEFAULTS[module], ...params };
+
   switch (module) {
     case "KUH_VISOKI": {
       parts.push(...korpus(W, H, D));
 
-      const drawerZoneH = Math.round(H * 0.30);
-      const drawerCount = W <= 450 ? 3 : 3;
-      const drawerH = Math.round(drawerZoneH / drawerCount);
-      const shelfZoneFrom = T + drawerZoneH;
-      const shelfZoneTo = H - T;
-      const shelfCount = Math.floor((shelfZoneTo - shelfZoneFrom) / 300);
-      const actualShelfCount = Math.min(shelfCount, 4);
+      const KDT = p.KDT ?? -1;   // -1 = auto by W
+      const VPT = p.VPT ?? 1;    // 1 = ladice
+      const UDD = Math.max(1, Math.min(6, p.UDD ?? 3));
+      const PO_req = p.PO ?? -1;
 
+      // ── Bottom zone ─────────────────────────────────────────────────────
+      let yFromShelves = T;
+      let drawerZoneH = 0;
+
+      if (VPT === 1) {
+        // Ladice (drawers) at bottom
+        drawerZoneH = Math.round(H * 0.30);
+        const drawerH = Math.round(drawerZoneH / UDD);
+        yFromShelves = T + drawerZoneH;
+
+        for (let i = 0; i < UDD; i++) {
+          const yBot = T + i * drawerH;
+          parts.push({ ...drawerFront(W, drawerH, W / 2, yBot + drawerH / 2, i + 1), z: frontZ });
+        }
+      }
+      // VPT === 0: fronta (doors full-height, no drawers) — yFromShelves stays T
+      // VPT === 2: prazno (nothing at bottom) — yFromShelves stays T
+
+      // ── Shelves ─────────────────────────────────────────────────────────
+      const shelfZoneFrom = yFromShelves;
+      const shelfZoneTo = H - T;
+
+      let actualShelfCount: number;
+      if (PO_req >= 0) {
+        actualShelfCount = PO_req;
+      } else {
+        actualShelfCount = Math.min(Math.floor((shelfZoneTo - shelfZoneFrom) / 300), 4);
+      }
       parts.push(...uniformShelves(W, H, D, actualShelfCount, shelfZoneFrom, shelfZoneTo));
 
-      for (let i = 0; i < drawerCount; i++) {
-        const yBot = T + i * drawerH;
-        parts.push({
-          ...drawerFront(W, drawerH, W / 2, yBot + drawerH / 2, i + 1),
-          z: frontZ,
-        });
-      }
+      // ── Doors (fronte) ──────────────────────────────────────────────────
+      // Resolve KDT: -1 means auto (dual if W>450, single otherwise)
+      const useDual = KDT === 2 || (KDT === -1 && W > 450);
+      const useSingle = KDT === 1 || (KDT === -1 && W <= 450);
+      const hasDoors = KDT !== 0;
 
-      const topFrontH = H - T - drawerZoneH;
-      const topFrontY = T + drawerZoneH + topFrontH / 2;
-      if (W > 450) {
-        parts.push({ ...door(W / 2, topFrontH, W / 4 + 1, topFrontY, "Front vrata L"), z: frontZ });
-        parts.push({ ...door(W / 2, topFrontH, W * 3 / 4 - 1, topFrontY, "Front vrata D"), z: frontZ });
-      } else {
-        parts.push({ ...door(W, topFrontH, W / 2, topFrontY, "Front vrata"), z: frontZ });
+      if (hasDoors) {
+        if (VPT === 1) {
+          // Vrata samo na gornjem dijelu (iznad ladica)
+          const topFrontH = H - T - drawerZoneH - T;
+          const topFrontY = T + drawerZoneH + T + topFrontH / 2;
+          if (topFrontH > 60) {
+            if (useDual) {
+              parts.push({ ...door(W / 2, topFrontH + T, W / 4 + 1, topFrontY, "Front vrata L"), z: frontZ });
+              parts.push({ ...door(W / 2, topFrontH + T, W * 3 / 4 - 1, topFrontY, "Front vrata D"), z: frontZ });
+            } else if (useSingle) {
+              parts.push({ ...door(W, topFrontH + T, W / 2, topFrontY, "Front vrata"), z: frontZ });
+            }
+          }
+        } else {
+          // Vrata po cijeloj visini (bez ladica)
+          if (useDual) {
+            parts.push({ ...door(W / 2, H, W / 4 + 1, H / 2, "Front vrata L"), z: frontZ });
+            parts.push({ ...door(W / 2, H, W * 3 / 4 - 1, H / 2, "Front vrata D"), z: frontZ });
+          } else if (useSingle) {
+            parts.push({ ...door(W, H, W / 2, H / 2, "Front vrata"), z: frontZ });
+          }
+        }
       }
 
       if (H < 1800) warnings.push("Visina je manja od standardnih 1800mm za visoki element.");
@@ -233,14 +423,23 @@ export function calculate(module: ModuleName, W: number, H: number, D: number): 
 
     case "VISECI": {
       parts.push(...korpus(W, H, D));
-      const shelfCount = Math.max(1, Math.floor((H - 2 * T) / 300) - 1);
+
+      const KDT = p.KDT ?? -1;
+      const PO_req = p.PO ?? -1;
+
+      const autoShelfCount = Math.max(1, Math.floor((H - 2 * T) / 300) - 1);
+      const shelfCount = PO_req >= 0 ? PO_req : autoShelfCount;
       parts.push(...uniformShelves(W, H, D, shelfCount, T, H - T));
 
-      if (W > 450) {
-        parts.push({ ...door(W / 2, H, W / 4 + 1, H / 2, "Front vrata L"), z: frontZ });
-        parts.push({ ...door(W / 2, H, W * 3 / 4 - 1, H / 2, "Front vrata D"), z: frontZ });
-      } else {
-        parts.push({ ...door(W, H, W / 2, H / 2, "Front vrata"), z: frontZ });
+      const useDual = KDT === 2 || (KDT === -1 && W > 450);
+      const useSingle = KDT === 1 || (KDT === -1 && W <= 450);
+      if (KDT !== 0) {
+        if (useDual) {
+          parts.push({ ...door(W / 2, H, W / 4 + 1, H / 2, "Front vrata L"), z: frontZ });
+          parts.push({ ...door(W / 2, H, W * 3 / 4 - 1, H / 2, "Front vrata D"), z: frontZ });
+        } else if (useSingle) {
+          parts.push({ ...door(W, H, W / 2, H / 2, "Front vrata"), z: frontZ });
+        }
       }
 
       if (D > 380) warnings.push("Dubina viseće jedinice je veća od uobičajenih 350-380mm.");
@@ -249,7 +448,10 @@ export function calculate(module: ModuleName, W: number, H: number, D: number): 
 
     case "OTVORENI": {
       parts.push(...korpus(W, H, D));
-      const shelfCount = Math.max(2, Math.floor((H - 2 * T) / 300) - 1);
+
+      const PO_req = p.PO ?? -1;
+      const autoCount = Math.max(2, Math.floor((H - 2 * T) / 300) - 1);
+      const shelfCount = PO_req >= 0 ? PO_req : autoCount;
       parts.push(...uniformShelves(W, H, D, shelfCount, T, H - T));
       break;
     }
@@ -388,6 +590,7 @@ export function calculate(module: ModuleName, W: number, H: number, D: number): 
     case "KUTNI_VANJSKI": {
       parts.push(...korpus(W, H, D));
 
+      const PO_req = p.PO ?? -1;
       const innerH = H - 2 * T;
       const sideD = D - T_BACK;
       const panelD = Math.round(W * 0.5);
@@ -404,7 +607,8 @@ export function calculate(module: ModuleName, W: number, H: number, D: number): 
 
       const leftShelfW = panelD - T;
       const rightShelfW = W - 2 * T - panelD;
-      const shelfCount = Math.max(2, Math.floor(innerH / 350) - 1);
+      const autoShelfCount = Math.max(2, Math.floor(innerH / 350) - 1);
+      const shelfCount = PO_req >= 0 ? PO_req : autoShelfCount;
       const step = innerH / (shelfCount + 1);
 
       for (let i = 1; i <= shelfCount; i++) {
