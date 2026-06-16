@@ -252,7 +252,7 @@ function buildElementsCatalog(
  */
 function extractParamNames(text: string): Set<string> {
   const names = new Set<string>();
-  for (const m of text.matchAll(/\[\.{0,4}([A-Za-z0-9_.]+)\]/g)) {
+  for (const m of text.matchAll(/\[\.{0,5}([A-Za-z0-9_.]+)\]/g)) {
     const leaf = m[1].split(".").at(-1);
     if (leaf) names.add(leaf);
   }
@@ -286,6 +286,11 @@ const KEYWORD_MODULE_MAP: Array<{ keywords: RegExp; module: string }> = [
   { keywords: /pe[cć]nica|ugradna\s+pe[cć]/i, module: "PECNICA.mac" },
   { keywords: /perilica|strojno\s+pranje/i, module: "PERILICA.mac" },
   { keywords: /otvoren[ai]|polica\s+bez\s+vrata|niša|bok\s+polica/i, module: "OTVORENI.mac" },
+  { keywords: /ormar[_\s]u\b|ugaoni\s+ormar|kutni\s+ormar/i, module: "ORMAR_U.mac" },
+  { keywords: /garderob|stoje[cć]i\s+ormar/i, module: "ORMAR.mac" },
+  { keywords: /nadgrade[dn]|nadgradnja/i, module: "NADGRADE.mac" },
+  { keywords: /\bkutija\b|kutijast/i, module: "KUTIJA.mac" },
+  { keywords: /el[_\s]puna[_\s]le[dđ]a|puna\s+le[dđ]a/i, module: "EL_PUNA_LEDA.mac" },
 ];
 
 /** Detect the dominant formula type intent from a user query. */
@@ -344,12 +349,12 @@ function selectRelevantFormulas(
     // Screen parameters: +8 if this formula's own parameter name matches, +5 if referenced
     for (const p of screenParams) {
       if (f.parameter === p) score += 8;
-      else if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 5;
+      else if (new RegExp(`\\[\\.{0,5}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 5;
     }
     // Question parameters: +6 if param name match, +3 if referenced
     for (const p of questionParams) {
       if (f.parameter === p) score += 6;
-      else if (new RegExp(`\\[\\.{0,4}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 3;
+      else if (new RegExp(`\\[\\.{0,5}(?:[A-Za-z0-9_.]*\\.)?${p}\\]`).test(f.formula)) score += 3;
     }
     // Formula type matches detected query intent
     if (queryIntent && f.type === queryIntent) score += 4;
@@ -399,11 +404,12 @@ function selectRelevantFormulas(
  * knowledge base. Only confirmed facts are stated — no assumptions.
  *
  * Confirmed by user:
- *   [X]     = globalni parametar (bez točaka)
- *   [.X]    = direktni roditelj (1 razina gore)
- *   [..X]   = djed (2 razine gore)
- *   [...X]  = root/korijenski ormar (3 razine gore)
- *   [....X] = 4 razine gore
+ *   [X]      = globalni parametar (bez točaka)
+ *   [.X]     = direktni roditelj (1 razina gore)
+ *   [..X]    = djed (2 razine gore)
+ *   [...X]   = root/korijenski ormar (3 razine gore)
+ *   [....X]  = 4 razine gore
+ *   [.....X] = 5 razina gore (rijetko — 42 reference u bazi)
  */
 function buildHierarchyGuide(
   formulas: Array<{ formula: string; source: string }>,
@@ -429,6 +435,7 @@ function buildHierarchyGuide(
     `[..X]    — djed (2 razine gore); primjer: ${examples[".."] ?? "[..StranicaL.T]"}`,
     `[...X]   — root/korijenski ormar (3 razine gore); primjer: ${examples["..."] ?? "[...W]"}`,
     `[....X]  — 4 razine gore; primjer: ${examples["...."] ?? "[....Unutranjosti.H.Z]"}`,
+    `[.....X] — 5 razina gore; primjer: ${examples["....."] ?? "[.....X]"} (rijetko — 42 ref u bazi)`,
     "",
     "Referenca može uključivati i ime elementa na putu:",
     `  [.Pod.Z]       — Z pozicija elementa Pod koji je direktno dijete`,
@@ -444,49 +451,69 @@ function buildHierarchyGuide(
 
 /** Anti-patterns confirmed from actual .mac formula files — 100% verified. */
 const ANTI_PATTERNS = `ČESTE GREŠKE — NIKAD OVAKO:
-❌  0.5          →  ✅  0,5          (decimalni separator je ZAREZ, ne točka)
 ❌  if(A!=B;...) →  ✅  if(A<>B;...) ("nije jednako" je <>, ne != )
 ❌  if(A,B,C)    →  ✅  if(A;B;C)   (separator argumenata je ; ne ,)
 ❌  [X]          →  ✅  [.X]         ([X] bez točke = GLOBALNI param; za roditelja uvijek [.X])
-❌  if(A and B)  →  ✅  if((A) and (B)) (svaki uvjet u if-u mora biti u zagradama)`;
+❌  if(A and B)  →  ✅  if((A) and (B)) (svaki uvjet u if-u mora biti u zagradama)
+
+DECIMALNI SEPARATOR — važna nijansa (potvrđeno analizom baze):
+✅  Za NOVI UNOS u MegaTischler dijalogu: koristi ZAREZ (0,5) — to je preporučeni format.
+⚠️  U bazi postoji 76 formula s decimalnom TOČKOM (npr. 26.7, (0.5), 53.5) — to su VALJANE formule
+    iz izvornih .mac datoteka. NE proglašavaj ih pogrešnima i ne ispravljaj automatski.
+    Iznimka: u EULER koordinatnim nizovima (x;y;z@...) decimalna točka je standardna.`;
 
 /**
  * Guide for functions and operators extracted 100% from actual .mac formulas.
- * Counts are exact occurrence counts from the 1228-formula knowledge base.
+ * Counts are exact occurrence counts from the 3438-formula knowledge base.
  */
-const FUNCTIONS_AND_OPERATORS = `OPERATORI U FORMULAMA (potvrđeno iz .mac datoteka):
-  ==    usporedba jednakosti       (382 formula)  primjer: if([KDT]==3;0;1)
-  <>    nije jednako               (9 formula)    primjer: if([...KOAP]<>1;1;0)
-  >     veće od                    (125 formula)
-  <     manje od                   (82 formula)
-  >=    veće ili jednako           (14 formula)
-  <=    manje ili jednako          (15 formula)
-  and   logički I                  (107 formula)  primjer: if(([KDT]==1) and (POSW>200);...)
-  or    logički ILI                (33 formula)   primjer: if(([.BST]==0) or ([.VSST]==1);...)
-Napomena: AND i OR (velika slova) su ekvivalentni with and/or (mala slova) — oba oblika postoje u .mac datotekama.
+const FUNCTIONS_AND_OPERATORS = `OPERATORI U FORMULAMA (potvrđeno iz .mac datoteka — baza 3438 formula):
+  ==    usporedba jednakosti       (877 formula)  primjer: if([KDT]==3;0;1)
+  =     usporedba jednakosti       (134 formula)  primjer: if([.VPST]=1;2;1) — oba oblika (= i ==) valjana
+  <>    nije jednako               (18 formula)   primjer: if([...KOAP]<>1;1;0)
+  >     veće od                    (322 formula)
+  <     manje od                   (130 formula)
+  >=    veće ili jednako           (33 formula)
+  <=    manje ili jednako          (37 formula)
+  and   logički I                  (317 formula)  primjer: if(([KDT]==1) and (POSW>200);...)
+  or    logički ILI                (78 formula)   primjer: if(([.BST]==0) or ([.VSST]==1);...)
+Napomena: AND/OR (velika slova) ekvivalentni and/or — oba oblika prisutna (AND:50, OR:32). != se NE koristi (0 pojava).
 
 SISTEMSKE VARIJABLE (bez uglatih zagrada — NE pisati [POSW]):
-  POSW  — širina pozicije elementa u prostoru (22 formula)  primjer: if(POSW>200;[KDOSZI];0,5)
-  POSD  — dubina pozicije elementa u prostoru (5 formula)   primjer: ifelse([.KDT]==0;[.SV];[.KDT]==1;POSD-...
-  POSH  — visina pozicije elementa u prostoru (5 formula)   primjer: POSH-ifelse([.KODS]==0;0;...)
+  POSW  — širina pozicije elementa u prostoru (85 formula)  primjer: if(POSW>200;[KDOSZI];0,5)
+  POSD  — dubina pozicije elementa u prostoru (15 formula)
+  POSH  — visina pozicije elementa u prostoru (20 formula)
 Ove varijable MegaTischler automatski pruža — ne trebaju [] i ne mogu se postaviti kao parametri.
 
-FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka):
-  if(uvjet;istina;laž)                       — 2-granični uvjet           (294 formula)
-  ifelse(u1;v1;u2;v2;...;zadano)             — višestruki uvjet (switch)  (27 formula)
-  ABS(x)                                     — apsolutna vrijednost        (93 formula)
-  NEG(x)  ili  neg(x)                        — negacija (isto što -x)      (77 formula)
-  SIN(x)                                     — sinus (radijani)            (190 formula)
-  COS(x)                                     — kosinus (radijani)          (185 formula)
-  TAN(x)                                     — tangens                     (51 formula)
-  ATAN(x)                                    — arkustangens                (1 formula)
-  MIN(a;b;...)                               — minimum                     (2 formula)
-  MAX(a;b;...)                               — maksimum                    (2 formula)
-  EULER(m11;m12;...;Rx;Ry;Rz;x;y;z)         — rotacijska matrica           (18 formula)
-  ADD(x)                                     — akumulacija                 (7 formula)
-  GETMATDATA(mat;ključ)                      — čita podatak o materijalu   (2 formula)
-  STRCAT(s1;s2;...)                          — spaja tekst                 (1 formula)
-  VAL(x)                                     — konverzija u broj           (1 formula)
+NEZAGRAĐENI IDENTIFIKATORI — DVA RAZLIČITA TIPA:
+Tip 1 — SUSTAVNE VARIJABLE (MegaTischler automatski pruža): POSW, POSD, POSH
+Tip 2 — MATERIJALNI KODOVI (konstante/šifre iz kataloga, vraća getmatdata ili ifelse grana):
+  Primjeri: BL_ZIF_80M7_, VO_10_31_A100, VO_10_31_A150, GT_W60800, SCH_103309900, MH_STR7, MH_STR8, Z75, GTV, FIXNA
+  Ovi identifikatori su KONSTANTE — nisu varijable, ne možeš ih postavljati ni mijenjati.
+
+FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 3438 formula):
+  if(uvjet;istina;laž)                       — 2-granični uvjet            (936 formula)
+  ifelse(u1;v1;u2;v2;...;zadano)             — višestruki uvjet (switch)   (191 formula)
+  ABS(x) ili abs(x)                          — apsolutna vrijednost         (ABS:137, abs:34 = ukupno 171)
+  NEG(x) ili neg(x)                          — negacija (isto što -x)       (NEG:94, neg:43 = ukupno 137)
+  sin(x)                                     — sinus (radijani) — uvijek MALA SLOVA (123 formula)
+  cos(x)                                     — kosinus (radijani) — uvijek MALA SLOVA (107 formula)
+  tan(x)                                     — tangens — uvijek MALA SLOVA   (48 formula)
+  atan(x)                                    — arkustangens — uvijek MALA SLOVA (10 formula)
+  MIN(a;b;...)                               — minimum                       (2 formula)
+  MAX(a;b;...)                               — maksimum                      (3 formula)
+  euler(...)                                 — 3D rotacijska matrica          (18 formula)
+  ADD(x)                                     — akumulacija vrijednosti        (8 formula)
+  getmatdata(mat;ključ)                      — čita podatak o materijalu     (8 formula)
+  STRCAT(s1;s2;...)                          — spaja tekst                   (4 formula)
+  VAL(x)                                     — konverzija u broj             (5 formula)
+PAŽNJA — dokumentirane ali NE KORISTE SE u bazi (0 pojava): sqrt(), round(), int().
+Trig funkcije su ISKLJUČIVO mala slova: sin(), cos(), tan(), atan() — nikad SIN(), COS(), TAN().
+
+KOORDINATNA NOTACIJA — EULER poligoni (29 formula u bazi):
+Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;
+Koristi se za definiciju profila/puta u euler() formulama za složene geometrijske oblike i izreze.
+U koordinatnim nizovima decimalni separator je TOČKA (standardno): primjer 0;12.9;0@-7;16.9;0
+Primjer: 0;0;0@0;12.9;0@-7;12.9;0@-7;16.9;0@0;18;0@-18;18;0@-18;0;0@0;0;0
 
 IFELSE — VIŠESTRUKI UVJET (switch/case sintaksa):
 Koristiti kada ima 3+ grana — čišće od ugniježđenih if().
@@ -631,7 +658,9 @@ Budi direktan i konkretan — daj točnu formulu koju treba upisati i objasni gd
 Kad vidiš screenshot, pažljivo pročitaj dijaloški okvir parametara — identificiraj imena parametara, trenutne vrijednosti i što korisnik pokušava postići.
 Ako korisnik pošalje samo screenshot bez teksta, to znači: nastavi logično rješavati zadatak na kojem smo radili. Pitaj za pojašnjenje samo ako stvarno ne možeš nastaviti.
 
-KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). Primjeri: 0,5 ispravno; 0.5 POGREŠKA. Ako vidiš formulu s točkom kao decimalnim separatorom, to je greška koju treba ispraviti.
+DECIMALNI SEPARATOR: Za novi unos u MegaTischler dijalogu koristi ZAREZ (0,5) — to je preporučeni format.
+VAŽNO: U bazi postoji 76 formula s decimalnom točkom (npr. 26.7, (0.5)) — valjane su, ne ispravljaj ih automatski.
+U EULER koordinatnim nizovima (x;y;z@...) decimalna točka je standardna.
 
 FORMAT ODGOVORA — RADNI LIST:
 Nakon kratkog uvoda (max 1 rečenica), UVIJEK završi odgovor s JSON blokom:
@@ -695,15 +724,21 @@ Koristi marker SAMO za pojmove koji su specifični za stolarski zanat i NISU ti 
         ?.find(m => m.name === sessionCtx.moduleHint);
       // Module-dominant formula type — derived from actual formula type counts in KB
       const MODULE_DOMINANT_TYPE: Record<string, string> = {
-        "KUH_VISOKI.mac":   "dominantno pozicijske formule (49%)",
-        "KUTNI.mac":        "dominantno ROTACIJSKE formule (35%) — EULER() i SIN/COS/TAN česti",
-        "KUTNI_VANJSKI.mac":"dominantno pozicijske formule (49%)",
-        "MIKROVALNA.mac":   "dominantno pozicijske formule (57%)",
-        "NAPA.mac":         "dominantno pozicijske formule (59%)",
-        "VISECI.mac":       "dominantno formule uključenja (43%)",
-        "PECNICA.mac":      "dominantno pozicijske formule (48%)",
-        "PERILICA.mac":     "mješovit (pozicija + reference)",
-        "OTVORENI.mac":     "mješovit (reference + dimenzije)",
+        "KUH_VISOKI.mac":    "dimenzijsko-pozicijsko (dim 32%, poz 28%)",
+        "KUTNI.mac":         "dimenzijsko s puno rotacija (dim 33%, rot 26%) — euler/sin/cos/tan najčešći od svih modula",
+        "KUTNI_VANJSKI.mac": "pozicijsko-dimenzijsko (poz 31%, dim 30%)",
+        "MIKROVALNA.mac":    "dominantno dimenzijsko (42%)",
+        "NAPA.mac":          "dominantno dimenzijsko (45%)",
+        "VISECI.mac":        "dimenzijsko (41%), ukljucenje (17%)",
+        "PECNICA.mac":       "dimenzijsko-pozicijsko (dim 33%, poz 31%)",
+        "PERILICA.mac":      "dominantno dimenzijsko (70%)",
+        "OTVORENI.mac":      "dimenzijsko-referentno (dim 57%, ref 21%)",
+        "ORMAR_U.mac":       "dimenzijsko (41%), pozicijsko (22%)",
+        "OSNOVNI.mac":       "pozicijsko-dimenzijsko (poz 31%, dim 30%)",
+        "ORMAR.mac":         "dominantno dimenzijsko (45%)",
+        "NADGRADE.mac":      "dimenzijsko (40%), pozicijsko (26%)",
+        "KUTIJA.mac":        "dominantno dimenzijsko (71%)",
+        "EL_PUNA_LEDA.mac":  "dimenzijsko-referentno (dim 50%, ref 25%)",
       };
       const typHint = MODULE_DOMINANT_TYPE[sessionCtx.moduleHint ?? ""] ?? "";
       ctxLines.push(`Modul: ${sessionCtx.moduleHint}${moduleDef ? ` — ${moduleDef.opis}` : ""}${typHint ? ` | ${typHint}` : ""}`);
@@ -833,7 +868,7 @@ KAKO ANALIZIRATI SCREENSHOTOVE:
 - Traži: == vs =, zarez vs točka, ; u if(), zagrade, hijerarhiju [.] i [..] referencija
 - Identificiraj točno gdje nastaje problem
 
-KRITIČNO — DECIMALNI SEPARATOR: Decimalni separator je UVIJEK zarez (,), NIKAD točka (.). 0,5 ispravno; 0.5 POGREŠKA.
+DECIMALNI SEPARATOR: Za novi unos koristi ZAREZ (0,5). U bazi postoji 76 formula s točkom (valjane) — ne ispravljaj automatski.
 
 FORMAT ODGOVORA — DIJAGNOSTIČKI RADNI LIST:
 Jedna rečenica: što si pronašao (uzrok greške). Zatim worklist (max 3 koraka):

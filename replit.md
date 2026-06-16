@@ -43,7 +43,7 @@ An AI assistant that helps furniture manufacturing professionals write parametri
 - .mac files are uploaded via multipart/form-data to `/api/upload-mac`, parsed by the TypeScript parser `parse-mac.ts` (MTSXENC-aware, latin-1 + XOR decode), and merged into `knowledge_base.json`
 - Files are parsed one-by-one and deduplicated by formula string hash
 - MTSXENC-encoded sections are decoded in the parser: `byte = (codepoint - 0x0E80) XOR 0x53`
-- Knowledge base has 1228+ formulas across 9 modules (KUH_VISOKI, KUTNI, MIKROVALNA, NAPA, KUTNI_VANJSKI, VISECI, PECNICA, PERILICA, OTVORENI)
+- Knowledge base has 3438 formulas across 15 modules: KUH_VISOKI (420), KUTNI (405), ORMAR_U (380), KUTNI_VANJSKI (354), OSNOVNI (354), NAPA (310), PECNICA (298), VISECI (267), MIKROVALNA (252), ORMAR (208), NADGRADE (110), PERILICA (24), KUTIJA (21), OTVORENI (19), EL_PUNA_LEDA (16)
 - Conversation history (last 10 messages) is sent with each chat request
 - RAG: top 250 formulas selected by relevance score (moduleHint +20, screen params +5, question params +3), top 80 parameters injected into system prompt
 - Chat responses use a structured worklist format: AI outputs intro + ```worklist JSON block with steps (title, where, formula, hint)
@@ -70,7 +70,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - `.mac` files must be parsed with `latin-1` encoding (not UTF-8); MTSXENC blocks use a shifted UTF-8 encoding where each byte is stored as `codepoint = 0x0E80 + (byte XOR 0x53)`
 - Claude model on AI Integrations: use `claude-opus-4-8` (has vision for screenshots); do not set temperature/top_p/top_k (deprecated on this model)
 - `parse_mac.py` (Python) is NOT used by the server — it exists as a legacy reference only; the active parser is `artifacts/api-server/src/lib/parse-mac.ts`
-- Decimal separator in MegaTischler formulas is always a comma (0,5), never a dot — this is injected as a critical instruction in the system prompt
+- Decimal separator convention for NEW user input: comma (0,5). However, the actual KB contains 76 formulas with decimal dots (e.g. 26.7, (0.5)) — those are valid existing formulas from .mac files and must NOT be treated as errors. In EULER coordinate strings (x;y;z@...) dots are used consistently.
 - Screenshot for analyze-screen is sent as raw base64 (no `data:image/...;base64,` prefix) — Anthropic API requirement
 
 ## Pointers
