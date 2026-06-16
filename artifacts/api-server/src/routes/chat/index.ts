@@ -494,7 +494,7 @@ FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 3438 formula):
   if(uvjet;istina;laž)                       — 2-granični uvjet            (936 formula)
   ifelse(u1;v1;u2;v2;...;zadano)             — višestruki uvjet (switch)   (191 formula)
   ABS(x) ili abs(x)                          — apsolutna vrijednost         (ABS:137, abs:34 = ukupno 171)
-  NEG(x) ili neg(x)                          — negacija (isto što -x)       (NEG:94, neg:43 = ukupno 137)
+  NEG(x) ili neg(x)                          — u 175 od 176 poziva omata jednu 0/1 zastavicu (NEG:94, neg:43)
   sin(x)                                     — sinus (radijani) — uvijek MALA SLOVA (123 formula)
   cos(x)                                     — kosinus (radijani) — uvijek MALA SLOVA (107 formula)
   tan(x)                                     — tangens — uvijek MALA SLOVA   (48 formula)
@@ -522,7 +522,37 @@ Primjeri iz .mac datoteka:
   ifelse([KOAP]==1;50;[KOOL]==0;20;[KOOL]==1;35;50)
   ifelse([KDOS]==0;0,5;[KDOS]==1;2;45)
   ifelse([KUT]<90;1;[KUT]>90;0;2)
-  ifelse([.KODS]==0;0;[.KODS]==4;[.MaskaGoreHor.T];[.MSS]+[.MSZRG])`;
+  ifelse([.KODS]==0;0;[.KODS]==4;[.MaskaGoreHor.T];[.MSS]+[.MSZRG])
+PRAVILO STRUKTURE (potvrđeno brojanjem): ifelse uvijek ima PARAN broj ; (svaki uvjet ima svoju vrijednost) + jednu zadanu vrijednost na kraju.`;
+
+/**
+ * Recurring formula-writing templates extracted 100% from actual .mac formulas.
+ * Every count below is an exact occurrence count from the 3438-formula knowledge base.
+ */
+const FORMULA_PATTERNS = `OBRASCI ZA PISANJE FORMULA (potvrđeno brojanjem u bazi 3438 formula):
+
+1) BOOLEAN-PREKIDAČ bez if() —  [ZASTAVICA]*A + neg([ZASTAVICA])*B   (34 formule)
+   U svih 34 formula ista zastavica stoji i unutar i izvan neg(); argument neg() je u 175 od 176
+   poziva jedna 0/1 zastavica (BDN, BSL, BSD, BST, BU, UDD...). To je obrazac za odabir jedne od
+   dvije vrijednosti ovisno o stanju zastavice — alternativa za if() kad je uvjet samo 0/1.
+   Primjer iz baze: [...BU]*[...SUT]+neg([...BU])*[...ODU]   (10×)
+
+2) ABS() OKO RAZLIKE POZICIJA —  ABS(pozA - (offset) - (pozB + debljinaB))   (171 formula)
+   Obrazac koji se često koristi za dimenziju kao razmak između dva pozicionirana elementa.
+   Primjer iz baze: ABS([.Strop.Z]-(0)-([.Pod.Z]+[.Pod.T]+(0)))
+
+3) DIJELJENJE S 2 —  .../2   (konstanta 2 javlja se 817×, treća najčešća iza 0 i 1)
+   Obrazac koji se često koristi za centriranje ili podjelu prostora na pola.
+   Primjer iz baze: ([H]-[IDEP1])/2
+
+4) RELATIVNO NA RODITELJA —  [.X]+[.W]-[T]   (11×, identično ponavljanje)
+   Čest obrazac za pozicioniranje uz rub roditelja: pozicija roditelja + širina − debljina.
+
+5) KUT IZ DVIJE STRANICE —  atan([IS]/[ID])   (10×)
+   Obrazac za računanje nagiba iz dvije veličine (npr. dijagonalni rez).
+
+OPSEG LOGIKE: 2337 formula nema nijedan if (čista aritmetika), 915 ima točno 1 if, a samo 45 ima 3+.
+→ Drži formule plitkima: preferiraj jedan if() ili ifelse() umjesto dubokog ugnježđivanja.`;
 
 /**
  * Extract the most frequently referenced element names from hierarchical formula
@@ -707,6 +737,9 @@ Koristi marker SAMO za pojmove koji su specifični za stolarski zanat i NISU ti 
 
   // Functions and operators — 100% extracted from actual .mac formula files
   parts.push(`\n${FUNCTIONS_AND_OPERATORS}`);
+
+  // Recurring formula-writing templates — 100% verified by counting in the KB
+  parts.push(`\n${FORMULA_PATTERNS}`);
 
   // Element vocabulary — real element names extracted from hierarchical paths in .mac files
   const elemVocab = buildElementVocabulary((kb.formulas ?? []) as Array<{ formula: string; source: string }>);
