@@ -78,11 +78,21 @@ router.get("/knowledge", (req, res): void => {
     parameterCount: kb.parameters?.length ?? 0,
     fileCount: kb._meta?.files_processed ?? 0,
   };
+  const meta = (kb as unknown as Record<string, unknown>)["_meta"] as Record<string, unknown> | undefined;
+  const csv_meta = {
+    materials_count: (meta?.["materials_count"] as number | undefined) ?? 0,
+    materials_updated_at: (meta?.["materials_updated_at"] as string | undefined) ?? null,
+    elements_count: (meta?.["elements_count"] as number | undefined) ?? 0,
+    elements_updated_at: (meta?.["elements_updated_at"] as string | undefined) ?? null,
+    userparameters_count: (meta?.["userparameters_count"] as number | undefined) ?? 0,
+    userparameters_updated_at: (meta?.["userparameters_updated_at"] as string | undefined) ?? null,
+  };
   res.json({
     formulas,
     parameters: kb.parameters ?? [],
     syntax_rules: kb.syntax_rules ?? [],
     stats,
+    csv_meta,
   });
 });
 
@@ -374,6 +384,10 @@ type UserParameterEntry = {
   caption: string;
   longdesc: string;
   isHelper: boolean;
+  allowNeg: boolean;
+  isInt: boolean;
+  limMin: number | null;
+  limMax: number | null;
 };
 
 const HELPER_KEY_PATTERN = /^(IZR_\d+|KUT_I\d+)$/;
@@ -390,7 +404,13 @@ function parseUserParametersCsv(filePath: string): UserParameterEntry[] {
     const caption = (row["UP_CAPTION"] ?? "").trim();
     const longdesc = (row["UP_LONGDESC"] ?? "").trim();
     const isHelper = HELPER_KEY_PATTERN.test(key);
-    results.push({ key, desc, caption, longdesc, isHelper });
+    const allowNeg = (row["UP_ALLOW_NEG"] ?? "").trim() === "1";
+    const isInt = (row["UP_IS_INT"] ?? "").trim() === "1";
+    const limMinRaw = parseFloat((row["UP_LIM_MIN"] ?? "").replace(",", "."));
+    const limMaxRaw = parseFloat((row["UP_LIM_MAX"] ?? "").replace(",", "."));
+    const limMin = isNaN(limMinRaw) ? null : limMinRaw;
+    const limMax = isNaN(limMaxRaw) ? null : limMaxRaw;
+    results.push({ key, desc, caption, longdesc, isHelper, allowNeg, isInt, limMin, limMax });
   }
   return results;
 }

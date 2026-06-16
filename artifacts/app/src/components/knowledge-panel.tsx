@@ -271,20 +271,30 @@ export function KnowledgePanel() {
           {(["materials", "elements", "userparameters"] as CsvType[]).map((type) => {
             const { label, hint } = CSV_LABELS[type];
             const isActive = csvUploading === type;
+            const csvMeta = knowledge?.csv_meta;
+            const count = csvMeta ? csvMeta[`${type}_count` as keyof typeof csvMeta] as number : 0;
+            const updatedAt = csvMeta ? csvMeta[`${type}_updated_at` as keyof typeof csvMeta] as string | null : null;
             return (
               <div
                 key={type}
                 className="flex items-center justify-between px-3 py-2 border-b border-border last:border-b-0 bg-card hover:bg-accent/20 transition-colors"
               >
-                <div className="flex flex-col">
+                <div className="flex flex-col min-w-0">
                   <span className="text-[11px] font-mono font-medium">{label}</span>
                   <span className="text-[10px] text-muted-foreground/70">{hint}</span>
+                  {count > 0 && updatedAt ? (
+                    <span className="text-[9px] text-green-500 mt-0.5">
+                      {count} zapisa · {new Date(updatedAt).toLocaleDateString("hr-HR")}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-muted-foreground/40 mt-0.5">Nije uvezeno</span>
+                  )}
                 </div>
                 <button
                   type="button"
                   disabled={csvUploading !== null}
                   onClick={() => triggerCsvUpload(type)}
-                  className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 shrink-0"
+                  className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 shrink-0 ml-2"
                 >
                   {isActive ? (
                     <Loader2 className="w-2.5 h-2.5 animate-spin" />

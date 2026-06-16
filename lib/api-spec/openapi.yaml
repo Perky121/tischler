@@ -396,6 +396,25 @@ components:
       required:
         - status
 
+    CsvMeta:
+      type: object
+      properties:
+        materials_count:
+          type: integer
+        materials_updated_at:
+          type: string
+          nullable: true
+        elements_count:
+          type: integer
+        elements_updated_at:
+          type: string
+          nullable: true
+        userparameters_count:
+          type: integer
+        userparameters_updated_at:
+          type: string
+          nullable: true
+
     KnowledgeBase:
       type: object
       properties:
@@ -413,6 +432,8 @@ components:
             type: string
         stats:
           $ref: "#/components/schemas/KnowledgeStats"
+        csv_meta:
+          $ref: "#/components/schemas/CsvMeta"
       required:
         - formulas
         - parameters

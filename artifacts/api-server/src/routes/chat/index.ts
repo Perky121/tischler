@@ -258,6 +258,10 @@ interface UserParameterEntry {
   caption: string;
   longdesc: string;
   isHelper: boolean;
+  allowNeg: boolean;
+  isInt: boolean;
+  limMin: number | null;
+  limMax: number | null;
 }
 
 /**
@@ -288,14 +292,24 @@ function buildUserParametersCatalog(
     `KATALOG KORISNIČKIH PARAMETARA (UP_KEY — upisuju se u polja Formula kao [PARAMETAR]):`,
   ];
 
+  function formatParamConstraints(p: UserParameterEntry): string {
+    const parts: string[] = [];
+    if (p.caption) parts.push(`mogući: ${p.caption}`);
+    if (p.isInt) parts.push("cijeli broj");
+    if (!p.allowNeg) parts.push("≥0");
+    if (p.limMin !== null && p.limMax !== null) parts.push(`raspon: ${p.limMin}–${p.limMax}`);
+    else if (p.limMin !== null) parts.push(`min: ${p.limMin}`);
+    else if (p.limMax !== null) parts.push(`max: ${p.limMax}`);
+    if (p.longdesc && !p.caption) parts.push(p.longdesc.slice(0, 80));
+    return parts.length ? ` [${parts.join(", ")}]` : "";
+  }
+
   // Always inject mentioned params first (highlighted)
   const mentionedParams = allParams.filter(p => mentionedKeys.has(p.key));
   if (mentionedParams.length) {
     lines.push(`Parametri vidljivi/spominjani u ovom kontekstu:`);
     for (const p of mentionedParams) {
-      const captionStr = p.caption ? ` (${p.caption})` : "";
-      const longStr = p.longdesc ? ` — ${p.longdesc}` : "";
-      lines.push(`  [${p.key}] — ${p.desc}${captionStr}${longStr}`);
+      lines.push(`  [${p.key}] — ${p.desc}${formatParamConstraints(p)}`);
     }
   }
 

@@ -9,6 +9,7 @@
 export * from './chatInput';
 export * from './chatMessage';
 export * from './chatMessageRole';
+export * from './csvMeta';
 export * from './csvUploadResult';
 export * from './errorResponse';
 export * from './formulaEntry';

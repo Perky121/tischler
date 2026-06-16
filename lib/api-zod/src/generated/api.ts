@@ -36,7 +36,15 @@ export const GetKnowledgeResponse = zod.object({
   "formulaCount": zod.number(),
   "parameterCount": zod.number(),
   "fileCount": zod.number()
-})
+}),
+  "csv_meta": zod.object({
+  "materials_count": zod.number().optional(),
+  "materials_updated_at": zod.string().nullish(),
+  "elements_count": zod.number().optional(),
+  "elements_updated_at": zod.string().nullish(),
+  "userparameters_count": zod.number().optional(),
+  "userparameters_updated_at": zod.string().nullish()
+}).optional()
 })
 
 

@@ -9,6 +9,15 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface CsvMeta {
+  materials_count?: number;
+  materials_updated_at?: string | null;
+  elements_count?: number;
+  elements_updated_at?: string | null;
+  userparameters_count?: number;
+  userparameters_updated_at?: string | null;
+}
+
 export interface FormulaEntry {
   formula: string;
   source: string;
@@ -31,6 +40,7 @@ export interface KnowledgeBase {
   parameters: ParameterEntry[];
   syntax_rules: string[];
   stats: KnowledgeStats;
+  csv_meta?: CsvMeta;
 }
 
 export interface UploadResult {
