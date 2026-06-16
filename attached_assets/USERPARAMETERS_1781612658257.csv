@@ -1,0 +1,977 @@
+﻿UP_KEY;UP_DESC;UP_ALLOW_NEG;UP_IS_INT;UP_LIM_MIN;UP_LIM_MAX;UP_CAPTION;UP_LONGDESC;UP_TYPE;UP_PICTURE;UP_IS_WMF
+DPL;Duljina pulta lijevo;0;0;;;;;0;;0
+DS;Odredi širinu;0;0;;;Element/Širina;;0;;0
+DU;Oblik nastavka;0;0;;;D desno/U lijevo i desno;;0;;0
+DVZ;Dodatna visina straga;1;0;;;;;0;System.Byte[];1
+FI;Promjer;1;0;;;;;0;;0
+GK;Dubina korpusa;0;0;;;;;0;System.Byte[];1
+GKD;Dubina korpusa desno;0;0;;;;;0;System.Byte[];1
+GKL;Dubina korpusa lijevo;0;0;;;;;0;System.Byte[];1
+GLP;Dubina ladice;1;0;;;;;0;;0
+GLP1;Dubina korpusa 1;1;0;;;;;0;;0
+GLR;Dubina glodanja;0;0;;;;;0;System.Byte[];1
+GLU;Dubina utora/poluutora;1;0;;;;;0;System.Byte[];1
+GRU;Dubina rolo utora;0;0;;;;;0;;0
+H1;Visina 1;0;0;;;;;0;;0
+H2;Visina 2;0;0;;;;;0;;0
+H3;Visina 3;0;0;;;;;0;;0
+H4;Visina 4;0;0;;;;;0;;0
+HDK;Leđa desno do kraja;0;0;;;Ne/Da;;0;;0
+HDT;Leđa dolje do kraja;0;0;;;Ne/Da;;0;System.Byte[];1
+HLK;Leđa lijevo do kraja;0;0;;;Ne/Da;;0;;0
+HMC;Visoki Magic Corner;0;0;;;Ne/Da;;0;;0
+HP;Horizontalna pregrada;0;0;;;Ne/Da;;0;;
+HSK;Leđa dolje do kraja;0;0;;;Ne/Da;;0;;0
+IZR_10;Izračun 10;;;;;;Pomoćno polje za izračun;0;;
+IZR_11;Izračun 11;;;;;;Pomoćno polje za izračun;0;;
+IZR_12;Izračun 12;;;;;;Pomoćno polje za izračun;0;;
+IZR_13;Izračun 13;;;;;;Pomoćno polje za izračun;0;;
+IZR_14;Izračun 14;;;;;;Pomoćno polje za izračun;0;;
+SPOL1;Strop položaj;;;;;Između stranica/Iznad stranica;Položaj stropa u odnosu na stranice korpusa.;0;System.Byte[];0
+KORAK;Korak;0;0;;;;;0;;0
+KOT;Kut odreza;0;0;;;;;0;;0
+KPKS;Kut zidova;1;0;;;;;0;;1
+KRAJD;Krajnja desna;0;0;;;Ne/Da;;0;;0
+KRAJL;Krajnja lijeva;0;0;;;Ne/Da;;0;;0
+KT;Kut šiljasti/tupi;0;0;;;;Smjer odstupanja od pravokutnosti ugla zidova;0;System.Byte[];1
+KUT;Kut;1;0;;;;;0;System.Byte[];1
+KUTS;Kut šiljasti/tupi;0;0;;;Tupi/Šiljasti;Smjer odstupanja od pravokutnosti ugla zidova;0;System.Byte[];1
+KUTZ;Kut razlike pravokutnosti zidova;0;0;;;;Iznos kuta odstupanja od pravokutnosti ugla zidova (razlika od 90 stupnjeva);0;System.Byte[];1
+KUTZX;Kut zakretanja po osi X;1;0;;;;;0;;0
+KUTZY;Kut zakretanja po osi Y;1;0;;;;;0;;0
+KUTZZ;Kut zakretanja po osi Z;1;0;;;;;0;;0
+KZ;Kut razlike pravokutnosti zidova;0;0;;;;Iznos kuta odstupanja od pravokutnosti ugla zidova (razlika od 90 stupnjeva);0;System.Byte[];1
+LD;Lijevo/Desno;0;0;;;Llijevo/Desno;;0;;0
+LD0;Vrata;0;0;;;Lijeva/Desna/Bez;;0;;0
+LD1;Strana;0;0;;;Lijevo/Desno;;0;;0
+LDU;Nastavak;0;0;;;Lijevi/Desni/Oba;;0;;0
+LIJ;Lijevo;0;0;;;Ne/Da;;0;;0
+LKD;Letvica kutna - desna;0;0;;;Ne/Da;;0;;0
+LKKU;Letvica kutna - kutnik unutrašnji;0;0;;;Ne/Da;;0;;0
+LKL;Letvica kutna - lijeva;0;0;;;Ne/Da;;0;;0
+LKP;Letvica kutna - prednja;0;0;;;Ne/Da;;0;;0
+LKPD;Letvica kutna prednja desna;0;0;;;Ne/Da;;0;;0
+LKPL;Letvica kutna prednja lijeva;0;0;;;Ne/Da;;0;;0
+LKS;Letvica kutna - stražnja;0;0;;;Ne/Da;;0;;0
+LKSS;Letvica kutna - skraćenje sprijeda;0;0;;;;;0;;0
+LKW;Letvica kutna - širina;0;0;;;;;0;;0
+LKZD;Letvica kutna - završetak desni;0;0;;;Ne/Da;;0;;0
+LKZL;Letvica kutna - završetak lijevi;0;0;;;Ne/Da;;0;;0
+LKZT;Letvica kutna - završetak debljina;0;0;;;;;0;;0
+LMPPG;LeMans položaj g.police (1-5);1;0;;;;Položaj gornje police po redoslijedu rastera;0;;0
+LPDN;Ladica-prednji dio;0;0;;;Ne/Da;Ladica s ili bez prednjeg dijela;0;System.Byte[];1
+LPDP;Ladica-prednji do poda;0;0;;;Ne/Da;;0;System.Byte[];1
+LRSDN;Ladice rupa straga Da/ne;0;0;;;Ne/Da;Ladice rupe na stražnjem dijelu Da/Ne;0;;
+LU;Oblik nastavka;0;0;;;L=Lijevo/U lijevo i desno;;0;;0
+LUTD;Ladice utor dubina;1;0;;;;Dubina utora na podu ladice;0;;
+LUTS;Ladice utor širina;1;0;;;;Širina utora na podu ladice;0;;
+LZDP;Ladica-zadnji do poda;0;0;;;Ne/Da;;0;System.Byte[];1
+MATVOD;Materijal vodilice;0;0;;;;;1;;0
+MCT;Magic Corner Tip (1,2,3);0;0;;;;if([MCT]>3,X,[MCT,]1 = Arena Style; 2 = Arena Classic; 3 = Metal Basket);0;;
+MCT1;Magic Corner tip košarica;0;0;;;Arena Style Plus/Arena Classic/Žičana;;0;;0
+MOZ;Minimalni odmak straga;1;0;;;;;0;System.Byte[];1
+MOZD;Dodatni odmak straga (0/19/79);1;0;;;;Dodatni odmak straga zbog elemenata za automatiziranje otvaranja/zatvaranja ladica (0= bez automatizma, 19 = Tipmatic, 79 = Sensotronic;0;;
+MSG;Poruka;0;0;;;Ne/Da;;0;;0
+NP;Predznak;1;0;;;;;0;;0
+NS;Broj po širini;0;0;;;;;0;;0
+NV;Broj po visini;0;0;;;;;0;;0
+OBS;Odmak bloka od naprijed;1;0;;;;;0;;0
+TRDV;Tip razmaka kliznih vrata;;;;;1. Između lica/2. Zrak između krila;;0;System.Byte[];0
+RDV;Razmak kliznih vrata;;;;;;;0;;
+PPS;Prekrivanje poda/stropa;;;;;;;0;System.Byte[];0
+PZDV;Pomak po Z prednjeg kliznog krila;;;;;;;0;System.Byte[];0
+UTS;Utor - skraćenje;;;;;;;0;;
+OZMO;Odmak od zidarske mjere otvora;;;;;;;0;System.Byte[];0
+KUT1;Kut prvi;;0;;;;;0;;
+IZR_0;Izračun 0;;0;;;;Pomoćno polje za izračun;0;;
+IZR_1;Izračun 1;;0;;;;Pomoćno polje za izračun;0;;
+IZR_2;Izračun 2;;0;;;;Pomoćno polje za izračun;0;;
+IZR_3;Izračun 3;;0;;;;Pomoćno polje za izračun;0;;
+PPT01;Ppt 1;;0;;;;;0;;
+ODMSDG;Odmak-strana desno-gore;;0;;;Lijevo/Desno/Gore/Dolje;Strana odmaka kose police od ugla;0;System.Byte[];1
+ODMSLG;Odmak-strana lijevo-gore;;0;;;Lijevo/Desno/Gore/Dolje;Strana odmaka kose police od ugla;0;System.Byte[];1
+VSST;Vez stražnji smjer - tip;0;0;;;Horizontalno/Vertikalno/Al profil;Smjer stražnjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala.;0;System.Byte[];0
+ZP;Sa coklom;0;0;;;Ne/Da;;0;System.Byte[];1
+ZPG;Zrak podnožja gore;0;0;;;;;0;System.Byte[];0
+RPDN;Radna ploča Da/Ne;;;;;Ne/Da;;0;;
+JEDVIS;Jednaka visina;;;;;Ne/Da;;0;;
+VRMI;Izbor vrata - maska;0;0;;;Vrata/Maska;;0;System.Byte[];0
+VRMS;Širina vrata - maska;0;0;;;;;0;System.Byte[];0
+POK;Poklopac;;;;;Ne/Da;;0;System.Byte[];1
+N10;Broj otvora (od 1 do 10);;1;1;10;;;0;;
+VSS;Vez stražnji smjer;;;;;Horizontalno/Vertikalno;Smjer stražnjeg veza hoorizontalno ili vertikalno.;0;System.Byte[];1
+VSVP;Vez stražnji vertikalni položaj;;;;;Ispred leđa/Iza leđa;Položaj steažnjeg veza ispred ili iza leđa.;0;System.Byte[];1
+TXT_01;Tekst 1;;;;;;;0;;
+ZHU;Zrak leđa u utoru;;;;;;;0;System.Byte[];1
+PPOL;Pod - položaj;;;;;Između stranica/Ispod stranica/Ger;Položaj poda u odnosu na stranice korpusa.;0;System.Byte[];0
+SPOL;Strop - položaj;;;;;Između stranica/Iznad stranica/Ger;Položaj stropa u odnosu na stranice korpusa.;0;System.Byte[];0
+TXT_02;Tekst 2;;;;;;;0;;
+TXT_03;Tekst 3;;;;;;;0;;
+PDUD;Poluutor dodatni uz utor - dubina;;;;;;;0;System.Byte[];1
+PDUS;Poluutor dodatni uz utor - širina;;;;;;;0;System.Byte[];1
+VDOT;Vrata dovratnik debljina opšave;;;;;;;0;;
+VDL;Vez dodatni iza leđa;;;;;Ne/Da;;0;System.Byte[];1
+VO;Visina obline;;;;;;;0;;
+IS2;Izrez - širina 2;;;;;;;0;System.Byte[];1
+IU;Izrez - U oblik;;;;;Ne/Da;;0;System.Byte[];1
+SSPD;Stranica - strana produljenja dolje;;;;;Ne/Lijeva/Desna/Obje;;0;;
+RUBK;Rub kosi;;;;;Ne/Da;;0;System.Byte[];1
+VDT;Vrata dovratnik debljina;;;;;;;0;;
+VDHT;Vrata dovratnik debljina horizontale;;;;;;;0;;
+OSIRPL;Širina oplate prednje lijevo;;;;;;;0;;
+OSIRPD;Širina oplate prednje desno;;;;;;;0;;
+OSIRSD;Širina oplate stražnje desno;;;;;;;0;;
+OSIRSL;Širina oplate stražnje lijevo;;;;;;;0;;
+OSIRPG;Širina oplate prednje gore;;;;;;;0;;
+OSIRSG;Širina oplate stražnje gore;;;;;;;0;;
+VOZR;Zrak obloge;;;;;;;0;;
+PPG;Pomak po dubini;;;;;;;0;System.Byte[];
+PLP;Podna prednja letva - broj;;;;;Ne/Prednja/Stražnja/Obje;Izbor koliko podnih letava;0;;
+R1;Radius 1 zaokruženja;;0;;;;;0;System.Byte[];1
+T1;Debljina 1;;0;;;;;0;;
+PPT02;Ppt 2;;0;;;;;0;;
+PPT03;Ppt 3;;0;;;;;0;;
+PPT04;Ppt 4;;0;;;;;0;;
+PPT05;Ppt 5;;0;;;;;0;;
+PPT06;Ppt 6;;0;;;;;0;;
+PPT07;Ppt 7;;0;;;;;0;;
+PPT08;Ppt 8;;0;;;;;0;;
+PPT09;Ppt 9;;0;;;;;0;;
+PPT10;Ppt 10;;0;;;;;0;;
+KUTL;Kut lijevo;;0;;;;;0;System.Byte[];0
+KUTD;Kut desno;;0;;;;;0;System.Byte[];0
+KRPL;Kut razlike pravokutnosti lijevo;;0;;;;;0;;
+KRPD;Kut razlike pravokutnosti desno;;0;;;;;0;;
+PPT11;Ppt 11;;0;;;;;0;;
+HV;Horizontalno/Vertikalno;0;0;;;Horizontalno/Vertikalno;;0;System.Byte[];0
+HZK;Leđa gore do kraja;0;0;;;Ne/Da;;0;;0
+IS;Izrez - širina;0;0;;;;;0;System.Byte[];1
+IZN;Odmak od:;0;0;;;Van/Unutra;;0;;0
+IZR;Izrez;0;0;;;;;0;System.Byte[];1
+PPT12;Ppt 12;;0;;;;;0;;
+PPT13;Ppt 13;;0;;;;;0;;
+PPT14;Ppt 14;;0;;;;;0;;
+PPT15;Ppt 15;;0;;;;;0;;
+PPT16;Ppt 16;;0;;;;;0;;
+PPT17;Ppt 17;;0;;;;;0;;
+PPT18;Ppt 18;;0;;;;;0;;
+PPT19;Ppt 19;;0;;;;;0;;
+PPT20;Ppt 20;;0;;;;;0;;
+NP1;Predznak;;0;;;;;0;;
+KTL;Kut šiljasti/tupi lijevi;;0;;;;;0;;
+KTD;Kut šiljasti/tupi desni;;0;;;;;0;;
+GERL2;Ger lijevo;;0;;;Lijevo naprijed/Lijevo nazad;;0;;
+GERD2;Ger desno;;0;;;Desno naprijed/Desno nazad;;0;;
+NASTL;Nastavak lijevo;;0;;;Bez/Naprijed/Nazad;;0;;
+NASTD;Nastavak desno;;0;;;Bez/Naprijed/Nazad;;0;;
+IZR_4;Izračun 4;;0;;;;Pomoćno polje za izračun;0;;
+IZR_5;Izračun 5;;0;;;;Pomoćno polje za izračun;0;;
+IZR_6;Izračun 6;;0;;;;Pomoćno polje za izračun;0;;
+IZR_7;Izračun 7;;0;;;;Pomoćno polje za izračun;0;;
+IZR_8;Izračun 8;;0;;;;Pomoćno polje za izračun;0;;
+IZR_9;Izračun 9;;0;;;;Pomoćno polje za izračun;0;;
+RASPK;Raspored krila;;0;;;_-- PS/--_ SP/_--_ PSP/--_-- SPS/_--_-- PSPS/--_--_ SPSP/--__-- SPPS;;0;;
+UKL1L;Uklada 1 - duljina;;0;;;;0 = Jedna uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade;0;;
+BBW;Blenda bočna - širina;;;;;;;0;;
+VS;Vez - smjer;;;;;Horizontalno/Vertikalno;;0;;
+PRGOP;Pregrada - odmak prednji;1;;;;;;0;System.Byte[];1
+PRGOS;Pregrada - odmak stražnji;;;;;;;0;System.Byte[];1
+UTZV;Utor - zrak po visini;;;;;;;0;System.Byte[];1
+LE;Lijevo;0;0;;;Ne/Da;;0;;0
+LEDPC;LED pod dodatni cijeli;0;0;;;Lijevi/Desni;;0;System.Byte[];0
+DMAS;Dodatna maska;0;0;;;Ne/Da;;0;;0
+COL;Boja;0;1;;;SW/OG/IG/CS/GR;;0;;0
+ZAH;Zahvatnik;0;0;;;Ne/Da;;0;;0
+RUBI;Rub izbor;;;;;1/2/3/4;Rub elementa prema kojemu će biti okrenut ravni rub širine izreza;0;System.Byte[];0
+RDN2;Broj relinga;;;;;1/2/3;;0;;
+OFREL;Razmak relinga;;;;;;;0;;
+ZAK;Blokada;;;;;Ne/Da;;0;;
+ZWT;Zamjena širina-debljina;;;;;Širina/Debljina;;0;System.Byte[];0
+COL1;Boja 1;;1;;;IC/SI/ST/ZI;;0;;
+POLOP;Polica - odmak prednji;1;;;;;;0;System.Byte[];1
+POLOS;Polica - odmak stražnji;;;;;;;0;System.Byte[];1
+POLOD;Polica - odmak po duljini;;;;;;;0;System.Byte[];1
+PODOD;Pod - odmak dolje;;;;;;;0;System.Byte[];1
+STPOG;Strop - odmak gore;;;;;;;0;System.Byte[];1
+PODOP;Pod - odmak prednji;;;;;;;0;System.Byte[];1
+PODOS;Pod - odmak stražnji;;;;;;;0;System.Byte[];1
+STPOP;Strop - odmak prednji;;;;;;;0;System.Byte[];1
+STPOS;Strop - odmak stražnji;;;;;;;0;System.Byte[];1
+RCN;Rupa za cijev od nape;;;;;Ne/Prolazna/Lijevo/Desno;;0;System.Byte[];0
+COL2;Boja2;;;;;Alu/Bijela/Crna;;0;;
+DDRUC;Duzina D rucke;;;;;;;0;;
+KVNI;Kuhinjski viseći - napa izvlačna debljina;;;;;;;0;;
+KVNM;Kuhinjski viseći - napa - visina motora;;;;;;;0;System.Byte[];0
+KVNT;Kuhinjski viseći - napa tip;;;;;1 - Izvlačna/2 - Podgradna;;0;System.Byte[];0
+KVF1;Kuhinjski viseći fronte;;;;;1 - Zaokretna lijeva/2 - Zaokretna desna/3 - Zaokretna dvokrilna;;0;System.Byte[];0
+RCN1;Rupa za cijev od nape;;;;;1 - Gore/2 - Straga/3 - Lijevo/4 - Desno;;0;System.Byte[];0
+RCNFI;Rupa za cijev od nape - promjer;;;;;;;0;System.Byte[];0
+KDOSG;Kuhinjski donji - odmak sprijeda - Gola;;;;;0,5/2/Gola;;0;System.Byte[];0
+KODS;Kuhinjski ormar do stropa;;;;;1 - Ne/2 - zajednička maska/3 - L maska bez izreza/4 - L maska s izrezom/5 - I maska;;0;System.Byte[];0
+GOLA;Aktor Ne/Da;;;;;Ne/Da;;0;System.Byte[];0
+ODPU;Odmak od ugla;0;0;;;;;0;System.Byte[];0
+BBR;Br;;;;;;;0;;
+BLE;SREDIŠNJI horizontalni profil ;;;;;Ne/Da;;0;;
+KLS;Tip okovnog kliznog sustava;;;;;ER10-M4/H3-10;;0;;
+MTUKL;Materijal uklade;;0;;;U104 IVERAL 10mm ST9/U727 IVERAL 10mm ST9/W980 IVERAL 10mm ST2;;0;;
+OGL;Ogledalo;;;;;;;0;;
+PKV;Preklop kliznih vrata;;;;;;;0;;
+SOG;Sa ojacanjem;;;;;Ne/Da;;0;;
+V5;Visina 5;;;;;;;0;;
+BRK;Broj vrata;;1;;;2/3/4;;0;;
+NSEG;Broj segmenata;;1;0;3;0-Bez/1/2/3/-;;0;;
+IV;Izrez - visina;0;0;;;;;0;System.Byte[];1
+PRGOD;Pregrada - odmak donji;;;;;;;0;System.Byte[];1
+OGVI;Ograda - visina ispod;;;;;;;0;System.Byte[];1
+KUTP;Kut - pozitivni;;;;;;;0;System.Byte[];1
+LPREK;Leđa - preklop;;;;;Ne/Da;;0;;
+BBS;Blenda bočna - strana;0;0;;;Ne/Lijeva/Desna/Obje;;0;;0
+LPUN;Leđa - puna;;1;;;Lijeva/Desna/Oboja/Kutna;;0;;
+POMD;Pomak po duljini;1;;;;;;0;;
+POMS;Pomak po širini;1;;;;;;0;;
+TROK;Trokut - vrsta;0;0;;;AAA/ABB;AAA = istostranični, ABB = istokračni;0;System.Byte[];0
+ZRB;Zrak bočno;1;;;;;;0;System.Byte[];0
+ODM_6;Odmak 6;;;;;;;0;;
+ODM_7;Odmak 7;;;;;;;0;;
+NIZ;Položaj u nizu;;0;;;Sam/Krajnji L/Krajnji D/Srednji;;0;;
+UKL2D;Uklada 2 - duljina;;;;;;0 = Nema druge uklade; >0 = vidljiva širina uklade;0;System.Byte[];0
+LSTD;Letvica za staklo - debljina;;;;;;;0;System.Byte[];0
+LSTS;Letvica za staklo - širina;;;;;;;0;System.Byte[];0
+ZRVK;Zrak između - kanal;;;;;;;0;System.Byte[];1
+PRR;Ladice - raspored;;1;;;AA/AB/AAB/ABB;;0;System.Byte[];1
+OKVS;Okvir - širina;;;;;;;0;System.Byte[];0
+OKVSV;Okvir - širina veza;;;;;;;0;System.Byte[];0
+LDO;Lijevo / desno otvaranje;;1;;;Lijevo/Desno/Lijevo-Desno;;0;System.Byte[];0
+RUBKL;Rub kosi leđa;;;;;Ne/Da;;0;System.Byte[];1
+RZL;Radius zaokruženja leđa;;;;;;;0;System.Byte[];1
+ODPLS;Odmak punih leđa straga;;;;;;;0;System.Byte[];0
+SYSY;Odmak sinhro osovine po Y;0;0;;;;;0;;0
+UTP;Utor - produljenje;;;;;;;0;System.Byte[];1
+SYSZ;Odmak sinhro osovine po Z;0;0;;;;;0;;0
+ZH;Zrak leđa;;;;;;;0;System.Byte[];1
+TTY;Tandem tip;0;0;;;Tandem/Movento;0-tandem, 1-movento;0;;0
+PERO;Pero u utor;;1;;;Ne/Jednostrano/Dvostrano;;0;System.Byte[];0
+UTC;Utor - čelo ladice;;;;;Ne/Da;;0;System.Byte[];1
+GLOD;Glodalo - promjer;;;;;;;0;System.Byte[];1
+LD2;Strana: lijeva/desna/obje;;;;;Lijeva/Desna/Obje;;0;;
+ODMS;Odmak sprijeda;1;;;;;;0;System.Byte[];0
+GLOR;Glodalo - polumjer;;;;;;;0;System.Byte[];1
+ODMLD;Odmak leđa desnih;;;;;;;0;;
+ODMLL;Odmak leđa lijevih;;;;;;;0;;
+ISS;Izrez sifona - širina;;;;;;;0;System.Byte[];1
+ISD;Izrez sifona - dubina;;;;;;;0;System.Byte[];1
+ISOS;Izrez sifona - odmak po širini;1;;;;;;0;System.Byte[];1
+KKUT;Korpus kutni;;;;;45+dubina L/45+dubina D/Dubina L i D;;0;System.Byte[];1
+ISTS;Izrez sifona - tip spoja;;;;;Tupo/Ger;;0;System.Byte[];1
+HPP;Leđa puna - položaj;;;;;Lijeva/Desna/Oboja/Kutna/Nijedna/Zaobljena;;0;System.Byte[];1
+VRK;Vrata - krila;;;;;1/2;;0;System.Byte[];1
+RPSL;Radna ploča - širina lijevo;;;;;;;0;System.Byte[];1
+RPSD;Radna ploča - širina desno;;;;;;;0;System.Byte[];1
+RPGS;Radna ploča dodatna - proširenje;;;;;;;0;System.Byte[];1
+RPTS;Radna ploča -  tip spoja;;;;;Bočni/Prednji/Ger;;0;System.Byte[];1
+RPOBL;Radna ploča - oblik;;;;;I/L/D/U;;0;System.Byte[];1
+RPDK;Radna ploča - duljina kraka;;;;;;;0;System.Byte[];1
+PKUT;Ploča kutna;;;;;45+širina L/45+širina D/Širina L i D;;0;System.Byte[];1
+UTD;Utor - duljina;;;;;;;0;;
+RPVD;Radna ploča - veznik duljina;;;;;;;0;System.Byte[];1
+UKL2L;Uklada 2 - duljina;;0;;;;0 = Nema druge i ostalih uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade;0;;
+UKL3L;Uklada 3 - duljina;;0;;;;0 = Nema treće i ostalih uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade;0;;
+UKL4L;Uklada 4 - duljina;;0;;;;0 = Nema četvrte i ostalih uklada; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade;0;;
+UKL5L;Uklada 5 - duljina;;0;;;;0 = Nema pete uklade; 1-100 = Izračun duljine uklade; >100 = Vidljiva duljina uklade;0;;
+UKL1M;Uklada 1 -materijal;;0;;;Puna/Staklo/Zrcalo;;0;;
+UKL2M;Uklada 2 - materijal;;0;;;Puna/Staklo/Zrcalo;;0;;
+UKL3M;Uklada 3 - materijal;;0;;;Puna/Staklo/Zrcalo;;0;;
+UKL4M;Uklada 4 - materijal;;0;;;Puna/Staklo/Zrcalo;;0;;
+UKL5M;Uklada 5 - materijal;;0;;;Puna/Staklo/Zrcalo;;0;;
+UKLRAS;Uklade - identičan raspored;;0;;;Ne/Da;;0;;
+RUND0;Sakrij rund;;0;;;Da/Ne;;0;System.Byte[];1
+PLONL;Nastavak ploče na lijevoj strani;;0;;;Ne/Bočno/Sprijeda;;0;;
+PLOND;Nastavak ploče na desnoj strani;;0;;;Ne/Bočno/Sprijeda;;0;;
+ODMVP;Odmak veznika sprijeda;;0;;;;;0;;
+ODMVZ;Odmak veznika straga;;0;;;;;0;;
+OPSM;Minimalni odmak ladice odozdo;;0;;;;;0;;
+ODPO;Odmak odozdo;;0;;;;;0;;
+RL;Radius luka;;0;;;;;0;;
+RSTR;Radius strana;;0;;;Vanjski/Unutarnji;;0;;
+BSD;Poluu./utor. str.D;0;0;;;Ne/Da;;0;System.Byte[];1
+BSL;Poluu./utor. str.L;0;0;;;Ne/Da;;0;System.Byte[];1
+BST;Poluu./utor strop;0;0;;;Ne/Da;;0;System.Byte[];1
+BU;Poluutor/Utor;0;0;;;Poluutor/Utor;;0;System.Byte[];0
+D2;Dubina 2;0;0;;;;;0;;0
+DDOPG;Debljina doprozornika gore;0;0;;;;;0;;0
+DDOPV;Debljina doprozornika vertikalno;0;0;;;;;0;;0
+DEBD;Debljina doprozornika;0;0;;;;;0;;0
+DEBK;Debljina krila;0;0;;;;;0;;0
+DES;Desno;0;0;;;Ne/Da;;0;;0
+DKDP;Duljina desnog kraka ploče;1;0;;;;;0;;0
+DKLP;Duljina lijevog kraka ploče;1;0;;;;;0;;0
+DKRI;Debljina krila;0;0;;;;;0;;0
+DN;Da/Ne;0;0;;;Ne/Da;;0;;0
+DP;Duljina produžetka;1;0;;;;;0;;0
+DPD;Duljina pulta desno;0;0;;;;;0;;0
+ODDD;Odmak desnog dijela;1;0;;;;;0;System.Byte[];1
+ODDU;Odmak po dubini;0;0;;;;;0;;0
+ODGL;Odmak po dubini;0;0;;;;;0;;0
+ODHP;Odmak hor. pregrade;1;0;;;;;0;;
+ODLD;Odmak lijevog dijela;1;0;;;;;0;;0
+ODLS;Odmak leđa straga;1;0;;;;Odmak leđa od zadnje točke korpusa;0;;
+ODMDG;Suženje donožja odozgo;1;0;;;;Smanjenje odozgo širine donožja kreveta u odnosu na visinu pozicije;0;System.Byte[];1
+ODMDN;Produženje donožja lijevo;1;0;;;;Produženje donožja kreveta na lijevo;0;System.Byte[];1
+ODMDS;Produženje donožja desno;1;0;;;;Produženje donožja kreveta na desno;0;System.Byte[];1
+ODMKZ;Odmak od kuta zidova;1;0;;;;Odmak desnih-punih leđa ormarića od ugla zidova;0;;
+ODMLG;Suženje uzglavlja odozgo;1;0;;;;Smanjenje odozgo širine uzglavlja kreveta u odnosu na visinu pozicije;0;System.Byte[];1
+ODMLN;Produženje uzglavlja lijevo;1;0;;;;Produženje uzglavlja kreveta na lijevo;0;System.Byte[];1
+ODMLS;Produženje uzglavlja desno;1;0;;;;Produženje uzglavlja kreveta na desno;0;System.Byte[];1
+ODMND;Suženje stranice lijeve odozdo;1;0;;;;Smanjenje odozdo širine lijeve stranice kreveta u odnosu na donju točku pozicije;0;System.Byte[];1
+ODMNG;Suženje stranice lijeve odozgo;1;0;;;;Smanjenje odozgo širine lijeve stranice kreveta u odnosu na visinu pozicije;0;System.Byte[];1
+SUZG;Suženje odozgo;;;;;;;0;System.Byte[];0
+ODMSD;Suženje stranice desne odozdo;1;0;;;;Smanjenje odozdo širine desne stranice kreveta u odnosu na donju točku pozicije;0;System.Byte[];1
+ODMSG;Suženje stranice desne odozgo;1;0;;;;Smanjenje odozgo širine desne stranice kreveta u odnosu na visinu pozicije;0;System.Byte[];1
+ODMSO;Odmak stranice odozdo;0;0;;;;;0;;
+ODMST;Strana odmaka;0;0;;;Lijevo/Desno/Gore/Dolje;;0;System.Byte[];1
+ODMVB;Odmak veza po duljini;1;0;;;;Odmak poprečnih vezova kreveta od uzglavlja i donožja;0;System.Byte[];1
+ODMVD;Odmak veza od stranice odozdo;1;0;;;;Smanjenje odozdo širine vezova u odnosu na donju točku lijeve stranice kreveta;0;System.Byte[];1
+ODMVG;Odmak veza od stranice odozgo;1;0;;;;Smanjenje odozgo širine vezova u odnosu na gornju točku lijeve stranice kreveta;0;System.Byte[];1
+ODMVN;Odmak veza od stranice lijeve;1;0;;;;Odmak lijevog uzdužnog veza od lijeve stranice kreveta;0;System.Byte[];1
+ODMVS;Odmak veza od stranice desne;1;0;;;;Odmak desnog uzdužnog veza od desne stranice kreveta;0;System.Byte[];1
+ZRK;Zrak od korpusa;1;0;;;;;0;System.Byte[];1
+ODPD;Odmak desno;1;0;;;;;0;System.Byte[];1
+IZR_15;Izračun 15;;;;;;Pomoćno polje za izračun;0;;
+ODPL;Odmak lijevo;1;0;;;;;0;System.Byte[];1
+ODPLM;Odmak za LeMans (450/500/600);1;0;;;;Odmak vertikalne pregrade za izvlačne kutne police Le Mans Kesseboehmer (širina vrata 450/500/600);0;;
+IZR_16;Izračun 16;;;;;;Pomoćno polje za izračun;0;;
+IZR_17;Izračun 17;;;;;;Pomoćno polje za izračun;0;;
+IZR_18;Izračun 18;;;;;;Pomoćno polje za izračun;0;;
+IZR_19;Izračun 19;;;;;;Pomoćno polje za izračun;0;;
+KUT_I0;Kut za izračun 0;;;;;;Pomoćno polje za izračun kuta;0;;
+KUT_I5;Kut za izračun 5;;;;;;Pomoćno polje za izračun kuta;0;;
+KUT_I6;Kut za izračun 6;;;;;;Pomoćno polje za izračun kuta;0;;
+KUT_I7;Kut za izračun 7;;;;;;Pomoćno polje za izračun kuta;0;;
+KUT_I8;Kut za izračun 8;;;;;;Pomoćno polje za izračun kuta;0;;
+KUT_I9;Kut za izračun 9;;;;;;Pomoćno polje za izračun kuta;0;;
+JEDRAZ;Jednak razmak;;;;;Ne/Da;;0;;
+N5;Broj elemenata 1-5;;;;;1/2/3/4/5;;0;;
+OBLVU;Obloga vanjska/unutarnja;;;;;Bez/Vanjska/Unutarnja/Obje;;0;;
+ODM_1;Odmak 1;;;;;;;0;;
+ODM_2;Odmak 2;;;;;;;0;;
+ODM_3;Odmak 3;;;;;;;0;;
+ODM_4;Odmak 4;;;;;;;0;;
+ODM_5;Odmak 5;;;;;;;0;;
+RLVU;Radius luka vanjski/unutarnji;;;;;Vanjski/Unutarnji;;0;;
+VLK;Visina luka;;;;;;;0;;
+ISG;Izrez sifona - globina;0;0;;;;;0;System.Byte[];1
+BCO;BoxCover;;1;;;Ne/Da;;0;;
+STPS;Strop - sastavljen;;;;;Ne/Da/Vezovi;;0;System.Byte[];1
+DE;Desno;0;0;;;Ne/Da;;0;;0
+HLAC;Hlačnik;;;;;420/520/720/820/920;;0;System.Byte[];1
+HLACR;Hlačnik - razmaknica;;;;;Ne/Da;;0;System.Byte[];1
+ODPLM2;Odmak za vrata Le Mans;0;0;;;450/500/600;Širina korpusa mora minimalno biti: - za vrata širine 450 = 1009, - za vrata širine 500 = 1059, - za vrata širine 600 = 1259 mm.;0;;
+ODPMC;Odmak za Magic Corner (min. 450);1;0;;;;Odmak vertikalne pregrade za izvlačne kutne police Magic Corner Kesseboehmer (širina vrata minimalno 450 mm);0;;
+ODPS;Odmak sprijeda;1;0;;;;;0;System.Byte[];1
+ODPZ;Odmak straga;1;0;;;;;0;System.Byte[];1
+ODR;Odmak glodanja;1;0;;;;;0;System.Byte[];1
+ODRKZ;Odrez u kutu zidova;1;0;;;;;0;;0
+STROP;Strop - vrsta;;;;;Puni/Vezovi/Bez;;0;System.Byte[];0
+ODS;Odmak poda sprijeda;1;0;;;;;0;System.Byte[];1
+ODSD;Odmak prednjeg dijela;1;0;;;;;0;;0
+ODSI;Odmak po širini;0;0;;;;;0;;0
+ODSP;Odmak poda odozdo;1;0;;;;;0;System.Byte[];1
+ODU;Odmak utora/leđa;1;0;;;;;0;System.Byte[];1
+ODVI;Odmak po visini;0;0;;;;;0;;0
+ODVP;Odmak ver. pregrade;1;0;;;;;0;System.Byte[];1
+ODZ;Odmak poda straga;1;0;;;;;0;System.Byte[];1
+ODZD;Odmak zadnjega dijela;1;0;;;;;0;System.Byte[];1
+OFP;Odmak fix police;0;0;;;;;0;;0
+ONL;Odmak naslonske letve;1;0;;;;;0;;0
+KUTV1;Kut prve vertikale;;0;;;;;0;;
+KUTV2;Kut druge vertikale;;0;;;;;0;;
+KUTV3;Kut treće vertikale;;0;;;;;0;;
+KUTV4;Kut četvrte vertikale;;0;;;;;0;;
+KUTV5;Kut pete vertikale;;0;;;;;0;;
+KUT_90;Kut između 10 i 90 stupnjeva;;;10;90;;;0;;
+KUT_I1;Kut za izračun 1;;;;;;Pomoćno polje za izračun kuta;0;;
+KUT2;Kut drugi;;;;;;;0;;
+KUT3;Kut treći;;;;;;;0;;
+KUT4;Kut četvrti;;;;;;;0;;
+KUT5;Kut peti;;;;;;;0;;
+KUT_I2;Kut za izračun 2;;;;;;Pomoćno polje za izračun kuta;0;;
+VERTN;Broj vertikala;;;;;Bez/1/2/3/4/5;;0;;
+VERTT;Vertikala debljina;;;;;;;0;;
+HORT;Horizontala debljina;;;;;;;0;;
+KUT_I3;Kut za izračun 3;;;;;;Pomoćno polje za izračun kuta;0;;
+OOK;Odmak obline;1;0;;;;;0;System.Byte[];1
+OP;Odmak police;1;0;;;;;0;System.Byte[];1
+OPD;Odmak police po duljini;1;0;;;;;0;System.Byte[];1
+OPR;Odmak profila;0;0;;;;;0;System.Byte[];1
+OPS;Odmak ladice odozdo;1;0;;;;;0;System.Byte[];1
+OPZ;Odmak ladice straga;1;0;;;;;0;System.Byte[];1
+ORG;Odrez po dubini;0;0;;;;;0;;0
+ORS;Odrez po širini;0;0;;;;;0;;0
+OSDS;Odmak str.D sprijeda;1;0;;;;;0;System.Byte[];1
+OSDZ;Odmak str.D straga;1;0;;;;;0;System.Byte[];1
+OSLS;Odmak str.L sprijeda;1;0;;;;;0;System.Byte[];1
+OSLZ;Odmak str.L straga;1;0;;;;;0;System.Byte[];1
+OSP;Odmak pred.dijela ladice;1;0;;;;;0;System.Byte[];1
+OSS;Odmak stropa sprijeda;1;0;;;;;0;System.Byte[];1
+OSV;Bočni odmak vodilice;1;0;;;;;0;System.Byte[];1
+OSZ;Odmak stropa straga;1;0;;;;;0;System.Byte[];1
+OSZG;Odmak stropa odozgo;1;0;;;;;0;System.Byte[];1
+VERTR;Vertikale razmak;;;;;Jednak/Različit;;0;;
+KUT_I4;Kut za izračun 4;;;;;;Pomoćno polje za izračun kuta;0;;
+VS_VN;Vertikalni nosač;;;;;S pokrovom/Puni;;0;;
+VS_SZ;Vezanje za;;;;;Strop/Zid;;0;;
+VS_ODM;Odmak od zida;;;;;170/245/295;;0;;
+VS_VS;Veznik srednji;;;;;Ne/Da;;0;;
+VS_VSO;Odmak srednjeg veznika od poda;;;;;;;0;;
+UTDN;Utor Da/Ne;0;1;;;Ne/Da;;0;System.Byte[];0
+UTDO;Utor dodatni - odmak;0;0;;;;;0;System.Byte[];0
+UTDUB;Utor - dubina;0;0;;;;;0;System.Byte[];0
+UTSIR;Utor - širina;0;0;;;;;0;System.Byte[];0
+UTZ;Utor - zrak;0;0;;;;;0;System.Byte[];0
+OVS;Odmak vrata sprijeda;1;0;;;;;0;System.Byte[];0
+OZG;Odmak gore;1;0;;;;;0;;0
+OZP;Odmak zad.dijela ladice;1;0;;;;;0;System.Byte[];1
+OZS;Odmak cokla sprijeda;1;0;;;;;0;System.Byte[];1
+PD;Prevjes desno;1;0;;;;;0;System.Byte[];1
+PDS;Pod ispod ladice;0;0;;;Ne/Da;;0;System.Byte[];1
+PDV;Preklop kliznih vrata;1;0;;;;;0;System.Byte[];1
+PGLU;Dubina utora ladice;1;0;;;;;0;System.Byte[];1
+PL;Prevjes lijevo;1;0;;;;;0;System.Byte[];1
+PO;Broj polica;0;0;;;;;0;System.Byte[];1
+PODD;Odmak podnice ladice;1;0;;;;;0;System.Byte[];1
+POM1;Pomoćno 1;0;0;;;Ne/Da;;0;;0
+POM2;Pomoćno 2;1;0;;;;;0;;0
+POM3;Pomoćno 3;1;0;;;;;0;;0
+POM4;Pomoćno 4;1;0;;;;;0;;0
+PPD;Podnožje desno - produljenje;0;0;;;;Produljenje desne podne maske;0;System.Byte[];1
+PPL;Podnožje lijevo - produljenje;0;0;;;;Produljenje lijeve podne maske;0;System.Byte[];1
+PPP;Podnožje prednje - produljenje;0;0;;;;Produljenje prednje podne maske;0;;0
+UKL;Uklada;;0;;;Ne/Da;;0;;
+PR;Broj ladica;0;0;;;;;0;System.Byte[];1
+DSTR;Druga strana;;0;;;Ne/Da;;0;System.Byte[];1
+STR;Straga;0;0;;;Ne/Da;;0;;0
+UZNN;Uznožje nisko;;0;;;Ne/Da;;0;;
+VK;Visina korpusa;;0;;;;;0;;
+BDN;Poluu./utor. pod;;0;;;Ne/Da;;0;System.Byte[];1
+LDU0;Stijene bočne;;0;;;Lijeva/Desna/Lijeva i desna/Bez;;0;;
+LEDOBL;LED maska - oblik;;;;;I/L/D/U;;0;System.Byte[];0
+PRG;Broj pregrada;0;0;;;;;0;System.Byte[];1
+PROF;Profili;0;0;;;;0 = bez profila;  1 =  profil 1;  2 = profil 2;  3 = profil 3;0;;
+PROV;Provjera unosa;1;0;;;;;0;;0
+PRP;Produljenje radne ploče;0;0;;;;;0;;0
+PRU;Polumjer rolo utora;1;0;;;;;0;;0
+PSD;Prevjes dolje desno;1;0;;;;;0;System.Byte[];1
+PSDD;Produljenje stranice desne dolje;0;0;;;;Produljenje stranice desne dolje za krajnje kuhinjske ormariće s nogicama;0;;
+PSL;Prevjes dolje lijevo;1;0;;;;;0;System.Byte[];1
+PSLD;Produljenje stranice lijeve dolje;0;0;;;;Produljenje stranice lijeve dolje za krajnje kuhinjske ormariće s nogicama;0;;
+PSS;Prevjes dolje sprijeda;1;0;;;;;0;System.Byte[];1
+PSZ;Prevjes dolje straga;1;0;;;;;0;System.Byte[];1
+PZ;Prva van / unutra;0;0;;;1. Van/2. Unutra;;0;System.Byte[];0
+PZD;Prevjes gore desno;1;0;;;;;0;System.Byte[];1
+VR;Broj vrata;0;0;;;;;0;;0
+VR1;Vrata;;;;;1 - Ne/2 - Jednokrilna Lijeva/3 - Jednokrilna Desna/4 - Dvokrilna;;0;System.Byte[];0
+ZPVID;Cokl vidljivi;;;;;Ne/Da;;0;System.Byte[];0
+VRPOD;Vrata - pant odmak dolje;;;;;;;0;System.Byte[];0
+POBOC;Broj polica bočnih;;;;;;;0;;
+VRPOG;Vrata - pant odmak gore;;;;;;;0;System.Byte[];0
+MSPRS;Maska - prevjes sprijeda;1;;;;;;0;System.Byte[];0
+MSRT;Maska - rešetka tip;;;;;1 - GTV/2 - Schachermayer;;0;;
+ODSM;Ormar do stropa - maska;;;;;1 - Ne/2 - Da - bez maske/3 - L maska/4 - Polegnuta maska;;0;System.Byte[];0
+KVDS;Kuhinjski viseći - maska do stropa;;;;;1 - Ne/2 - zajednička maska/3 - L maska bez izreza/4 - L maska s izrezom/5 - I maska;;0;System.Byte[];0
+MSDPG;Maska, dodatno proširenje gore;;;;;;Proširenje maske iznad gabaritne visine pozicije.;0;System.Byte[];0
+GERT;Ger gore;;;;;Ne/Da;;0;System.Byte[];0
+GERB;Ger dolje;;;;;Ne/Da;;0;System.Byte[];0
+PZL;Prevjes gore lijevo;1;0;;;;;0;System.Byte[];1
+PZS;Prevjes gore sprijeda;1;0;;;;;0;System.Byte[];1
+PZZ;Prevjes gore straga;1;0;;;;;0;System.Byte[];1
+RCNOG;Rupa za cijev od nape - odmak gore;;;;;;;0;System.Byte[];0
+RA4;Reling za uredske mape A4;0;0;;;Ne/Da;Reling za A4 uredske mape. Unutarnja širina korpusa 396 mm. Minimalna "Dodatna visina straga" DVZ = 235 + debljina poda ladice - VZP (Visina zadnjeg djela ladice)..;0;;
+RAA4;Adapter ili reling za mape A4;0;0;;;Ovalni/Adapter;Adapter za pločasti reling ili ovalni reling za uredske mape za A4.;0;;
+RDN;Reling;0;0;;;Ne/Da;Reling palice Da/Ne;0;;
+RDUB;Rupa za vijak - dubina;1;0;;;;;0;;0
+RFI;Rupa za vijak - promjer;1;0;;;;;0;;0
+RGP;Ručkica glodana - položaj;0;0;;;Dolje:sredina/Dolje lijevo/Dolje desno/Gore sredina/Gore lijevo/Gore desno/Lijevo sredina/Lijevo gore/Lijevo dolje/Desno sredina/Desno gore/Desno dolje;;0;;0
+RP;Razmak ladica;0;0;;;;;0;System.Byte[];1
+RCNOS;Rupa za cijev od nape - odmak straga;;;;;;;0;System.Byte[];0
+RCNPO;Rupa za cijev od nape - odmak poda;;;;;;;0;;
+RCNPS;Rupa za cijev od nape - širina poda;;;;;;;0;;
+RP1;Radna ploča - kom po širini;0;0;;;2/1;Radna ploča izrađena u jednoj ili dvije širine;0;System.Byte[];1
+RPN;Radna ploča - nastavak;;;;;Bez/Lijevi/Desni;;0;System.Byte[];1
+RPD;Radna ploča - produljenje desno;0;0;;;;Produljenje desne radne ploče;0;System.Byte[];1
+SPD;Širina pulta desno;0;;;;;;0;System.Byte[];1
+CRS;Crystal stranica;0;0;;;Ne/Da;;0;;0
+RPG;Radna ploča dodatna - povišenje;0;0;;;;Odmak u visinu dodatne radne ploče u odnosu na osnovnu radnu ploču;0;System.Byte[];1
+RPL;Radna ploča - produljenje lijevo;0;0;;;;Produljenje lijeve radne ploče;0;System.Byte[];1
+RPO;Reling pločasti/okrugli;0;0;;;Okr./Plos.;Pločaste/Okrugle reling palice;0;;1
+RPOT;Reling s potporom;0;0;;;Ne/Da;Reling palice s potporom Da/Ne;0;;
+RPP;Reling palica poprečna - broj;1;0;;;;Broj poprečnih reling palica;0;;
+RPPD;Radna ploča - produljenje desno;1;0;;;;;0;;0
+RPPL;Radna ploča - produljenje lijevo;1;0;;;;;0;;0
+RPPO;Reling palica poprečna - odmak;0;0;;;;Međusobni razmak poprečnih reling palica;0;;
+R2;Radius 2 zaokruženja;;;;;;;0;System.Byte[];1
+RPS;Radna ploča - širina;0;0;;;;Radna ploča - širina;0;System.Byte[];1
+RPV;Uzdužna reling palica;1;0;;;;;0;;0
+RPZ;Radna ploča - zarez;0;0;;;;Širina zareza radne ploče na spoju;0;System.Byte[];1
+RV;Radijus vanjskog zaobljenja;1;0;;;;;0;;0
+RV23;Reling ugao 2/3;0;0;;;2/3;;0;;0
+RZP;Zaobljen zaslon podn.;0;0;;;Ne/Da;;0;;0
+S23;Druga i treća zajedno;0;0;;;Ne/Da;;0;System.Byte[];0
+SBVBT;Tip bravice;0;0;;;Cilindar/Obični/Wc;;0;;0
+SBVD;Dočepnik Da/Ne;0;0;;;Ne/Da;;0;;0
+SBVFD;Dubina falca;1;0;;;;Uključuje falc na dovratniku bez brtve + debljina prednje pokrovne lajsne;0;;0
+SBVFS;Širina falca;1;0;;;;;0;;0
+SBVKD;Debljina krila;1;0;;;;;0;;0
+SBVKOD;Odmak krila dolje;1;0;;;;;0;;0
+SBVLK;Kutni spoj pokrovnih letvica;0;0;;;Ger/Vertikalna skroz/Horizontalna skroz;;0;;0
+SBVLS;Širina pokrovne letvice;0;0;;;;;0;;0
+SBVPS;Širina prečke za nadsvjetlo;0;0;;;;;0;;
+SBVPT;Tip panta;0;0;;;Vidljivi/Skriveni 4 mm/Skriveni 5 mm;Kod skrivenih panti mjeri se odmak panta od prednje plohe vrata.;0;;0
+SBVSV;Visina svjetlog otvora s nadsjvjetlom;0;0;;;;0 - bez prečke i nadsvjetla, >0 - svjetli otvor od poda do prečke;0;;0
+SDD;Prednji dio do poda;0;0;;;Ne/Da;;0;System.Byte[];1
+SDOP;Širina doprozornika;0;0;;;;;0;;0
+SDOPD;Širina doprozornika desno;0;0;;;;;0;;0
+SDOPL;Širina doprozornika lijevo;0;0;;;;;0;;0
+SDOPP;Širina doprozornika dolje;0;0;;;;;0;;0
+SDOPS;Širina doprozornika gore;0;0;;;;;0;;0
+SDOPV;Širina doprozornika vertikalnog;0;0;;;;;0;;0
+SE;Širina elementa;0;0;;;;;0;System.Byte[];1
+SEGL;Broj segmenata luka;0;0;;;1/2/3/4/5;;0;;0
+SF;Širina friza;0;0;;;;;0;System.Byte[];1
+SFD;Širina friza desno;0;0;;;;;0;System.Byte[];1
+SFL;Širina friza lijevo;0;0;;;;;0;System.Byte[];1
+SFS;Širina friza dolje;0;0;;;;;0;System.Byte[];1
+SFV;Širina srednjeg friza;0;0;;;;;0;;0
+SFZ;Širina friza gore;0;0;;;;;0;System.Byte[];1
+SIR;Širina glodanja;1;0;;;;;0;System.Byte[];1
+SK;Širina korpusa;0;0;;;;;0;;0
+SKD;Širina korpusa desno;0;0;;;;;0;;0
+SKL;Širina korpusa lijevo;0;0;;;;;0;;0
+SKRD;Skraćenje duljine;1;0;;;;;0;;0
+SKRI;Širina krila;0;0;;;;;0;;0
+SLET;Širina letve;1;0;;;;;0;;0
+SM;Širina maske;0;0;;;;;0;System.Byte[];1
+SMD;Broj međudijelova;0;0;;;;;0;System.Byte[];1
+SPL;Širina pulta lijevo;1;0;;;;;0;System.Byte[];1
+SRP;Širina radne ploče;1;0;;;;;0;;0
+SRU;Širina rolo utora;0;0;;;;;0;;0
+SSPR;Skraćenja sprijeda;0;0;;;;;0;;0
+SSTR;Širina stranice;0;0;;;;;0;;0
+SUT;Širina utora;1;0;;;;;0;System.Byte[];1
+SV;Širina veza;0;0;;;;;0;System.Byte[];1
+SVL;Suženje visine ladice;0;0;;;;;0;;0
+SVLM;Širina veznika LeMans (max. 65);1;0;;;;;0;;0
+SVMC;Širina veznika Magic Corner (max. 65);1;0;;;;;0;;0
+OGV;Ograda - visina;;;;;;;0;System.Byte[];1
+UDD;Utor/poluutor dolje do kraja;0;0;;;Ne/Da;;0;System.Byte[];1
+OGP;Ograda - položaj;;;;;Ispred/Iznad;;0;System.Byte[];1
+UDS;Utor/poluutor gore do kraja;0;0;;;Ne/Da;;0;System.Byte[];1
+V1;Visina 1;0;0;;;;;0;System.Byte[];1
+V2;Visina 2;0;0;;;;;0;System.Byte[];1
+V3;Visina 3;0;0;;;;;0;System.Byte[];1
+V4;Visina 4;0;0;;;;;0;System.Byte[];1
+VIP;Visina ladice;1;0;;;;;0;System.Byte[];1
+VKBKS;Brtva krila - širina;0;0;;;;;0;;0
+VKBUS1;Brtva uklade tip 1 - širina;0;0;;;;;0;;0
+VKBUS2;Brtva uklade tip 2 - širina;0;0;;;;;0;;0
+VKBUT;Brtva krila - debljina;0;0;;;;;0;;0
+VKBUT1;Brtva uklade tip 1 - debljina;0;0;;;;;0;;0
+VKBUT2;Brtva uklade tip 2 - debljina;0;0;;;;;0;;0
+VKBVW;Brtva vanjska - širina;0;0;;;;;0;;0
+VKFD;Vratno krilo - dubina falca;0;0;;;;;0;;0
+VKFP;Vratno krilo - proširenje u falcu;0;0;;;;;0;;0
+VKKB;Krila - broj;0;0;;;;;0;;0
+VKKD;Kut desni;0;0;;;Ne/Sprijeda/Straga;Kutno nastavljanje kliznih vrata na desnoj strani;0;;0
+VKKL;Kut lijevi;0;0;;;Ne/Sprijeda/Straga;Kutno nastavljanje kliznih vrata na lijevoj strani;0;;0
+VKKO;Odmak krila od kraja vodilice;1;0;;;;;0;;0
+VKKO1;Odmak krila manji na kutnom spoju;1;0;;;;;0;;0
+VKKO2;Odmak krila veći na kutnom spoju;1;0;;;;;0;;0
+VKKOD;Odmak krila od podne vodilice;0;0;;;;;0;;0
+VKKOG;Odmak krila od stropa;1;0;;;;;0;;0
+VKKOS;Odmak simetrale krila straga;1;0;;;;;0;;0
+VKKP;Preklop krila;1;0;;;;;0;;0
+VKKR;Razmak prednjih i stražnjih krila;1;0;;;;;0;;0
+VKKS;Širina krila;1;0;;;;;0;;0
+VKKT;Debljina krila;1;0;;;;;0;;0
+VKNDO;Nosač profila donji - odmak;0;0;;;;;0;;0
+VKNGO;Nosač profila gornji - odmak;0;0;;;;;0;;0
+VKNVO;Nosač profila vertikalni - odmak;0;0;;;;;0;;0
+VKOD;Vratno krilo - odmak odoozdo;0;0;;;;;0;;0
+VKOSU;Odmak simetrala uklade i vertikalnog profila;0;0;;;;;0;;0
+VKPB;Preklopi - broj;0;0;;;;;0;;0
+VKPDT;Profil donji - debljina;0;0;;;;;0;;0
+VKPDW;Profil donji - širina;0;0;;;;;0;;0
+VKPGT;Profil gornji - debljina;0;0;;;;;0;;0
+VKPGW;Profil gornji - širina;0;0;;;;;0;;0
+VKPK;Položaj krila;0;0;;;Lijevo/Sredina/Desno;;0;;0
+VKPKT;Ptofil kutni - debljina;0;0;;;;;0;;0
+VKPKW;Profil kutni  - širina;0;0;;;;;0;;0
+VKPST;Profil srednji - debljina;0;0;;;;;0;;0
+VKPSW;Profil srednji - širina;0;0;;;;;0;;0
+VKPVD;Poklopac vodilice donje;0;0;;;Ne/Da;;0;;0
+VKPVT;Profil vertikalni - debljina;0;0;;;;;0;;0
+VKPVW;Profil vertikalni - širina;0;0;;;;;0;;0
+VKRSP;Krila - raspored;0;0;;;2  _¬/2  ¬_/3  _¬_/3   ¬_¬/4   _¬_¬/4   ¬_¬_/4   ¬_ _¬/5   _¬_¬_/5   ¬_¬_¬/5   ¬_ _¬_/5   _¬_ _¬;;0;;0
+VKSF;Vratno krilo - širina friza;0;0;;;;;0;;0
+VKSFD;Vratno krilo - širina friza dolje;0;0;;;;;0;;0
+VKUB;Uklade broj;0;0;;;;;0;;0
+VKUD1;Uklada 1 duljina;0;0;;;;<100 = Izračun , >=100 = Vidljiva duljina;0;;0
+VKUD2;Uklada 2 duljina;0;0;;;;<100 = Izračun , >=100 = Vidljiva duljina;0;;0
+VKUD3;Uklada 3 duljina;0;0;;;;<100 = Izračun , >=100 = Vidljiva duljina;0;;0
+VKUD4;Uklada 4 duljina;0;0;;;;<100 = Izračun , >=100 = Vidljiva duljina;0;;0
+VKUD5;Uklada 5 duljina;0;0;;;;<100 = Izračun , >=100 = Vidljiva duljina;0;;0
+VKUHD;Utor horizontalni - produljenje uklade;0;0;;;;;0;;0
+VKUHD1;Utor horizontalni - produljenje uklade tip 1;1;0;;;;;0;;0
+VKUHD2;Utor horizontalni - produljenje uklade tip 2;1;0;;;;;0;;0
+VKUHD3;Utor horizontalni - produljenje uklade tip 3;1;0;;;;;0;;0
+VKUHT;Utor horizontalni - dubina;0;0;;;;;0;;0
+VKUHW;Utor horizontalni - širina;0;0;;;;;0;;0
+VKUI;Uklade broj za izračun;0;0;;;;;0;;0
+VKUI1;Uklada 1 duljina izračunata;0;0;;;;;0;;0
+VKUI2;Uklada 2 duljina izračunata;0;0;;;;;0;;0
+VKUI3;Uklada 3 duljina izračunata;0;0;;;;;0;;0
+VKUI4;Uklada 4 duljina izračunata;0;0;;;;;0;;0
+VKUI5;Uklada 5 duljina izračunata;0;0;;;;;0;;0
+VKUID;Uklada duljina izračunata;0;0;;;;;0;;0
+VKUIU;Uklade duljina izračunata - ukupna;0;0;;;;;0;;0
+VKUK1;Uklada 1;0;0;;;Ploča/Staklo/Ogledalo;;0;;0
+VKUK2;Uklada 2;0;0;;;Ne/Ploča/Staklo/Ogledalo;;0;;0
+VKUK3;Uklada 3;0;0;;;Ne/Ploča/Staklo/Ogledalo;;0;;0
+VKUK4;Uklada 4;0;0;;;Ne/Ploča/Staklo/Ogledalo;;0;;0
+VKUK5;Uklada 5;0;0;;;Ne/Ploča/Staklo/Ogledalo;;0;;0
+VKUUS;Utor za ukladu - širina;0;0;;;;;0;;0
+VKUVD;Utor vertikalni - proširenje uklade;0;0;;;;;0;;0
+VKUVD1;Utor vertikalni - produljenje uklade tip 1;1;0;;;;;0;;0
+VKUVD2;Utor vertikalni - produljenje uklade tip 2;1;0;;;;;0;;0
+VKUVD3;Utor vertikalni - produljenje uklade tip 3;1;0;;;;;0;;0
+VKUVT;Utor vertikalni - dubina;0;0;;;;;0;;0
+VKUVW;Utor vertikalni - širina;0;0;;;;;0;;0
+VKUZ1;Uklada tip 1 zračnost;0;0;;;;;0;;0
+VKUZ2;Uklada tip 2 zračnost;0;0;;;;;0;;0
+VKVD;Vodilica donja;0;0;;;Naljepna/Ukop puni/Ukop djelomični;Položaj i način učvršćenja donje vodilice za pod;0;;0
+VKVDDT;Vodilica donja djelomično ukopna - debljina;0;0;;;;;0;;0
+VKVDDW;Vodilica donja djelomično ukopna - širina;0;0;;;;;0;;0
+VKVDNT;Vodilica donja naljepna - debljina;0;0;;;;;0;;0
+VKVDNW;Vodilica donja naljepna - širina;0;0;;;;;0;;0
+VKVDO;Odmak simetrala donje prema gornjoj vodilici;1;0;;;;Odmak straga simetrale donje vodilice u odnosu na simetralu gornje vodilice;0;;0
+VKVDUT;Vodilica donja ukopna - debljina;0;0;;;;;0;;0
+VKVDUW;Vodilica donja ukopna - širina;0;0;;;;;0;;0
+VKVDZ;Z položaj vodilice donje;1;0;;;;;0;;0
+VKVDZ1;Z položaj vodilice donje - tip 1;1;0;;;;;0;;0
+VKVDZ2;Z položaj vodilice donje - tip 2;1;0;;;;;0;;0
+VKVDZ3;Z položaj vodilice donje - tipa 3;1;0;;;;;0;;0
+VKVGT;Vodilica gornja - debljina;0;0;;;;;0;;0
+VKVGW;Vodilica gornja - širina;0;0;;;;;0;;0
+VKVOD;Visina otvora;1;0;;;;;0;;0
+VKVOS;Odmak vodilice gornje straga;1;0;;;;;0;;0
+VL;Visina letve;0;0;;;;;0;;0
+VOD;Visina otvora;1;0;;;;;0;System.Byte[];0
+VOS;Visina obline odozdo;0;0;;;;;0;System.Byte[];1
+VOZ;Visina obline odozgo;0;0;;;;;0;System.Byte[];1
+VSP;Visina prednjeg dijela;0;0;;;;;0;System.Byte[];1
+VV;Visina vijenca;0;0;;;;;0;;0
+VZ;Visina straga;1;0;;;;;0;;0
+VZP;Visina zadnjega dijela na ladici;1;0;;;;;0;System.Byte[];1
+W1;Širina 1;1;0;;;;;0;;0
+W2;Širina 2;0;0;;;;;0;;0
+ZDD;Zadnji dio do poda;0;0;;;Ne/Da;;0;System.Byte[];1
+ZDP;Zrak dna ladice;0;0;;;;;0;System.Byte[];1
+ZDPZ;Zrak dna ladice straga;1;0;;;;;0;System.Byte[];1
+ZDV;Vanjska klizna vrata;0;0;;;Ne/Da;;0;;0
+ZHS;Zrak leđa po širini;1;0;;;;;0;System.Byte[];1
+ZHV;Zrak leđa po visini;1;0;;;;;0;System.Byte[];1
+ZKLD;Završetak kutne letve desni;0;0;;;Ne/Da;;0;;0
+ZKLL;Završetak kutne letve lijevi;0;0;;;Ne/Da;;0;;0
+ZKLT;Završetak kutne letve - debljina;0;0;;;;;0;;0
+ZKRP;Zarez kutne radne ploče;1;0;;;;;0;;0
+ZO;S oblinom;0;0;;;Ne/Da;;0;;0
+ZR;Zrak fronte;1;0;;;;;0;;0
+ZRD;Zrak desno;1;0;;;;;0;System.Byte[];1
+ZRI;Zrak iza;1;0;;;;;0;;
+ZRIZ;Debljina vodilica ladice;1;0;;;;;0;System.Byte[];1
+ZRL;Zrak lijevo;1;0;;;;;0;System.Byte[];1
+ZRP;Zrak uklade;0;0;;;;;0;System.Byte[];1
+ZRS;Zrak ispod;1;0;;;;;0;System.Byte[];1
+ZRV;Zrak između;1;0;;;;;0;System.Byte[];1
+ZRZ;Zrak iznad;1;0;;;;;0;System.Byte[];1
+ZSP;Zrak prednjeg dijela ladice;1;0;;;;;0;System.Byte[];1
+ZZP;Zrak zadnjeg dijela ladice;0;0;;;;;0;System.Byte[];1
+ZZR;Zrak za ručkicu;0;0;;;;;0;;0
+ide;Poluu./utor. pod;0;0;;;Ne/Da;;0;System.Byte[];1
+SLOJ3;Slojeva do 3;;;;;1/2/3;;0;;
+VIJS;Vijenac - strana;;;;;Ne/Lijeva/Desna/Obje;;0;;
+OKVRP;Okvir - razmak prečki;;;;;;;0;;
+GER;Ger;;;;;Ne/Da;;0;;
+KUT_45;Kut između -45 i 45 stupnjeva;1;;-45;45;;;0;;
+KUTNS;Kutnik vidljiva širina;;;;;;;0;System.Byte[];0
+ZUT;Zrak u utoru;;;;;;;0;;
+PS;Prevjes sprijeda;1;;;;;;0;System.Byte[];0
+LETS;Letva - širina;;;;;;;0;System.Byte[];0
+LETD;Letva - debljina;;;;;;;0;System.Byte[];0
+LETR;Letva - razmak;;;;;;;0;System.Byte[];0
+LETI;Letva - izračun;;;;;Razmaka/Letvice/Letvice i razmaka;;0;System.Byte[];0
+ODMOS;Odmak od stranice;0;;;;;- odmak na lijevo    + odmak na desno;0;System.Byte[];0
+PRS;Prevjes sprijeda;1;;;;;;0;System.Byte[];0
+PRZ;Prevjes straga;1;;;;;;0;System.Byte[];0
+ZKAP;Završna kapica;;;;;Ne/Da;;0;System.Byte[];0
+KUTNP;Kutnik položaj držača;;1;;;Okomito/Paralelno;;0;System.Byte[];0
+OV;Odmak veza;1;0;;;;;0;System.Byte[];1
+RZI;Radius izreza;;;;;;;0;System.Byte[];0
+UKLZU;Uklada - zaobljenje uglova;;;;;Ne/Da;;0;System.Byte[];0
+R3;Radius 3 zaokruženja;;;;;;;0;System.Byte[];1
+MIN;Minimalna vrijednost;;;;;;;0;;
+BUS;Poluutor / Utor stranice;;;;;Poluutor/Utor;;0;System.Byte[];0
+BUL;Poluutir / Utor leđa;;;;;Poluutor/Utor/Bez;;0;System.Byte[];0
+DDEB;Dodatna debljina;1;;;;;;0;System.Byte[];0
+DSIR;Dodatna širina;1;;;;;;0;System.Byte[];0
+RUND;Rund radius;;;;;;;0;System.Byte[];0
+OSPL;Oblik spoja ploča lijevo;;;;;Ne/Uzdužni/Poprečni;;0;System.Byte[];0
+LEDSMD;LED - širina desne maske;;;;;;;0;;
+LEDSML;LED širina lijeve maske;;;;;;;0;;
+DKPL;Duljina kraka ploče lijevo;;;;;;;0;System.Byte[];0
+DKPD;Duljina kraka ploče desno;;;;;;;0;System.Byte[];0
+SUP;Širina uzdužne ploče;;;;;;;0;System.Byte[];0
+SKPL;Širina kraka ploče lijevo;;;;;;;0;System.Byte[];0
+SKPD;Širina kraka ploče desno;;;;;;;0;System.Byte[];0
+LEDKAP;LED kapica;;;;;Ne/Da;;0;;
+LEDKAPT;LED debljina kapice;;;;;;;0;System.Byte[];0
+RPDK1;Radna ploča - duljina kraka;;;;;;;0;System.Byte[];0
+SVKL;Širina veza kutnih leđa;;;;;;;0;System.Byte[];0
+LETK;Letvice do kraja;;;;;Ne/Da;;0;System.Byte[];0
+VIJP;Vijenac - prednji;;;;;Ne/Da;;0;System.Byte[];0
+VIJL;Vijenac - lijevi;;;;;Ne/Da;;0;System.Byte[];0
+VIJD;Vijenac - desni;;;;;Ne/Da;;0;System.Byte[];0
+VIJZ;Vijenac - stražnji;;;;;Ne/Da;;0;System.Byte[];0
+VIJN;Vijenac - nosač;;;;;Ne/Da;;0;System.Byte[];0
+VIJNS;Vijenac - nosač širina;;;;;;;0;;
+ASM;Asimetrična dvokrilna vrata;1;;;;;Mijenjanje dvokrilnih simetričnih vrata u asimetrična.Negativna vrijednost sužava lijevo krilo vrata, a pozivivna vrijednost sužava desno krilo vrata.;0;System.Byte[];0
+GPT;Tip garderobne palice;;;;;Oval/Okrugla;;0;System.Byte[];
+UTRAZ;Utor - razmak;;;;;;;0;System.Byte[];0
+ODMP;Odmik palice;0;0;;;;;0;;0
+ODMPG;Odmak palice po dubini/širini;1;0;;;;;0;;0
+UTIZR;Izračun širine;;;;;Istaka/Utora/Istaka i utora;1. Zadana širina utora, izračun istaka - najbliže zadanoj širini; 2. Zadan istak, izračun širine utora - najbliže zadanoj širini; 3. Širine utora i istaka identične - najbliže zadanoj širini utora.;0;System.Byte[];0
+SGP;Smjer garderobne palice;;;;;Po širini/Po dubini;;0;;
+UTRUB;Utor do ruba;;;;;Ne/Da oba/Da lijevi-donji/Da desn-gornjii;1. Na obje strane utor odmaknur od ruba; 2. Na obje strane utor do ruba; 3. Utor uz lijevi rub; 4. Utor uz desni rub.;0;System.Byte[];0
+UTRUB2;Utor do ruba dvokrilnih vrata;;;;;1 - Ne zajedno/2 - Da zajedno/3 - Ne odvojeno/4 - Da odvojeno/5 - L odvojeno/6 - D odvojeno;;0;System.Byte[];0
+Mat;Materijal;0;0;;;;;1;;0
+BPath;Djelomična putanja do makroa;0;0;;;;;1;;0
+DLT;Tip distancne letve;;;;;Drvo/Makro;;0;;
+ZHP;Zrak leđa - poluutor;;;;;;;0;System.Byte[];0
+SPDRZ;Strana držača podnožja;;;;;1 - Bez/2 - Prednji/3 - Prednj+L/4 - Prednji+D/5 - Prednji+L+D;;0;System.Byte[];0
+SVD;Širina veza donjeg;;;;;;;0;;
+RUND1;Rund 1;;;;;Ne/Da;;0;;
+RUND2;Rund 2;;;;;Ne/Da;;0;;
+RUND3;Rund 3;;;;;Ne/Da;;0;;
+RUND4;Rund 4;;;;;Ne/Da;;0;;
+LEDSM;LED širina maske;;;;;;;0;;
+OSPD;Oblik spoja ploča desno;;;;;Ne/Uzdužni/Poprečni;;0;System.Byte[];0
+LEDST;LED sastav;;;;;1 - Ne/2 - Traka/3 - Kanalica+traka;;0;System.Byte[];0
+MSZRD;Maska zrak desno;1;;;;;;0;System.Byte[];0
+MSZRG;Maska zrak gore;0;;;;;Zajednička maska: Odmak stranice od gabaritne visine, Maska: Odmak vrha maske od gabaritne visine;0;System.Byte[];0
+GERL;Ger lijevo;;;;;Ne/Da;;0;System.Byte[];0
+LEDOP;LED odmak prednji;0;0;;;;;0;System.Byte[];0
+LEDPO;LED pod dodatni odmak sprijeda;0;0;;;;;0;System.Byte[];0
+HPP1;Leđa puna - položaj;;;;;Lijeva/Desna;;0;System.Byte[];0
+PRGOR;Prevjes gore;0;0;;;;;0;System.Byte[];0
+PRDOL;Prevjes dolje;0;0;;;;;0;System.Byte[];0
+LEDDUD;LED duljina desno;0;0;;;;0 = briši; 1 = izračun; n = izmjera;0;System.Byte[];0
+SP;Strana podnožja;0;0;;;1 - Bez/2 - Prednji/3 - Prednji+L/4 - Prednji+D/5 - Prednji+L+D;;0;System.Byte[];0
+LEDDUL;LED duljina lijevo;0;0;;;;0 = briši; 1 = izračun; n = izmjera;0;System.Byte[];0
+VP;Visina podnožja;0;0;;;;;0;System.Byte[];1
+VPS;Vez prednji smjer;0;0;;;Horizontalno/Vertikalno;Smjer prednjeg veza hoorizontalno ili vertikalno.;0;System.Byte[];1
+VPST;Vez prednji smjer - tip;0;0;;;Horizontalno/Vertikalno/Al profil;Smjer prednjeg drvnog veza hoorizontalno ili vertikalno, odnosno vez od AL profiala.;0;System.Byte[];0
+VDS;Vrata dovratnik spoj;;;;;Vertikala skroz/Horizontala skroz/Ger/Bez horizontale;;0;;
+VDOS;Vrata dovratnik širina opšave;;;;;;;0;;
+VOSL;Vrata opšava širina lijevo;;;;;;;0;;
+VOSD;Vrata opšava širina desno;;;;;;;0;;
+VOSG;Vrata opšava širina gore;;;;;;;0;;
+ODUP;Odmak utora prednji;;;;;;;0;;
+ODUS;Odmak utora stražnji;;;;;;;0;;
+ODMPP;Odmak pera prednjeg;;;;;;;0;;
+LEDIZR;LED izrez;0;0;;;Ne/Lijevi/Desni/Oba;;0;System.Byte[];0
+LEDPD;LED pod dodatni - debljina;;;;;;Smanjenje visine ormarića za debljinu zajedničkog dodatnog poda za LED rasvjetu;0;System.Byte[];0
+LEDIZRP;LED izrez poda;0;0;;;Ne/Lijevi/Desni/Oba;;0;System.Byte[];0
+LEDIZRS;LED izrez stropa;0;0;;;Ne/Lijevi/Desni/Oba;;0;System.Byte[];0
+LEDKD;LED kanalica tip - desno;0;0;;;Ravna/Kutna/Ne;;0;System.Byte[];0
+LEDKL;LED kanalica tip - lijevo;0;0;;;Ravna/Kutna/Ne;;0;System.Byte[];0
+LEDODD;LED odmak dolje desno;0;0;;;;;0;System.Byte[];0
+LEDODL;LED odmak dolje lijevo;0;0;;;;;0;System.Byte[];0
+LEDOGD;LED odmak gore desno;0;0;;;;;0;System.Byte[];0
+LEDOGL;LED odmak gore lijevo;0;0;;;;;0;System.Byte[];0
+LEDOPD;LED odmak prednji desno;0;0;;;;;0;System.Byte[];0
+LEDOPL;LED odmak prednji lijevo;0;0;;;;;0;System.Byte[];0
+ISIN;Izrez za šinu za vješanje;;;;;1 - Obje skroz/2 - skraćenje lijevo/3 - Skraćenje desno/4 - Skraćenje na obje strane;;0;System.Byte[];0
+PVD;Prevjes vrata dolje;;;;;0,5/10;;0;;
+LEDSD;LED snaga desno;0;0;;;30 po metru/60 po metru/120 po metru/240 po metru;;0;;0
+LEDSKD;LED skraćenje desno;0;0;;;;;0;System.Byte[];0
+LEDSKL;LED skraćenje lijevo;0;0;;;;;0;System.Byte[];0
+LEDSL;LED snaga lijevo;0;0;;;30 po metru/60 po metru/120 po metru/240 po metru;;0;;0
+LEDUD;LED utor dubina;0;0;;;;;0;System.Byte[];0
+LEDUS;LED utor širina;0;0;;;;;0;System.Byte[];0
+ODMPS;Odmak pera stražnjeg;;;;;;;0;;
+VDSS;Vrata divratnik sastav sendviča;;;;;Sendvič boja/Sendvič furnir;;0;;
+VOSLP;Širina lijeve prednje obloge;;;;;;;0;;
+VOSLZ;Širina lijeve stražnje obloge;;;;;;;0;;
+VKBOO;Vrata krilo odmak brave odozdo;;;;;;;0;;
+VOSDP;Širina desne prednje obloge;;;;;;;0;;
+VOSDZ;Širina desne stražnje obloge;;;;;;;0;;
+VOSGP;Širina gornje prednje obloge;;;;;;;0;;
+VOSGZ;Širina gornje stražnje obloge;;;;;;;0;;
+VKBT;Vrata krilo tip brave;;;;;Cilindar/Ključ/WC;;0;;
+VDUBS;Dovratnik širina utora za brtvu;;;;;;;0;;
+VDUBD;Dovratnik dubina utora za brtvu;;;;;;;0;;
+VKBOB;Vrata krilo odmak brave bočni;;;;;;;0;;
+ZKG;Zrak krila gore;;;;;;;0;;
+INF;Info test;;;;;A/B/C/D/E/F/G/H/I/J/K/M/N;;0;;
+ZKD;Zrak krila dolje;;;;;;;0;;
+ZKB;Zrak krila bočno;;;;;;;0;;
+OPAG;Odmak panta gore;;;;;;;0;System.Byte[];0
+OPAD;Odmak panta dolje;;;;;;;0;System.Byte[];0
+BRPA;Broj panti;;;;;2/3/4/5/6;;0;;
+OPAG5;Odmak panta gore 5;;;;;;0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak;0;System.Byte[];0
+OPAG2;Odmak panta gore 2;;;;;;0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak;0;System.Byte[];0
+OPAG3;Odmak panta gore 3;;;;;;0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak;0;System.Byte[];0
+OPAG4;Odmak panta gore 4;;;;;;0 = ovaj i svi idući se ne crtaju; 1 = jednak razmak između svih; >1 upisani broj je zadani razmak;0;System.Byte[];0
+VDN;Vrata dovratnik nadsvjetlo;;;;;Ne/Da;;0;;
+VKPOB;Vrata krilo odmak bočni panta;;;;;;;0;;
+VDPOB;Vrata dovratnik odmak bočni panta;;;;;;;0;;
+VHOD;Vrata horizontala odmak odozdo;;;;;;;0;;
+CNC;Filtriranje za CNC obradu;;;;;Konstrukcija/CNC faza 1/CNC faza 2;;0;;
+VDPS;Vrata dovratnik širina pera;;;;;;;0;;
+VDPD;Vrata dovratnik debljina pera;;;;;;;0;;
+VDFS;Vrata dovratnik širina falca;;;;;;;0;;
+VDFD;Vrata dovratnik dubina falca;;;;;;;0;;
+VDHS;Vrata dovratnik širina horizontale;;;;;;;0;;
+PAN;Panti;;;;;Ne/Vertikalno/Horizontalno;;0;;
+OMAX;Odmak maksimalni;;;;;;;0;;
+VKBPO;Vrata krilo odmak prihvatnika brave;;;;;;;0;;
+SOTV;Širina otvora;;;;;;;0;System.Byte[];0
+LPT;Leđa puna/tanka;;;;;Puna/Tanka;;0;;
+LPOS;Leđa puna - odmak straga;;;;;;;0;;
+KDOSZI;Kuhinjski donji - odmak stropa gore za indukciju;;;;;;;0;;
+KDOS;Kuhinjski donji - odmak sprijeda;;;;;0,5/2/Aktor;;0;System.Byte[];0
+OZZ;Odmak cokla straga;1;;;;;;0;;
+KDPU;Kuhinjski donji - pozicija ugradnje;;;;;1 - Niz/2 - Otok L/3 - Otok S/4 - Otok D;;0;System.Byte[];0
+HDTD1;Leđa dodatna dolje do kraja;;;;;1 - Ne/2 - Do cokla/3 - Do poda/4 - Kutni vanjski lijevi/5 - Kutni vanjski desni;;0;System.Byte[];0
+VPT;Veznik prednji sudopera - tip;;;;;Drvo/Al;Samo za prednji veznik sudopera;0;System.Byte[];0
+HDTD;Leđa dodatna dolje do kraja;;;;;1 - Ne/2 - Do cokla/3 - Do poda;;0;System.Byte[];0
+KDT;Kuhinjski donji - tip;;;;;Obični/Indukcija/Kuhalo/Sudoper;;0;System.Byte[];0
+UKRS;Ukruta širina;;;;;;;0;System.Byte[];0
+KDNV;Kuhinjski donji - nogice visina;;;;;100/150;;0;System.Byte[];0
+OTVP;Otvaranje prikaži;;;;;Ne/Da;;0;;
+PREV;Prevjes dole;1;;;;;;0;;
+PTP;Peka tip police;;;;;Libell/Liro/LiroPlus;;0;;
+PUD;Poluutor širina;;;;;;;0;;
+PUS;Poluutor dubina;;;;;;;0;;
+SMK;Širina maske korpusa;;;;;;;0;;
+SUTD;Sirina utora za D rucku;;;;;;;0;;
+TXT_04;Tekst 4;;;;;;;1;;
+VKB1;Brtva 1 krila;;;;;Ne/Sredina/Odmak dolje/Odmak falc;;0;System.Byte[];0
+VKB2;Brtva 2 krila;;;;;Ne/Odmak dolje/Odmak falc;;0;System.Byte[];0
+VKBO1;Brtva krila - odmak 1;;;;;;;0;System.Byte[];0
+VDOSS;Vrata dovratnik širina opšave stražnje;;;;;;;0;;
+OTV;Otvaranje;;;;;Lijevo van/Desno van/Lijevo unutra/Desno unutra;;0;;
+VDOP;Vrata dovratnik debljina pera opšave;;;;;;;0;;
+VDUBS1;Dovratnik dodatak širine za brtvu;;;;;;;0;;
+VDDUS;Vrata dovratnik dubina utora za staklo;;;;;;;0;;
+OPAG02;Odmak panta gore 2 korekcija;;;;;;;0;;
+OPAG03;Odmak panta gore 3 korekcija;;;;;;;0;;
+OPAG04;Odmak panta gore 4 korekcija;;;;;;;0;;
+OPAG05;Odmak panta gore 5 korekcija;;;;;;;0;;
+AKTOR1;Aktor tip;;;;;1 - C/2 - Liijeva vrata/3 - Desna vrata;Izbor Aktor profila prema otvaranju vrata i položaja u nizu ormara.;0;System.Byte[];0
+SMF;Širina maske fronte;;;;;;;0;;
+KOAP;Kuhinjski ormar - aparati;;;;;1 - Bez/2 - Hladnjak/3 - Pećnica/4 - Pećnica + mikrovalna;;0;System.Byte[];0
+KO;Odmak od kuta zidova;1;0;;;;Odmak leđa zbog nepravilnosti zidova u kutu;0;System.Byte[];1
+KOV1;Kuhinjski ormar - visina dolje;;;;;;;0;System.Byte[];0
+HPOD;Horizontalna pregrada - odmak dolje;;;;;;;0;System.Byte[];0
+ZP1;Cokl;;;;;Ne/Prednji/Prednji+Stražnji;;0;System.Byte[];0
+LADOB;Ladičar odmak bočno;;;;;Maska lijevo/Maska desno/Maska obostrano/Odmak lijevo/Odmak desno/Odmak obostrano;;0;System.Byte[];0
+KOOP;Kuhinjski ormar - otvor za pećnicu;;;;;;;0;System.Byte[];0
+KOOM;Kuhinjski ormar - otvor za mikrovalnu;;;;;;;0;System.Byte[];0
+GERR;Ger desno;;;;;Ne/Da;;0;System.Byte[];0
+KOOL;Kuhinjski ormar - leđa odmak;;;;;20/35/50;;0;System.Byte[];0
+POGOR;Broj polica gore;;;;;;;0;;
+PODOL;Broj polica dolje;;;;;;;0;;
+DIJEL;Dijeljen;;;;;Ne/Da;;0;System.Byte[];0
+KVF2;Kuhinjski viseći fronte;;;;;1 - Zaokretna lijeva/2 - Zaokretna desna/3 - Podizna HK-XS/4 - Podizna HK/5 - Podizna HK-S;;0;System.Byte[];0
+KODPO;Kuhinjski ormar - dodatni pod - odmak;;;;;;X = 0  bez dodatnog poda;0;System.Byte[];0
+KOFG;Kuhinjski ormar - fronta gore;;;;;Lijeva zaokretna/Desna zaokretna/Podizna;;0;System.Byte[];0
+KVOM;Kuhinjski viseći - otvor za mikrovalnu;;;;;;;0;System.Byte[];0
+JPULL;Jpul rucica;;;;;Ne/Da;;0;;
+ODMC;C Rucka odmak od krajeva;;;;;100;;0;;
+KKLD;Kuhinjski kutni lijevi-desni;;;;;1 - Lijevi kut/2 - Desni kut;;0;System.Byte[];0
+KVDS1;Kuhinjski viseći - maska do stropa;;;;;1 - Ne/2 - Da - bez maske/3 - Vertikalna maska/4 - Horizontalna maska;;0;System.Byte[];0
+MSS;Maska širina;;;;;;;0;System.Byte[];0
+POZRUC;Pozicija rucke;;;;;Lijevo/Desno/Gore/Dolje/Nema;;0;;
+GERDO;Ger djelomični odmak;;;;;;;0;System.Byte[];0
+MSZRL;Maska zrak lijevo;1;;;;;;0;System.Byte[];0
+GERDOF;Ger djelomični odmak za frontu;;;;;;;0;System.Byte[];0
+KDF1;Kuhinjski donji - fronte;;;;;Ladica/Otklopna vrata;;0;System.Byte[];0
+DMSS;Dodatna maska - širina;;;;;;;0;;
+AKTOR2;Aktor Ne/Da;;;;;Ne/Da;;0;System.Byte[];0
+LEDP;LED pod dodatni;0;0;;;1 - Ne/2 - Da/3 - Zajednički;Dodatni pod za LED rasvjetu;0;System.Byte[];0
+LEDIZRK;LED izrez do kraja;0;0;;;1 - Ne/2 - Lijevi/3 - Desni/4 - Oba;;0;System.Byte[];0
+LEDSET;LED sastav;0;0;;;1 - Ne/2 - Kanalica/3 - Traka/4 - Kanalica+traka;;0;System.Byte[];0
+ID;Izrez - duljina;0;0;;;;;0;System.Byte[];1
+IDEP;Izrez dubina;;0;;;;=0 Izrez; >0 Dubina džepa;0;System.Byte[];0
+IDEP1;Izrez dubina;;;;;;=0 Izrez; >0 Dubina džepa / Razmak između dvostranih džepova;0;System.Byte[];0
+STRAN;Strana elementa;;;;;Osnovna/Druga/Obje;;0;System.Byte[];0
+KVF;Kuhinjski viseći fronte;;;;;1 - Zaokretna lijeva/2 - Zaokretna desna/3 - Zaokretna dvokrilna/4 - Podizna jednokrilna HK-XS/5 - Podizna jednokrilna HK/6 - Podizna jednokrilna HK-S/7 - Podizna dvokrilna HF/8 - Podizna dvokrilna HK-XS/9 - Podizna dvokrilna HK/10 - Podizna dvokrilna HK-S;;0;System.Byte[];0
+IODO;Odmak po duljini;1;0;;;;;0;;0
+IOSI;Odmak po širini;1;0;;;;;0;;0
+KDF;Kuhinjski donji - fronte;;;;;1 - Lijeva zaokretna/2 - Desna zaokretna/3 - Dvokrilna zaokretna/4 - Ladica AAB/5 - Ladica AA/6 - Ladica ABB/7 - Ladica AAAA/8 - Izvlačna košara;;0;System.Byte[];0
+PPOL1;Pod - položaj;;;;;Između stranica/Ispod stranica;Položaj poda u odnosu na stranice korpusa.;0;System.Byte[];0
+DASL;Dektiviraj stranicu lijevu;;;;;Da/Ne;;0;System.Byte[];0
+DASD;Dektiviraj stranicu desnu;;;;;Da/Ne;;0;System.Byte[];0
+DAS;Dektiviraj strop;;;;;Da/Ne;;0;System.Byte[];0
+DAP;Dektiviraj pod;;;;;Da/Ne;;0;System.Byte[];0
+KOFD;Kuhinjski ormar - fronta dolje;;;;;1-Lijeva zaokretna/2-Desna zaokretna/3-Ladica AAB/4-Ladica AA/5-Ladica ABB/6-Ladica AAAA/7-Lijeva 2 zaokretna/8-Desna 2 zaokretna;;0;System.Byte[];0
+OOSR;Odmak od sredine;1;;;;;Negativna vrijednost odmiče elemente vezane uz cijev  lijevo, a pozitivna desno od sredine ormarića.;0;System.Byte[];0
+KVNZ;Kuhinjski viseći - nosač zidni;;;;;1 - Da/2 - Zajednički;Za vješanje se korist zidna letvai: 1 - tog ormarića / 2 - nekog drugog ormarića.;0;System.Byte[];0
+KOOH;Kuhinjski ormar - otvor za hladnjak/svijetli otvor;;;;;;;0;System.Byte[];0
+KKV;Kuhinjski kutni - vrata;;;;;1 - Jednokrilna/2 - Dvokrilna;;0;System.Byte[];0
+BRP3;Broj polica do 3;;0;;;1/2/3;;0;System.Byte[];0
+LADOH;Ladičar odmak horizontale od poda;;;;;;;0;System.Byte[];0
+LADOS;Ladičar odmak širina;;;;;;;0;System.Byte[];0
+GERDOK;Ger djelomični odmak korpusa;;;;;;;0;System.Byte[];0
+MBL;Maska bočna L;;;;;Ne/1 - I profil/2 - L profil;;0;System.Byte[];0
+MBD;Maska bočna D;;;;;Ne/1 - I profil/2 - L profil;;0;System.Byte[];0
+GERF;Ger za frontu;;;;;Ne/Da;;0;System.Byte[];0
+GLUD;Dubina utora za D rucku;;;;;;;0;;
+PR1;Broj ladica 1;;0;0;1;;Jedna ili nijedna ladica;0;;
+PR2;Broj ladica 2;;0;0;2;;Od bez ladica do dvije ladice;0;;
+PR3;Broj ladica 3;;0;0;3;;Od bez ladica do tri ladice;0;;
+AKTOR;Aktor tip;;;;;1 - C/2 - Liijeva vrata/3 - Lijeva vrata kraj/4 - Desna vrata/5 - Desna vrata kraj;Izbor Aktor profila prema otvaranju vrata i položaja u nizu ormara.;0;System.Byte[];0
+DIJEL1;Dijeljen;;;;;1 - Ne/2 - Korpus/3 - Vrata i korpus;;0;System.Byte[];0
+VGPOD;Vrata gore - pant odmak dolje;;;;;;;0;System.Byte[];0
+PR4;Broj ladica 4;;0;0;4;;Od bez ladica do črtiri ladice;0;System.Byte[];0
+VDPOD;Vrata dolje - pant odmak dolje;;;;;;;0;System.Byte[];0
+VDPOG;Vrata dolje - pant odmak gore;;;;;;;0;System.Byte[];0
+VGPOG;Vrata gore - pant odmak gore;;;;;;;0;System.Byte[];0
+VRDOL;Vrata dolje;;;;;1 - Do poda/2 - Do dna;;0;System.Byte[];0
+HW_2535;25/35;;;;;25/35;;0;;
+HW_EH;Istallation heigh;;;;;;;0;;
+HW_M;Door handle spacing;;;;;;;0;;
+HW_PP;Push/Pull;;;;;Push/Pull;;0;;
+HW_S;Door thickness;;;;;;;0;;
+HW_SB;Širina omare;;;;;;;0;;
+HW_T1;Hardware depth;;;;;;;0;;
+HW_TB;Door width;;;;;;;0;;
+HW_Z1;Top gap;;;;;;;0;;
+HW_Z2;Bottom gap;;;;;;;0;;
+HW_Z3;Outer side gap;;;;;;;0;;
+HW_Z5;Door gap space;;;;;;;0;;
+L1;Duljina 1;;;;;;;0;;
+LTP;Leđa tanke - puna;;;;;;;0;;
+O;;;;;;;;0;;
+OSTR;Obostrana izrada;;;;;Ne/Da;;0;;
+VKBO2;Brtva krila - odmak 2;;;;;;;0;System.Byte[];0
+VKF;Vratno krilo - falc;;;;;Ne/Da;;0;System.Byte[];0
+VKFS;Vratno krilo - širina falca;;;;;;Dodatni falc za prag dolje na krilu;0;System.Byte[];0
+DRUC;D ruckica jednokrilna vrata;;;;;Lijevo/Desno/Gore/Dolje/Nema;;0;;
+CRUC1;C Rucka jednokrilna vrata;;;;;Lijevo/Desno/Gore/Dolje/Nema;;0;;
+CRUC2;C Rucka dvokrilna vrata;;;;;Lijevo/Desno/Gore/Dolje/Nema;;0;;
+GERRUC;Ger rucka;;;;;Gore/Dole/Lijevo/Desno/Nema;;0;;
+R;Radijus zaokruženja;0;0;;;;;0;System.Byte[];1
+RU;Radijus unutarnjeg zaobljenja;1;0;;;;;0;;0
+RUC1S;JPull jednokrilna vrata;0;0;;;Lijevo/Desno/Gore/Dolje/Nema;;0;;0
+RUC2S;JPull dvokrilna vrata;0;0;;;Između/Gore/Dolje/Nema;;0;;0
