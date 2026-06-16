@@ -1,5 +1,5 @@
-import { useState, useMemo, lazy, Suspense, useEffect } from "react";
-import { calculate, MODULE_DEFAULTS, MODULE_PARAM_DEFAULTS } from "./lib/formula-engine";
+import { useState, useMemo, lazy, Suspense, useEffect, useCallback } from "react";
+import { calculate, MODULE_DEFAULTS, MODULE_PARAM_DEFAULTS, MODULE_PARAM_META } from "./lib/formula-engine";
 import type { ModuleName, ModuleSpecificParams } from "./lib/formula-engine";
 import { isWebGLAvailable } from "./lib/webgl-detect";
 import InputPanel from "./components/InputPanel";
@@ -83,6 +83,32 @@ export default function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [mainTab, setMainTab] = useState<"viewer" | "tablica">("viewer");
   const [viewMode, setViewMode] = useState<"3d" | "2d">(HAS_WEBGL ? "3d" : "2d");
+
+  // ── Edit popup ────────────────────────────────────────────────────────────
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [editW, setEditW] = useState(W);
+  const [editH, setEditH] = useState(H);
+  const [editD, setEditD] = useState(D);
+  const [editParams, setEditParams] = useState<ModuleSpecificParams>({});
+
+  const openEditPopup = useCallback(() => {
+    setEditW(W);
+    setEditH(H);
+    setEditD(D);
+    setEditParams({ ...params });
+    setShowEditPopup(true);
+  }, [W, H, D, params]);
+
+  const applyEdit = () => {
+    const def = MODULE_DEFAULTS[module];
+    const clamp = (v: number, mn: number, mx: number) => Math.max(mn, Math.min(mx, v));
+    const newW = isNaN(editW) ? W : clamp(editW, def.minW, def.maxW);
+    const newH = isNaN(editH) ? H : clamp(editH, def.minH, def.maxH);
+    const newD = isNaN(editD) ? D : clamp(editD, def.minD, def.maxD);
+    handleChange(module, newW, newH, newD);
+    handleParamsChange(editParams);
+    setShowEditPopup(false);
+  };
 
   const { parts, warnings } = useMemo(
     () => calculate(module, W, H, D, params),
@@ -230,10 +256,10 @@ export default function App() {
                   </div>
                 }
               >
-                <Viewer3D parts={parts} W={W} H={H} D={D} selected={selected} onSelect={setSelected} />
+                <Viewer3D parts={parts} W={W} H={H} D={D} selected={selected} onSelect={setSelected} onDoubleClick={openEditPopup} />
               </Suspense>
             ) : (
-              <FurnitureView2D parts={parts} W={W} H={H} D={D} selected={selected} onSelect={setSelected} />
+              <FurnitureView2D parts={parts} W={W} H={H} D={D} selected={selected} onSelect={setSelected} onDoubleClick={openEditPopup} />
             )
           ) : (
             <div className="h-full overflow-y-auto p-4">
@@ -252,6 +278,111 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* ── Edit popup ─────────────────────────────────────────────────────── */}
+      {showEditPopup && (
+        <div
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setShowEditPopup(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl border border-slate-200 w-80 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50">
+              <div>
+                <div className="text-sm font-bold text-slate-800">{module}</div>
+                <div className="text-[11px] text-slate-400">Parametri i dimenzije</div>
+              </div>
+              <button
+                onClick={() => setShowEditPopup(false)}
+                className="w-6 h-6 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors text-sm"
+              >✕</button>
+            </div>
+
+            <div className="px-5 py-4 space-y-5">
+              {/* Dimensions */}
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dimenzije</div>
+                <div className="space-y-2">
+                  {([
+                    { label: "Širina (W)", value: editW, set: setEditW, min: MODULE_DEFAULTS[module].minW, max: MODULE_DEFAULTS[module].maxW },
+                    { label: "Visina (H)", value: editH, set: setEditH, min: MODULE_DEFAULTS[module].minH, max: MODULE_DEFAULTS[module].maxH },
+                    { label: "Dubina (D)", value: editD, set: setEditD, min: MODULE_DEFAULTS[module].minD, max: MODULE_DEFAULTS[module].maxD },
+                  ] as Array<{ label: string; value: number; set: (v: number) => void; min: number; max: number }>).map(({ label, value, set, min, max }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500 w-20 flex-shrink-0">{label}</span>
+                      <input
+                        type="number"
+                        value={value}
+                        min={min}
+                        max={max}
+                        onChange={(e) => set(parseInt(e.target.value, 10))}
+                        className="flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                      <span className="text-xs text-slate-400 flex-shrink-0">mm</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Module params */}
+              {MODULE_PARAM_META[module] && MODULE_PARAM_META[module]!.length > 0 && (
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Parametri</div>
+                  <div className="space-y-2">
+                    {MODULE_PARAM_META[module]!
+                      .filter((meta) => !meta.visibleWhen || meta.visibleWhen(editParams))
+                      .map((meta) => (
+                        <div key={meta.key} className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500 w-20 flex-shrink-0 leading-tight">{meta.label}</span>
+                          {meta.type === "select" && meta.options ? (
+                            <select
+                              value={editParams[meta.key] ?? MODULE_PARAM_DEFAULTS[module][meta.key] ?? 0}
+                              onChange={(e) => setEditParams(p => ({ ...p, [meta.key]: parseInt(e.target.value, 10) }))}
+                              className="flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            >
+                              {meta.options.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <div className="flex items-center gap-1 flex-1">
+                              <button
+                                onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.max(meta.min ?? 1, ((p[meta.key] ?? meta.min ?? 1) as number) - 1) }))}
+                                className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors font-bold"
+                              >−</button>
+                              <span className="w-8 text-center text-sm font-mono font-semibold text-slate-800">
+                                {editParams[meta.key] ?? meta.min ?? 1}
+                              </span>
+                              <button
+                                onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.min(meta.max ?? 99, ((p[meta.key] ?? meta.min ?? 1) as number) + 1) }))}
+                                className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors font-bold"
+                              >+</button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-2 px-5 py-3.5 border-t border-slate-100 bg-slate-50">
+              <button
+                onClick={() => setShowEditPopup(false)}
+                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-100 transition-colors"
+              >Odustani</button>
+              <button
+                onClick={applyEdit}
+                className="flex-1 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              >Primijeni</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

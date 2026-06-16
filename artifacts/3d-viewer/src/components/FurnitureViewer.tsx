@@ -5,39 +5,42 @@ import * as THREE from "three";
 import type { Part, PartKind } from "../lib/formula-engine";
 
 const KIND_COLORS: Record<PartKind, string> = {
-  stranica: "#B0BEC5",
-  pod: "#B0BEC5",
-  strop: "#B0BEC5",
-  leda: "#CFD8DC",
-  polica: "#D7CCC8",
-  front: "#F5F5F5",
-  ladica_front: "#ECEFF1",
-  pregrada: "#BDBDBD",
-  preklop: "#C8E6C9",
-  zona: "#B3E5FC",
+  stranica:     "#8FA8B4",
+  pod:          "#8FA8B4",
+  strop:        "#8FA8B4",
+  leda:         "#A8BEC8",
+  polica:       "#A89080",
+  front:        "#E8EAEC",
+  ladica_front: "#D8DCE0",
+  pregrada:     "#9AA8AA",
+  preklop:      "#78B87A",
+  zona:         "#60B0E0",
 };
 
 const KIND_OPACITY: Record<PartKind, number> = {
-  stranica: 1,
-  pod: 1,
-  strop: 1,
-  leda: 0.95,
-  polica: 1,
-  front: 0.92,
-  ladica_front: 0.92,
-  pregrada: 1,
-  preklop: 1,
-  zona: 0.35,
+  stranica:     1,
+  pod:          1,
+  strop:        1,
+  leda:         0.92,
+  polica:       1,
+  front:        0.90,
+  ladica_front: 0.90,
+  pregrada:     1,
+  preklop:      1,
+  zona:         0.30,
 };
+
+const EDGE_COLOR = "#2E4050";
 
 interface BoardProps {
   part: Part;
   scale: number;
   selected: string | null;
   onSelect: (id: string) => void;
+  onDoubleClick: () => void;
 }
 
-function Board({ part, scale, selected, onSelect }: BoardProps) {
+function Board({ part, scale, selected, onSelect, onDoubleClick }: BoardProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const isSelected = selected === part.id;
   const baseColor = KIND_COLORS[part.kind];
@@ -52,24 +55,42 @@ function Board({ part, scale, selected, onSelect }: BoardProps) {
   const posY = part.y * scale;
   const posZ = part.z * scale;
 
+  const edgesGeo = useMemo(() => {
+    const box = new THREE.BoxGeometry(w, h, d);
+    const edges = new THREE.EdgesGeometry(box);
+    box.dispose();
+    return edges;
+  }, [w, h, d]);
+
   return (
-    <mesh
-      ref={meshRef}
-      position={[posX, posY, posZ]}
-      onClick={(e) => { e.stopPropagation(); onSelect(part.id); }}
-    >
-      <boxGeometry args={[w, h, d]} />
-      <meshStandardMaterial
-        color={baseColor}
-        emissive={isSelected ? "#1E88E5" : "#000000"}
-        emissiveIntensity={isSelected ? 0.4 : 0}
-        opacity={opacity}
-        transparent={transparent}
-        roughness={0.75}
-        metalness={0.0}
-        side={part.kind === "zona" ? THREE.DoubleSide : THREE.FrontSide}
-      />
-    </mesh>
+    <group position={[posX, posY, posZ]}>
+      <mesh
+        ref={meshRef}
+        onClick={(e) => { e.stopPropagation(); onSelect(part.id); }}
+        onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
+      >
+        <boxGeometry args={[w, h, d]} />
+        <meshStandardMaterial
+          color={isSelected ? "#1565C0" : baseColor}
+          emissive={isSelected ? "#1E88E5" : "#000000"}
+          emissiveIntensity={isSelected ? 0.25 : 0}
+          opacity={opacity}
+          transparent={transparent}
+          roughness={0.65}
+          metalness={0.05}
+          side={part.kind === "zona" ? THREE.DoubleSide : THREE.FrontSide}
+        />
+      </mesh>
+      {part.kind !== "zona" && (
+        <lineSegments geometry={edgesGeo}>
+          <lineBasicMaterial
+            color={isSelected ? "#0D47A1" : EDGE_COLOR}
+            transparent={transparent}
+            opacity={opacity * (isSelected ? 1.0 : 0.85)}
+          />
+        </lineSegments>
+      )}
+    </group>
   );
 }
 
@@ -100,9 +121,10 @@ interface SceneProps {
   D: number;
   selected: string | null;
   onSelect: (id: string | null) => void;
+  onDoubleClick: () => void;
 }
 
-function Scene({ parts, W, H, D, selected, onSelect }: SceneProps) {
+function Scene({ parts, W, H, D, selected, onSelect, onDoubleClick }: SceneProps) {
   const scale = 1 / 1000;
   const wS = W * scale;
   const hS = H * scale;
@@ -116,9 +138,10 @@ function Scene({ parts, W, H, D, selected, onSelect }: SceneProps) {
 
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[2, 4, 3]} intensity={1.0} castShadow />
-      <directionalLight position={[-1, 2, -2]} intensity={0.4} />
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[2, 4, 3]} intensity={1.2} castShadow />
+      <directionalLight position={[-1, 2, -2]} intensity={0.5} />
+      <directionalLight position={[0, -1, 1]} intensity={0.15} />
 
       <group onClick={() => onSelect(null)}>
         {parts.map((part) => (
@@ -128,6 +151,7 @@ function Scene({ parts, W, H, D, selected, onSelect }: SceneProps) {
             scale={scale}
             selected={selected}
             onSelect={onSelect}
+            onDoubleClick={onDoubleClick}
           />
         ))}
       </group>
@@ -139,8 +163,8 @@ function Scene({ parts, W, H, D, selected, onSelect }: SceneProps) {
       <Grid
         args={[4, 4]}
         position={[wS / 2, -0.001, dS / 2]}
-        cellColor="#B0BEC5"
-        sectionColor="#90A4AE"
+        cellColor="#90A4AE"
+        sectionColor="#607D8B"
         cellSize={0.1}
         sectionSize={0.5}
         fadeDistance={5}
@@ -167,9 +191,10 @@ interface FurnitureViewerProps {
   D: number;
   selected: string | null;
   onSelect: (id: string | null) => void;
+  onDoubleClick: () => void;
 }
 
-export default function FurnitureViewer({ parts, W, H, D, selected, onSelect }: FurnitureViewerProps) {
+export default function FurnitureViewer({ parts, W, H, D, selected, onSelect, onDoubleClick }: FurnitureViewerProps) {
   return (
     <div className="w-full h-full rounded-lg overflow-hidden bg-slate-100">
       <Canvas
@@ -190,10 +215,11 @@ export default function FurnitureViewer({ parts, W, H, D, selected, onSelect }: 
           D={D}
           selected={selected}
           onSelect={onSelect}
+          onDoubleClick={onDoubleClick}
         />
       </Canvas>
       <div className="absolute bottom-3 right-3 text-xs text-slate-500 bg-white/80 rounded px-2 py-1 pointer-events-none">
-        Lijevi klik: odabir · Desni klik: rotacija · Scroll: zoom
+        Lijevi klik: odabir · Dvostruki klik: parametri · Desni klik: rotacija · Scroll: zoom
       </div>
     </div>
   );

@@ -42,9 +42,10 @@ interface Props {
   D: number;
   selected: string | null;
   onSelect: (id: string | null) => void;
+  onDoubleClick?: () => void;
 }
 
-export default function FurnitureView2D({ parts, W, H, D, selected, onSelect }: Props) {
+export default function FurnitureView2D({ parts, W, H, D, selected, onSelect, onDoubleClick }: Props) {
   const [view, setView] = useState<View>("front");
 
   const PAD = 40;
@@ -154,7 +155,11 @@ export default function FurnitureView2D({ parts, W, H, D, selected, onSelect }: 
             const s = toSvg(r);
             const isSelected = selected === part.id;
             return (
-              <g key={part.id} onClick={(e) => { e.stopPropagation(); onSelect(isSelected ? null : part.id); }}>
+              <g
+                key={part.id}
+                onClick={(e) => { e.stopPropagation(); onSelect(isSelected ? null : part.id); }}
+                onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick?.(); }}
+              >
                 <rect
                   x={s.x}
                   y={s.y}
@@ -225,7 +230,7 @@ export default function FurnitureView2D({ parts, W, H, D, selected, onSelect }: 
       </div>
 
       <div className="px-4 py-2 text-[11px] text-slate-400 flex-shrink-0 border-t border-slate-100 bg-white">
-        Klikni na element za odabir · Bočni pogled: vidljivo je slojevanje po dubini
+        Klik: odabir · Dvostruki klik: parametri · Bočni pogled: vidljivo je slojevanje po dubini
       </div>
     </div>
   );
