@@ -80,6 +80,7 @@ FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 10 641 formula):
   getmatdata(mat;ključ)                      — čita podatak o materijalu     (10 formula)
   STRCAT(s1;s2;...)                          — spaja tekst — uvijek UPPERCASE (100%) (5 formula)
   VAL(x)                                     — konverzija u broj — uvijek UPPERCASE (100%) (19 formula)
+  r(radijus)                                 — zaobljenje/luk u koordinatnom nizu; SAMO unutar @-poligona kao Z-vrijednost točke (9 formula)
 PAŽNJA — dokumentirane ali NE KORISTE SE u bazi (0 pojava): sqrt(), round(), int().
 Trig funkcije su ISKLJUČIVO mala slova: sin(), cos(), tan(), atan() — nikad SIN(), COS(), TAN().
 
@@ -88,6 +89,7 @@ Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s 
 VAŽNO (potvrđeno 29/29): ovi koordinatni nizovi su SAMOSTALNA sirova vrijednost polja — NISU argument euler() funkcije (nijedna od 18 euler() formula ne sadrži @). Definiraju profil/put/izrez kao zasebnu geometrijsku vrijednost.
 U koordinatnim nizovima decimalni separator je TOČKA (standardno): primjer 0;12.9;0@-7;16.9;0
 Primjer: 0;0;0@0;12.9;0@-7;12.9;0@-7;16.9;0@0;18;0@-18;18;0@-18;0;0@0;0;0
+ZAOBLJENJE/LUK U POLIGONU: r(radijus) na mjestu Z-koordinate točke označava da je taj vrh LUK zadanog polumjera (9 formula u bazi, ~25 poziva — isključivo unutar @-nizova). Primjer: [.W];-[.R];r([.R])@ — vrh na (X=[.W], Y=-[.R]) zaobljen je polumjerom [.R].
 euler() (18 formula) NE koristi @-niz — uzima fiksni numerički niz rotacijske matrice (npr. 1;0;0;0;0;1;0;-1;0;…) i završava oznakom osi X:/Y:/Z:.
 
 IFELSE — VIŠESTRUKI UVJET (switch/case sintaksa):

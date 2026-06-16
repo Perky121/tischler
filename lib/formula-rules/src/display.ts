@@ -88,6 +88,7 @@ export const FUNCTIONS: FunctionRow[] = [
   { name: "getmatdata(mat;ključ)", meaning: "čita podatak o materijalu; ključ može imati #N indeks polja (GetMatData([.MatV];MH_STR7#4))", count: 10 },
   { name: "STRCAT(s1;s2;…)", meaning: "spaja tekst — uvijek UPPERCASE (100%)", count: 5 },
   { name: "VAL(x)", meaning: "konverzija u broj — uvijek UPPERCASE (100%)", count: 19 },
+  { name: "r(radijus)", meaning: "zaobljenje/luk u koordinatnom nizu — samo unutar @-poligona kao Z-vrijednost točke", count: 9 },
 ];
 
 export const FUNCTIONS_NOTE =
@@ -248,7 +249,7 @@ export const DECIMAL_SEPARATOR_NOTE =
   "Za NOVI UNOS u MegaTischler dijalogu koristi ZAREZ (0,5) — preporučeni format. U bazi postoji 68 formula (bez @-koordinatnih nizova) s decimalnom TOČKOM (npr. 26.7, (0.5), 53.5) — to su VALJANE formule iz izvornih .mac datoteka; ne proglašavaj ih pogrešnima. Iznimka: u koordinatnim nizovima (x;y;z@…) decimalna točka je standardna.";
 
 export const EULER_NOTE =
-  "SAMOSTALNI KOORDINATNI POLIGONI (29 formula u bazi). Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;. Potvrđeno 29/29: ovo je SAMOSTALNA sirova vrijednost polja, NIJE argument euler() funkcije (nijedna od 18 euler() formula ne sadrži @). Definira profil/put/izrez. U nizovima je decimalni separator TOČKA. euler() (18 formula) uzima fiksni numerički niz rotacijske matrice (1;0;0;0;0;1;0;-1;0;…) i završava oznakom osi X:/Y:/Z:.";
+  "SAMOSTALNI KOORDINATNI POLIGONI (29 formula u bazi). Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;. Potvrđeno 29/29: ovo je SAMOSTALNA sirova vrijednost polja, NIJE argument euler() funkcije (nijedna od 18 euler() formula ne sadrži @). Definira profil/put/izrez. U nizovima je decimalni separator TOČKA. ZAOBLJENJE/LUK: r(radijus) na mjestu Z-koordinate točke označava da je taj vrh luk zadanog polumjera (9 formula, ~25 poziva — isključivo unutar @-nizova), npr. [.W];-[.R];r([.R])@. euler() (18 formula) uzima fiksni numerički niz rotacijske matrice (1;0;0;0;0;1;0;-1;0;…) i završava oznakom osi X:/Y:/Z:.";
 
 export const EULER_EXAMPLE = "0;0;0@0;12.9;0@-7;12.9;0@-7;16.9;0@0;18;0@-18;18;0@-18;0;0@0;0;0";
 
