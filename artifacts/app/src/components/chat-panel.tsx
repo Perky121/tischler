@@ -797,6 +797,82 @@ export function ChatPanel() {
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(["dimenzija"]));
   const [pendingDimsUpdate, setPendingDimsUpdate] = useState<{ module: string; W: number; H: number; D: number } | null>(null);
 
+  // ── 3D viewer parametrization state ──────────────────────────────────────
+  // Params are keyed by variable name (VPT, KDT, PO, UDD); -1 means "auto"
+  const [viewer3DModule, setViewer3DModule] = useState<string>("KUH_VISOKI");
+  const [viewer3DParams, setViewer3DParams] = useState<Record<string, number>>({
+    VPT: 1, KDT: -1, PO: -1, UDD: 3,
+  });
+
+  function sendParamsToViewer(params: Record<string, number>) {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: "MEGATISCHLER_PARAMS", params }, "*");
+    }
+  }
+
+  function setAndSendParam(key: string, value: number) {
+    const next = { ...viewer3DParams, [key]: value };
+    setViewer3DParams(next);
+    sendParamsToViewer(next);
+  }
+
+  // Module-specific param definitions (mirrors formula-engine.ts meta, inlined to avoid cross-artifact import)
+  const VIEWER_PARAM_META: Record<string, Array<{
+    key: string; label: string;
+    type: "select" | "stepper";
+    options?: { value: number; label: string }[];
+    min?: number; max?: number;
+    visibleWhen?: (p: Record<string, number>) => boolean;
+  }>> = {
+    KUH_VISOKI: [
+      {
+        key: "VPT", label: "Donji dio", type: "select",
+        options: [{ value: 0, label: "Fronta" }, { value: 1, label: "Ladice" }, { value: 2, label: "Prazno" }],
+      },
+      {
+        key: "UDD", label: "Ladice", type: "stepper", min: 1, max: 6,
+        visibleWhen: (p) => p["VPT"] === 1,
+      },
+      {
+        key: "KDT", label: "Vrata", type: "select",
+        options: [{ value: -1, label: "Auto" }, { value: 0, label: "Bez" }, { value: 1, label: "Jedno" }, { value: 2, label: "Dva" }],
+      },
+      {
+        key: "PO", label: "Police", type: "select",
+        options: [{ value: -1, label: "Auto" }, ...[0,1,2,3,4,5].map(v => ({ value: v, label: String(v) }))],
+      },
+    ],
+    VISECI: [
+      {
+        key: "KDT", label: "Vrata", type: "select",
+        options: [{ value: -1, label: "Auto" }, { value: 0, label: "Bez" }, { value: 1, label: "Jedno" }, { value: 2, label: "Dva" }],
+      },
+      {
+        key: "PO", label: "Police", type: "select",
+        options: [{ value: -1, label: "Auto" }, ...[0,1,2,3,4].map(v => ({ value: v, label: String(v) }))],
+      },
+    ],
+    OTVORENI: [
+      {
+        key: "PO", label: "Police", type: "select",
+        options: [{ value: -1, label: "Auto" }, ...[0,1,2,3,4,5,6,7,8].map(v => ({ value: v, label: String(v) }))],
+      },
+    ],
+    KUTNI_VANJSKI: [
+      {
+        key: "PO", label: "Police (po strani)", type: "select",
+        options: [{ value: -1, label: "Auto" }, ...[0,1,2,3,4].map(v => ({ value: v, label: String(v) }))],
+      },
+    ],
+  };
+
+  const MODULE_PARAM_DEFAULTS_INLINE: Record<string, Record<string, number>> = {
+    KUH_VISOKI: { VPT: 1, KDT: -1, PO: -1, UDD: 3 },
+    VISECI:     { KDT: -1, PO: -1 },
+    OTVORENI:   { PO: -1 },
+    KUTNI_VANJSKI: { PO: -1 },
+  };
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -814,6 +890,9 @@ export function ChatPanel() {
         setActiveFormulaModule(m);
         lastDimsRef.current = { ...lastDimsRef.current, module: m, W: w, H: h, D: d };
         try { localStorage.setItem("mt_last_3d_dims", JSON.stringify(lastDimsRef.current)); } catch { /* ignore */ }
+        // Reset params when module changes
+        setViewer3DModule(m);
+        setViewer3DParams(MODULE_PARAM_DEFAULTS_INLINE[m] ?? {});
       }
     }
     window.addEventListener("message", handleDimsUpdate);
@@ -1670,26 +1749,73 @@ export function ChatPanel() {
         </button>
       </div>
 
-      {/* Pregled tab — 3D iframe */}
+      {/* Pregled tab — 3D iframe + params bar */}
       {panel3DTab === "pregled" && (
-        <iframe
-          ref={iframeRef}
-          src="/3d-viewer/?embed=1"
-          className="flex-1 border-0 bg-slate-100"
-          title="MegaTischler 3D preglednik"
-          onLoad={() => {
-            const dims = lastDimsRef.current;
-            if (dims.W && dims.H && dims.D && iframeRef.current?.contentWindow) {
-              iframeRef.current.contentWindow.postMessage({
-                type: "MEGATISCHLER_DIMS",
-                module: dims.module || "KUH_VISOKI",
-                W: dims.W,
-                H: dims.H,
-                D: dims.D,
-              }, "*");
-            }
-          }}
-        />
+        <div className="flex-1 flex flex-col min-h-0">
+          <iframe
+            ref={iframeRef}
+            src="/3d-viewer/?embed=1"
+            className="flex-1 border-0 bg-slate-100 min-h-0"
+            title="MegaTischler 3D preglednik"
+            onLoad={() => {
+              const dims = lastDimsRef.current;
+              if (dims.W && dims.H && dims.D && iframeRef.current?.contentWindow) {
+                iframeRef.current.contentWindow.postMessage({
+                  type: "MEGATISCHLER_DIMS",
+                  module: dims.module || "KUH_VISOKI",
+                  W: dims.W,
+                  H: dims.H,
+                  D: dims.D,
+                }, "*");
+              }
+              // Also send current params after dims are loaded
+              setTimeout(() => sendParamsToViewer(viewer3DParams), 200);
+            }}
+          />
+
+          {/* Params bar — only shown for modules with configurable params */}
+          {(() => {
+            const currentMod = viewer3DModule || lastDimsRef.current.module || "KUH_VISOKI";
+            const paramsMeta = VIEWER_PARAM_META[currentMod];
+            if (!paramsMeta || paramsMeta.length === 0) return null;
+            const visibleMeta = paramsMeta.filter(m => !m.visibleWhen || m.visibleWhen(viewer3DParams));
+            if (visibleMeta.length === 0) return null;
+            return (
+              <div className="flex-shrink-0 border-t border-border bg-card/90 px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                {visibleMeta.map(meta => (
+                  <div key={meta.key} className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">{meta.label}</span>
+                    {meta.type === "select" && meta.options ? (
+                      <select
+                        value={viewer3DParams[meta.key] ?? (meta.options[0]?.value ?? 0)}
+                        onChange={e => setAndSendParam(meta.key, parseInt(e.target.value, 10))}
+                        className="text-[11px] rounded border border-border bg-background text-foreground px-1.5 py-0.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        {meta.options.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    ) : meta.type === "stepper" ? (
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          onClick={() => setAndSendParam(meta.key, Math.max(meta.min ?? 1, (viewer3DParams[meta.key] ?? 1) - 1))}
+                          className="w-5 h-5 flex items-center justify-center rounded border border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted text-xs transition-colors"
+                        >−</button>
+                        <span className="w-5 text-center text-[11px] font-mono font-semibold text-foreground">
+                          {viewer3DParams[meta.key] ?? 1}
+                        </span>
+                        <button
+                          onClick={() => setAndSendParam(meta.key, Math.min(meta.max ?? 6, (viewer3DParams[meta.key] ?? 1) + 1))}
+                          className="w-5 h-5 flex items-center justify-center rounded border border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted text-xs transition-colors"
+                        >+</button>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
       )}
 
       {/* Lista tab — formula tree + session history */}

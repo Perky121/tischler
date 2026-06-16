@@ -49,21 +49,32 @@ export default function App() {
 
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
-      if (!e.data || e.data.type !== "MEGATISCHLER_DIMS") return;
-      const { module: m, W: w, H: h, D: d } = e.data as {
-        type: string; module?: string; W?: number; H?: number; D?: number;
-      };
-      const clamp = (v: number, mn: number, mx: number) => Math.max(mn, Math.min(mx, v));
-      const newMod: ModuleName =
-        m && VALID_MODULES.includes(m as ModuleName) ? (m as ModuleName) : module;
-      const def = MODULE_DEFAULTS[newMod];
-      if (newMod !== module) {
-        setModule(newMod);
-        setParams({ ...MODULE_PARAM_DEFAULTS[newMod] });
+      if (!e.data) return;
+
+      if (e.data.type === "MEGATISCHLER_DIMS") {
+        const { module: m, W: w, H: h, D: d } = e.data as {
+          type: string; module?: string; W?: number; H?: number; D?: number;
+        };
+        const clamp = (v: number, mn: number, mx: number) => Math.max(mn, Math.min(mx, v));
+        const newMod: ModuleName =
+          m && VALID_MODULES.includes(m as ModuleName) ? (m as ModuleName) : module;
+        const def = MODULE_DEFAULTS[newMod];
+        if (newMod !== module) {
+          setModule(newMod);
+          setParams({ ...MODULE_PARAM_DEFAULTS[newMod] });
+        }
+        if (typeof w === "number" && !isNaN(w)) setW(clamp(w, def.minW, def.maxW));
+        if (typeof h === "number" && !isNaN(h)) setH(clamp(h, def.minH, def.maxH));
+        if (typeof d === "number" && !isNaN(d)) setD(clamp(d, def.minD, def.maxD));
+        return;
       }
-      if (typeof w === "number" && !isNaN(w)) setW(clamp(w, def.minW, def.maxW));
-      if (typeof h === "number" && !isNaN(h)) setH(clamp(h, def.minH, def.maxH));
-      if (typeof d === "number" && !isNaN(d)) setD(clamp(d, def.minD, def.maxD));
+
+      if (e.data.type === "MEGATISCHLER_PARAMS") {
+        const incoming = e.data.params as Record<string, number> | undefined;
+        if (!incoming || typeof incoming !== "object") return;
+        setParams(prev => ({ ...prev, ...incoming } as ModuleSpecificParams));
+        return;
+      }
     }
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
