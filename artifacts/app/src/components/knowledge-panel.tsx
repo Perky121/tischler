@@ -218,6 +218,24 @@ export function KnowledgePanel() {
                 <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Datoteke</span>
                 <span className="text-2xl font-bold tabular-nums">{knowledge?.stats.fileCount ?? 0}</span>
               </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Materijali</span>
+                <span className={`text-2xl font-bold tabular-nums ${(knowledge?.csv_meta?.materials_count ?? 0) > 0 ? "" : "text-muted-foreground/40"}`}>
+                  {knowledge?.csv_meta?.materials_count ?? 0}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Elementi</span>
+                <span className={`text-2xl font-bold tabular-nums ${(knowledge?.csv_meta?.elements_count ?? 0) > 0 ? "" : "text-muted-foreground/40"}`}>
+                  {knowledge?.csv_meta?.elements_count ?? 0}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Par. katalog</span>
+                <span className={`text-2xl font-bold tabular-nums ${(knowledge?.csv_meta?.userparameters_count ?? 0) > 0 ? "" : "text-muted-foreground/40"}`}>
+                  {knowledge?.csv_meta?.userparameters_count ?? 0}
+                </span>
+              </div>
             </div>
           )}
         </div>
