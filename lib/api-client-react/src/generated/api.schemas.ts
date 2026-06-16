@@ -29,6 +29,18 @@ export interface ParameterEntry {
   typical_values: string[];
 }
 
+export interface UserParameterEntry {
+  key: string;
+  desc: string;
+  caption: string;
+  longdesc: string;
+  isHelper: boolean;
+  allowNeg: boolean;
+  isInt: boolean;
+  limMin?: number | null;
+  limMax?: number | null;
+}
+
 export interface KnowledgeStats {
   formulaCount: number;
   parameterCount: number;
@@ -38,6 +50,7 @@ export interface KnowledgeStats {
 export interface KnowledgeBase {
   formulas: FormulaEntry[];
   parameters: ParameterEntry[];
+  userparameters?: UserParameterEntry[];
   syntax_rules: string[];
   stats: KnowledgeStats;
   csv_meta?: CsvMeta;

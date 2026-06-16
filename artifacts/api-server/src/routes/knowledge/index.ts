@@ -87,9 +87,11 @@ router.get("/knowledge", (req, res): void => {
     userparameters_count: (meta?.["userparameters_count"] as number | undefined) ?? 0,
     userparameters_updated_at: (meta?.["userparameters_updated_at"] as string | undefined) ?? null,
   };
+  const userparameters = ((kb as unknown as Record<string, unknown>)["userparameters"] as UserParameterEntry[] | undefined) ?? [];
   res.json({
     formulas,
     parameters: kb.parameters ?? [],
+    userparameters,
     syntax_rules: kb.syntax_rules ?? [],
     stats,
     csv_meta,

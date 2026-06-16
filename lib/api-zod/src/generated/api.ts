@@ -31,6 +31,17 @@ export const GetKnowledgeResponse = zod.object({
   "description": zod.string(),
   "typical_values": zod.array(zod.string())
 })),
+  "userparameters": zod.array(zod.object({
+  "key": zod.string(),
+  "desc": zod.string(),
+  "caption": zod.string(),
+  "longdesc": zod.string(),
+  "isHelper": zod.boolean(),
+  "allowNeg": zod.boolean(),
+  "isInt": zod.boolean(),
+  "limMin": zod.number().nullish(),
+  "limMax": zod.number().nullish()
+})).optional(),
   "syntax_rules": zod.array(zod.string()),
   "stats": zod.object({
   "formulaCount": zod.number(),

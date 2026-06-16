@@ -34,3 +34,4 @@ export * from './summarizeFileResult';
 export * from './uploadCsvParams';
 export * from './uploadCsvType';
 export * from './uploadResult';
+export * from './userParameterEntry';

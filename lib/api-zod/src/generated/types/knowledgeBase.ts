@@ -9,10 +9,12 @@ import type { CsvMeta } from './csvMeta';
 import type { FormulaEntry } from './formulaEntry';
 import type { KnowledgeStats } from './knowledgeStats';
 import type { ParameterEntry } from './parameterEntry';
+import type { UserParameterEntry } from './userParameterEntry';
 
 export interface KnowledgeBase {
   formulas: FormulaEntry[];
   parameters: ParameterEntry[];
+  userparameters?: UserParameterEntry[];
   syntax_rules: string[];
   stats: KnowledgeStats;
   csv_meta?: CsvMeta;

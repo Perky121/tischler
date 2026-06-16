@@ -464,6 +464,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ParameterEntry"
+        userparameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserParameterEntry"
         syntax_rules:
           type: array
           items:
@@ -504,6 +508,38 @@ components:
         - name
         - description
         - typical_values
+
+    UserParameterEntry:
+      type: object
+      properties:
+        key:
+          type: string
+        desc:
+          type: string
+        caption:
+          type: string
+        longdesc:
+          type: string
+        isHelper:
+          type: boolean
+        allowNeg:
+          type: boolean
+        isInt:
+          type: boolean
+        limMin:
+          type: number
+          nullable: true
+        limMax:
+          type: number
+          nullable: true
+      required:
+        - key
+        - desc
+        - caption
+        - longdesc
+        - isHelper
+        - allowNeg
+        - isInt
 
     KnowledgeStats:
       type: object
