@@ -24,12 +24,12 @@ args = "rules-consistency"
 name = "rules-consistency"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pnpm --filter @workspace/formula-rules run check"
-
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/formula-rules run check && pnpm --filter @workspace/api-server run check:syntax-rules"
 
 [agent]
 stack = "PNPM_WORKSPACE"
