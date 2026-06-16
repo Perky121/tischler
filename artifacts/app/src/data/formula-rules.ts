@@ -1,0 +1,232 @@
+/**
+ * Strukturirana pravila o parametrizacijskim formulama za MegaTischler.
+ *
+ * Ovaj modul ZRCALI sadržaj koji je ugrađen u backend system prompt
+ * (`artifacts/api-server/src/routes/chat/index.ts`: ANTI_PATTERNS,
+ * FUNCTIONS_AND_OPERATORS, FORMULA_PATTERNS, buildHierarchyGuide,
+ * MODULE_DOMINANT_TYPE). Brojevi pojava potvrđeni su brojanjem u bazi od
+ * 3438 formula. Pri promjeni prompta ažurirati i ove vrijednosti.
+ *
+ * READ-ONLY referenca za prikaz u aplikaciji.
+ */
+
+export type OperatorRow = {
+  symbol: string;
+  meaning: string;
+  count: number;
+  example?: string;
+};
+
+export type FunctionRow = {
+  name: string;
+  meaning: string;
+  count: number;
+};
+
+export type AntiPatternRow = {
+  wrong: string;
+  correct: string;
+  note: string;
+};
+
+export type FormulaPattern = {
+  title: string;
+  template: string;
+  count: string;
+  description: string;
+  example?: string;
+};
+
+export type HierarchyRow = {
+  ref: string;
+  meaning: string;
+  example: string;
+};
+
+export type ModuleTypeRow = {
+  module: string;
+  type: string;
+};
+
+export const COMPARISON_OPERATORS: OperatorRow[] = [
+  { symbol: "==", meaning: "usporedba jednakosti", count: 877, example: "if([KDT]==3;0;1)" },
+  { symbol: "=", meaning: "usporedba jednakosti (oba oblika valjana)", count: 134, example: "if([.VPST]=1;2;1)" },
+  { symbol: "<>", meaning: "nije jednako", count: 18, example: "if([...KOAP]<>1;1;0)" },
+  { symbol: ">", meaning: "veće od", count: 322 },
+  { symbol: "<", meaning: "manje od", count: 130 },
+  { symbol: ">=", meaning: "veće ili jednako", count: 33 },
+  { symbol: "<=", meaning: "manje ili jednako", count: 37 },
+];
+
+export const LOGICAL_OPERATORS: OperatorRow[] = [
+  { symbol: "and", meaning: "logički I", count: 317, example: "if(([KDT]==1) and (POSW>200);...)" },
+  { symbol: "or", meaning: "logički ILI", count: 78, example: "if(([.BST]==0) or ([.VSST]==1);...)" },
+];
+
+export const OPERATORS_NOTE =
+  "AND/OR (velika slova) ekvivalentni su and/or — oba oblika prisutna (AND:50, OR:32). Operator != se NE koristi (0 pojava) — uvijek <>.";
+
+export const FUNCTIONS: FunctionRow[] = [
+  { name: "if(uvjet;istina;laž)", meaning: "2-granični uvjet", count: 936 },
+  { name: "ifelse(u1;v1;…;zadano)", meaning: "višestruki uvjet (switch)", count: 191 },
+  { name: "ABS(x) / abs(x)", meaning: "apsolutna vrijednost", count: 171 },
+  { name: "NEG(x) / neg(x)", meaning: "omata jednu 0/1 zastavicu", count: 176 },
+  { name: "sin(x)", meaning: "sinus (radijani) — uvijek mala slova", count: 123 },
+  { name: "cos(x)", meaning: "kosinus (radijani) — uvijek mala slova", count: 107 },
+  { name: "tan(x)", meaning: "tangens — uvijek mala slova", count: 48 },
+  { name: "atan(x)", meaning: "arkustangens — uvijek mala slova", count: 10 },
+  { name: "MIN(a;b;…)", meaning: "minimum", count: 2 },
+  { name: "MAX(a;b;…)", meaning: "maksimum", count: 3 },
+  { name: "euler(…)", meaning: "3D rotacijska matrica", count: 18 },
+  { name: "ADD(x)", meaning: "akumulacija vrijednosti", count: 8 },
+  { name: "getmatdata(mat;ključ)", meaning: "čita podatak o materijalu", count: 8 },
+  { name: "STRCAT(s1;s2;…)", meaning: "spaja tekst", count: 4 },
+  { name: "VAL(x)", meaning: "konverzija u broj", count: 5 },
+];
+
+export const FUNCTIONS_NOTE =
+  "Dokumentirane ali se NE KORISTE u bazi (0 pojava): sqrt(), round(), int(). Trig funkcije su isključivo mala slova — nikad SIN(), COS(), TAN().";
+
+export const SYSTEM_VARIABLES: OperatorRow[] = [
+  { symbol: "POSW", meaning: "širina pozicije elementa u prostoru", count: 85, example: "if(POSW>200;[KDOSZI];0,5)" },
+  { symbol: "POSD", meaning: "dubina pozicije elementa u prostoru", count: 15 },
+  { symbol: "POSH", meaning: "visina pozicije elementa u prostoru", count: 20 },
+];
+
+export const SYSTEM_VARIABLES_NOTE =
+  "MegaTischler ih automatski pruža — pišu se BEZ uglatih zagrada (ne [POSW]) i ne mogu se postaviti kao parametri.";
+
+export const MATERIAL_CODES: string[] = [
+  "BL_ZIF_80M7_",
+  "VO_10_31_A100",
+  "VO_10_31_A150",
+  "GT_W60800",
+  "SCH_103309900",
+  "MH_STR7",
+  "MH_STR8",
+  "Z75",
+  "GTV",
+  "FIXNA",
+];
+
+export const MATERIAL_CODES_NOTE =
+  "Materijalni kodovi su KONSTANTE/šifre iz kataloga (vraća getmatdata ili ifelse grana) — nisu varijable, ne mogu se postavljati ni mijenjati. Pišu se bez uglatih zagrada.";
+
+export const ANTI_PATTERNS: AntiPatternRow[] = [
+  { wrong: "if(A!=B;…)", correct: "if(A<>B;…)", note: '"nije jednako" je <>, ne !=' },
+  { wrong: "if(A,B,C)", correct: "if(A;B;C)", note: "separator argumenata je ; ne ," },
+  { wrong: "[X]", correct: "[.X]", note: "[X] bez točke = GLOBALNI param; za roditelja uvijek [.X]" },
+  { wrong: "if(A and B)", correct: "if((A) and (B))", note: "svaki uvjet u if-u mora biti u zagradama" },
+];
+
+export const FORMULA_PATTERNS: FormulaPattern[] = [
+  {
+    title: "Boolean-prekidač bez if()",
+    template: "[ZASTAVICA]*A + neg([ZASTAVICA])*B",
+    count: "34 formule",
+    description:
+      "Ista zastavica stoji i unutar i izvan neg(); argument neg() je u 175 od 176 poziva jedna 0/1 zastavica (BDN, BSL, BSD, BST, BU, UDD…). Alternativa za if() kad je uvjet samo 0/1.",
+    example: "[...BU]*[...SUT]+neg([...BU])*[...ODU]   (10×)",
+  },
+  {
+    title: "ABS() oko razlike pozicija",
+    template: "ABS(pozA - (offset) - (pozB + debljinaB))",
+    count: "171 formula",
+    description: "Često za dimenziju kao razmak između dva pozicionirana elementa.",
+    example: "ABS([.Strop.Z]-(0)-([.Pod.Z]+[.Pod.T]+(0)))",
+  },
+  {
+    title: "Dijeljenje s 2",
+    template: "… / 2",
+    count: "konstanta 2 javlja se 817×",
+    description: "Treća najčešća konstanta (iza 0 i 1). Često za centriranje ili podjelu prostora na pola.",
+    example: "([H]-[IDEP1])/2",
+  },
+  {
+    title: "Relativno na roditelja",
+    template: "[.X]+[.W]-[T]",
+    count: "11× (identično ponavljanje)",
+    description: "Pozicioniranje uz rub roditelja: pozicija roditelja + širina − debljina.",
+  },
+  {
+    title: "Kut iz dvije stranice",
+    template: "atan([IS]/[ID])",
+    count: "10×",
+    description: "Računanje nagiba iz dvije veličine (npr. dijagonalni rez).",
+  },
+];
+
+export const LOGIC_SCOPE_NOTE =
+  "Opseg logike: 2337 formula nema nijedan if (čista aritmetika), 915 ima točno 1 if, a samo 45 ima 3+. → Drži formule plitkima: preferiraj jedan if() ili ifelse() umjesto dubokog ugnježđivanja.";
+
+export const HIERARCHY: HierarchyRow[] = [
+  { ref: "[X]", meaning: "globalni parametar (bez točaka)", example: "[KDT], [KZ], [KT]" },
+  { ref: "[.X]", meaning: "direktni roditelj (1 razina gore)", example: "[.W]" },
+  { ref: "[..X]", meaning: "djed (2 razine gore)", example: "[..StranicaL.T]" },
+  { ref: "[...X]", meaning: "root/korijenski ormar (3 razine gore)", example: "[...W]" },
+  { ref: "[....X]", meaning: "4 razine gore", example: "[....Unutranjosti.H.Z]" },
+  { ref: "[.....X]", meaning: "5 razina gore (rijetko — 42 ref u bazi)", example: "[.....X]" },
+];
+
+export const HIERARCHY_NAMED: HierarchyRow[] = [
+  { ref: "[.Pod.Z]", meaning: "Z pozicija elementa Pod koji je direktno dijete", example: "" },
+  { ref: "[..StranicaL.T]", meaning: "debljina StranicaL na razini djeda", example: "" },
+  { ref: "[...Ormar.W]", meaning: "širina Ormar na razini roota", example: "" },
+];
+
+export const HIERARCHY_NOTE =
+  "KRITIČNO: [X] bez točke je GLOBALNI parametar (vrijedi za cijelu konstrukciju). Ako misliš na parametar roditelja, uvijek stavi barem jednu točku: [.X]";
+
+export const MODULE_TYPES: ModuleTypeRow[] = [
+  { module: "KUH_VISOKI", type: "dimenzijsko-pozicijsko (dim 32%, poz 28%)" },
+  { module: "KUTNI", type: "dimenzijsko s puno rotacija (dim 33%, rot 26%) — euler/sin/cos/tan najčešći od svih modula" },
+  { module: "KUTNI_VANJSKI", type: "pozicijsko-dimenzijsko (poz 31%, dim 30%)" },
+  { module: "MIKROVALNA", type: "dominantno dimenzijsko (42%)" },
+  { module: "NAPA", type: "dominantno dimenzijsko (45%)" },
+  { module: "VISECI", type: "dimenzijsko (41%), uključenje (17%)" },
+  { module: "PECNICA", type: "dimenzijsko-pozicijsko (dim 33%, poz 31%)" },
+  { module: "PERILICA", type: "dominantno dimenzijsko (70%)" },
+  { module: "OTVORENI", type: "dimenzijsko-referentno (dim 57%, ref 21%)" },
+  { module: "ORMAR_U", type: "dimenzijsko (41%), pozicijsko (22%)" },
+  { module: "OSNOVNI", type: "pozicijsko-dimenzijsko (poz 31%, dim 30%)" },
+  { module: "ORMAR", type: "dominantno dimenzijsko (45%)" },
+  { module: "NADGRADE", type: "dimenzijsko (40%), pozicijsko (26%)" },
+  { module: "KUTIJA", type: "dominantno dimenzijsko (71%)" },
+  { module: "EL_PUNA_LEDA", type: "dimenzijsko-referentno (dim 50%, ref 25%)" },
+];
+
+export const IFELSE_EXAMPLES: string[] = [
+  "ifelse([KOAP]==1;50;[KOOL]==0;20;[KOOL]==1;35;50)",
+  "ifelse([KDOS]==0;0,5;[KDOS]==1;2;45)",
+  "ifelse([KUT]<90;1;[KUT]>90;0;2)",
+  "ifelse([.KODS]==0;0;[.KODS]==4;[.MaskaGoreHor.T];[.MSS]+[.MSZRG])",
+];
+
+export const IFELSE_NOTE =
+  "Koristiti kada ima 3+ grana — čišće od ugniježđenih if(). Format: ifelse(uvjet1;vrijednost1;uvjet2;vrijednost2;zadanaVrijednost). Pravilo strukture (potvrđeno brojanjem): ifelse uvijek ima PARAN broj ; (svaki uvjet ima svoju vrijednost) + jednu zadanu vrijednost na kraju.";
+
+export const DECIMAL_SEPARATOR_NOTE =
+  "Za NOVI UNOS u MegaTischler dijalogu koristi ZAREZ (0,5) — preporučeni format. U bazi postoji 76 formula s decimalnom TOČKOM (npr. 26.7, (0.5), 53.5) — to su VALJANE formule iz izvornih .mac datoteka; ne proglašavaj ih pogrešnima. Iznimka: u EULER koordinatnim nizovima decimalna točka je standardna.";
+
+export const EULER_NOTE =
+  "EULER poligoni (29 formula u bazi). Format: X;Y;Z@X;Y;Z@X;Y;Z — niz 3D točaka odvojen s @, koordinate odvojene s ;. Koristi se za definiciju profila/puta u euler() formulama za složene geometrijske oblike i izreze. U koordinatnim nizovima decimalni separator je TOČKA (standardno).";
+
+export const EULER_EXAMPLE = "0;0;0@0;12.9;0@-7;12.9;0@-7;16.9;0@0;18;0@-18;18;0@-18;0;0@0;0;0";
+
+export type RuleSection = {
+  id: string;
+  label: string;
+};
+
+export const RULE_SECTIONS: RuleSection[] = [
+  { id: "operatori", label: "Operatori" },
+  { id: "funkcije", label: "Funkcije" },
+  { id: "varijable", label: "Varijable i kodovi" },
+  { id: "greske", label: "Česte greške" },
+  { id: "obrasci", label: "Obrasci" },
+  { id: "hijerarhija", label: "Hijerarhija" },
+  { id: "moduli", label: "Moduli" },
+  { id: "ifelse", label: "ifelse" },
+  { id: "decimale", label: "Decimale" },
+  { id: "euler", label: "EULER" },
+];

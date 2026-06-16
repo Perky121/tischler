@@ -2,9 +2,10 @@ import { useState } from "react";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ChatPanel } from "@/components/chat-panel";
 import { StolarBazaPanel } from "@/components/stolar-baza-panel";
-import { PanelLeftClose, PanelLeftOpen, Database, BookOpen } from "lucide-react";
+import { FormulaRulesPanel } from "@/components/formula-rules-panel";
+import { PanelLeftClose, PanelLeftOpen, Database, BookOpen, SlidersHorizontal } from "lucide-react";
 
-type LeftTab = "znanje" | "stolar";
+type LeftTab = "znanje" | "stolar" | "pravila";
 
 export default function Home() {
   const [collapsed, setCollapsed] = useState(false);
@@ -55,11 +56,28 @@ export default function Home() {
               <BookOpen className="w-3.5 h-3.5" />
               Naučeni pojmovi
             </button>
+            <button
+              onClick={() => setActiveTab("pravila")}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px
+                ${activeTab === "pravila"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              Parametrizacija - pravila
+            </button>
           </div>
 
           {/* Tab content */}
           <div className="flex-1 overflow-hidden">
-            {activeTab === "znanje" ? <KnowledgePanel /> : <StolarBazaPanel />}
+            {activeTab === "znanje" ? (
+              <KnowledgePanel />
+            ) : activeTab === "stolar" ? (
+              <StolarBazaPanel />
+            ) : (
+              <FormulaRulesPanel />
+            )}
           </div>
         </div>
       </div>
