@@ -11,7 +11,28 @@ import { MODULE_TYPES } from "@workspace/formula-rules";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Database, FileText, Loader2, RefreshCw, ChevronDown, ChevronRight, Sparkles, CheckCircle2, Table2, Search, X } from "lucide-react";
+import { Upload, Database, FileText, Loader2, RefreshCw, ChevronDown, ChevronRight, Sparkles, CheckCircle2, Table2, Search, X, Copy, Check } from "lucide-react";
+
+function CopyKeyButton({ paramKey }: { paramKey: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(`[${paramKey}]`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      title={`Kopiraj [${paramKey}]`}
+      aria-label={`Kopiraj [${paramKey}]`}
+      data-testid={`copy-param-${paramKey}`}
+      className="shrink-0 self-start mt-0.5 text-muted-foreground hover:text-primary transition-colors"
+    >
+      {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+    </button>
+  );
+}
 
 function normalizeText(s: string): string {
   return s
@@ -317,7 +338,8 @@ export function KnowledgePanel() {
                   else if (p.limMin != null) constraints.push(`min ${p.limMin}`);
                   else if (p.limMax != null) constraints.push(`max ${p.limMax}`);
                   return (
-                    <div key={p.key} className="flex items-start gap-3 px-3 py-2 bg-card hover:bg-accent/20 transition-colors">
+                    <div key={p.key} className="flex items-start gap-3 px-3 py-2 bg-card hover:bg-accent/20 transition-colors group">
+                      <CopyKeyButton paramKey={p.key} />
                       <span className="font-mono text-xs font-semibold text-primary shrink-0 min-w-[64px] pt-0.5">
                         [{p.key}]
                       </span>
