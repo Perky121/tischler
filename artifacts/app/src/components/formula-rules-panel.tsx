@@ -1,4 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useGetFormulaPrompt, useSaveFormulaPrompt, getGetFormulaPromptQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   COMPARISON_OPERATORS,
   LOGICAL_OPERATORS,
@@ -38,6 +40,9 @@ import {
   Hash,
   Move3d,
   Equal,
+  Save,
+  Loader2,
+  PenLine,
 } from "lucide-react";
 
 function SectionHeader({
@@ -111,6 +116,26 @@ function OperatorTable({ rows, symbolHeader }: { rows: OperatorRow[]; symbolHead
 export function FormulaRulesPanel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(RULE_SECTIONS[0].id);
+
+  const queryClient = useQueryClient();
+  const { data: formulaPromptData } = useGetFormulaPrompt();
+  const [formulaPromptText, setFormulaPromptText] = useState("");
+  const [saved, setSaved] = useState(false);
+  const saveMutation = useSaveFormulaPrompt({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetFormulaPromptQueryKey() });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (formulaPromptData?.content !== undefined) {
+      setFormulaPromptText(formulaPromptData.content);
+    }
+  }, [formulaPromptData?.content]);
 
   const goTo = useCallback((id: string) => {
     setActive(id);
@@ -424,6 +449,44 @@ export function FormulaRulesPanel() {
             <div className="rounded-md border border-border bg-muted/20 p-2.5">
               <Mono>{EULER_EXAMPLE}</Mono>
             </div>
+          </div>
+        </section>
+
+        {/* Dopunski naputak za pisanje formula */}
+        <section className="space-y-3 border-t border-border pt-6">
+          <div className="flex items-center gap-2 mb-2">
+            <PenLine className="w-4 h-4 text-primary flex-shrink-0" />
+            <h3 className="text-sm font-bold tracking-tight">Tvoj naputak za pisanje formula</h3>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-relaxed border-l-2 border-border pl-2.5">
+            Ovdje napiši vlastite napomene koje AI treba uvijek imati na umu pri pisanju formula — specifična pravila, iznimke ili preferencije za tvoje projekte. Tekst se ubrizgava u system prompt odmah nakon pravila sintakse.
+          </p>
+          <textarea
+            value={formulaPromptText}
+            onChange={(e) => setFormulaPromptText(e.target.value)}
+            placeholder="Npr. Za ovaj projekt uvijek koristi kanticu debljine 2mm na frontalnim pločama. Slobodne police uvijek pozicioniraj relativno na [.Pod.Z]..."
+            className="w-full min-h-[160px] rounded-md border border-border bg-muted/30 px-3 py-2.5 text-xs font-mono text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50"
+            spellCheck={false}
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground/60">
+              {formulaPromptText.length > 0 ? `${formulaPromptText.length} znakova` : "Prazno — AI neće dobiti dodatni naputak"}
+            </span>
+            <button
+              type="button"
+              disabled={saveMutation.isPending}
+              onClick={() => saveMutation.mutate({ data: { content: formulaPromptText } })}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {saveMutation.isPending ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : saved ? (
+                <span className="text-green-300">✓</span>
+              ) : (
+                <Save className="w-3 h-3" />
+              )}
+              {saveMutation.isPending ? "Spremanje..." : saved ? "Spremljeno" : "Spremi"}
+            </button>
           </div>
         </section>
       </div>

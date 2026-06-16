@@ -31,6 +31,7 @@ const workspaceRoot = process.cwd().endsWith(path.join("artifacts", "api-server"
 const dataDir = path.resolve(workspaceRoot, "artifacts/api-server/data");
 const knowledgeBasePath = path.join(dataDir, "knowledge_base.json");
 const rulesPath = path.join(dataDir, "stipe_rules.txt");
+const formulaPromptPath = path.join(dataDir, "formula_prompt.txt");
 const conceptualGuidePath = path.join(dataDir, "konceptualni_vodic_parametrizacije.txt");
 
 function readKnowledgeBase() {
@@ -48,6 +49,17 @@ function readRules(): string {
   try {
     if (fs.existsSync(rulesPath)) {
       return fs.readFileSync(rulesPath, "utf-8").trim();
+    }
+  } catch {
+    // ignore
+  }
+  return "";
+}
+
+function readFormulaPrompt(): string {
+  try {
+    if (fs.existsSync(formulaPromptPath)) {
+      return fs.readFileSync(formulaPromptPath, "utf-8").trim();
     }
   } catch {
     // ignore
@@ -524,6 +536,7 @@ function buildSystemPrompt(
   userMessage = "",
   stolarKnowledge?: StolarKnowledge,
   nauciKnowledge?: NauciKnowledge,
+  formulaPrompt = "",
 ): string {
   const syntaxRules = (kb.syntax_rules ?? []).join("\n");
 
@@ -658,6 +671,10 @@ Koristi marker SAMO za pojmove koji su specifični za stolarski zanat i NISU ti 
 
   if (syntaxRules) {
     parts.push(`\nPRAVILA SINTAKSE MEGATISCHLER:\n${syntaxRules}`);
+  }
+
+  if (formulaPrompt) {
+    parts.push(`\nDOPUNSKI NAPUTAK ZA PISANJE FORMULA:\n${formulaPrompt}`);
   }
 
   // Hierarchy guide — built from real KB formula examples, facts confirmed by user
@@ -908,6 +925,7 @@ router.post("/chat", async (req, res): Promise<void> => {
   const kb = readKnowledgeBase();
   const userRules = readRules();
   const conceptualGuide = readConceptualGuide();
+  const formulaPrompt = readFormulaPrompt();
   const [stolarKnowledge, nauciKnowledge] = await Promise.all([
     readStolarKnowledge(),
     readNauciKnowledge(),
@@ -954,7 +972,7 @@ router.post("/chat", async (req, res): Promise<void> => {
         : "");
 
     const sessionCtx = rawBody.session_context as SessionContext | null ?? null;
-    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage, stolarKnowledge, nauciKnowledge);
+    systemPrompt = buildSystemPrompt(kb, userRules, sessionCtx, conceptualGuide, effectiveMessage, stolarKnowledge, nauciKnowledge, formulaPrompt);
 
     if (screenshot_base64) {
       let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";

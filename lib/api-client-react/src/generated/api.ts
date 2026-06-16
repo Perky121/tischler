@@ -1096,3 +1096,153 @@ export const useSaveRules = <TError = ErrorType<ErrorResponse>,
       return useMutation(getSaveRulesMutationOptions(options));
     }
 
+export const getGetFormulaPromptUrl = () => {
+
+
+
+
+  return `/api/formula-prompt`
+}
+
+/**
+ * Get the current formula_prompt.txt content (user-editable formula writing guidance)
+ * @summary Get formula prompt
+ */
+export const getFormulaPrompt = async ( options?: RequestInit): Promise<RulesContent> => {
+
+  return customFetch<RulesContent>(getGetFormulaPromptUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetFormulaPromptQueryKey = () => {
+    return [
+    `/api/formula-prompt`
+    ] as const;
+    }
+
+
+export const getGetFormulaPromptQueryOptions = <TData = Awaited<ReturnType<typeof getFormulaPrompt>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFormulaPrompt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetFormulaPromptQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFormulaPrompt>>> = ({ signal }) => getFormulaPrompt({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFormulaPrompt>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetFormulaPromptQueryResult = NonNullable<Awaited<ReturnType<typeof getFormulaPrompt>>>
+export type GetFormulaPromptQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get formula prompt
+ */
+
+export function useGetFormulaPrompt<TData = Awaited<ReturnType<typeof getFormulaPrompt>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getFormulaPrompt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetFormulaPromptQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSaveFormulaPromptUrl = () => {
+
+
+
+
+  return `/api/formula-prompt`
+}
+
+/**
+ * Save formula_prompt.txt content
+ * @summary Save formula prompt
+ */
+export const saveFormulaPrompt = async (rulesInput: RulesInput, options?: RequestInit): Promise<RulesContent> => {
+
+  return customFetch<RulesContent>(getSaveFormulaPromptUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      rulesInput,)
+  }
+);}
+
+
+
+
+export const getSaveFormulaPromptMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveFormulaPrompt>>, TError,{data: BodyType<RulesInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveFormulaPrompt>>, TError,{data: BodyType<RulesInput>}, TContext> => {
+
+const mutationKey = ['saveFormulaPrompt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveFormulaPrompt>>, {data: BodyType<RulesInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveFormulaPrompt(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveFormulaPromptMutationResult = NonNullable<Awaited<ReturnType<typeof saveFormulaPrompt>>>
+    export type SaveFormulaPromptMutationBody = BodyType<RulesInput>
+    export type SaveFormulaPromptMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save formula prompt
+ */
+export const useSaveFormulaPrompt = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveFormulaPrompt>>, TError,{data: BodyType<RulesInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveFormulaPrompt>>,
+        TError,
+        {data: BodyType<RulesInput>},
+        TContext
+      > => {
+      return useMutation(getSaveFormulaPromptMutationOptions(options));
+    }
+

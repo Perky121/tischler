@@ -386,6 +386,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /formula-prompt:
+    get:
+      operationId: getFormulaPrompt
+      tags: [rules]
+      summary: Get formula prompt
+      description: Get the current formula_prompt.txt content (user-editable formula writing guidance)
+      responses:
+        "200":
+          description: Formula prompt content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RulesContent"
+    post:
+      operationId: saveFormulaPrompt
+      tags: [rules]
+      summary: Save formula prompt
+      description: Save formula_prompt.txt content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RulesInput"
+      responses:
+        "200":
+          description: Formula prompt saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RulesContent"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:

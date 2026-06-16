@@ -231,3 +231,25 @@ export const SaveRulesResponse = zod.object({
 })
 
 
+/**
+ * Get the current formula_prompt.txt content (user-editable formula writing guidance)
+ * @summary Get formula prompt
+ */
+export const GetFormulaPromptResponse = zod.object({
+  "content": zod.string()
+})
+
+
+/**
+ * Save formula_prompt.txt content
+ * @summary Save formula prompt
+ */
+export const SaveFormulaPromptBody = zod.object({
+  "content": zod.string()
+})
+
+export const SaveFormulaPromptResponse = zod.object({
+  "content": zod.string()
+})
+
+
