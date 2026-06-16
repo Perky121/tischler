@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "check:syntax-rules": "tsx src/scripts/check-syntax-rules.ts"
+    "check:syntax-rules": "tsx src/scripts/check-syntax-rules.ts",
+    "import-mtsx": "tsx src/scripts/import-mtsx.ts"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

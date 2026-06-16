@@ -15,9 +15,10 @@ export const SYNTAX_RULES = [
   "Separator argumenata funkcija je TOČKA-ZAREZ: if(uvjet;istina;laž) — nikad zarez",
   "Usporedba jednakosti koristi == (dvostruki znak): if([KDT]==3;0;1) — stručne formule koriste == u 93% slučajeva",
   "Reference parametara u uglatim zagradama: [W], [D], [H]",
-  "Roditeljski parametar: [.W] = jedan nivo gore; svaka dodatna točka = jedan nivo više (do [.....] = 5 nivoa u praksi)",
+  "Roditeljski parametar: [.W] = jedan nivo gore; svaka dodatna točka = jedan nivo više (do [......] = 6 nivoa u praksi)",
   "Korijenski parametar: [....W] = četiri točke = root razina",
   "Navigacija prema djetetu: [...PoliceP.Polica.W] — točke pa imena elemenata odvojena točkom",
+  "Referenca imenovanog elementa BEZ vodeće točke: [Stranica2.T] cilja element Stranica2 po imenu (dijete/susjed) i čita njegov sufiks — razlikuj od globala [X] (X nema točku u imenu)",
   "Identifikator BEZ zagrada = lokalna/pomoćna varijabla: POSW>200 (POSW je lokalna varijabla, ne parametar)",
   "Uvjet: if(uvjet;istina;laž) — ugnježđivanje je uobičajeno: if(A;1;if(B;2;3))",
   "Višestruki uvjet: ifelse(u1;v1;u2;v2;zadano): ifelse([KOAP]==1;50;[KOOL]==0;20;[KOOL]==1;35;50)",
@@ -43,11 +44,13 @@ const ALL_TAGS = [...PARAM_TAGS, ...FORMULA_TAGS, "Value", "Condition"];
 
 export interface FormulaEntry {
   formula: string;
-  source: string;        // izvorni .mac filename (npr. "KUH_VISOKI.mac")
+  source: string;        // izvorni filename (npr. "KUH_VISOKI.mac" ili "Dupliranje01.mtsx")
   parameter?: string;    // ime parametra kojemu formula pripada (npr. "VIS_KORPUSA")
   description?: string;  // opis parametra
   module?: string;       // naziv modula bez ekstenzije (npr. "KUH_VISOKI")
   type?: string;         // tip formule: pozicija|dimenzija|ukljucenje|uvjet|referenca|rotacija|konstanta
+  element?: string;      // ime elementa/čvora kojem formula pripada (.mtsx, npr. "Stranica2")
+  category?: string;     // kategorija iz .mtsx zip strukture (npr. "Fronte", "Korpusi")
 }
 export interface ParamEntry { name: string; description: string; typical_values: string[]; }
 
@@ -77,7 +80,7 @@ export function fixMojibake(text: string): string {
   });
 }
 
-function unescapeXml(text: string): string {
+export function unescapeXml(text: string): string {
   return text
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -104,7 +107,7 @@ function getInner(block: string, tag: string): string | null {
   return null;
 }
 
-function isFormula(value: string | null | undefined): boolean {
+export function isFormula(value: string | null | undefined): boolean {
   if (!value) return false;
   const v = value.trim();
   if (!v) return false;
@@ -122,7 +125,7 @@ function isFormula(value: string | null | undefined): boolean {
 
 // ── Formula type inference ────────────────────────────────────────────────────
 
-function inferFormulaType(formula: string): string | undefined {
+export function inferFormulaType(formula: string): string | undefined {
   const v = formula.trim();
   if (!v) return undefined;
   // Rotation: uses trig functions
@@ -303,7 +306,7 @@ export function parseMacFile(filePath: string): { formulas: FormulaEntry[]; para
 
 // ── KB helpers ────────────────────────────────────────────────────────────────
 
-function deriveParamsFromFormulas(kb: KnowledgeBase): void {
+export function deriveParamsFromFormulas(kb: KnowledgeBase): void {
   const freq = new Map<string, number>();
   for (const f of kb.formulas) {
     for (const m of f.formula.matchAll(/\[\.{0,4}([A-Za-z0-9_.]+)\]/g)) {
@@ -331,10 +334,14 @@ function deriveParamsFromFormulas(kb: KnowledgeBase): void {
 }
 
 export function mergeInto(existing: KnowledgeBase, newFormulas: FormulaEntry[], newParams: ParamEntry[]): void {
-  // Dedup key: formula + parameter + source (same formula for different params stays separate)
-  const knownF = new Set(existing.formulas.map(f => `${f.formula}||${f.parameter ?? ""}||${f.source}`));
+  // Dedup key: formula + parameter + source + element. The element segment keeps
+  // distinct .mtsx elements that share the same formula+parameter as separate
+  // rows (preserving their context); it is empty for .mac so behaviour there is
+  // unchanged.
+  const keyOf = (f: FormulaEntry) => `${f.formula}||${f.parameter ?? ""}||${f.source}||${f.element ?? ""}`;
+  const knownF = new Set(existing.formulas.map(keyOf));
   for (const f of newFormulas) {
-    const key = `${f.formula}||${f.parameter ?? ""}||${f.source}`;
+    const key = keyOf(f);
     if (!knownF.has(key)) { existing.formulas.push(f); knownF.add(key); }
   }
   const knownP = new Map(existing.parameters.map(p => [p.name, p]));

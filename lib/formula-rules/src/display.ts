@@ -205,17 +205,20 @@ export const HIERARCHY: HierarchyRow[] = [
   { ref: "[..X]", meaning: "djed (2 razine gore)", example: "[..StranicaL.T]" },
   { ref: "[...X]", meaning: "root/korijenski ormar (3 razine gore)", example: "[...W]" },
   { ref: "[....X]", meaning: "4 razine gore", example: "[....Unutranjosti.H.Z]" },
-  { ref: "[.....X]", meaning: "5 razina gore (rijetko — 42 ref u bazi)", example: "[.....X]" },
+  { ref: "[.....X]", meaning: "5 razina gore (rijetko)", example: "[.....X]" },
+  { ref: "[......X]", meaning: "6 razina gore (najdublje u praksi — iznimno rijetko)", example: "[......X]" },
 ];
 
 export const HIERARCHY_NAMED: HierarchyRow[] = [
+  { ref: "[Stranica2.T]", meaning: "imenovani element u dosegu BEZ vodeće točke (dijete/susjed po imenu) — NIJE globalni parametar", example: "" },
   { ref: "[.Pod.Z]", meaning: "Z pozicija elementa Pod koji je direktno dijete", example: "" },
+  { ref: "[.VezP.X]", meaning: "X pozicija imenovanog elementa VezP preko roditelja", example: "" },
   { ref: "[..StranicaL.T]", meaning: "debljina StranicaL na razini djeda", example: "" },
   { ref: "[...Ormar.W]", meaning: "širina Ormar na razini roota", example: "" },
 ];
 
 export const HIERARCHY_NOTE =
-  "KRITIČNO: [X] bez točke je GLOBALNI parametar (vrijedi za cijelu konstrukciju). Ako misliš na parametar roditelja, uvijek stavi barem jednu točku: [.X]";
+  "KRITIČNO — TRI VRSTE REFERENCI: (1) GLOBAL [X] — bez vodeće točke I bez imena elementa (npr. [KDT], [KZ]); (2) RAZINSKA [.X], [..X] … do [......X] — broj točaka kaže koliko razina gore (1 najčešća, do 6 u praksi); (3) IMENOVANI ELEMENT [Naziv.suf] ili [.Put.Naziv.suf] — ciljaš element po imenu pa sufiksom čitaš njegovu veličinu (npr. [Stranica2.T] čita debljinu elementa Stranica2). PAŽNJA: [Stranica2.T] (ime+sufiks, BEZ vodeće točke) NIJE globalni parametar nego referenca na imenovani element. Ako misliš na parametar roditelja, uvijek stavi barem jednu točku: [.X].";
 
 export const MODULE_TYPES: ModuleTypeRow[] = [
   { module: "KUH_VISOKI", type: "dimenzijsko-pozicijsko (dim 32%, poz 28%)" },

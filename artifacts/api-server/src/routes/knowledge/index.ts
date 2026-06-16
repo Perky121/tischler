@@ -4,7 +4,8 @@ import fs from "fs";
 import multer from "multer";
 import AdmZip from "adm-zip";
 import { logger } from "../../lib/logger";
-import { mergeFileIntoKb, buildKbFromFiles, SYNTAX_RULES, type KnowledgeBase } from "../../lib/parse-mac";
+import { mergeFileIntoKb, mergeInto, deriveParamsFromFormulas, buildKbFromFiles, SYNTAX_RULES, type KnowledgeBase } from "../../lib/parse-mac";
+import { parseMtsxFile } from "../../lib/parse-mtsx";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 
 const router: IRouter = Router();
@@ -43,10 +44,10 @@ const upload = multer({
   storage,
   fileFilter: (_req, file, cb) => {
     const name = file.originalname.toLowerCase();
-    if (name.endsWith(".mac") || name.endsWith(".zip") || name.endsWith(".prt")) {
+    if (name.endsWith(".mac") || name.endsWith(".zip") || name.endsWith(".prt") || name.endsWith(".mtsx")) {
       cb(null, true);
     } else {
-      cb(new Error("Podržane su samo .mac, .prt i .zip datoteke"));
+      cb(new Error("Podržane su samo .mac, .prt, .mtsx i .zip datoteke"));
     }
   },
   limits: { fileSize: 200 * 1024 * 1024 },
@@ -98,7 +99,7 @@ router.get("/knowledge", (req, res): void => {
   });
 });
 
-type MacFile = { path: string; originalName: string };
+type MacFile = { path: string; originalName: string; category?: string };
 
 function loadKnowledgeBase(): KnowledgeBase {
   try {
@@ -128,7 +129,16 @@ function saveKnowledgeBase(kb: KnowledgeBase): void {
 function parseMacFileIntoKb(file: MacFile): { success: boolean; error?: string } {
   try {
     const existing = loadKnowledgeBase();
-    mergeFileIntoKb(file.path, existing);
+    if (file.originalName.toLowerCase().endsWith(".mtsx")) {
+      const { formulas, params } = parseMtsxFile(file.path, file.category);
+      existing.parameters = existing.parameters.filter((p) => !p.description?.startsWith("koristi se u "));
+      mergeInto(existing, formulas, params);
+      existing.syntax_rules = SYNTAX_RULES;
+      existing._meta.files_processed = (existing._meta.files_processed ?? 0) + 1;
+      deriveParamsFromFormulas(existing);
+    } else {
+      mergeFileIntoKb(file.path, existing);
+    }
     saveKnowledgeBase(existing);
 
     // Keep the source file for future re-parsing
@@ -159,14 +169,18 @@ function extractMacFilesFromZip(zipPath: string): MacFile[] {
   for (const entry of entries) {
     if (entry.isDirectory) continue;
     const entryName = entry.entryName.toLowerCase();
-    if (!entryName.endsWith(".mac") && !entryName.endsWith(".prt")) continue;
+    if (!entryName.endsWith(".mac") && !entryName.endsWith(".prt") && !entryName.endsWith(".mtsx")) continue;
 
     // Use only the filename (strip directory path from inside zip)
     const baseName = path.basename(entry.entryName);
+    // For .mtsx, the immediate parent folder inside the zip is the category.
+    const category = entryName.endsWith(".mtsx")
+      ? path.basename(path.dirname(entry.entryName)) || undefined
+      : undefined;
     const destPath = path.join(uploadsDir, `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${baseName}`);
 
     fs.writeFileSync(destPath, entry.getData());
-    extracted.push({ path: destPath, originalName: baseName });
+    extracted.push({ path: destPath, originalName: baseName, category });
   }
 
   return extracted;
@@ -216,7 +230,7 @@ router.post("/upload-mac", (req, res, next) => {
     }
 
     if (macFiles.length === 0) {
-      res.status(400).json({ error: "Nema .mac / .prt datoteka (provjeri da .zip sadrži .mac ili .prt datoteke)" });
+      res.status(400).json({ error: "Nema .mac / .prt / .mtsx datoteka (provjeri da .zip sadrži podržane datoteke)" });
       return;
     }
 
