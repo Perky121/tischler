@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageIcon, Send, Copy, Check, Loader2, X, Paperclip, FileText, GraduationCap, Box, PanelRightClose, PanelRightOpen, Trash2, ChevronRight, ChevronDown, Save, CheckCircle2, SlidersHorizontal } from "lucide-react";
-import { useGetRules, useSaveRules } from "@workspace/api-client-react";
+import { useGetRules, useSaveRules, useGetFormulaPrompt, useSaveFormulaPrompt } from "@workspace/api-client-react";
 import type { ChatMessage } from "@workspace/api-client-react";
 
 // Message type extended with screenshot thumbnail, optional attached file name, system hint type, and thinking content
@@ -820,6 +820,27 @@ export function ChatPanel() {
       setRulesContent(rulesData.content);
     }
   }, [rulesData]);
+
+  // ── Formula prompt panel state ─────────────────────────────────────────
+  const [formulaPromptContent, setFormulaPromptContent] = useState("");
+  const [formulaPromptSaved, setFormulaPromptSaved] = useState(false);
+
+  const { data: formulaPromptData, isLoading: isLoadingFormulaPrompt } = useGetFormulaPrompt();
+  const saveFormulaPromptMutation = useSaveFormulaPrompt({
+    mutation: {
+      onSuccess: () => {
+        setFormulaPromptSaved(true);
+        setTimeout(() => setFormulaPromptSaved(false), 3000);
+      },
+      onError: () => { /* ignore */ }
+    }
+  });
+
+  useEffect(() => {
+    if (formulaPromptData?.content !== undefined) {
+      setFormulaPromptContent(formulaPromptData.content);
+    }
+  }, [formulaPromptData]);
 
   // ── 3D viewer parametrization state ──────────────────────────────────────
   // Params are keyed by variable name (VPT, KDT, PO, UDD); -1 means "auto"
@@ -1742,7 +1763,7 @@ export function ChatPanel() {
         }}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0 bg-card">
-          <span className="text-sm font-semibold">Prompt</span>
+          <span className="text-sm font-semibold">Postavke</span>
           <button
             onClick={() => setShowPrompt(false)}
             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -1750,37 +1771,82 @@ export function ChatPanel() {
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 flex flex-col gap-3 p-4 min-h-0" style={{ minHeight: 0 }}>
-          <p className="text-xs text-muted-foreground flex-shrink-0">
-            Pravila i kontekst koji se šalju uz svaki upit Claude-u.
-          </p>
-          {isLoadingRules ? (
-            <Skeleton className="flex-1 w-full rounded-md" />
-          ) : (
-            <Textarea
-              value={rulesContent}
-              onChange={(e) => { setRulesContent(e.target.value); setRulesSaved(false); }}
-              className="flex-1 font-mono text-xs resize-none bg-muted/20 focus-visible:ring-1 leading-relaxed"
-              style={{ minHeight: 0 }}
-              placeholder={"Upiši svoja pravila za MegaTischler...\n\nPrimjer:\n- Uvijek koristi decimalni zarez (0,5 ne 0.5)\n- Polica uvijek prati dubinu: [.D]-20\n- ..."}
-              data-testid="prompt-panel-textarea"
-            />
-          )}
-          <Button
-            size="sm"
-            className="shrink-0 w-full"
-            onClick={() => saveRulesMutation.mutate({ data: { content: rulesContent } })}
-            disabled={saveRulesMutation.isPending}
-          >
-            {saveRulesMutation.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : rulesSaved ? (
-              <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+        <div className="flex-1 overflow-y-auto p-4 space-y-5" style={{ minHeight: 0 }}>
+          {/* Editor 1: stipe_rules.txt */}
+          <div className="flex flex-col gap-2">
+            <div>
+              <p className="text-xs font-semibold text-foreground">Stil odgovora i kontekst rada</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                Pravila, preferencije i kontekst koji se šalju uz svaki upit. Ovdje postavi ton, stil i specifičnosti tvoje radionice.
+              </p>
+            </div>
+            {isLoadingRules ? (
+              <Skeleton className="h-32 w-full rounded-md" />
             ) : (
-              <Save className="w-4 h-4 mr-2" />
+              <Textarea
+                value={rulesContent}
+                onChange={(e) => { setRulesContent(e.target.value); setRulesSaved(false); }}
+                className="font-mono text-xs resize-none bg-muted/20 focus-visible:ring-1 leading-relaxed"
+                rows={8}
+                placeholder={"Upiši svoja pravila za MegaTischler...\n\nPrimjer:\n- Uvijek koristi decimalni zarez (0,5 ne 0.5)\n- Polica uvijek prati dubinu: [.D]-20\n- ..."}
+                data-testid="prompt-panel-textarea"
+              />
             )}
-            {rulesSaved ? "Spremljeno" : "Spremi"}
-          </Button>
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={() => saveRulesMutation.mutate({ data: { content: rulesContent } })}
+              disabled={saveRulesMutation.isPending}
+            >
+              {saveRulesMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : rulesSaved ? (
+                <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {rulesSaved ? "Spremljeno" : "Spremi"}
+            </Button>
+          </div>
+
+          <div className="border-t border-border" />
+
+          {/* Editor 2: formula_prompt.txt */}
+          <div className="flex flex-col gap-2">
+            <div>
+              <p className="text-xs font-semibold text-foreground">Dopunski naputak za formule</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                Vlastite napomene za pisanje formula — ubrizgavaju se u AI odmah iza pravila sintakse.
+              </p>
+            </div>
+            {isLoadingFormulaPrompt ? (
+              <Skeleton className="h-32 w-full rounded-md" />
+            ) : (
+              <Textarea
+                value={formulaPromptContent}
+                onChange={(e) => { setFormulaPromptContent(e.target.value); setFormulaPromptSaved(false); }}
+                className="font-mono text-xs resize-none bg-muted/20 focus-visible:ring-1 leading-relaxed"
+                rows={6}
+                placeholder={"Npr. Za ovaj projekt uvijek koristi kanticu debljine 2mm na frontalnim pločama. Slobodne police pozicioniraj relativno na [.Pod.Z]..."}
+                data-testid="formula-prompt-panel-textarea"
+              />
+            )}
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={() => saveFormulaPromptMutation.mutate({ data: { content: formulaPromptContent } })}
+              disabled={saveFormulaPromptMutation.isPending}
+            >
+              {saveFormulaPromptMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : formulaPromptSaved ? (
+                <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {formulaPromptSaved ? "Spremljeno" : "Spremi"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
