@@ -9,6 +9,7 @@
 export * from './chatInput';
 export * from './chatMessage';
 export * from './chatMessageRole';
+export * from './csvUploadResult';
 export * from './errorResponse';
 export * from './formulaEntry';
 export * from './healthStatus';
@@ -29,4 +30,6 @@ export * from './stolarSaveResult';
 export * from './stolarUpdateInput';
 export * from './summarizeFileInput';
 export * from './summarizeFileResult';
+export * from './uploadCsvParams';
+export * from './uploadCsvType';
 export * from './uploadResult';

@@ -133,7 +133,26 @@ export interface SummarizeFileResult {
   summary: string;
 }
 
+export interface CsvUploadResult {
+  success: boolean;
+  message: string;
+  count: number;
+}
+
 export interface ErrorResponse {
   error: string;
 }
+
+export type UploadCsvParams = {
+type: UploadCsvType;
+};
+
+export type UploadCsvType = typeof UploadCsvType[keyof typeof UploadCsvType];
+
+
+export const UploadCsvType = {
+  materials: 'materials',
+  elements: 'elements',
+  userparameters: 'userparameters',
+} as const;
 

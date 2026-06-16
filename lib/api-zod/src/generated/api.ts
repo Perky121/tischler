@@ -187,6 +187,21 @@ export const SummarizeKnowledgeFileResponse = zod.object({
 
 
 /**
+ * Upload MATERIALS.csv, ELEMENTS-mt.csv or USERPARAMETERS.csv to update the knowledge base
+ * @summary Upload CSV catalogue file
+ */
+export const UploadCsvQueryParams = zod.object({
+  "type": zod.enum(['materials', 'elements', 'userparameters'])
+})
+
+export const UploadCsvResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string(),
+  "count": zod.number()
+})
+
+
+/**
  * Get the current stipe_rules.txt content
  * @summary Get user rules
  */

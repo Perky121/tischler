@@ -11,7 +11,15 @@ import { MODULE_TYPES } from "@workspace/formula-rules";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Database, FileText, Loader2, RefreshCw, ChevronDown, ChevronRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { Upload, Database, FileText, Loader2, RefreshCw, ChevronDown, ChevronRight, Sparkles, CheckCircle2, Table2 } from "lucide-react";
+
+type CsvType = "materials" | "elements" | "userparameters";
+
+const CSV_LABELS: Record<CsvType, { label: string; hint: string }> = {
+  materials: { label: "MATERIALS.csv", hint: "Katalog materijala (ploče, kantovi, okov...)" },
+  elements: { label: "ELEMENTS-mt.csv", hint: "Katalog elemenata (1VEZH2, 2POL1...)" },
+  userparameters: { label: "USERPARAMETERS.csv", hint: "Katalog parametara (GK, ODU, GLU...)" },
+};
 
 export function KnowledgePanel() {
   const { toast } = useToast();
@@ -37,6 +45,42 @@ export function KnowledgePanel() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [isReparsing, setIsReparsing] = useState(false);
+  const [csvUploading, setCsvUploading] = useState<CsvType | null>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const [csvPendingType, setCsvPendingType] = useState<CsvType | null>(null);
+
+  const handleCsvUpload = useCallback(async (file: File, type: CsvType) => {
+    setCsvUploading(type);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`/api/upload-csv?type=${type}`, { method: "POST", body: formData });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast({ title: "CSV uvezen", description: data.message });
+        queryClient.invalidateQueries({ queryKey: getGetKnowledgeQueryKey() });
+      } else {
+        toast({ title: "CSV upload nije uspio", description: data.error || "Nepoznata greška", variant: "destructive" });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Greška mreže";
+      toast({ title: "CSV upload nije uspio", description: msg, variant: "destructive" });
+    } finally {
+      setCsvUploading(null);
+      if (csvInputRef.current) csvInputRef.current.value = "";
+    }
+  }, [toast, queryClient]);
+
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !csvPendingType) return;
+    const file = e.target.files[0];
+    if (file) handleCsvUpload(file, csvPendingType);
+  };
+
+  const triggerCsvUpload = (type: CsvType) => {
+    setCsvPendingType(type);
+    setTimeout(() => csvInputRef.current?.click(), 0);
+  };
 
   const handleReparse = async () => {
     setIsReparsing(true);
@@ -216,6 +260,50 @@ export function KnowledgePanel() {
             data-testid="mac-file-input"
           />
         </div>
+      </div>
+
+      <div>
+        <h3 className="font-medium mb-3 text-xs text-muted-foreground uppercase tracking-widest flex items-center">
+          <Table2 className="w-3.5 h-3.5 mr-2" />
+          CSV katalozi
+        </h3>
+        <div className="rounded-md border border-border overflow-hidden">
+          {(["materials", "elements", "userparameters"] as CsvType[]).map((type) => {
+            const { label, hint } = CSV_LABELS[type];
+            const isActive = csvUploading === type;
+            return (
+              <div
+                key={type}
+                className="flex items-center justify-between px-3 py-2 border-b border-border last:border-b-0 bg-card hover:bg-accent/20 transition-colors"
+              >
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-mono font-medium">{label}</span>
+                  <span className="text-[10px] text-muted-foreground/70">{hint}</span>
+                </div>
+                <button
+                  type="button"
+                  disabled={csvUploading !== null}
+                  onClick={() => triggerCsvUpload(type)}
+                  className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border border-border bg-muted/50 hover:border-primary hover:text-primary transition-colors disabled:opacity-50 shrink-0"
+                >
+                  {isActive ? (
+                    <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                  ) : (
+                    <Upload className="w-2.5 h-2.5" />
+                  )}
+                  {isActive ? "Uvoz..." : "Uvezi"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <input
+          type="file"
+          ref={csvInputRef}
+          onChange={handleCsvFileChange}
+          className="hidden"
+          accept=".csv"
+        />
       </div>
 
       <div>

@@ -248,6 +248,221 @@ router.post("/upload-mac", (req, res, next) => {
   }
 });
 
+// ── CSV catalogue upload ──────────────────────────────────────────────────────
+
+const csvUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, uploadsDir),
+    filename: (_req, file, cb) => cb(null, `${Date.now()}-${sanitizeFilename(file.originalname)}`),
+  }),
+  fileFilter: (_req, file, cb) => {
+    if (file.originalname.toLowerCase().endsWith(".csv")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Samo .csv datoteke su podržane"));
+    }
+  },
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
+
+/** Parse a semicolon-separated CSV with optional UTF-8 BOM. Returns array of row objects keyed by header column. */
+function parseCsv(filePath: string): Record<string, string>[] {
+  const raw = fs.readFileSync(filePath, "utf-8");
+  // Strip BOM if present
+  const content = raw.startsWith("\uFEFF") ? raw.slice(1) : raw;
+  const lines = content.split(/\r?\n/).filter(l => l.trim() !== "");
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(";");
+  const rows: Record<string, string>[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cells = lines[i].split(";");
+    const row: Record<string, string> = {};
+    for (let j = 0; j < headers.length; j++) {
+      row[headers[j]] = cells[j] ?? "";
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+type MaterialEntry = {
+  key: string;
+  desc: string;
+  desc2: string;
+  thick: number | null;
+  group: number;
+  tier: "core" | "decor" | "hardware";
+};
+
+const DECOR_BRAND_PREFIXES = ["EG_", "KA_", "SK_", "DDL_", "GR_"];
+const HARDWARE_BRAND_PREFIXES = ["BL_", "HA_", "HE_", "AS_", "GT_", "KW_", "GTV_", "HX_", "NMC_", "FEK_"];
+
+/**
+ * Derive material group (1-11) from key prefix.
+ * MAT_GROUP in the CSV is an ARGB color/layer value, not the 1-11 group number.
+ * Keys starting with a digit N belong to group N (1=Ploče, 2=Furnir, 3=Masiv,
+ * 4=Metarska roba, 5=Staklo, 6=Okov prozori, 7=Okov namještaj, 8=Površinski, 9=Vijci).
+ * Brand-prefix hardware keys (BL_, HE_, etc.) map to group 7.
+ */
+function deriveGroupFromKey(key: string): number {
+  const first = key.charAt(0);
+  if (first >= "1" && first <= "9") return parseInt(first, 10);
+  if (HARDWARE_BRAND_PREFIXES.some(p => key.startsWith(p))) return 7;
+  if (DECOR_BRAND_PREFIXES.some(p => key.startsWith(p))) return 1;
+  return 0;
+}
+
+function parseMaterialsCsv(filePath: string): MaterialEntry[] {
+  const rows = parseCsv(filePath);
+  const results: MaterialEntry[] = [];
+  for (const row of rows) {
+    const key = (row["MAT_KEY"] ?? "").trim();
+    if (!key) continue;
+    const desc = (row["MAT_DESC"] ?? "").trim();
+    // Filter separator rows
+    if (desc.includes("----") || key.endsWith("---") || key.endsWith("--")) continue;
+    const desc2 = (row["MAT_DESC2"] ?? "").trim();
+    const thickRaw = parseFloat((row["MAT_THICK"] ?? "0").replace(",", "."));
+    const thick = isNaN(thickRaw) || thickRaw === 0 ? null : thickRaw;
+    const group = deriveGroupFromKey(key);
+
+    let tier: MaterialEntry["tier"] = "core";
+    if (group === 7 || group === 9) {
+      tier = "hardware";
+    } else if (DECOR_BRAND_PREFIXES.some(p => key.startsWith(p))) {
+      tier = "decor";
+    }
+
+    results.push({ key, desc, desc2, thick, group, tier });
+  }
+  return results;
+}
+
+const EL_CATEGORY_MAP: Record<string, string> = {
+  "1": "Korpus", "2": "Unutrašnjost", "3": "Ladica", "4": "Fronta",
+  "5": "Podnožje", "6": "Pultovi", "7": "Razno", "8": "Stolarija",
+  "9": "Okov", "K": "Kreveti", "Z": "Fiktivni",
+};
+
+type ElementEntry = {
+  key: string;
+  description: string;
+  category: string;
+  material?: string;
+  mac?: string;
+};
+
+function parseElementsCsv(filePath: string): ElementEntry[] {
+  const rows = parseCsv(filePath);
+  const results: ElementEntry[] = [];
+  for (const row of rows) {
+    const key = (row["EL_KEY"] ?? "").trim();
+    if (!key) continue;
+    const description = (row["EL_DESC"] ?? "").trim();
+    const prefix = key.charAt(0).toUpperCase();
+    const category = EL_CATEGORY_MAP[prefix] ?? "Ostalo";
+    const material = (row["EL_MAT1_KEY"] ?? "").trim() || undefined;
+    const mac = (row["EL_MAC"] ?? "").trim() || undefined;
+    results.push({ key, description, category, material, mac });
+  }
+  return results;
+}
+
+type UserParameterEntry = {
+  key: string;
+  desc: string;
+  caption: string;
+  longdesc: string;
+  isHelper: boolean;
+};
+
+const HELPER_KEY_PATTERN = /^(IZR_\d+|KUT_I\d+)$/;
+
+function parseUserParametersCsv(filePath: string): UserParameterEntry[] {
+  const rows = parseCsv(filePath);
+  const results: UserParameterEntry[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const key = (row["UP_KEY"] ?? "").trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const desc = (row["UP_DESC"] ?? "").trim();
+    const caption = (row["UP_CAPTION"] ?? "").trim();
+    const longdesc = (row["UP_LONGDESC"] ?? "").trim();
+    const isHelper = HELPER_KEY_PATTERN.test(key);
+    results.push({ key, desc, caption, longdesc, isHelper });
+  }
+  return results;
+}
+
+router.post("/upload-csv", (req, res, next) => {
+  csvUpload.single("file")(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      res.status(400).json({ error: `Upload greška: ${err.message}` });
+      return;
+    } else if (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : String(err) });
+      return;
+    }
+    next();
+  });
+}, async (req, res): Promise<void> => {
+  const file = req.file;
+  if (!file) {
+    res.status(400).json({ error: "Nema uploadane datoteke" });
+    return;
+  }
+
+  const csvType = (req.query["type"] as string | undefined)?.toLowerCase();
+  if (!csvType || !["materials", "elements", "userparameters"].includes(csvType)) {
+    fs.unlink(file.path, () => {});
+    res.status(400).json({ error: "Parametar type mora biti: materials, elements ili userparameters" });
+    return;
+  }
+
+  try {
+    const kb = loadKnowledgeBase() as unknown as Record<string, unknown>;
+
+    if (!kb["_meta"] || typeof kb["_meta"] !== "object") {
+      kb["_meta"] = {};
+    }
+    const meta = kb["_meta"] as Record<string, unknown>;
+
+    let count = 0;
+    if (csvType === "materials") {
+      const entries = parseMaterialsCsv(file.path);
+      kb["materials"] = entries;
+      meta["materials_count"] = entries.length;
+      meta["materials_updated_at"] = new Date().toISOString();
+      count = entries.length;
+      req.log.info({ count }, "Materials CSV imported");
+    } else if (csvType === "elements") {
+      const entries = parseElementsCsv(file.path);
+      kb["elements"] = entries;
+      meta["elements_count"] = entries.length;
+      meta["elements_updated_at"] = new Date().toISOString();
+      count = entries.length;
+      req.log.info({ count }, "Elements CSV imported");
+    } else {
+      const entries = parseUserParametersCsv(file.path);
+      kb["userparameters"] = entries;
+      meta["userparameters_count"] = entries.length;
+      meta["userparameters_updated_at"] = new Date().toISOString();
+      count = entries.length;
+      req.log.info({ count }, "UserParameters CSV imported");
+    }
+
+    fs.writeFileSync(knowledgeBasePath, JSON.stringify(kb, null, 2));
+    fs.unlink(file.path, () => {});
+
+    res.json({ success: true, message: `Uvezeno ${count} zapisa (${csvType})`, count });
+  } catch (err) {
+    fs.unlink(file.path, () => {});
+    req.log.error({ err }, "CSV upload failed");
+    res.status(500).json({ error: "Greška pri parsiranju CSV datoteke" });
+  }
+});
+
 router.post("/reparse", async (req, res): Promise<void> => {
   try {
     const sourceFiles = fs.existsSync(sourceMacsDir)

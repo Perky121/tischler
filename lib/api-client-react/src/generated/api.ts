@@ -21,6 +21,7 @@ import type {
 
 import type {
   ChatInput,
+  CsvUploadResult,
   ErrorResponse,
   HealthStatus,
   KnowledgeBase,
@@ -36,6 +37,7 @@ import type {
   StolarUpdateInput,
   SummarizeFileInput,
   SummarizeFileResult,
+  UploadCsvParams,
   UploadResult
 } from './api.schemas';
 
@@ -864,6 +866,84 @@ export const useSummarizeKnowledgeFile = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getSummarizeKnowledgeFileMutationOptions(options));
+    }
+
+export const getUploadCsvUrl = (params: UploadCsvParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/upload-csv?${stringifiedParams}` : `/api/upload-csv`
+}
+
+/**
+ * Upload MATERIALS.csv, ELEMENTS-mt.csv or USERPARAMETERS.csv to update the knowledge base
+ * @summary Upload CSV catalogue file
+ */
+export const uploadCsv = async (params: UploadCsvParams, options?: RequestInit): Promise<CsvUploadResult> => {
+
+  return customFetch<CsvUploadResult>(getUploadCsvUrl(params),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getUploadCsvMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadCsv>>, TError,{params: UploadCsvParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadCsv>>, TError,{params: UploadCsvParams}, TContext> => {
+
+const mutationKey = ['uploadCsv'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadCsv>>, {params: UploadCsvParams}> = (props) => {
+          const {params} = props ?? {};
+
+          return  uploadCsv(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadCsvMutationResult = NonNullable<Awaited<ReturnType<typeof uploadCsv>>>
+
+    export type UploadCsvMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Upload CSV catalogue file
+ */
+export const useUploadCsv = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadCsv>>, TError,{params: UploadCsvParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadCsv>>,
+        TError,
+        {params: UploadCsvParams},
+        TContext
+      > => {
+      return useMutation(getUploadCsvMutationOptions(options));
     }
 
 export const getGetRulesUrl = () => {

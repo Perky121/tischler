@@ -250,6 +250,71 @@ function buildElementsCatalog(
   return lines.join("\n");
 }
 
+// ── User parameters catalog: compact injection into system prompt ─────────────
+
+interface UserParameterEntry {
+  key: string;
+  desc: string;
+  caption: string;
+  longdesc: string;
+  isHelper: boolean;
+}
+
+/**
+ * Build a compact user-parameters section for the system prompt.
+ * Always injects params whose key appears in the user message, formulas, or screen context.
+ * For others: injects a compact reference table (non-helper, up to 120 entries).
+ */
+function buildUserParametersCatalog(
+  allParams: UserParameterEntry[],
+  userMessage: string,
+  sessionCtx?: SessionContext | null,
+): string {
+  if (!allParams?.length) return "";
+
+  const combinedText = [
+    userMessage,
+    ...(sessionCtx?.formulasSeen ?? []),
+    ...(sessionCtx?.parametersSeen?.map(p => `${p.name} ${p.value}`) ?? []),
+    sessionCtx?.summary ?? "",
+  ].join(" ").toUpperCase();
+
+  const mentionedKeys = new Set<string>();
+  for (const p of allParams) {
+    if (combinedText.includes(p.key.toUpperCase())) mentionedKeys.add(p.key);
+  }
+
+  const lines: string[] = [
+    `KATALOG KORISNIČKIH PARAMETARA (UP_KEY — upisuju se u polja Formula kao [PARAMETAR]):`,
+  ];
+
+  // Always inject mentioned params first (highlighted)
+  const mentionedParams = allParams.filter(p => mentionedKeys.has(p.key));
+  if (mentionedParams.length) {
+    lines.push(`Parametri vidljivi/spominjani u ovom kontekstu:`);
+    for (const p of mentionedParams) {
+      const captionStr = p.caption ? ` (${p.caption})` : "";
+      const longStr = p.longdesc ? ` — ${p.longdesc}` : "";
+      lines.push(`  [${p.key}] — ${p.desc}${captionStr}${longStr}`);
+    }
+  }
+
+  // Reference catalog: non-helper, not already mentioned, max 120
+  const refParams = allParams
+    .filter(p => !p.isHelper && !mentionedKeys.has(p.key))
+    .slice(0, 120);
+
+  if (refParams.length) {
+    lines.push(`\nReferentni katalog parametara:`);
+    for (const p of refParams) {
+      const captionStr = p.caption ? ` (${p.caption})` : "";
+      lines.push(`  [${p.key}] — ${p.desc}${captionStr}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 // ── RAG: relevance-based formula retrieval ────────────────────────────────────
 
 /**
@@ -659,6 +724,15 @@ Koristi marker SAMO za pojmove koji su specifični za stolarski zanat i NISU ti 
     if (elementsCatalog) {
       parts.push(`\n${elementsCatalog}`);
     }
+  }
+
+  const userParametersCatalog = buildUserParametersCatalog(
+    (kb.userparameters ?? []) as UserParameterEntry[],
+    userMessage,
+    sessionCtx,
+  );
+  if (userParametersCatalog) {
+    parts.push(`\n${userParametersCatalog}`);
   }
 
   if (topFormulas) {
