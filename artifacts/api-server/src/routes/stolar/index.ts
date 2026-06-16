@@ -1,17 +1,10 @@
 import { Router, type IRouter } from "express";
-import path from "path";
-import fs from "fs";
+import { db, stolarEntries } from "@workspace/db";
+import { eq, asc, sql } from "drizzle-orm";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { logger } from "../../lib/logger";
 
 const router: IRouter = Router();
-
-const workspaceRoot = process.cwd().endsWith(path.join("artifacts", "api-server"))
-  ? path.resolve(process.cwd(), "../..")
-  : process.cwd();
-
-const dataDir = path.resolve(workspaceRoot, "artifacts/api-server/data");
-const stolarKnowledgePath = path.join(dataDir, "stolar_znanje.json");
 
 export interface StolarEntry {
   pojam: string;
@@ -24,36 +17,42 @@ export interface StolarKnowledge {
   entries: StolarEntry[];
 }
 
-export function readStolarKnowledge(): StolarKnowledge {
-  try {
-    if (fs.existsSync(stolarKnowledgePath)) {
-      return JSON.parse(fs.readFileSync(stolarKnowledgePath, "utf-8")) as StolarKnowledge;
-    }
-  } catch {
-    // ignore
-  }
-  return { entries: [] };
+function rowToEntry(row: typeof stolarEntries.$inferSelect): StolarEntry {
+  return {
+    pojam: row.pojam,
+    definicija: row.definicija,
+    zaključci: row.zakljucci,
+    timestamp: row.createdAt.toISOString(),
+  };
 }
 
-function writeStolarKnowledge(data: StolarKnowledge): void {
-  fs.writeFileSync(stolarKnowledgePath, JSON.stringify(data, null, 2), "utf-8");
+export async function readStolarKnowledge(): Promise<StolarKnowledge> {
+  try {
+    const rows = await db
+      .select()
+      .from(stolarEntries)
+      .orderBy(asc(stolarEntries.createdAt));
+    return { entries: rows.map(rowToEntry) };
+  } catch {
+    return { entries: [] };
+  }
 }
 
 // GET /stolar — return all carpentry knowledge entries
-router.get("/stolar", (req, res): void => {
-  const data = readStolarKnowledge();
+router.get("/stolar", async (_req, res): Promise<void> => {
+  const data = await readStolarKnowledge();
   res.json(data);
 });
 
 // GET /stolar/list — alias for listing all entries (used by Settings UI)
-router.get("/stolar/list", (req, res): void => {
-  const data = readStolarKnowledge();
+router.get("/stolar/list", async (_req, res): Promise<void> => {
+  const data = await readStolarKnowledge();
   res.json(data);
 });
 
 // POST /stolar/infer — call Claude to generate carpentry conclusions from a definition
 router.post("/stolar/infer", async (req, res): Promise<void> => {
-  const body = req.body as Record<string, unknown> ?? {};
+  const body = (req.body as Record<string, unknown>) ?? {};
   const { pojam, definicija } = body as { pojam?: string; definicija?: string };
 
   if (!pojam || !definicija) {
@@ -84,7 +83,8 @@ Vrati SAMO JSON niz stringova, bez ikakvih dodatnih objašnjenja, uvodnih rečen
       messages: [{ role: "user", content: prompt }],
     });
 
-    const raw = response.content[0]?.type === "text" ? response.content[0].text.trim() : "[]";
+    const raw =
+      response.content[0]?.type === "text" ? response.content[0].text.trim() : "[]";
     const match = raw.match(/\[[\s\S]*\]/);
     let zaključci: string[] = [];
     if (match) {
@@ -103,8 +103,8 @@ Vrati SAMO JSON niz stringova, bez ikakvih dodatnih objašnjenja, uvodnih rečen
 });
 
 // POST /stolar/save — save or update a carpentry knowledge entry (deduplicate by pojam)
-router.post("/stolar/save", (req, res): void => {
-  const body = req.body as Record<string, unknown> ?? {};
+router.post("/stolar/save", async (req, res): Promise<void> => {
+  const body = (req.body as Record<string, unknown>) ?? {};
   const { pojam, definicija, zaključci } = body as {
     pojam?: string;
     definicija?: string;
@@ -116,38 +116,47 @@ router.post("/stolar/save", (req, res): void => {
     return;
   }
 
-  const data = readStolarKnowledge();
-  const existingIdx = data.entries.findIndex(
-    (e) => e.pojam.toLowerCase() === pojam.toLowerCase().trim(),
-  );
-
   const incomingZaključci = Array.isArray(zaključci) ? (zaključci as string[]) : [];
 
-  const newEntry: StolarEntry = {
-    pojam: pojam.trim(),
-    definicija: definicija.trim(),
-    zaključci: incomingZaključci,
-    timestamp: new Date().toISOString(),
-  };
-
-  if (existingIdx >= 0) {
-    // Merge zaključci — keep existing + add new ones that aren't duplicates
-    const existing = data.entries[existingIdx].zaključci ?? [];
-    const merged = [...existing];
-    for (const z of incomingZaključci) {
-      if (!merged.some((e) => e.toLowerCase() === z.toLowerCase())) {
-        merged.push(z);
-      }
-    }
-    newEntry.zaključci = merged;
-    data.entries[existingIdx] = newEntry;
-  } else {
-    data.entries.push(newEntry);
-  }
-
   try {
-    writeStolarKnowledge(data);
-    res.json({ ok: true, entry: newEntry });
+    const existing = await db
+      .select()
+      .from(stolarEntries)
+      .where(sql`lower(${stolarEntries.pojam}) = lower(${pojam.trim()})`);
+
+    let resultEntry: StolarEntry;
+
+    if (existing.length > 0) {
+      const row = existing[0];
+      const merged = [...row.zakljucci];
+      for (const z of incomingZaključci) {
+        if (!merged.some((e) => e.toLowerCase() === z.toLowerCase())) {
+          merged.push(z);
+        }
+      }
+      const [updated] = await db
+        .update(stolarEntries)
+        .set({
+          definicija: definicija.trim(),
+          zakljucci: merged,
+          createdAt: new Date(),
+        })
+        .where(eq(stolarEntries.id, row.id))
+        .returning();
+      resultEntry = rowToEntry(updated);
+    } else {
+      const [inserted] = await db
+        .insert(stolarEntries)
+        .values({
+          pojam: pojam.trim(),
+          definicija: definicija.trim(),
+          zakljucci: incomingZaključci,
+        })
+        .returning();
+      resultEntry = rowToEntry(inserted);
+    }
+
+    res.json({ ok: true, entry: resultEntry });
   } catch (err) {
     logger.error({ err }, "stolar/save failed");
     res.status(500).json({ error: "Greška pri zapisivanju stolarskog znanja." });
@@ -155,27 +164,24 @@ router.post("/stolar/save", (req, res): void => {
 });
 
 // DELETE /stolar/:pojam — remove a carpentry knowledge entry by name
-router.delete("/stolar/:pojam", (req, res): void => {
+router.delete("/stolar/:pojam", async (req, res): Promise<void> => {
   const pojam = decodeURIComponent(req.params.pojam ?? "").trim();
   if (!pojam) {
     res.status(400).json({ error: "Pojam je obavezan." });
     return;
   }
 
-  const data = readStolarKnowledge();
-  const idx = data.entries.findIndex(
-    (e) => e.pojam.toLowerCase() === pojam.toLowerCase(),
-  );
-
-  if (idx < 0) {
-    res.status(404).json({ error: `Pojam '${pojam}' nije pronađen.` });
-    return;
-  }
-
-  data.entries.splice(idx, 1);
-
   try {
-    writeStolarKnowledge(data);
+    const deleted = await db
+      .delete(stolarEntries)
+      .where(sql`lower(${stolarEntries.pojam}) = lower(${pojam})`)
+      .returning();
+
+    if (deleted.length === 0) {
+      res.status(404).json({ error: `Pojam '${pojam}' nije pronađen.` });
+      return;
+    }
+
     res.json({ ok: true, pojam });
   } catch (err) {
     logger.error({ err }, "stolar/delete failed");
@@ -184,14 +190,14 @@ router.delete("/stolar/:pojam", (req, res): void => {
 });
 
 // PUT /stolar/:pojam — update definition and conclusions of an existing entry
-router.put("/stolar/:pojam", (req, res): void => {
+router.put("/stolar/:pojam", async (req, res): Promise<void> => {
   const pojam = decodeURIComponent(req.params.pojam ?? "").trim();
   if (!pojam) {
     res.status(400).json({ error: "Pojam je obavezan." });
     return;
   }
 
-  const body = req.body as Record<string, unknown> ?? {};
+  const body = (req.body as Record<string, unknown>) ?? {};
   const { definicija, zaključci } = body as { definicija?: string; zaključci?: string[] };
 
   if (!definicija) {
@@ -199,28 +205,29 @@ router.put("/stolar/:pojam", (req, res): void => {
     return;
   }
 
-  const data = readStolarKnowledge();
-  const idx = data.entries.findIndex(
-    (e) => e.pojam.toLowerCase() === pojam.toLowerCase(),
-  );
-
-  if (idx < 0) {
-    res.status(404).json({ error: `Pojam '${pojam}' nije pronađen.` });
-    return;
-  }
-
-  const updated: StolarEntry = {
-    pojam: data.entries[idx].pojam,
-    definicija: definicija.trim(),
-    zaključci: Array.isArray(zaključci) ? zaključci : data.entries[idx].zaključci,
-    timestamp: new Date().toISOString(),
-  };
-
-  data.entries[idx] = updated;
-
   try {
-    writeStolarKnowledge(data);
-    res.json({ ok: true, entry: updated });
+    const existing = await db
+      .select()
+      .from(stolarEntries)
+      .where(sql`lower(${stolarEntries.pojam}) = lower(${pojam})`);
+
+    if (existing.length === 0) {
+      res.status(404).json({ error: `Pojam '${pojam}' nije pronađen.` });
+      return;
+    }
+
+    const row = existing[0];
+    const [updated] = await db
+      .update(stolarEntries)
+      .set({
+        definicija: definicija.trim(),
+        zakljucci: Array.isArray(zaključci) ? zaključci : row.zakljucci,
+        createdAt: new Date(),
+      })
+      .where(eq(stolarEntries.id, row.id))
+      .returning();
+
+    res.json({ ok: true, entry: rowToEntry(updated) });
   } catch (err) {
     logger.error({ err }, "stolar/update failed");
     res.status(500).json({ error: "Greška pri ažuriranju pojma." });

@@ -2,20 +2,10 @@ import { Router, type IRouter } from "express";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { logger } from "../../lib/logger";
 import { readNauciKnowledge, type NauciEntry } from "../nauci";
-import path from "path";
-import fs from "fs";
+import { db, nauciEntries } from "@workspace/db";
 import crypto from "crypto";
 
 const router: IRouter = Router();
-
-const workspaceRoot = process.cwd().endsWith(path.join("artifacts", "api-server"))
-  ? path.resolve(process.cwd(), "../..")
-  : process.cwd();
-
-const nauciKnowledgePath = path.join(
-  workspaceRoot,
-  "artifacts/api-server/data/nauci_znanje.json",
-);
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -27,8 +17,8 @@ export interface SumirajStavka {
   pravilo: string;
   obrazloženje: string;
   moduli: string[];
-  pitanje?: string;   // optional follow-up clarification question
-  odgovor?: string;  // user's answer (set by frontend before save)
+  pitanje?: string;
+  odgovor?: string;
 }
 
 // POST /sumiraj/start — analyse conversation history, extract up to 6 rules
@@ -41,19 +31,17 @@ router.post("/sumiraj/start", async (req, res): Promise<void> => {
     return;
   }
 
-  // Build conversation transcript (last 40 messages max)
   const recent = history.slice(-40);
   const transcript = recent
     .map((m) => `${m.role === "user" ? "KORISNIK" : "AI"}: ${m.content.slice(0, 600)}`)
     .join("\n\n");
 
-  // Existing rules for context (to avoid duplicates)
-  const nauciData = readNauciKnowledge();
+  const nauciData = await readNauciKnowledge();
   const existingRules =
     nauciData.entries.length > 0
       ? nauciData.entries
           .slice(-15)
-          .map((e) => `• ${e.sadržaj.slice(0, 100)}`)
+          .map((e: NauciEntry) => `• ${e.sadržaj.slice(0, 100)}`)
           .join("\n")
       : "Nema prethodno naučenih pravila.";
 
@@ -108,7 +96,6 @@ Format:
     if (match) {
       try {
         stavke = JSON.parse(match[0]) as SumirajStavka[];
-        // Ensure each item has required fields
         stavke = stavke
           .filter((s) => s.pravilo?.trim())
           .slice(0, 6)
@@ -142,7 +129,6 @@ router.post("/sumiraj/save", async (req, res): Promise<void> => {
   }
 
   const stavke = rawStavke.filter((s) => s.pravilo?.trim());
-
   const savedEntries: NauciEntry[] = [];
 
   for (const stavka of stavke) {
@@ -215,7 +201,6 @@ Vrati SAMO JSON bez uvoda:
       });
     } catch (err) {
       logger.error({ err, stavka: sadržaj }, "sumiraj/save: Claude call failed for stavka");
-      // Still push with empty conclusions rather than failing completely
       savedEntries.push({
         id: crypto.randomBytes(6).toString("hex"),
         sadržaj,
@@ -227,10 +212,20 @@ Vrati SAMO JSON bez uvoda:
     }
   }
 
-  // Persist all saved entries
-  let data = readNauciKnowledge();
-  data = { entries: [...data.entries, ...savedEntries] };
-  fs.writeFileSync(nauciKnowledgePath, JSON.stringify(data, null, 2), "utf-8");
+  // Persist all entries to PostgreSQL
+  for (const entry of savedEntries) {
+    try {
+      await db.insert(nauciEntries).values({
+        id: entry.id,
+        sadrzaj: entry.sadržaj,
+        pitanja: entry.pitanja,
+        zakljucci: entry.zaključci,
+        moduli: entry.moduli,
+      });
+    } catch (err) {
+      logger.error({ err, id: entry.id }, "sumiraj/save: DB insert failed for entry");
+    }
+  }
 
   res.json({ ok: true, saved: savedEntries.length, entries: savedEntries });
 });

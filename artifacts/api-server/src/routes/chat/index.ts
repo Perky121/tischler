@@ -917,8 +917,10 @@ router.post("/chat", async (req, res): Promise<void> => {
   const kb = readKnowledgeBase();
   const userRules = readRules();
   const conceptualGuide = readConceptualGuide();
-  const stolarKnowledge = readStolarKnowledge();
-  const nauciKnowledge = readNauciKnowledge();
+  const [stolarKnowledge, nauciKnowledge] = await Promise.all([
+    readStolarKnowledge(),
+    readNauciKnowledge(),
+  ]);
 
   // Build conversation history (last 10 messages)
   const recentHistory = (history ?? []).slice(-10);

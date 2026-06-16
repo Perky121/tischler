@@ -2,6 +2,8 @@ import { Router, type IRouter } from "express";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import { db, nauciEntries } from "@workspace/db";
+import { asc } from "drizzle-orm";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { logger } from "../../lib/logger";
 
@@ -12,7 +14,6 @@ const workspaceRoot = process.cwd().endsWith(path.join("artifacts", "api-server"
   : process.cwd();
 
 const dataDir = path.resolve(workspaceRoot, "artifacts/api-server/data");
-const nauciKnowledgePath = path.join(dataDir, "nauci_znanje.json");
 const knowledgeBasePath = path.join(dataDir, "knowledge_base.json");
 
 export interface NauciPitanje {
@@ -33,19 +34,27 @@ export interface NauciKnowledge {
   entries: NauciEntry[];
 }
 
-export function readNauciKnowledge(): NauciKnowledge {
-  try {
-    if (fs.existsSync(nauciKnowledgePath)) {
-      return JSON.parse(fs.readFileSync(nauciKnowledgePath, "utf-8")) as NauciKnowledge;
-    }
-  } catch {
-    // ignore
-  }
-  return { entries: [] };
+function rowToEntry(row: typeof nauciEntries.$inferSelect): NauciEntry {
+  return {
+    id: row.id,
+    sadržaj: row.sadrzaj,
+    pitanja: (row.pitanja as NauciPitanje[]) ?? [],
+    zaključci: row.zakljucci,
+    moduli: row.moduli,
+    timestamp: row.createdAt.toISOString(),
+  };
 }
 
-function writeNauciKnowledge(data: NauciKnowledge): void {
-  fs.writeFileSync(nauciKnowledgePath, JSON.stringify(data, null, 2), "utf-8");
+export async function readNauciKnowledge(): Promise<NauciKnowledge> {
+  try {
+    const rows = await db
+      .select()
+      .from(nauciEntries)
+      .orderBy(asc(nauciEntries.createdAt));
+    return { entries: rows.map(rowToEntry) };
+  } catch {
+    return { entries: [] };
+  }
 }
 
 function readKnowledgeBase(): { formulas: Array<{ formula: string; module: string; type: string }> } {
@@ -85,8 +94,8 @@ function selectRelevantFormulas(
 }
 
 // GET /nauci — return all parametrization knowledge entries
-router.get("/nauci", (_req, res): void => {
-  const data = readNauciKnowledge();
+router.get("/nauci", async (_req, res): Promise<void> => {
+  const data = await readNauciKnowledge();
   res.json(data);
 });
 
@@ -100,7 +109,7 @@ router.post("/nauci/start", async (req, res): Promise<void> => {
     return;
   }
 
-  const nauciData = readNauciKnowledge();
+  const nauciData = await readNauciKnowledge();
   const kb = readKnowledgeBase();
   const relevantFormulas = selectRelevantFormulas(kb.formulas, sadržaj, 60);
 
@@ -108,7 +117,7 @@ router.post("/nauci/start", async (req, res): Promise<void> => {
   const existingRules =
     nauciData.entries.length > 0
       ? nauciData.entries
-          .slice(-20) // last 20 rules
+          .slice(-20)
           .map((e) => `• ${e.sadržaj.slice(0, 120)}`)
           .join("\n")
       : "Nema prethodno naučenih pravila.";
@@ -168,7 +177,6 @@ Vrati SAMO JSON niz od 4 stringa bez ikakvog uvoda ili teksta izvan JSON-a:
         pitanja = [];
       }
     }
-    // Ensure we have at most 5 questions, at least 1
     pitanja = pitanja.slice(0, 5);
 
     res.json({ pitanja });
@@ -195,7 +203,6 @@ router.post("/nauci/save", async (req, res): Promise<void> => {
     ? (rawPitanja as NauciPitanje[]).filter((p) => p.pitanje?.trim())
     : [];
 
-  // Build Q&A context for Claude
   const qaContext =
     pitanja.length > 0
       ? pitanja
@@ -268,20 +275,18 @@ Vrati SAMO JSON bez ikakvog uvoda ili teksta izvan JSON-a, točno ovaj format:
       .digest("hex")
       .slice(0, 12);
 
-    const entry: NauciEntry = {
-      id,
-      sadržaj: sadržaj.trim(),
-      pitanja,
-      zaključci,
-      moduli,
-      timestamp: new Date().toISOString(),
-    };
+    const [inserted] = await db
+      .insert(nauciEntries)
+      .values({
+        id,
+        sadrzaj: sadržaj.trim(),
+        pitanja: pitanja,
+        zakljucci: zaključci,
+        moduli: moduli,
+      })
+      .returning();
 
-    const data = readNauciKnowledge();
-    data.entries.push(entry);
-    writeNauciKnowledge(data);
-
-    res.json({ ok: true, entry });
+    res.json({ ok: true, entry: rowToEntry(inserted) });
   } catch (err) {
     logger.error({ err }, "nauci/save failed");
     res.status(500).json({ error: "Greška pri generiranju zaključaka." });
