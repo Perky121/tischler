@@ -3205,7 +3205,7 @@
       "type": "referenca"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.PoliceU.Polica.Z]-[..PodD.T]-[Dia]/2-[DistL]",
+      "formula": "[..Unutrašnjosti.PoliceU.Polica.Z]-[..PodD.T]-[Dia]/2-[DistL]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3217,7 +3217,7 @@
       "type": "ukljucenje"
     },
     {
-      "formula": "[..StranicaD.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "formula": "[..StranicaD.NosacPoliceZ1.OfL]+[..Unutrašnjosti.PoliceU.Zof]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3229,7 +3229,7 @@
       "type": "ukljucenje"
     },
     {
-      "formula": "[..StranicaD.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "formula": "[..StranicaD.NosacPoliceZ1.OfL]+[..Unutrašnjosti.PoliceU.Zof]*2",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3347,13 +3347,13 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "formula": "[.NosacPoliceZ1.OfL]+[..Unutrašnjosti.PoliceU.Zof]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
     },
     {
-      "formula": "[.NosacPoliceZ1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "formula": "[.NosacPoliceZ1.OfL]+[..Unutrašnjosti.PoliceU.Zof]*2",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3442,13 +3442,13 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[.NosacZadPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "formula": "[.NosacZadPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
     },
     {
-      "formula": "[.NosacZadPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "formula": "[.NosacZadPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]*2",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3466,7 +3466,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..LedaLS.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "formula": "[..LedaLS.NosacPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]*2",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3550,13 +3550,13 @@
       "type": "ukljucenje"
     },
     {
-      "formula": "[.NosacLijPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "formula": "[.NosacLijPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
     },
     {
-      "formula": "[.NosacLijPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "formula": "[.NosacLijPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]*2",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3610,13 +3610,13 @@
       "type": "pozicija"
     },
     {
-      "formula": "[.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "formula": "[.NosacPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
     },
     {
-      "formula": "[.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]*2",
+      "formula": "[.NosacPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]*2",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -3652,7 +3652,7 @@
       "type": "rotacija"
     },
     {
-      "formula": "[..LedaLS.NosacPolice1.OfL]+[..UnutraÅ¡njosti.PoliceU.Zof]",
+      "formula": "[..LedaLS.NosacPolice1.OfL]+[..Unutrašnjosti.PoliceU.Zof]",
       "source": "KUTNI.mac",
       "module": "KUTNI",
       "type": "dimenzija"
@@ -36700,7 +36700,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2-[Z]",
       "source": "1781615127545-fjk52y-PEC_LAD_ISP.mac",
       "module": "1781615127545-fjk52y-PEC_LAD_ISP",
       "type": "pozicija"
@@ -36778,7 +36778,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]-[Z]",
       "source": "1781615127545-fjk52y-PEC_LAD_ISP.mac",
       "module": "1781615127545-fjk52y-PEC_LAD_ISP",
       "type": "pozicija"
@@ -37501,7 +37501,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2-[Z]",
       "source": "1781615127551-0d3h02-PEC_OTKL_ISP.mac",
       "module": "1781615127551-0d3h02-PEC_OTKL_ISP",
       "type": "pozicija"
@@ -47769,7 +47769,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2",
       "source": "1781615127661-hwnu41-GOR_2_PODIZ.mac",
       "module": "1781615127661-hwnu41-GOR_2_PODIZ",
       "type": "dimenzija"
@@ -47823,7 +47823,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2-[Z]",
       "source": "1781615127661-hwnu41-GOR_2_PODIZ.mac",
       "module": "1781615127661-hwnu41-GOR_2_PODIZ",
       "type": "pozicija"
@@ -55531,7 +55531,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2",
       "source": "1781615127771-3p21rl-HLAD_OTKL.mac",
       "module": "1781615127771-3p21rl-HLAD_OTKL",
       "type": "dimenzija"
@@ -55585,7 +55585,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2-[Z]",
       "source": "1781615127771-3p21rl-HLAD_OTKL.mac",
       "module": "1781615127771-3p21rl-HLAD_OTKL",
       "type": "pozicija"
@@ -57080,7 +57080,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]-[Z]",
       "source": "1781615127789-e92tt3-VIS_OSTAV_LAD.mac",
       "module": "1781615127789-e92tt3-VIS_OSTAV_LAD",
       "type": "pozicija"
@@ -58193,7 +58193,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2",
       "source": "1781615127831-ugjo8a-VIS_POL_2VD.mac",
       "module": "1781615127831-ugjo8a-VIS_POL_2VD",
       "type": "dimenzija"
@@ -58247,7 +58247,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2-[Z]",
       "source": "1781615127831-ugjo8a-VIS_POL_2VD.mac",
       "module": "1781615127831-ugjo8a-VIS_POL_2VD",
       "type": "pozicija"
@@ -59145,7 +59145,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_0.Pregrada.T]-[..Unutrašnjosti.H_pregrada1_0.Pregrada.T]/2",
       "source": "1781615127850-yrpd3y-VIS_PEC_LADPO.mac",
       "module": "1781615127850-yrpd3y-VIS_PEC_LADPO",
       "type": "dimenzija"
@@ -59199,7 +59199,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2-[Z]",
       "source": "1781615127850-yrpd3y-VIS_PEC_LADPO.mac",
       "module": "1781615127850-yrpd3y-VIS_PEC_LADPO",
       "type": "pozicija"
@@ -59378,7 +59378,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]-[Z]",
       "source": "1781615127850-yrpd3y-VIS_PEC_LADPO.mac",
       "module": "1781615127850-yrpd3y-VIS_PEC_LADPO",
       "type": "pozicija"
@@ -60287,7 +60287,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2",
       "source": "1781615127877-chyt0t-VIS_PEC_PODLA.mac",
       "module": "1781615127877-chyt0t-VIS_PEC_PODLA",
       "type": "dimenzija"
@@ -60347,7 +60347,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
       "source": "1781615127877-chyt0t-VIS_PEC_PODLA.mac",
       "module": "1781615127877-chyt0t-VIS_PEC_PODLA",
       "type": "pozicija"
@@ -60520,7 +60520,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]-[Z]",
       "source": "1781615127877-chyt0t-VIS_PEC_PODLA.mac",
       "module": "1781615127877-chyt0t-VIS_PEC_PODLA",
       "type": "pozicija"
@@ -61393,7 +61393,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1_1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1_1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1_1.Pregrada.T]/2",
       "source": "1781615127907-3m7gvb-VIS_PEC_POLPO.mac",
       "module": "1781615127907-3m7gvb-VIS_PEC_POLPO",
       "type": "dimenzija"
@@ -61447,7 +61447,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
       "source": "1781615127907-3m7gvb-VIS_PEC_POLPO.mac",
       "module": "1781615127907-3m7gvb-VIS_PEC_POLPO",
       "type": "pozicija"
@@ -61626,7 +61626,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]-[Z]",
       "source": "1781615127907-3m7gvb-VIS_PEC_POLPO.mac",
       "module": "1781615127907-3m7gvb-VIS_PEC_POLPO",
       "type": "pozicija"
@@ -62547,7 +62547,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1.Pregrada.T]/2",
       "source": "1781615127932-i8m95b-VIS_PEC_POLVD.mac",
       "module": "1781615127932-i8m95b-VIS_PEC_POLVD",
       "type": "dimenzija"
@@ -62601,7 +62601,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
       "source": "1781615127932-i8m95b-VIS_PEC_POLVD.mac",
       "module": "1781615127932-i8m95b-VIS_PEC_POLVD",
       "type": "pozicija"
@@ -63510,7 +63510,7 @@
       "type": "dimenzija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_1.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_1.Pregrada.T]-[..UnutraÅ¡njosti.H_pregrada1_1.Pregrada.T]/2",
+      "formula": "[..Unutrašnjosti.H_pregrada1_1.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_1.Pregrada.T]-[..Unutrašnjosti.H_pregrada1_1.Pregrada.T]/2",
       "source": "1781615127944-2tl2ed-VIS_PEC_VDPOD.mac",
       "module": "1781615127944-2tl2ed-VIS_PEC_VDPOD",
       "type": "dimenzija"
@@ -63564,7 +63564,7 @@
       "type": "pozicija"
     },
     {
-      "formula": "[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.Z]+[..UnutraÅ¡njosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
+      "formula": "[..Unutrašnjosti.H_pregrada1_0.Pregrada.Z]+[..Unutrašnjosti.H_pregrada1_0.Pregrada.T]/2-[Z]",
       "source": "1781615127944-2tl2ed-VIS_PEC_VDPOD.mac",
       "module": "1781615127944-2tl2ed-VIS_PEC_VDPOD",
       "type": "pozicija"

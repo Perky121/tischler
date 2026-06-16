@@ -61,6 +61,22 @@ export interface KnowledgeBase {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// Repair latin-1 mojibake: UTF-8 byte sequences that were mistakenly decoded as
+// latin-1 (e.g. Croatian "š" stored as UTF-8 C5 A1 shows up as "Å¡"). Only runs
+// of a UTF-8 lead byte followed by continuation byte(s) are touched; properly
+// decoded text (real Unicode codepoints > 0xFF) never matches and is left alone.
+const MOJIBAKE_RE = /[\u00c2-\u00f4][\u0080-\u00bf]+/g;
+
+export function fixMojibake(text: string): string {
+  if (!text) return text;
+  return text.replace(MOJIBAKE_RE, (seq) => {
+    const bytes = Uint8Array.from([...seq].map((c) => c.charCodeAt(0)));
+    const decoded = Buffer.from(bytes).toString("utf8");
+    // Reject failed decodes (replacement char) to avoid corrupting valid text.
+    return decoded.includes("\uFFFD") ? seq : decoded;
+  });
+}
+
 function unescapeXml(text: string): string {
   return text
     .replace(/&lt;/g, "<")
@@ -74,17 +90,17 @@ function unescapeXml(text: string): string {
 function getAttr(block: string, attr: string): string | null {
   const re1 = new RegExp(`\\b${attr}="([^"]*)"`, "i");
   const m1 = block.match(re1);
-  if (m1) return unescapeXml(m1[1].trim());
+  if (m1) return fixMojibake(unescapeXml(m1[1].trim()));
   const re2 = new RegExp(`\\b${attr}='([^']*)'`, "i");
   const m2 = block.match(re2);
-  if (m2) return unescapeXml(m2[1].trim());
+  if (m2) return fixMojibake(unescapeXml(m2[1].trim()));
   return null;
 }
 
 function getInner(block: string, tag: string): string | null {
   const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\/${tag}>`, "i");
   const m = block.match(re);
-  if (m) return unescapeXml(m[1].trim());
+  if (m) return fixMojibake(unescapeXml(m[1].trim()));
   return null;
 }
 
@@ -185,7 +201,7 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
   // Raw sweep for formula attributes (no parameter context available here)
   const rawFormulaRe = /(?:Formula|Expression|Condition)="([^"]{4,})"/gi;
   for (const m of content.matchAll(rawFormulaRe)) {
-    const f = unescapeXml(m[1]);
+    const f = fixMojibake(unescapeXml(m[1]));
     if (isFormula(f)) formulas.push({ formula: f.trim(), source, module, type: inferFormulaType(f.trim()) });
   }
 
@@ -193,7 +209,7 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
   const nameAttrPattern = "(?:Name|VarName|Ident|ParName|ID)";
   const pairRe1 = new RegExp(`<\\w+[^>]*\\b${nameAttrPattern}="([^"]+)"[^>]*\\bValue="([^"]*)"`, "gi");
   for (const m of content.matchAll(pairRe1)) {
-    const n = unescapeXml(m[1].trim()), v = unescapeXml(m[2].trim());
+    const n = fixMojibake(unescapeXml(m[1].trim())), v = fixMojibake(unescapeXml(m[2].trim()));
     if (n && v && !isFormula(v)) {
       if (!paramsMap.has(n)) paramsMap.set(n, { name: n, description: "", typical_values: [] });
       const entry = paramsMap.get(n)!;
@@ -202,7 +218,7 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
   }
   const pairRe2 = new RegExp(`<\\w+[^>]*\\bValue="([^"]*)"[^>]*\\b${nameAttrPattern}="([^"]+)"`, "gi");
   for (const m of content.matchAll(pairRe2)) {
-    const v = unescapeXml(m[1].trim()), n = unescapeXml(m[2].trim());
+    const v = fixMojibake(unescapeXml(m[1].trim())), n = fixMojibake(unescapeXml(m[2].trim()));
     if (n && v && !isFormula(v)) {
       if (!paramsMap.has(n)) paramsMap.set(n, { name: n, description: "", typical_values: [] });
       const entry = paramsMap.get(n)!;
@@ -213,7 +229,7 @@ function parseMacContent(content: string, source: string): { formulas: FormulaEn
   // Child-tag style: <Name>X</Name><Value>5</Value>
   const childRe = /<Name>([^<]+)<\/Name>\s*<Value>([^<]*)<\/Value>/gi;
   for (const m of content.matchAll(childRe)) {
-    const n = unescapeXml(m[1].trim()), v = unescapeXml(m[2].trim());
+    const n = fixMojibake(unescapeXml(m[1].trim())), v = fixMojibake(unescapeXml(m[2].trim()));
     if (n && v && !isFormula(v)) {
       if (!paramsMap.has(n)) paramsMap.set(n, { name: n, description: "", typical_values: [] });
       const entry = paramsMap.get(n)!;
