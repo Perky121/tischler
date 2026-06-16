@@ -73,26 +73,26 @@ export const OPERATORS_NOTE =
   "AND/OR (velika slova) ekvivalentni su and/or — oba oblika prisutna (AND:152, OR:116). Lowercase dominira: and 96%, or 68%. Operator != se NE koristi (0 pojava) — uvijek <>.";
 
 export const FUNCTIONS: FunctionRow[] = [
-  { name: "if(uvjet;istina;laž)", meaning: "2-granični uvjet", count: 3857 },
-  { name: "ifelse(u1;v1;…;zadano)", meaning: "višestruki uvjet (switch)", count: 496 },
+  { name: "if(uvjet;istina;laž)", meaning: "2-granični uvjet — TOČNO 3 argumenta; 49 poziva sadrži 4. arg LangSupp:MtsxNotEnoughSpace (MTS interna validacijska oznaka, nije stvarni uvjetni argument)", count: 3857 },
+  { name: "ifelse(u1;v1;…;zadano)", meaning: "višestruki uvjet (switch) — parovi uvjet;vrijednost + završni zadani; uvijek NEPARAN broj argumenata; 5 args (2 para+zadani) 252× najčešće, 9 args (4 para+zadani) 214×", count: 496 },
   { name: "ABS(x)", meaning: "apsolutna vrijednost — UPPERCASE dominira (86%: 373 ABS vs 59 abs)", count: 432 },
   { name: "NEG(x)", meaning: "omata jednu 0/1 zastavicu — UPPERCASE nešto češći (65%: 484 NEG vs 260 neg)", count: 744 },
-  { name: "sin(x)", meaning: "sinus (radijani) — uvijek mala slova", count: 525 },
-  { name: "cos(x)", meaning: "kosinus (radijani) — uvijek mala slova", count: 257 },
+  { name: "sin(x)", meaning: "sinus (radijani) — uvijek mala slova; argument su kutni parametri KUT, npr. sin([KUT]/2) ili sin([KUT_I0]+[KUT]/2)", count: 525 },
+  { name: "cos(x)", meaning: "kosinus (radijani) — uvijek mala slova; argument su kutni parametri KUT, npr. cos([KUT]/2)", count: 257 },
   { name: "tan(x)", meaning: "tangens — uvijek mala slova", count: 51 },
-  { name: "atan(x)", meaning: "arkustangens — uvijek mala slova", count: 32 },
-  { name: "MIN(a;b;…)", meaning: "minimum", count: 4 },
-  { name: "MAX(a;b;…)", meaning: "maksimum", count: 95 },
-  { name: "euler(…)", meaning: "3D rotacijska matrica", count: 18 },
-  { name: "ADD(x)", meaning: "dodaje korektivni iznos (često zazor/kerf ±18, ±5, ±4); može se nizati ADD(18)+ADD(18)", count: 21 },
-  { name: "getmatdata(mat;ključ)", meaning: "čita podatak o materijalu; ključ može imati #N indeks polja (GetMatData([.MatV];MH_STR7#4))", count: 10 },
-  { name: "STRCAT(s1;s2;…)", meaning: "spaja tekst — uvijek UPPERCASE (100%)", count: 5 },
-  { name: "VAL(x)", meaning: "konverzija u broj — uvijek UPPERCASE (100%)", count: 19 },
-  { name: "r(radijus)", meaning: "zaobljenje/luk u koordinatnom nizu — samo unutar @-poligona kao Z-vrijednost točke", count: 9 },
+  { name: "atan(x)", meaning: "arkustangens — uvijek mala slova; prima omjer dviju dimenzija, npr. atan([IS]/[ID]) za kut nagiba", count: 32 },
+  { name: "MIN(a;b;…)", meaning: "minimum — rijedak (4×); separator argumenata je uvijek ; (postoje 2 iznimke s zarezom u bazi — nepreporučeni oblik)", count: 4 },
+  { name: "MAX(a;b;…)", meaning: "maksimum; može se ugnijezditi unutar MIN()", count: 95 },
+  { name: "euler(…)", meaning: "3D rotacijska matrica — struktura: 12 brojeva (3×3 matrica + pomak) + 3 ref. roditelja ([..X.Rx];[..X.Ry];[..X.Rz]) + oznaka osi X:/Y:/Z:; poziva se 3× po elementu (jednom po osi)", count: 18 },
+  { name: "ADD(x)", meaning: "dodaje korektivni iznos (kerf/zazor) — izmjerene vrijednosti: ±2, ±4, ±5, ±18 ili ref. parametra ([.KZ]); može se nizati ADD(18)+ADD(18)", count: 21 },
+  { name: "getmatdata(mat;ključ)", meaning: "čita podatak o materijalu — svih 10 poziva: getmatdata([.MatV];MH_STR7#4) ili MH_STR8#4; #4 je indeks polja unutar ključa", count: 10 },
+  { name: "STRCAT(s1;s2;…)", meaning: "spaja tekst — uvijek UPPERCASE (100%); gradi materijalni kod: STRCAT(BL_ZIF_80M7_;IFELSE([..COL]=0;SW;GR))", count: 5 },
+  { name: "VAL(x)", meaning: "prisilna numerička vrijednost izraza — uvijek UPPERCASE (100%); omata dimenzijsku aritmetiku, npr. VAL([D]-[MOZ]-if([Ins]=1;[OfLon];0))", count: 19 },
+  { name: "r(radijus)", meaning: "zaobljenje/luk u koordinatnom nizu — samo unutar @-poligona kao Z-vrijednost točke; radijus UVIJEK ref. parametra ([.R] 20×, [....RZI] 3×, [.R1] 2×) — nikad numerička literala", count: 9 },
 ];
 
 export const FUNCTIONS_NOTE =
-  "Trig funkcije su ISKLJUČIVO mala slova — nikad SIN(), COS(), TAN(). VAL() i STRCAT() uvijek UPPERCASE (100%). ABS() dominantno UPPERCASE (86%). Dokumentirane ali se NE KORISTE u bazi (0 pojava): sqrt(), round(), int().";
+  "Trig funkcije su ISKLJUČIVO mala slova — nikad SIN(), COS(), TAN(). VAL() i STRCAT() uvijek UPPERCASE (100%). ABS() dominantno UPPERCASE (86%). if() ima TOČNO 3 argumenta (LangSupp: u 4. argu = interna MTS validacija, ne stvarna grana). MIN rijedak (4×) — separator je uvijek ; (postoje 2 iznimke sa zarezom u bazi). Dokumentirane ali se NE KORISTE u bazi (0 pojava): sqrt(), round(), int().";
 
 export const SYSTEM_VARIABLES: OperatorRow[] = [
   { symbol: "POSW", meaning: "širina pozicije elementa u prostoru", count: 225, example: "if(POSW>200;[KDOSZI];0,5)" },

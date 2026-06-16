@@ -65,22 +65,22 @@ SUFIKSI DIMENZIJA/POZICIJA (iza imena elementa — kažu KOJU veličinu čitaš)
 Primjer: [.Pod.T] = debljina elementa Pod; [.StranicaL.X] = X pozicija StranicaL. Pozicijske osi (.X/.Y/.Z) i dimenzije (.W/.H/.L/.D/.T) prate isti element kroz hijerarhiju.
 
 FUNKCIJE U FORMULAMA (potvrđeno iz .mac datoteka — baza 10 641 formula):
-  if(uvjet;istina;laž)                       — 2-granični uvjet            (3857 formula)
-  ifelse(u1;v1;u2;v2;...;zadano)             — višestruki uvjet (switch)   (496 formula)
+  if(uvjet;istina;laž)                       — 2-granični uvjet — TOČNO 3 argumenta (3857 formula); rubni slučaj: 49 poziva ima 4. arg LangSupp:MtsxNotEnoughSpace (MTS interna validacijska oznaka — nije pravi uvjetni argument, zanemariti)
+  ifelse(u1;v1;u2;v2;...;zadano)             — višestruki uvjet (switch) — parovi uvjet;vrijednost + završni zadani; uvijek NEPARAN broj args (496 formula); 5 args (252×) i 9 args (214×) najčešće
   ABS(x)                                     — apsolutna vrijednost — UPPERCASE dominira 86% (432 formula: ABS:373, abs:59)
   NEG(x)                                     — u 94% poziva omata 0/1 zastavicu kao množač (744 formula: NEG:484, neg:260)
-  sin(x)                                     — sinus (radijani) — uvijek MALA SLOVA (525 formula)
-  cos(x)                                     — kosinus (radijani) — uvijek MALA SLOVA (257 formula)
+  sin(x)                                     — sinus (radijani) — uvijek MALA SLOVA; argument su kutni parametri KUT: sin([KUT]/2), sin([KUT_I0]+[KUT]/2) (525 formula)
+  cos(x)                                     — kosinus (radijani) — uvijek MALA SLOVA; argument su kutni parametri KUT: cos([KUT]/2) (257 formula)
   tan(x)                                     — tangens — uvijek MALA SLOVA   (51 formula)
-  atan(x)                                    — arkustangens — uvijek MALA SLOVA (32 formula)
-  MIN(a;b;...)                               — minimum                       (4 formula)
-  MAX(a;b;...)                               — maksimum                      (95 formula)
-  euler(...)                                 — 3D rotacijska matrica          (18 formula)
-  ADD(x)                                     — dodaje korektivni iznos (često zazor/kerf ±18, ±5, ±4); može se nizati ADD(18)+ADD(18)  (21 formula)
-  getmatdata(mat;ključ)                      — čita podatak o materijalu     (10 formula)
-  STRCAT(s1;s2;...)                          — spaja tekst — uvijek UPPERCASE (100%) (5 formula)
-  VAL(x)                                     — konverzija u broj — uvijek UPPERCASE (100%) (19 formula)
-  r(radijus)                                 — zaobljenje/luk u koordinatnom nizu; SAMO unutar @-poligona kao Z-vrijednost točke (9 formula)
+  atan(x)                                    — arkustangens — uvijek MALA SLOVA; prima omjer dviju dimenzija: atan([IS]/[ID]) (32 formula)
+  MIN(a;b;...)                               — minimum (4 formula); separator je UVIJEK ; — postoje 2 anomalije sa zarezom u bazi (nepreporučeni oblik)
+  MAX(a;b;...)                               — maksimum; može se ugnijezditi unutar MIN() (95 formula)
+  euler(...)                                 — 3D rotacijska matrica (18 formula); struktura: 12 brojeva (3×3 rotacija + pomak) + 3 ref. roditelja ([..X.Rx];[..X.Ry];[..X.Rz]) + oznaka osi X:/Y:/Z: na kraju; poziva se 3× po elementu (jednom po osi); primjer: euler(1;0;0;0;0;1;0;-1;0;0;0;0;[..StropD.Rx];[..StropD.Ry];[..StropD.Rz];X:)
+  ADD(x)                                     — dodaje korektivni iznos (kerf/zazor) — izmjerene vrijednosti: ±2, ±4, ±5, ±18 ili ref. parametra ([.KZ]); može se nizati ADD(18)+ADD(18) (21 formula)
+  getmatdata(mat;ključ)                      — čita podatak o materijalu (10 formula); svih 10 poziva: getmatdata([.MatV];MH_STR7#4) ili MH_STR8#4 — #4 je indeks polja unutar ključa
+  STRCAT(s1;s2;...)                          — spaja tekst — uvijek UPPERCASE (100%) (5 formula); gradi materijalni kod s ugniježđenim IFELSE: STRCAT(BL_ZIF_80M7_;IFELSE([..COL]=0;SW;GR))
+  VAL(x)                                     — prisilna numerička vrijednost izraza — uvijek UPPERCASE (100%) (19 formula); omata dimenzijsku aritmetiku: VAL([D]-[MOZ]-if([Ins]=1;[OfLon];0))
+  r(radijus)                                 — zaobljenje/luk u koordinatnom nizu; SAMO unutar @-poligona kao Z-vrijednost točke (9 formula); radijus UVIJEK ref. parametra ([.R] 20×, [....RZI] 3×, [.R1] 2×) — nikad numerička literala
 PAŽNJA — dokumentirane ali NE KORISTE SE u bazi (0 pojava): sqrt(), round(), int().
 Trig funkcije su ISKLJUČIVO mala slova: sin(), cos(), tan(), atan() — nikad SIN(), COS(), TAN().
 
@@ -100,7 +100,7 @@ Primjeri iz .mac datoteka:
   ifelse([KDOS]==0;0,5;[KDOS]==1;2;45)
   ifelse([KUT]<90;1;[KUT]>90;0;2)
   ifelse([.KODS]==0;0;[.KODS]==4;[.MaskaGoreHor.T];[.MSS]+[.MSZRG])
-PRAVILO STRUKTURE (potvrđeno 477/477 poziva): ifelse uvijek ima NEPARAN broj argumenata (parovi uvjet;vrijednost + jedna zadana vrijednost na kraju). Distribucija: 3 args (8×), 5 args (238× — najčešće), 7 args (14×), 9 args (214× — drugo po redu), 15+ args (3×).
+PRAVILO STRUKTURE (potvrđeno 496/496 poziva): ifelse uvijek ima NEPARAN broj argumenata (parovi uvjet;vrijednost + jedna zadana vrijednost na kraju). Distribucija: 3 args (13×), 5 args (252× — najčešće), 7 args (14×), 9 args (214× — drugo po redu), 15+ args (3×).
 
 USPOREDBE — VRIJEDNOSTI (potvrđeno brojanjem cijele baze):
 • Jednakost (== ili =): desna strana je UVIJEK cijeli broj ILI [referenca] — NIKAD decimala. Vrijednost je mali kod/način, gotovo uvijek 0–9. Dakle == testira KATEGORIJU (npr. [KDT]==1), ne mjeru.
