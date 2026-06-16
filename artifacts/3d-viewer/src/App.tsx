@@ -282,46 +282,65 @@ export default function App() {
       {/* ── Edit popup ─────────────────────────────────────────────────────── */}
       {showEditPopup && (
         <div
-          className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="absolute inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(6px)" }}
           onClick={() => setShowEditPopup(false)}
         >
           <div
-            className="bg-white rounded-xl shadow-2xl border border-slate-200 w-80 overflow-hidden"
+            className="rounded-2xl overflow-hidden w-96 flex flex-col"
+            style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50">
+            {/* Dark header */}
+            <div
+              className="px-6 pt-5 pb-4 flex items-start justify-between"
+              style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }}
+            >
               <div>
-                <div className="text-sm font-bold text-slate-800">{module}</div>
-                <div className="text-[11px] text-slate-400">Parametri i dimenzije</div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-base">🪵</span>
+                  <span className="text-white font-bold text-base tracking-wide">{module}</span>
+                </div>
+                <div className="text-slate-400 text-[11px]">Parametri i dimenzije</div>
               </div>
               <button
                 onClick={() => setShowEditPopup(false)}
-                className="w-6 h-6 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors text-sm"
-              >✕</button>
+                className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-white transition-colors mt-0.5"
+                style={{ background: "rgba(255,255,255,0.08)" }}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </button>
             </div>
 
-            <div className="px-5 py-4 space-y-5">
-              {/* Dimensions */}
+            {/* Body */}
+            <div className="bg-white px-6 py-5 space-y-5">
+
+              {/* Dimensions — 3-column card grid */}
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dimenzije</div>
-                <div className="space-y-2">
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Dimenzije</div>
+                <div className="grid grid-cols-3 gap-2">
                   {([
-                    { label: "Širina (W)", value: editW, set: setEditW, min: MODULE_DEFAULTS[module].minW, max: MODULE_DEFAULTS[module].maxW },
-                    { label: "Visina (H)", value: editH, set: setEditH, min: MODULE_DEFAULTS[module].minH, max: MODULE_DEFAULTS[module].maxH },
-                    { label: "Dubina (D)", value: editD, set: setEditD, min: MODULE_DEFAULTS[module].minD, max: MODULE_DEFAULTS[module].maxD },
-                  ] as Array<{ label: string; value: number; set: (v: number) => void; min: number; max: number }>).map(({ label, value, set, min, max }) => (
-                    <div key={label} className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500 w-20 flex-shrink-0">{label}</span>
+                    { key: "W", label: "Širina", value: editW, set: setEditW, min: MODULE_DEFAULTS[module].minW, max: MODULE_DEFAULTS[module].maxW },
+                    { key: "H", label: "Visina", value: editH, set: setEditH, min: MODULE_DEFAULTS[module].minH, max: MODULE_DEFAULTS[module].maxH },
+                    { key: "D", label: "Dubina", value: editD, set: setEditD, min: MODULE_DEFAULTS[module].minD, max: MODULE_DEFAULTS[module].maxD },
+                  ] as Array<{ key: string; label: string; value: number; set: (v: number) => void; min: number; max: number }>).map(({ key, label, value, set, min, max }) => (
+                    <div
+                      key={key}
+                      className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 flex flex-col items-center gap-1.5"
+                    >
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{key}</div>
                       <input
                         type="number"
                         value={value}
                         min={min}
                         max={max}
                         onChange={(e) => set(parseInt(e.target.value, 10))}
-                        className="flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full text-center text-lg font-mono font-bold text-slate-800 bg-transparent border-none outline-none focus:bg-white focus:rounded-lg p-0"
+                        style={{ appearance: "textfield" }}
                       />
-                      <span className="text-xs text-slate-400 flex-shrink-0">mm</span>
+                      <div className="text-[10px] text-slate-400">{label} · mm</div>
                     </div>
                   ))}
                 </div>
@@ -330,35 +349,50 @@ export default function App() {
               {/* Module params */}
               {MODULE_PARAM_META[module] && MODULE_PARAM_META[module]!.length > 0 && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Parametri</div>
-                  <div className="space-y-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">Parametri</div>
+                  <div className="space-y-3.5">
                     {MODULE_PARAM_META[module]!
                       .filter((meta) => !meta.visibleWhen || meta.visibleWhen(editParams))
                       .map((meta) => (
-                        <div key={meta.key} className="flex items-center gap-2">
-                          <span className="text-xs text-slate-500 w-20 flex-shrink-0 leading-tight">{meta.label}</span>
+                        <div key={meta.key}>
+                          <div className="text-xs font-medium text-slate-500 mb-1.5">{meta.label}</div>
                           {meta.type === "select" && meta.options ? (
-                            <select
-                              value={editParams[meta.key] ?? MODULE_PARAM_DEFAULTS[module][meta.key] ?? 0}
-                              onChange={(e) => setEditParams(p => ({ ...p, [meta.key]: parseInt(e.target.value, 10) }))}
-                              className="flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-                            >
-                              {meta.options.map((opt) => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                              ))}
-                            </select>
+                            /* Chip selector */
+                            <div className="flex flex-wrap gap-1.5">
+                              {meta.options.map((opt) => {
+                                const isActive = (editParams[meta.key] ?? MODULE_PARAM_DEFAULTS[module][meta.key] ?? 0) === opt.value;
+                                return (
+                                  <button
+                                    key={opt.value}
+                                    onClick={() => setEditParams(p => ({ ...p, [meta.key]: opt.value }))}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                    style={isActive ? {
+                                      background: "#1e40af",
+                                      color: "#fff",
+                                      boxShadow: "0 2px 8px rgba(30,64,175,0.35)",
+                                    } : {
+                                      background: "#f1f5f9",
+                                      color: "#475569",
+                                    }}
+                                  >
+                                    {opt.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           ) : (
-                            <div className="flex items-center gap-1 flex-1">
+                            /* Stepper */
+                            <div className="flex items-center gap-0">
                               <button
                                 onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.max(meta.min ?? 1, ((p[meta.key] ?? meta.min ?? 1) as number) - 1) }))}
-                                className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors font-bold"
+                                className="w-9 h-9 flex items-center justify-center rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors font-bold text-base"
                               >−</button>
-                              <span className="w-8 text-center text-sm font-mono font-semibold text-slate-800">
+                              <div className="h-9 px-5 flex items-center justify-center border-y border-slate-200 bg-white text-slate-800 font-mono font-bold text-base min-w-[3rem] text-center">
                                 {editParams[meta.key] ?? meta.min ?? 1}
-                              </span>
+                              </div>
                               <button
                                 onClick={() => setEditParams(p => ({ ...p, [meta.key]: Math.min(meta.max ?? 99, ((p[meta.key] ?? meta.min ?? 1) as number) + 1) }))}
-                                className="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors font-bold"
+                                className="w-9 h-9 flex items-center justify-center rounded-r-xl border border-l-0 border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors font-bold text-base"
                               >+</button>
                             </div>
                           )}
@@ -370,15 +404,18 @@ export default function App() {
             </div>
 
             {/* Footer */}
-            <div className="flex gap-2 px-5 py-3.5 border-t border-slate-100 bg-slate-50">
+            <div className="bg-white border-t border-slate-100 px-6 py-4 flex gap-2.5">
               <button
                 onClick={() => setShowEditPopup(false)}
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-100 transition-colors"
+                className="flex-none px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all"
               >Odustani</button>
               <button
                 onClick={applyEdit}
-                className="flex-1 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-              >Primijeni</button>
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+                style={{ background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)", boxShadow: "0 4px 12px rgba(37,99,235,0.4)" }}
+              >
+                Primijeni promjene
+              </button>
             </div>
           </div>
         </div>
